@@ -31,8 +31,7 @@ wire  [3:0] PERIOD_ctrl;
 wire  [3:0] OTS_ctrl;
 wire  [7:0] RATIO;
 
-wire        NIRS_EN = 1'b1;
-wire        CLK_GATED_BYPASS;
+
 wire        RESET;
 wire        ILED_SW;
 wire        IIN_SW;
@@ -46,7 +45,7 @@ wire        IREF_FINE;
 assign PERIOD_ctrl          = spi_nirs_if.NIRS_CTRL[0][7:4];
 assign OTS_ctrl             = spi_nirs_if.NIRS_CTRL[0][3:0];
 assign RATIO                = spi_nirs_if.NIRS_CTRL[1];
-assign THRESHOLD_H          = {spi_nirs_if.NIRS_CTRL[2][5:0], spi_nirs_if.NIRS_CTRL[2], spi_nirs_if.NIRS_CTRL[3], spi_nirs_if.NIRS_CTRL[4][7:3]};
+assign THRESHOLD_H          = {spi_nirs_if.NIRS_CTRL[2][5:0], spi_nirs_if.NIRS_CTRL[3], spi_nirs_if.NIRS_CTRL[4][7:3]};
 assign THRESHOLD_L          = {spi_nirs_if.NIRS_CTRL[4][2:0], spi_nirs_if.NIRS_CTRL[5], spi_nirs_if.NIRS_CTRL[6]};
 assign spi_nirs_if.NIRS_DOUT[0] = DOUT[18:11];
 assign spi_nirs_if.NIRS_DOUT[1] = DOUT[10:3];
@@ -86,7 +85,7 @@ nirs_ppg_ctrl_top u_nirs_ctrl_top (
   .PERIOD_ctrl    (PERIOD_ctrl),
   .OTS_ctrl       (OTS_ctrl),
   .RESET          (RESET),
-  //.ILED_SW        (ILED_SW),
+  .ILED_SW        (ILED_SW),
   .IIN_SW         (IIN_SW)
 );
 

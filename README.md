@@ -2016,16 +2016,16 @@ ON_TIME_SEL<3:0> 	Duration 	Unit
 3 	4 	us 
 4 	5 	us 
 5 	6 	us 
-6 	7 	us 
-7 	8 	us 
-8 	9 	us 
-9 	10 	us 
-10 	12 	us 
-11 	14 	us 
-12 	16 	us 
-13 	18 	us 
-14 	20 	us 
-15 	25 	us 
+6 	8 	us 
+7 	9 	us 
+8 	10 	us 
+9 	12 	us 
+10 	14 	us 
+11 	16 	us 
+12 	18 	us 
+13 	20 	us 
+14 	25 	us 
+15 	30 	us 
 Table 12.1.3.1 
 
 Period<3:0> 	Duration 	Unit 
@@ -4046,14 +4046,14 @@ Bit
 Field Name	Attribute
 Default	Field Description
 7:0
-THRESHOLD_H[15:8]	R/W
+THRESHOLD_L[15:8]	R/W
 00h
 Low threshold for the IDAC auto cancellation
 NIRS_CTRL_6: 0xC6 (Normal register)
 Bit
 Field Name	Attribute	Default	Field Description
 7:0
-THRESHOLD_H[7:0]	R/W
+THRESHOLD_L[7:0]	R/W
 00h	Low threshold for the IDAC auto cancellation
 
 NIRS_DOUT_0 0xC7 (Normal register)
@@ -4092,7 +4092,7 @@ Attribute
 Default
 Field Description
 7:0
-DOUF[7:0]	RO	00h
+DOUTF[7:0]	RO	00h
 Output of counter of fine quantization phase
 NIRS_DOUT_4 0xCB (Normal register)
 Bit	Field Name
