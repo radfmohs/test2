@@ -1,0 +1,1 @@
+../data/atpg_patterns_postscan_pteco_dct/test_pattern_seri.v

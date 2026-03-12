@@ -1,0 +1,1 @@
+../data/atpg_patterns_postlayout_dct/test_pattern_seri.v
