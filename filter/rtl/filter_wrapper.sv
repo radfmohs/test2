@@ -41,9 +41,9 @@ input wire         int_length_slct,
 input wire [1:0]   eeg_int_en,
 input wire         eeg_int_clr,
 input wire [15:0]  cic_data_ignore_tar,
-input wire [23:0]  hpf_coeff_data, 
-input wire [17:0]  lpf_coeff_data [31:0],
-input wire [19:0]  notch_coeff_data[41:0],
+input wire        [23:0]  hpf_coeff_data,
+input wire signed [17:0]  lpf_coeff_data   [31:0],
+input wire signed [19:0]  notch_coeff_data [41:0],
 
 
 input wire [CHN_NUM-1:0] notch_filter_bypass,
@@ -407,10 +407,17 @@ endgenerate
 //
 //    end
 //    3'b010 : begin //L-N-H
-assign    filter5           = imeas_chdata_in;
-assign    filter3           = filter6;
-assign    filter1           = filter4;
-assign    imeas_chdata_out_temp  = filter2;
+// Fixed filter order: LPF → Notch → HPF
+// Per-channel routing using generate to avoid unsupported array-to-array assign
+genvar k;
+generate
+  for (k=0; k<CHN_NUM; k=k+1) begin : ROUTING
+    assign filter5[k]               = imeas_chdata_in[k];
+    assign filter3[k]               = filter6[k];
+    assign filter1[k]               = filter4[k];
+    assign imeas_chdata_out_temp[k] = filter2[k];
+  end
+endgenerate
 //    end
 //    3'b011 : begin //L-H-N
 //    filter5           = imeas_chdata_in;
