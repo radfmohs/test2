@@ -90,7 +90,7 @@ class `TESTNAME extends soc_base_test;
   endtask: main_phase 
 
   virtual task do_run;
-    logic [10:0] temp_data;      
+    logic [`GPIO_NUM-1:0] temp_data;      
     begin
     `DUT_IF.iopad_gpio[`GPIO_NUM-1:0] = 0;        
     force `SOC_TB.iopad_resetn = 1'b0;
@@ -109,7 +109,11 @@ class `TESTNAME extends soc_base_test;
 
         #1000ns;
 `ifndef BEHAVIORAL
-            temp_data = {`SOC_TOP.u_iopad_gpio_10_.PDRV0,
+            temp_data = {`SOC_TOP.u_iopad_gpio_14_.PDRV0,
+		`SOC_TOP.u_iopad_gpio_13_.PDRV0,
+	    	`SOC_TOP.u_iopad_gpio_12_.PDRV0,
+		`SOC_TOP.u_iopad_gpio_11_.PDRV0,
+		`SOC_TOP.u_iopad_gpio_10_.PDRV0,
                 `SOC_TOP.u_iopad_gpio_9_.PDRV0,
                 `SOC_TOP.u_iopad_gpio_8_.PDRV0,
                 `SOC_TOP.u_iopad_gpio_7_.PDRV0,
@@ -121,7 +125,11 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.PDRV0,
                 `SOC_TOP.u_iopad_gpio_0_.PDRV0};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[10].PDRV0,
+            temp_data = {`SOC_TOP.u_iopad_gpio[14].PDRV0,
+		`SOC_TOP.u_iopad_gpio[13].PDRV0,
+	        `SOC_TOP.u_iopad_gpio[12].PDRV0,
+	        `SOC_TOP.u_iopad_gpio[11].PDRV0,
+	        `SOC_TOP.u_iopad_gpio[10].PDRV0,	
                 `SOC_TOP.u_iopad_gpio[9].PDRV0,
                 `SOC_TOP.u_iopad_gpio[8].PDRV0,
                 `SOC_TOP.u_iopad_gpio[7].PDRV0,

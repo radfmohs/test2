@@ -20,7 +20,7 @@ nnc_bistm_vip u_eprom_bist_master (
 	.TCK(TCK),                     //input to bist design      	       
 	.RESETb(RESETb),               //input to bist design
 	.TESTEN(TESTEN),               //input to bist design
-	.STROBE(STROBE),                     //input to bist design
+	.STROBE(STROBE),               //input to bist design
 	.TDI(TDI),                     //input to bist design
         .VPP(VPP_BIST),
         .TESTMODE_SEL(dut_vif.testmode_sel),

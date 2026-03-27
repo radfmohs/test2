@@ -258,7 +258,7 @@ class `TESTNAME extends soc_base_test;
     // ------------------------------------------------------------------------------- 
     // -------------------------------------------------------------------------------
     //wait for OTP_VPP_EN=0 
-    wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);  //@(negedge soc_top_tb.IOBUF_PAD[8]); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
+    wait(`SOC_TB.VPP_EN === 1'b0);  //@(negedge `SOC_TB.VPP_EN); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
 
     //wait for sometimeb before power off the chip
     #50us;
@@ -365,7 +365,7 @@ class `TESTNAME extends soc_base_test;
     // ------------------------------------------------------------------------------- 
     // -------------------------------------------------------------------------------
     ////wait for OTP_VPP_EN=0 
-    //wait(soc_top_tb.IOBUF_PAD[8] === 1'b0); //@(negedge soc_top_tb.IOBUF_PAD[8]);
+    //wait(`SOC_TB.VPP_EN === 1'b0); //@(negedge `SOC_TB.VPP_EN);
 
     ////wait for sometime before power off the chip
     //#1ms;
@@ -485,7 +485,7 @@ class `TESTNAME extends soc_base_test;
     // ------------------------------------------------------------------------------- 
     // -------------------------------------------------------------------------------
     ////wait for OTP_VPP_EN=0 
-    //wait(soc_top_tb.IOBUF_PAD[8] === 1'b0); //@(negedge soc_top_tb.IOBUF_PAD[8]);
+    //wait(`SOC_TB.VPP_EN === 1'b0); //@(negedge `SOC_TB.VPP_EN);
 
     ////wait for sometime before power off the chip
     #1ms;

@@ -95,7 +95,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                              (imeas_samp_rate inside {[500:512]})     ->  notch_coeff_index_select == 2 ;  
                                              (imeas_samp_rate inside {[1000:1024]})   ->  notch_coeff_index_select == 3 ;  
                                              (imeas_samp_rate inside {[2000:2048]})   ->  notch_coeff_index_select == 4 ;  
-                                             (imeas_samp_rate inside {[4062:4096]})   ->  notch_coeff_index_select == 5 ;  
+                                             (imeas_samp_rate inside {[4000:4096]})   ->  notch_coeff_index_select == 5 ;  
                                              (imeas_samp_rate inside {[8125:8192]})   ->  notch_coeff_index_select == 6 ;  
                                              (imeas_samp_rate inside {[16350:16384]}) -> notch_coeff_index_select == 7 ;  
                                              (imeas_samp_rate inside {[32750:32768]}) -> notch_coeff_index_select == 8 ;  

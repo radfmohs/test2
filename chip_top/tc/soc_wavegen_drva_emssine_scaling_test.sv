@@ -207,7 +207,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     assert(top_test_cfg.randomize() with {half_period > top_test_cfg.half_period_limit;});
     //wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
     wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period, 0); //no negative side for this testcase
-    for(int i = 0; i < `WAVEGEN_NUM_OF_DRIVERS; i++) begin
+    for(int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
     `DUT_IF.wg_hlf_wave0_lim[i] = top_test_cfg.hlf_wave_lim / 64;
     `DUT_IF.wg_neg_hlf_wave0_lim[i] = top_test_cfg.neg_hlf_wave_lim / 64;
     `DUT_IF.wg_rest_wave0_lim[i] = top_test_cfg.rest_lim;
@@ -360,7 +360,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h02;});
     `nnc_info("SOC_TEST", "Set negative scale value", NNC_LOW)
-     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_POS_SCALE_REG0 (By default it is 1)
@@ -492,6 +492,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     				assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + (`WAVEGEN_1_ADDR_BASE * `DUT_IF.wg_drv_sel)); wr_data[0] == {scale_up_down, scale_val};});
     				`nnc_info("SOC_TEST", "Set NEG Scale value", NNC_LOW)
     				`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
 				// --------------------------------------------------------
     				// Write to ADDR_WG_DRV_POS_SCALE_REG0 (By default it is 1)
     				// --------------------------------------------------------

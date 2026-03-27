@@ -26,7 +26,8 @@ class `TESTCFG extends soc_base_test_cfg;
 
   //rand logic [7:0] expected_data;
   //logic [7:0]      rd_data[];
-
+    rand logic [7:0]      wg_glb_reg;
+    rand logic [7:0] pads;
   // -----------------------------------------------
   // End of decalration of new variables 
   // ===============================================
@@ -45,6 +46,7 @@ class `TESTCFG extends soc_base_test_cfg;
 
   // spimode_sel[1:0] :  
   // constraint c_spimode_sel { spimode_sel == 2'b00; }
+    constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -85,12 +87,12 @@ class `TESTNAME extends soc_base_test;
 
     super.pre_reset_phase(phase);
 
-    //assert(top_test_cfg.randomize());
+    assert(top_test_cfg.randomize());
 
     // Assign your settings to DUT Interface   
     // `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
     // `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
-
+    `DUT_IF.DRIVE_SLCT = top_test_cfg.wg_glb_reg[2:1];
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -114,6 +116,7 @@ class `TESTNAME extends soc_base_test;
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
     `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG, 8'hFF, 8'h00);
+    `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, top_test_cfg.wg_glb_reg, 8'h00);
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
@@ -137,6 +140,21 @@ class `TESTNAME extends soc_base_test;
 
      phase.drop_objection(this);
   endtask
+
+//  task wavegen_drv_enable;
+//  begin
+//    `nnc_info("SOC_TEST", $sformatf("enabling chip_0 wavegen sb now"), NNC_LOW)
+//    `WAVEGEN_SCB_DRV_0_EN = 1'b1;
+//    `WAVEGEN_SCB_DRV_1_EN = 1'b1;
+//    // --------------------------------------------------------
+//    // Write to SOC_WAVEGEN_GLOBAL_REG to sync drivers
+//    // --------------------------------------------------------
+//    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h01;});
+//    `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+//    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+//  end
+//  endtask
+
 
   // ------------------------------
   // Declare the report_phase task

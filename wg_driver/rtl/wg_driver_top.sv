@@ -44,7 +44,7 @@ parameter ADDR_WIDTH = 12,
   output wire  [7:0] in_wave_addr[ELEC_NO-1:0], //
   output wire  [7:0] ems_wave_addr[ELEC_NO-1:0], //
   output wire  [1:0] w_source[ELEC_NO-1:0],
-  output reg  [1:0] o_sw[ELEC_NO-1:0],
+  output reg   o_sw[ELEC_NO-1:0],
 //  output wire [7:0] hlf_wave_cnt[ELEC_NO-1:0],
   output wire [1:0] period_num[ELEC_NO-1:0],
 
@@ -254,13 +254,26 @@ for (gidx=1; gidx < ELEC_NO; gidx++) begin
 end
 endgenerate
 
+//generate
+//for (gidx=0; gidx < ELEC_NO; gidx++) begin //8 switches
+//	always_comb begin
+//		o_sw[gidx] = 2'b00;
+//		for (integer idxi = 0; idxi < ELEC_NO; idxi = idxi+1) begin
+//			if (w_sw_config_reg[idxi][gidx] == 1'b1) begin
+//				o_sw[gidx] = (w_source[idxi]==2'b00)?2'b00:(2'b11-w_source[idxi]);//if source a (1) is on, turn on switch b (2), if source b (2) is on, turn on switch a (1), if no sources are on (0), no switches are on (0)
+//			end
+//		end
+//	end
+//end
+//endgenerate
+
 generate
 for (gidx=0; gidx < ELEC_NO; gidx++) begin //8 switches
 	always_comb begin
-		o_sw[gidx] = 2'b00;
+		o_sw[gidx] = 1'b0;
 		for (integer idxi = 0; idxi < ELEC_NO; idxi = idxi+1) begin
 			if (w_sw_config_reg[idxi][gidx] == 1'b1) begin
-				o_sw[gidx] = (w_source[idxi]==2'b00)?2'b00:(2'b11-w_source[idxi]);//if source a (1) is on, turn on switch b (2), if source b (2) is on, turn on switch a (1), if no sources are on (0), no switches are on (0)
+				o_sw[gidx] = (w_source[idxi]==2'b00)?1'b0:(w_source[idxi] ~^ w_source[idxi]);//if source a (1) is on, turn on switch b (2), if source b (2) is on, turn on switch a (1), if no sources are on (0), no switches are on (0)
 			end
 		end
 	end

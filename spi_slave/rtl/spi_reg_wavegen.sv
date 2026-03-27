@@ -73,8 +73,8 @@
 `define ADDR_WG_DRV_ALT_LIM_REG02		10'h2F
 `define ADDR_WG_DRV_ALT_SILENT_LIM_REG01        10'h30
 `define ADDR_WG_DRV_ALT_SILENT_LIM_REG02	10'h31
-`define ADDR_WG_DRV_ALT_REST_LIM_REG01          8'h32
-`define ADDR_WG_DRV_ALT_REST_LIM_REG02	        8'h33
+`define ADDR_WG_DRV_ALT_REST_LIM_REG01          10'h32
+`define ADDR_WG_DRV_ALT_REST_LIM_REG02	        10'h33
 //manual mode
 `define DRIVE_REG_CTRL0		                10'h34
 `define DRIVE_REG_CTRL1			        10'h35
@@ -97,10 +97,6 @@
 `define AWG_DRIVEC_SW_CFG0                      10'h3E
 `define AWG_DRIVEC_SW_CFG1                      10'h3F
 
-
-
-
-
 module spi_reg_wavegen #(
 	parameter ADDR_WIDTH =8,
 	parameter DATA_WIDTH =8, 
@@ -108,91 +104,85 @@ module spi_reg_wavegen #(
 	parameter NO_OF_WAVEGEN =8,
 	parameter OUT_NO_BITS = 8)
 (
-  input wire                i_clk,
-  input wire                i_rst_n,
-  input wire                i_wr,
-  input wire                i_rd,
+  input wire                  i_clk,
+  input wire                  i_rst_n,
+  input wire                  i_wr,
+  input wire                  i_rd,
   input wire [ADDR_WIDTH-1:0] i_addr,
   input wire [DATA_WIDTH-1:0] i_wr_data,	
 	
 
 //inputs from ctrl block
-  input  wire [7:0]  i_wg_driver_in_wave_addr,
-  input  wire [7:0]  i_wg_driver_ems_wave_addr,
-  input  wire [1:0]  i_wg_driver_source, //which source is active?
- // input  wire [7:0]  i_hlf_wave_cnt, 
-  input  wire [1:0]  i_period_num,   
+  input  wire [7:0]           i_wg_driver_in_wave_addr,
+  input  wire [7:0]           i_wg_driver_ems_wave_addr,
+  input  wire [1:0]           i_wg_driver_source, //which source is active?
+//input  wire [7:0]           i_hlf_wave_cnt, 
+  input  wire [1:0]           i_period_num,   
 //outputs to ctrl block
-  output  wire	                o_wg_driver_en,              // wg_driver enable
-  output  wire [4:0]        	o_period_sel,
-  output  wire [2:0]        	w_isel,
-  //output  wire	                o_wg_drivera_en,              // wg_driver enable
-//  output  wire	                o_wg_driverc_en,              // wg_driver enable
-  output  wire [7:0]        	o_config_reg, 
-  output  wire [15:0]        	o_wg_driver_rest_t, 
-  output  wire [31:0]        	o_wg_driver_silent_t, 
-  output  wire [15:0]        	o_wg_driver_rest_t1, 
-  output  wire [31:0]        	o_wg_driver_silent_t1,
-  output  wire [15:0]        	o_wg_driver_rest_t2, 
-  output  wire [31:0]        	o_wg_driver_silent_t2,
-  output  wire [15:0]        	o_wg_driver_hlf_wave_prd, 
-  output  wire [15:0]        	o_wg_driver_neg_hlf_wave_prd, 
-  output  wire [15:0]        	o_wg_driver_hlf_wave_prd1, 
-  output  wire [15:0]        	o_wg_driver_neg_hlf_wave_prd1,
-  output  wire [15:0]        	o_wg_driver_hlf_wave_prd2, 
-  output  wire [15:0]        	o_wg_driver_neg_hlf_wave_prd2,
-  output  wire [7:0]        	o_reg_wg_driver_point_config,
-  output  wire [15:0]        	o_wg_driver_alter_lim, 
-  output  wire [15:0]        	o_wg_driver_alter_silent_lim, 
-  output  wire [15:0]        	o_wg_driver_alter_rest_lim,
-  output  wire [15:0]        	o_wg_driver_delay_lim, 
- // output  wire [2:0]        	o_wg_driver_isel, 
-  output  wire [7:0]        	o_pullba_ctrl,
-  output  wire [17:0]        	o_dirve,
+  output  wire	              o_wg_driver_en,              // wg_driver enable
+  output  wire [4:0]          o_period_sel,
+  output  wire                w_isel,
+//output  wire	              o_wg_drivera_en,              // wg_driver enable
+//output  wire	              o_wg_driverc_en,              // wg_driver enable
+  output  wire [7:0]          o_config_reg, 
+  output  wire [15:0]         o_wg_driver_rest_t, 
+  output  wire [31:0]         o_wg_driver_silent_t, 
+  output  wire [15:0]         o_wg_driver_rest_t1, 
+  output  wire [31:0]         o_wg_driver_silent_t1,
+  output  wire [15:0]         o_wg_driver_rest_t2, 
+  output  wire [31:0]         o_wg_driver_silent_t2,
+  output  wire [15:0]         o_wg_driver_hlf_wave_prd, 
+  output  wire [15:0]         o_wg_driver_neg_hlf_wave_prd, 
+  output  wire [15:0]         o_wg_driver_hlf_wave_prd1, 
+  output  wire [15:0]         o_wg_driver_neg_hlf_wave_prd1,
+  output  wire [15:0]         o_wg_driver_hlf_wave_prd2, 
+  output  wire [15:0]         o_wg_driver_neg_hlf_wave_prd2,
+  output  wire [7:0]          o_reg_wg_driver_point_config,
+  output  wire [15:0]         o_wg_driver_alter_lim, 
+  output  wire [15:0]         o_wg_driver_alter_silent_lim, 
+  output  wire [15:0]         o_wg_driver_alter_rest_lim,
+  output  wire [15:0]         o_wg_driver_delay_lim, 
+//output  wire [2:0]          o_wg_driver_isel, 
+  output  wire [7:0]          o_pullba_ctrl,
+  output  wire [17:0]         o_dirve,
 
-  output  wire [7:0]        	o_reg_wg_cal_addr,
+  output  wire [7:0]          o_reg_wg_cal_addr,
 
-  output  wire [3:0]        	o_data_scl,
-  output  wire [5:0]        	o_ems_data_ctrl,
-  output  wire [7:0]        	o_reg_wg_driver_neg_scale,
-  output  wire [7:0]            o_wg_driver_pos_scale,
-  output  wire [7:0]        	o_reg_wg_driver_neg_offset,
-  output  wire [7:0]            o_reg_wg_driver_pos_offset,
-  output  reg [7:0]             alt_ems_cnt_tar,
-  output  wire [15:0]        	o_wg_driver_sw_config,
-  input  wire [3:0]        	data_scl,
-  input  wire [3:0]        	ems_data_ctrl,
-  input  wire [7:0]        	wg_driver_neg_scale,
-  input  wire [7:0]        	wg_driver_pos_scale,
-  input  wire [7:0]        	wg_driver_neg_offset,
-  input  wire [7:0]        	wg_driver_pos_offset,
+  output  wire [3:0]          o_data_scl,
+  output  wire [5:0]          o_ems_data_ctrl,
+  output  wire [7:0]          o_reg_wg_driver_neg_scale,
+  output  wire [7:0]          o_wg_driver_pos_scale,
+  output  wire [7:0]          o_reg_wg_driver_neg_offset,
+  output  wire [7:0]          o_reg_wg_driver_pos_offset,
+  output  reg [7:0]           alt_ems_cnt_tar,
+  output  wire [15:0]         o_wg_driver_sw_config,
+  input  wire [3:0]           data_scl,
+  input  wire [3:0]           ems_data_ctrl,
+  input  wire [7:0]           wg_driver_neg_scale,
+  input  wire [7:0]           wg_driver_pos_scale,
+  input  wire [7:0]           wg_driver_neg_offset,
+  input  wire [7:0]           wg_driver_pos_offset,
 
-//  output  wire [7:0]       	o_wg_driver_sw_config, 
-  //output  wire [7:0]        	o_wg_driver_clk_freq, 
-  output  wire  		o_mult_elec, //allow multiple electrodes to be active at the same time
-  output  wire [11:0]        o_wg_driver_in_wave,
-//  output  wire [7:0]        		o_wg_driver_elec_no, 
-  output  wire [7:0]                    o_rd_data, 
-  output wire  [7:0]                 o_wg_driver_int_addr0,
-  output wire  [7:0]                 o_wg_driver_int_addr1,
-  output wire                        o_wg_driver_int_en,   
-  output reg                        o_addr0_int_clr,      
-  output reg                        o_addr1_int_clr,      
-  output reg                        o_no_of_num_slient_disable,
-  output reg  [15:0]                 o_no_of_num_slient_tar,            
-  output wire  [7:0]                 o_wg_driver_int_cnt,
-  input  wire                        int_clear_type,
-  input  wire                        i_rd_normal,
-  input  wire  [1:0]                 i_wg_driver_int_sts  
+//output  wire [7:0]          o_wg_driver_sw_config, 
+//output  wire [7:0]          o_wg_driver_clk_freq, 
+  output  wire  	      o_mult_elec, //allow multiple electrodes to be active at the same time
+  output  wire [11:0]         o_wg_driver_in_wave,
+//output  wire [7:0]          o_wg_driver_elec_no, 
+  output  wire [7:0]          o_rd_data, 
+  output wire  [7:0]          o_wg_driver_int_addr0,
+  output wire  [7:0]          o_wg_driver_int_addr1,
+  output wire                 o_wg_driver_int_en,   
+  output reg                  o_addr0_int_clr,      
+  output reg                  o_addr1_int_clr,      
+  output reg                  o_no_of_num_slient_disable,
+  output reg  [15:0]          o_no_of_num_slient_tar,            
+  output wire  [7:0]          o_wg_driver_int_cnt,
+  input  wire                 int_clear_type,
+  input  wire                 i_rd_normal,
+  input  wire  [1:0]          i_wg_driver_int_sts  
 
-
-  
-//  output   wire               o_wg_driver_interrupt
-
-
+//output   wire               o_wg_driver_interrupt
 );
-
-
 
 //WG_DRV_CONFIG_REG
 reg [7:0]   reg_wg_driver_config;
@@ -291,7 +281,7 @@ wire        reg_wg_driver_point_config_wr;
 //wire        reg_wg_driver_clk_freq_wr0;
 
 //ADDR_WG_DRV_IN_WAVE_ADDR_REG
-reg [7:0]  reg_wg_driver_in_wave_addr;
+reg [7:0]   reg_wg_driver_in_wave_addr;
 wire        reg_wg_driver_in_wave_addr_wr0;
 
 //ADDR_WG_DRV_IN_WAVE_REG
@@ -314,20 +304,20 @@ wire        reg_wg_driver_delay_lim_wr0;
 wire        reg_wg_driver_delay_lim_wr1;
 
 //ADDR_WG_DRV_NEG_SCALE_REG
-reg [7:0]  reg_wg_driver_neg_scale;
+reg [7:0]   reg_wg_driver_neg_scale;
 wire        reg_wg_driver_neg_scale_wr0;
 
 //ADDR_WG_DRV_NEG_OFFSET_REG
-reg [7:0]  reg_wg_driver_neg_offset;
+reg [7:0]   reg_wg_driver_neg_offset;
 wire        reg_wg_driver_neg_offset_wr0;
 
 //ADDR_WG_DRV_ISEL_REG
-reg [7:0]  reg_wg_driver_isel;
+reg [7:0]   reg_wg_driver_isel;
 wire        reg_wg_driver_isel_wr0;
 
 //ADDR_WG_DRV_SW_CONFIG_REG
-reg [7:0]  reg_wg_driver_pos_offset;
-wire       reg_wg_driver_pos_offset_wr0;
+reg [7:0]   reg_wg_driver_pos_offset;
+wire        reg_wg_driver_pos_offset_wr0;
 //wire [7:0] wg_driver_pos_scale;
 //ADDR_WG_DRV_INT_REG 			
 reg [31:0]  reg_wg_driver_int;
@@ -349,8 +339,8 @@ wire 	    reg_wg_driver_int_sts_rd0;
 //reg [1:0]   reg_wg_driver_int_sts;
 
 //ADDR_WG_DRV_PULLBA_REG  
-wire 	reg_wg_pullba_wr0;
-reg [7:0]  	reg_wg_pullba;
+wire 	  reg_wg_pullba_wr0;
+reg [7:0] reg_wg_pullba;
 
 reg [7:0] drive_ctrl_reg0;
 reg [7:0] drive_ctrl_reg1;
@@ -361,8 +351,7 @@ reg [7:0] drive_ctrl_reg2;
 //-----------------------------------------------
 //ADDR_WG_DRV_CONFIG_REG 
 //-----------------------------------------------
-
- assign reg_wg_driver_config_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_CONFIG_REG0+10'h40 * NO_OF_WAVEGEN));
+assign reg_wg_driver_config_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_CONFIG_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to wg_driver_config_reg
 always @(posedge i_clk or negedge i_rst_n) begin
@@ -380,7 +369,6 @@ assign o_mult_elec = reg_wg_driver_config[6];//allow multiple electrodes to be a
 //-----------------------------------------------
 //ADDR_WG_DRV_CTRL_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_ctrl_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_CTRL_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -422,7 +410,6 @@ assign o_wg_driver_rest_t      = reg_wg_driver_rest_t;
 //-----------------------------------------------
 //ADDR_WG_DRV_SILENT_CLK_REG
 //-----------------------------------------------
-
 assign reg_wg_driver_silent_t_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK_REG02+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -448,7 +435,6 @@ assign o_wg_driver_silent_t      = reg_wg_driver_silent_t;
 //-----------------------------------------------
 //ADDR_WG_DRV_REST_CLK1_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_rest_t1_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_REST_CLK1_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_rest_t1_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_REST_CLK1_REG02+10'h40 * NO_OF_WAVEGEN));
 
@@ -469,7 +455,6 @@ assign o_wg_driver_rest_t1      = reg_wg_driver_rest_t1;
 //-----------------------------------------------
 //ADDR_WG_DRV_SILENT_CLK1_REG
 //-----------------------------------------------
-
 assign reg_wg_driver_silent_t1_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK1_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t1_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK1_REG02+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t1_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK1_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -496,7 +481,6 @@ assign o_wg_driver_silent_t1      = reg_wg_driver_silent_t1;
 //-----------------------------------------------
 //ADDR_WG_DRV_REST_CLK2_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_rest_t2_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_REST_CLK2_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_rest_t2_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_REST_CLK2_REG02+10'h40 * NO_OF_WAVEGEN));
 
@@ -517,7 +501,6 @@ assign o_wg_driver_rest_t2      = reg_wg_driver_rest_t2;
 //-----------------------------------------------
 //ADDR_WG_DRV_SILENT_CLK2_REG
 //-----------------------------------------------
-
 assign reg_wg_driver_silent_t2_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK2_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t2_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK2_REG02+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_silent_t2_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_SILENT_CLK2_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -543,7 +526,6 @@ assign o_wg_driver_silent_t2      = reg_wg_driver_silent_t2;
 //-----------------------------------------------
 //ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_hlf_wave_prd_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_hlf_wave_prd_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_hlf_wave_prd_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -554,14 +536,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_hlf_wave_prd[7:0]  <= 8'h00;
     reg_wg_driver_hlf_wave_prd[15:8] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd[23:16] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd[31:24] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd[23:16] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_hlf_wave_prd[7:0]  <= reg_wg_driver_hlf_wave_prd_wr0 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[7:0];
     reg_wg_driver_hlf_wave_prd[15:8] <= reg_wg_driver_hlf_wave_prd_wr1 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[15:8];
-//    reg_wg_driver_hlf_wave_prd[23:16] <= reg_wg_driver_hlf_wave_prd_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[23:16];
-//    reg_wg_driver_hlf_wave_prd[31:24] <= reg_wg_driver_hlf_wave_prd_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[31:24];
+//  reg_wg_driver_hlf_wave_prd[23:16] <= reg_wg_driver_hlf_wave_prd_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[23:16];
+//  reg_wg_driver_hlf_wave_prd[31:24] <= reg_wg_driver_hlf_wave_prd_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd[31:24];
  end
 end
 
@@ -570,7 +552,6 @@ assign o_wg_driver_hlf_wave_prd      = reg_wg_driver_hlf_wave_prd;
 //-----------------------------------------------
 //ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_neg_hlf_wave_prd_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_neg_hlf_wave_prd_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_neg_hlf_wave_prd_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -581,24 +562,22 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_neg_hlf_wave_prd[7:0]  <= 8'h00;
     reg_wg_driver_neg_hlf_wave_prd[15:8] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd[23:16] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd[31:24] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd[23:16] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_neg_hlf_wave_prd[7:0]  <= reg_wg_driver_neg_hlf_wave_prd_wr0 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[7:0];
     reg_wg_driver_neg_hlf_wave_prd[15:8] <= reg_wg_driver_neg_hlf_wave_prd_wr1 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[15:8];
-//    reg_wg_driver_neg_hlf_wave_prd[23:16] <= reg_wg_driver_neg_hlf_wave_prd_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[23:16];
-//    reg_wg_driver_neg_hlf_wave_prd[31:24] <= reg_wg_driver_neg_hlf_wave_prd_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[31:24];
+//  reg_wg_driver_neg_hlf_wave_prd[23:16] <= reg_wg_driver_neg_hlf_wave_prd_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[23:16];
+//  reg_wg_driver_neg_hlf_wave_prd[31:24] <= reg_wg_driver_neg_hlf_wave_prd_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd[31:24];
  end
 end
 
 assign o_wg_driver_neg_hlf_wave_prd      = reg_wg_driver_neg_hlf_wave_prd;
 
-
 //-----------------------------------------------
 //ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_hlf_wave_prd1_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_hlf_wave_prd1_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_hlf_wave_prd1_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -609,14 +588,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_hlf_wave_prd1[7:0]  <= 8'h00;
     reg_wg_driver_hlf_wave_prd1[15:8] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd1[23:16] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd1[31:24] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd1[23:16] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd1[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_hlf_wave_prd1[7:0]  <= reg_wg_driver_hlf_wave_prd1_wr0 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[7:0];
     reg_wg_driver_hlf_wave_prd1[15:8] <= reg_wg_driver_hlf_wave_prd1_wr1 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[15:8];
-//    reg_wg_driver_hlf_wave_prd1[23:16] <= reg_wg_driver_hlf_wave_prd1_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[23:16];
-//    reg_wg_driver_hlf_wave_prd1[31:24] <= reg_wg_driver_hlf_wave_prd1_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[31:24];
+//  reg_wg_driver_hlf_wave_prd1[23:16] <= reg_wg_driver_hlf_wave_prd1_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[23:16];
+//  reg_wg_driver_hlf_wave_prd1[31:24] <= reg_wg_driver_hlf_wave_prd1_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd1[31:24];
  end
 end
 
@@ -625,7 +604,6 @@ assign o_wg_driver_hlf_wave_prd1      = reg_wg_driver_hlf_wave_prd1;
 //-----------------------------------------------
 //ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_neg_hlf_wave_prd1_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_neg_hlf_wave_prd1_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_neg_hlf_wave_prd1_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -636,24 +614,22 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_neg_hlf_wave_prd1[7:0]  <= 8'h00;
     reg_wg_driver_neg_hlf_wave_prd1[15:8] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd1[23:16] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd1[31:24] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd1[23:16] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd1[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_neg_hlf_wave_prd1[7:0]  <= reg_wg_driver_neg_hlf_wave_prd1_wr0 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[7:0];
     reg_wg_driver_neg_hlf_wave_prd1[15:8] <= reg_wg_driver_neg_hlf_wave_prd1_wr1 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[15:8];
-//    reg_wg_driver_neg_hlf_wave_prd1[23:16] <= reg_wg_driver_neg_hlf_wave_prd1_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[23:16];
-//    reg_wg_driver_neg_hlf_wave_prd1[31:24] <= reg_wg_driver_neg_hlf_wave_prd1_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[31:24];
+//  reg_wg_driver_neg_hlf_wave_prd1[23:16] <= reg_wg_driver_neg_hlf_wave_prd1_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[23:16];
+//  reg_wg_driver_neg_hlf_wave_prd1[31:24] <= reg_wg_driver_neg_hlf_wave_prd1_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd1[31:24];
  end
 end
 
 assign o_wg_driver_neg_hlf_wave_prd1      = reg_wg_driver_neg_hlf_wave_prd1;
 
-
 //-----------------------------------------------
 //ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_hlf_wave_prd2_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_hlf_wave_prd2_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_hlf_wave_prd2_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -664,14 +640,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_hlf_wave_prd2[7:0]  <= 8'h00;
     reg_wg_driver_hlf_wave_prd2[15:8] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd2[23:16] <= 8'h00;
-//    reg_wg_driver_hlf_wave_prd2[31:24] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd2[23:16] <= 8'h00;
+//  reg_wg_driver_hlf_wave_prd2[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_hlf_wave_prd2[7:0]  <= reg_wg_driver_hlf_wave_prd2_wr0 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[7:0];
     reg_wg_driver_hlf_wave_prd2[15:8] <= reg_wg_driver_hlf_wave_prd2_wr1 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[15:8];
-//    reg_wg_driver_hlf_wave_prd2[23:16] <= reg_wg_driver_hlf_wave_prd2_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[23:16];
-//    reg_wg_driver_hlf_wave_prd2[31:24] <= reg_wg_driver_hlf_wave_prd2_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[31:24];
+//  reg_wg_driver_hlf_wave_prd2[23:16] <= reg_wg_driver_hlf_wave_prd2_wr2 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[23:16];
+//  reg_wg_driver_hlf_wave_prd2[31:24] <= reg_wg_driver_hlf_wave_prd2_wr3 ? i_wr_data[7:0]  : reg_wg_driver_hlf_wave_prd2[31:24];
  end
 end
 
@@ -680,7 +656,6 @@ assign o_wg_driver_hlf_wave_prd2      = reg_wg_driver_hlf_wave_prd2;
 //-----------------------------------------------
 //ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_neg_hlf_wave_prd2_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_neg_hlf_wave_prd2_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG02+10'h40 * NO_OF_WAVEGEN));
 //assign reg_wg_driver_neg_hlf_wave_prd2_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -691,14 +666,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_neg_hlf_wave_prd2[7:0]  <= 8'h00;
     reg_wg_driver_neg_hlf_wave_prd2[15:8] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd2[23:16] <= 8'h00;
-//    reg_wg_driver_neg_hlf_wave_prd2[31:24] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd2[23:16] <= 8'h00;
+//  reg_wg_driver_neg_hlf_wave_prd2[31:24] <= 8'h00;
   end
   else begin
     reg_wg_driver_neg_hlf_wave_prd2[7:0]  <= reg_wg_driver_neg_hlf_wave_prd2_wr0 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[7:0];
     reg_wg_driver_neg_hlf_wave_prd2[15:8] <= reg_wg_driver_neg_hlf_wave_prd2_wr1 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[15:8];
-//    reg_wg_driver_neg_hlf_wave_prd2[23:16] <= reg_wg_driver_neg_hlf_wave_prd2_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[23:16];
-//    reg_wg_driver_neg_hlf_wave_prd2[31:24] <= reg_wg_driver_neg_hlf_wave_prd2_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[31:24];
+//  reg_wg_driver_neg_hlf_wave_prd2[23:16] <= reg_wg_driver_neg_hlf_wave_prd2_wr2 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[23:16];
+//  reg_wg_driver_neg_hlf_wave_prd2[31:24] <= reg_wg_driver_neg_hlf_wave_prd2_wr3 ? i_wr_data[7:0]  : reg_wg_driver_neg_hlf_wave_prd2[31:24];
  end
 end
 
@@ -707,7 +682,6 @@ assign o_wg_driver_neg_hlf_wave_prd2      = reg_wg_driver_neg_hlf_wave_prd2;
 //-----------------------------------------------
 //ADDR_WG_DRV_POINT_CONFIG 
 //-----------------------------------------------
-
 assign reg_wg_driver_point_config_wr = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_POINT_CONFIG+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -797,8 +771,6 @@ assign wave_1st = i_period_num==2'b00;
 assign wave_2nd = i_period_num==2'b01;
 assign wave_3rd = i_period_num==2'b10;
 
-
-
 assign w_in_wave_tmp = (o_period_sel[2:0]==3'b000)? (waveform_preload==2'b00) ?  w_in_wave_tmp_sine  :
 	                                            (waveform_preload==2'b01) ?  w_in_wave_tmp_pluse :
 	                                            (waveform_preload==2'b10) ?  w_in_wave_tmp_triangle : reg_wg_driver_in_wave[wg_driver_in_wave_addr_normal] : 
@@ -851,7 +823,6 @@ assign pos_addr_con = (wg_driver_in_wave_addr_sine <= addr_con)? (point_slt_inde
                                                                  (point_slt_index[2:0]==3'b111)? (8'd63 - wg_driver_in_wave_addr_sine) :        (8'd62 - wg_driver_in_wave_addr_sine*2)
                                                                : 8'h00;
 
-
 assign neg_addr_con = (wg_driver_in_wave_addr_sine <= addr_con)? 8'h00 :
                                                                  (point_slt_index[2:0]==3'b000)? (wg_driver_in_wave_addr_sine*2  - 8'd62) :
                                                                  (point_slt_index[2:0]==3'b001)? (wg_driver_in_wave_addr_sine*4  - 8'd60) :
@@ -882,16 +853,9 @@ assign neg_addr_con1 = (wg_driver_in_wave_addr_triangle <= addr_con)?  8'h00 :
                                                                        (point_slt_index[2:0]==3'b110)? (8'd0) : 
                                                                        (point_slt_index[2:0]==3'b111)? (wg_driver_in_wave_addr_triangle-8'd63) :        (8'd62 - wg_driver_in_wave_addr_triangle*2);
 
-
-
-
-
-
-
 assign w_in_wave_tmp_sine     = (wg_driver_in_wave_addr_sine <= addr_con)? wave_sine_arr[pos_addr_con] : wave_sine_arr[neg_addr_con];
 assign w_in_wave_tmp_pluse    =  wave_pluse_arr;
 assign w_in_wave_tmp_triangle = (wg_driver_in_wave_addr_triangle <= addr_con)? wave_triangle_arr[pos_addr_con1] : wave_triangle_arr[neg_addr_con1];
-
 
 wire [15:0] boot_mul_wave_tmp_neg;
 wire [15:0] boot_mul_wave_tmp_pos;
@@ -911,7 +875,6 @@ assign data_envelope  = (!w_continue & i_wg_driver_int_sts[1]) ? 12'b0 : (i_wg_d
 assign data_carrier = ems_data_ctrl[3]? reg_wg_driver_in_wave[i_wg_driver_ems_wave_addr] : 8'h01;
 assign data_mul_final= data_carrier * data_envelope;
 assign o_wg_driver_in_wave = ems_data_ctrl[3]? data_mul_final >> ems_data_ctrl[2:0] : data_mul_final[11:0];
-
 
 /*
 boot_mul#(.BOOT_MUL(1'b0))
@@ -933,17 +896,14 @@ u_boot_mul_pos(
 );
 */
 
-
-wire [2:0] data_scl_r;
-
-assign o_data_scl   = drive_ctrl_reg2[7:4];
-assign data_scl_r   = (data_scl<=3'b100)? data_scl[2:0] : 3'h0;
+wire [3:0] data_scl_r;
+assign o_data_scl   = (drive_ctrl_reg2[6:4]<=3'b100)? drive_ctrl_reg2[7:4] : {drive_ctrl_reg2[7],3'h0};
+assign data_scl_r   = data_scl;
 
 wire [7:0] w_in_wave_tmp_lp,w_in_wave_tmp_lp1;
 
 assign w_in_wave_tmp_lp = data_scl[3]? w_in_wave_tmp : 8'h00;
 assign w_in_wave_tmp_lp1 = ~data_scl[3]? w_in_wave_tmp : 8'h00;
-
 
 assign boot_mul_wave_tmp_neg = wg_driver_neg_scale[7]? 16'h0000 : !data_scl[3]? ({4'b0,w_in_wave_tmp_lp1,4'b0} >> data_scl_r) : {8'h00,w_in_wave_tmp_lp} * {8'h00,wg_driver_neg_scale};
 assign boot_mul_wave_tmp_pos = wg_driver_pos_scale[7]    ? 16'h0000 : !data_scl[3]? ({4'b0,w_in_wave_tmp_lp1,4'b0} >> data_scl_r) : {8'h00,w_in_wave_tmp_lp} * {8'h00,wg_driver_pos_scale};
@@ -951,7 +911,6 @@ assign boot_mul_wave_tmp_pos = wg_driver_pos_scale[7]    ? 16'h0000 : !data_scl[
 //-----------------------------------------------
 //ADDR_WG_DRV_ALT_LIM_REG		
 //-----------------------------------------------
-
 assign reg_wg_driver_alt_lim_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_ALT_LIM_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_alt_lim_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_ALT_LIM_REG02+10'h40 * NO_OF_WAVEGEN));
 
@@ -972,7 +931,6 @@ assign o_wg_driver_alter_lim      = reg_wg_driver_alt_lim;
 //-----------------------------------------------
 //ADDR_WG_DRV_ALT_SILENT_LIM_REG		
 //-----------------------------------------------
-
 assign reg_wg_driver_alt_silent_lim_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_ALT_SILENT_LIM_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_alt_silent_lim_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_ALT_SILENT_LIM_REG02+10'h40 * NO_OF_WAVEGEN));
 
@@ -990,12 +948,9 @@ end
 
 assign o_wg_driver_alter_silent_lim      = reg_wg_driver_alt_silent_lim;
 
-
-
 //-----------------------------------------------
 //ADDR_WG_DRV_ALT_REST_LIM_REG		
 //-----------------------------------------------
-
 wire reg_wg_driver_alt_rest_lim_wr0,reg_wg_driver_alt_rest_lim_wr1;
 reg [15:0] reg_wg_driver_alt_rest_lim;
 
@@ -1016,18 +971,9 @@ end
 
 assign o_wg_driver_alter_rest_lim      = reg_wg_driver_alt_rest_lim;
 
-
-
-
-
-
-
-
-
 //-----------------------------------------------
 //ADDR_WG_DRV_DELAY_LIM_REG		
 //-----------------------------------------------
-
 assign reg_wg_driver_delay_lim_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_DELAY_LIM_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_delay_lim_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_DELAY_LIM_REG02+10'h40 * NO_OF_WAVEGEN));
 
@@ -1048,7 +994,6 @@ assign o_wg_driver_delay_lim      = reg_wg_driver_delay_lim;
 //-----------------------------------------------
 //ADDR_WG_DRV_NEG_SCALE_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_neg_scale_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_SCALE_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -1066,7 +1011,6 @@ assign o_reg_wg_driver_neg_scale = reg_wg_driver_neg_scale;
 //-----------------------------------------------
 //ADDR_WG_DRV_NEG_OFFSET_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_neg_offset_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_NEG_OFFSET_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -1084,7 +1028,6 @@ assign o_reg_wg_driver_neg_offset = reg_wg_driver_neg_offset;
 //-----------------------------------------------
 //ADDR_WG_DRV_ISEL_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_isel_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_POS_SCALE_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -1100,12 +1043,9 @@ end
 //assign o_wg_driver_isel        =  reg_wg_driver_isel[2:0];
 assign o_wg_driver_pos_scale     = reg_wg_driver_isel;
 
-
-
 //-----------------------------------------------
 //ADDR_WG_DRV_SW_CONFIG_REG 
 //-----------------------------------------------
-
 assign reg_wg_driver_pos_offset_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_POS_OFFSET_REG0+10'h40 * NO_OF_WAVEGEN));
 
 //write to register
@@ -1139,7 +1079,6 @@ assign o_pullba_ctrl = reg_wg_pullba;
 //-----------------------------------------------
 //ADDR_WG_DRV_INT_REG 			
 //-----------------------------------------------
-
 assign reg_wg_driver_int_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_INT_REG01+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_int_wr1 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_INT_REG02+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_int_wr2 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_INT_REG03+10'h40 * NO_OF_WAVEGEN));
@@ -1218,9 +1157,9 @@ always@(posedge i_clk or negedge i_rst_n) begin
   end
   else begin
 	  case (i_addr[ADDR_WIDTH-1:0])
-`DRIVE_REG_CTRL0+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg0   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg0; 
-`DRIVE_REG_CTRL1+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg1   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg1;
-`DRIVE_REG_CTRL2+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg2   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg2;
+            `DRIVE_REG_CTRL0+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg0   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg0; 
+            `DRIVE_REG_CTRL1+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg1   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg1;
+            `DRIVE_REG_CTRL2+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg2   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg2;
      endcase
   end
 end
@@ -1235,15 +1174,12 @@ always@(posedge i_clk or negedge i_rst_n) begin
   end
   else begin
 	  case (i_addr[ADDR_WIDTH-1:0])
-`NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN     :  o_no_of_num_slient_disable  <= i_wr? i_wr_data[0]   : o_no_of_num_slient_disable; 
-`NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[7:0]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
-`NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[15:8]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
-
+            `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN     :  o_no_of_num_slient_disable  <= i_wr? i_wr_data[0]   : o_no_of_num_slient_disable; 
+            `NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[7:0]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
+            `NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[15:8]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
      endcase
   end
 end
-
-
 
 //for the address that scale/offset/MSB_SEL take effect 
 wire       reg_wg_cal_addr_wr;
@@ -1288,19 +1224,18 @@ end
 assign o_ems_data_ctrl = reg_ems_data_ctrl;
 //END
 
-
 /////////////////////////////////////////////
 ////drive C Isel
 ////////////////////////////////////////////
 wire w_isel_addr_wr;
-reg [2:0] w_isel_reg;
+reg  w_isel_reg;
 
 assign w_isel_addr_wr = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`AWG_DRIVEC_ISEL + 10'h40 * NO_OF_WAVEGEN));
 
 //write to register
 always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
-    w_isel_reg  <= 3'b0;
+    w_isel_reg  <= 1'b0;
   end
   else begin
     w_isel_reg  <= w_isel_addr_wr ? i_wr_data[7:0]  : w_isel_reg;
@@ -1308,7 +1243,6 @@ always @(posedge i_clk or negedge i_rst_n) begin
 end
 
 assign w_isel = w_isel_reg;
-
 
 /////////////////////////////////////////////
 ////drive C Isel
@@ -1332,10 +1266,6 @@ always @(posedge i_clk or negedge i_rst_n) begin
 end
 
 assign o_wg_driver_sw_config = sw_config_reg;
-
-
-
-
 
 //int sync for reading
 common_sync_bit   u_int_sync[1:0] (
@@ -1367,13 +1297,13 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `ADDR_WG_DRV_SILENT_CLK_REG04  	    :   reg_rd_data <= reg_wg_driver_silent_t[31:24]; 
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG01     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[7:0];  
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG02     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[15:8];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[23:16];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[31:24];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[23:16];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd[31:24];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG01 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[7:0];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG02 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[15:8];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[23:16];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[31:24];  
-//        `ADDR_WG_DRV_CLK_FREQ_REG0          :   reg_rd_data <= 8'h00;  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[23:16];  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[31:24];  
+//      `ADDR_WG_DRV_CLK_FREQ_REG0          :   reg_rd_data <= 8'h00;  
         `ADDR_WG_DRV_IN_WAVE_ADDR_REG0	    :   reg_rd_data <= reg_wg_driver_in_wave_addr[7:0]; 
         `ADDR_WG_DRV_IN_WAVE_REG01 	    :   reg_rd_data <= reg_wg_driver_in_wave[reg_wg_driver_in_wave_addr]; 
         `ADDR_WG_DRV_INT_NUM_REG02 	    :   reg_rd_data <= o_wg_driver_int_cnt; 
@@ -1387,27 +1317,27 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `ADDR_WG_DRV_DELAY_LIM_REG02	    :   reg_rd_data <= reg_wg_driver_delay_lim[15:8]; 
         `ADDR_WG_DRV_NEG_SCALE_REG0	    :   reg_rd_data <= reg_wg_driver_neg_scale[7:0]; 
         `ADDR_WG_DRV_NEG_OFFSET_REG0	    :   reg_rd_data <= reg_wg_driver_neg_offset[7:0]; 
-        `ADDR_WG_DRV_INT_REG01		    :   reg_rd_data <= {1'b0,reg_wg_driver_int[3],i_wg_driver_int_sts_sync,o_wg_driver_int_en, NO_OF_WAVEGEN[2:0]}; 
+        `ADDR_WG_DRV_INT_REG01		    :   reg_rd_data <= {reg_wg_driver_int[3],i_wg_driver_int_sts_sync,o_wg_driver_int_en, NO_OF_WAVEGEN[3:0]}; 
         `ADDR_WG_DRV_INT_REG02		    :   reg_rd_data <= reg_wg_driver_int[15:8]; 
         `ADDR_WG_DRV_INT_REG03		    :   reg_rd_data <= reg_wg_driver_int[23:16]; 
         `ADDR_WG_DRV_POS_SCALE_REG0    :   reg_rd_data <= reg_wg_driver_isel; 
         `ADDR_WG_DRV_POS_OFFSET_REG0	    :   reg_rd_data <= reg_wg_driver_pos_offset[7:0]; 
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG01     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[7:0];  
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG02     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[15:8];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[23:16];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[31:24];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[23:16];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd1[31:24];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG01 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[7:0];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG02 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[15:8];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[23:16];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[31:24];  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[23:16];  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd1[31:24];  
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG01     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[7:0];  
         `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG02     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[15:8];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[23:16];  
-//        `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[31:24];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG03     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[23:16];  
+//      `ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG04     :   reg_rd_data <= reg_wg_driver_hlf_wave_prd2[31:24];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG01 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[7:0];  
         `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG02 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[15:8];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[23:16];  
-//        `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[31:24];  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG03 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[23:16];  
+//      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd2[31:24];  
         `ADDR_WG_DRV_POINT_CONFIG                :   reg_rd_data <= reg_wg_driver_point_config;
         `ADDR_WG_DRV_REST_CLK1_REG01     	    :   reg_rd_data <= reg_wg_driver_rest_t1[7:0]; 
         `ADDR_WG_DRV_REST_CLK1_REG02     	    :   reg_rd_data <= reg_wg_driver_rest_t1[15:8]; 	
@@ -1430,23 +1360,16 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `NO_OF_NUM_SLIENT_CTR0               :  reg_rd_data  <=  {7'b0,o_no_of_num_slient_disable}; 
         `NO_OF_NUM_SLIENT_TAR0               :  reg_rd_data  <=  o_no_of_num_slient_tar[7:0];
         `NO_OF_NUM_SLIENT_TAR1               :  reg_rd_data  <=  o_no_of_num_slient_tar[15:8];
-        `AWG_DRIVEC_ISEL                     :  reg_rd_data  <=  {5'b0,w_isel_reg};
+        `AWG_DRIVEC_ISEL                     :  reg_rd_data  <=  {7'b0,w_isel_reg};
         `AWG_DRIVEC_SW_CFG0                  :  reg_rd_data  <=  sw_config_reg[7:0];
         `AWG_DRIVEC_SW_CFG1                  :  reg_rd_data  <=  sw_config_reg[15:8];
-
-
-
-
 	default                             :   reg_rd_data <= 8'h00;
       endcase
    end
 end
 
-
 assign o_rd_data = reg_rd_data;
 
-
-
-
 endmodule
+
 

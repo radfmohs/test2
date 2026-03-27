@@ -91,7 +91,7 @@ class `TESTNAME extends soc_base_test;
   endtask: main_phase 
 
   virtual task do_run;
-    logic [10:0] temp_data;  
+    logic [`GPIO_NUM-1:0] temp_data;  
     begin
     `DUT_IF.iopad_gpio[`GPIO_NUM-1:0] = 0;        
     force `SOC_TB.iopad_resetn = 1'b0;
@@ -106,12 +106,16 @@ class `TESTNAME extends soc_base_test;
         //force `DIG_TOP.u_gpio.i_gpio_pd_ctrl[7:0] = $random;
         //force `DIG_TOP.u_gpio.i_gpio_sr_pdrv0_1_ctrl[2:0] = $random;
 
-        top_test_cfg.GPIO_CS = 11'h000;//CS IS 0
+        top_test_cfg.GPIO_CS = {`GPIO_NUM{1'b0}};//CS IS 0
 
         #1000ns;
 
 `ifndef BEHAVIORAL 
-            temp_data = {`SOC_TOP.u_iopad_gpio_10_.CS,
+            temp_data = {`SOC_TOP.u_iopad_gpio_14_.CS,
+		`SOC_TOP.u_iopad_gpio_13_.CS,
+	    	`SOC_TOP.u_iopad_gpio_12_.CS,
+		`SOC_TOP.u_iopad_gpio_11_.CS,
+		`SOC_TOP.u_iopad_gpio_10_.CS,
                 `SOC_TOP.u_iopad_gpio_9_.CS,
                 `SOC_TOP.u_iopad_gpio_8_.CS,
                 `SOC_TOP.u_iopad_gpio_7_.CS,
@@ -123,7 +127,11 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.CS,
                 `SOC_TOP.u_iopad_gpio_0_.CS};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[10].CS,
+            temp_data = {`SOC_TOP.u_iopad_gpio[14].CS,
+		`SOC_TOP.u_iopad_gpio[13].CS,
+	    	`SOC_TOP.u_iopad_gpio[12].CS,
+		`SOC_TOP.u_iopad_gpio[11].CS,
+		`SOC_TOP.u_iopad_gpio[10].CS,
                 `SOC_TOP.u_iopad_gpio[9].CS,
                 `SOC_TOP.u_iopad_gpio[8].CS,
                 `SOC_TOP.u_iopad_gpio[7].CS,

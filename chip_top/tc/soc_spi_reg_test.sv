@@ -212,23 +212,26 @@ class `TESTNAME extends soc_base_test;
       nnc_normal_reg[i] = nnc_register::new($sformatf("reg_%0d",i), addr, default_val, mask_val, access[1:0],0);
     end
   
-    nnc_wavegen_reg = new[`WAVEGEN_DRIVER_OFFSET * (`WAVEGEN_DRIVER_NUM/4)] ;
+    nnc_wavegen_reg = new[`WAVEGEN_DRIVER_OFFSET * (`WAVEGEN_DRIVER_NUM)] ;
     `nnc_info("SOC_TEST", $sformatf("nnc_wavegen_reg size = %0d",nnc_wavegen_reg.size()), NNC_LOW)
    
-    for(int j=0;j < `WAVEGEN_DRIVER_NUM/4 ; j++)begin
-      for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
-        wg_addr = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j)][39:32] ;
-	access = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j)][1:0];
+    for (int j=0; j < `WAVEGEN_DRIVER_NUM; j++) begin
+      for (int i=0 ; i < `WAVEGEN_DRIVER_OFFSET; i++) begin
+        wg_addr  = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j)][39:32] ;
+	access   = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j)][1:0];
         mask_val = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j)][23:16];
 
         default_val =  `DUT_IF.reg_wavegen[i][31:24];
-        if(i == `SOC_ADDR_WG_DRV_INT_REG01)begin
-          default_val =  `INIT_SOC_ADDR_WG_DRV_INT_REG01 + j;
-	  mask_val = 'h1; // bit 0 is accessible for this reg
+        if (i == `SOC_ADDR_WG_DRV_INT_REG01) begin
+          default_val = `INIT_SOC_ADDR_WG_DRV_INT_REG01 + j;
+	  mask_val = 8'h0F; // bit 0 is accessible for this reg
         end
 
-	`nnc_info("SOC_TEST", $sformatf("wg_addr = %0h,default_val = %0d, mask_val = %0d, access = %0d",wg_addr,default_val,mask_val,access), NNC_LOW)
-        nnc_wavegen_reg[i + (`WAVEGEN_DRIVER_OFFSET * j)] = nnc_register::new($sformatf("wavegen_reg_%0d",i + (`WAVEGEN_DRIVER_OFFSET * j)), wg_addr, default_val, mask_val,access,1);
+        //if (j < 4) begin 
+          `nnc_info("SOC_TEST", $sformatf("wg_addr = %0h,default_val = %0d, mask_val = %0d, access = %0d",wg_addr,default_val,mask_val,access), NNC_LOW)
+          nnc_wavegen_reg[i + (`WAVEGEN_DRIVER_OFFSET * j)] = nnc_register::new($sformatf("wavegen_reg_%0d",i + (`WAVEGEN_DRIVER_OFFSET * (j))), wg_addr, default_val, mask_val, access, 1);
+        //end
+
       end
     end
 
@@ -244,11 +247,23 @@ class `TESTNAME extends soc_base_test;
     end
 
     for(int j=0;j < `WAVEGEN_DRIVER_NUM ; j++)begin
-      if (j % 4 == 0) `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00); 
+      if (j % 4 == 0) `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
+
       //for(int i=0 ; i<nnc_wavegen_reg.size();i++)begin
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
+/*
+        if (i == `SOC_ADDR_WG_DRV_INT_REG01) begin
+          wg_addr  = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j%4)][39:32] ;
+          access   = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j%4)][1:0];
+          mask_val = `DUT_IF.reg_wavegen[i+ (`WAVEGEN_DRIVER_OFFSET * j%4)][23:16];
+          default_val = `INIT_SOC_ADDR_WG_DRV_INT_REG01 + j;
+          mask_val = 8'h0F; // bit 0 is accessible for this reg
+          `nnc_info("SOC_TEST", $sformatf("wg_addr = %0h,default_val = %0d, mask_val = %0d, access = %0d",wg_addr,default_val,mask_val,access), NNC_LOW)
+          nnc_wavegen_reg[i + (`WAVEGEN_DRIVER_OFFSET * (j%4))] = nnc_register::new($sformatf("wavegen_reg_%0d",i + (`WAVEGEN_DRIVER_OFFSET * (j%4))), i, default_val, mask_val, access, 1);
+        end
+*/
         //nnc_wavegen_reg[i].read_init();
-        nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].read_init();
+        nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j))].read_init();
       end
     end
 

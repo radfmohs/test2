@@ -236,15 +236,15 @@ register_interface      reg_vif();
 
 // added by supriya
 //drv 0
-assign dut_vif.pulla[0] = `ANA_WRAPPER_TOP.i_pullda_driver_a[0]; //positive side dac0
-assign dut_vif.pullb[0] = `ANA_WRAPPER_TOP.i_pulldb_driver_a[0]; //negative side dac0
-assign dut_vif.sourcea[0] = `ANA_WRAPPER_TOP.i_sourcea_driver_a[0];//positive side dac0
-assign dut_vif.sourceb[0] = `ANA_WRAPPER_TOP.i_sourceb_driver_a[0];//negative side dac0
+assign dut_vif.pulla[0] = `ANA_WRAPPER_TOP.i_pulldn_driver[0]; //positive side dac0
+assign dut_vif.pullb[0] = `ANA_WRAPPER_TOP.i_pulldn_driver[0]; //negative side dac0
+assign dut_vif.sourcea[0] = `ANA_WRAPPER_TOP.i_source_driver[0];//positive side dac0
+assign dut_vif.sourceb[0] = `ANA_WRAPPER_TOP.i_source_driver[0];//negative side dac0
 //drv 1
-assign dut_vif.pulla[1] = `ANA_WRAPPER_TOP.i_pullda_driver_a[1];//positive side dac1
-assign dut_vif.pullb[1] = `ANA_WRAPPER_TOP.i_pulldb_driver_a[1];//negative side dac1
-assign dut_vif.sourcea[1] = `ANA_WRAPPER_TOP.i_sourcea_driver_a[1];//positive side dac1
-assign dut_vif.sourceb[1] = `ANA_WRAPPER_TOP.i_sourceb_driver_a[1];//negative side dac1
+assign dut_vif.pulla[1] = `ANA_WRAPPER_TOP.i_pulldn_driver[1];//positive side dac1
+assign dut_vif.pullb[1] = `ANA_WRAPPER_TOP.i_pulldn_driver[1];//negative side dac1
+assign dut_vif.sourcea[1] = `ANA_WRAPPER_TOP.i_source_driver[1];//positive side dac1
+assign dut_vif.sourceb[1] = `ANA_WRAPPER_TOP.i_source_driver[1];//negative side dac1
 
 // leadoff removed //assign dut_vif.dut_leadoff_ch0_intr_sts = `LEADOFF_TOP_0.lead_off_result;  
 // leadoff removed //assign dut_vif.dut_leadoff_ch1_intr_sts = `LEADOFF_TOP_1.lead_off_result;

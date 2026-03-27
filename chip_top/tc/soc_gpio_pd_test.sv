@@ -90,7 +90,7 @@ class `TESTNAME extends soc_base_test;
   endtask: main_phase 
 
   virtual task do_run;
-    logic [10:0] temp_data;    
+    logic [`GPIO_NUM-1:0] temp_data;    
     begin
     //`DUT_IF.iopad_gpio[`GPIO_NUM-1:0] = 0;        
     //force `SOC_TB.iopad_resetn = 1'b0;
@@ -101,7 +101,7 @@ class `TESTNAME extends soc_base_test;
 
     `ifdef BEHAVIORAL
     // Check the initial pads
-        top_test_cfg.GPIO_PD = {`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {7{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};  
+        top_test_cfg.GPIO_PD = {{2{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {9{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};  
                
         if(`SPI_TOP.spi_reg_u.gpio_pd_ctrl !== `INIT_SOC_GPIO_PD_CTRL_REG) begin
             `nnc_error("PINMUX", $sformatf("`SPI_TOP.spi_reg_u.gpio_pd_ctrl = %h is not as expectation of INIT_SOC_GPIO_PD_CTRL_REG: %h",`SPI_TOP.spi_reg_u.gpio_pd_ctrl, `INIT_SOC_GPIO_PD_CTRL_REG))
@@ -122,12 +122,16 @@ class `TESTNAME extends soc_base_test;
 	#1000ns;    
 
 	//top_test_cfg.GPIO_PD = {8'b0,`DIG_TOP.u_gpio.i_gpio_pd_ctrl};
-	top_test_cfg.GPIO_PD = {`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {7{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};
+	top_test_cfg.GPIO_PD = {{2{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {9{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};
 
 	#1000ns;
     
 `ifndef BEHAVIORAL
-            temp_data = {`SOC_TOP.u_iopad_gpio_10_.PD,
+            temp_data = {`SOC_TOP.u_iopad_gpio_14_.PD,
+                `SOC_TOP.u_iopad_gpio_13_.PD,
+                `SOC_TOP.u_iopad_gpio_12_.PD,
+                `SOC_TOP.u_iopad_gpio_11_.PD,
+                `SOC_TOP.u_iopad_gpio_10_.PD,
                 `SOC_TOP.u_iopad_gpio_9_.PD,
                 `SOC_TOP.u_iopad_gpio_8_.PD,
                 `SOC_TOP.u_iopad_gpio_7_.PD,
@@ -139,7 +143,11 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.PD,
                 `SOC_TOP.u_iopad_gpio_0_.PD};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[10].PD,
+            temp_data = {`SOC_TOP.u_iopad_gpio[14].PD,
+		`SOC_TOP.u_iopad_gpio[13].PD,
+		`SOC_TOP.u_iopad_gpio[12].PD,
+		`SOC_TOP.u_iopad_gpio[11].PD,
+		`SOC_TOP.u_iopad_gpio[10].PD,
                 `SOC_TOP.u_iopad_gpio[9].PD,
                 `SOC_TOP.u_iopad_gpio[8].PD,
                 `SOC_TOP.u_iopad_gpio[7].PD,

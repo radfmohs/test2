@@ -21,9 +21,7 @@ input wire i_sclk,
 
 output wire o_sclk_latch_in,
 output wire o_sclk_latch_out 
-
 //output wire o_sclk	
-	
 );
 
 wire i_sclk_inv;
@@ -33,8 +31,6 @@ wire o_sclk;
 CLKINV_X12_A7TULL DNT_SCK_INV (.Y(i_sclk_inv), .A(i_sclk));
 assign o_sclk = ~(iopad_cpha ^ iopad_cpol) ? i_sclk_inv : i_sclk;
 
-
-
 /*
 assign o_sclk_latch_in  = (iopad_cpha ^ iopad_cpol) ? o_sclk : ~o_sclk;
 assign o_sclk_latch_out = (iopad_cpha ^ iopad_cpol) ? ~o_sclk : o_sclk  ; //: o_sclk;  //o_sclk
@@ -43,7 +39,4 @@ assign o_sclk_latch_out = (iopad_cpha ^ iopad_cpol) ? ~o_sclk : o_sclk  ; //: o_
 assign o_sclk_latch_in  = (iopad_cpha ^ iopad_cpol) ? ~i_sclk : ~o_sclk;
 assign o_sclk_latch_out = (iopad_cpha ^ iopad_cpol) ? i_sclk : o_sclk  ; //: o_sclk;  //o_sclk
 
-
-
 endmodule
-

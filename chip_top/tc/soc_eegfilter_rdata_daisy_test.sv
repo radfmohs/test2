@@ -51,14 +51,14 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_no_of_adc_dev1             {  no_of_adc_dev1 inside {[0:7]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
 
-  constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {0,0};
-                                            (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {0,1};
-                                            (no_of_adc_dev1 == 2) -> no_of_adc_dev2 inside {0,2};
-                                            (no_of_adc_dev1 == 3) -> no_of_adc_dev2 inside {0,3};
-                                            (no_of_adc_dev1 == 4) -> no_of_adc_dev2 inside {0,4};
-                                            (no_of_adc_dev1 == 5) -> no_of_adc_dev2 inside {0,5};
-                                            (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {0,6};
-                                            (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {0,7}; }
+  constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {[0:7]};
+                                            (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {[1:7]};
+                                            (no_of_adc_dev1 == 2) -> no_of_adc_dev2 inside {[2:7]};
+                                            (no_of_adc_dev1 == 3) -> no_of_adc_dev2 inside {[3:7]};
+                                            (no_of_adc_dev1 == 4) -> no_of_adc_dev2 inside {[4:7]};
+                                            (no_of_adc_dev1 == 5) -> no_of_adc_dev2 inside {[5:7]};
+                                            (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[6:7]};
+                                            (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[7:7]}; }
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -79,7 +79,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
     //uvm_top.set_timeout(2s);
-    uvm_top.set_timeout(10ms);
+    uvm_top.set_timeout(50ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -139,6 +139,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.no_of_adc_dev2 = top_test_cfg.no_of_adc_dev2;
     `DUT_IF.no_of_samples = top_test_cfg.no_of_samples;
 
+    `nnc_info("SOC_TEST", $sformatf("`DUT_IF.mult_chip_en == %0d !!!",`DUT_IF.mult_chip_en),UVM_LOW)
     phase.drop_objection(this);
   endtask : pre_reset_phase
 

@@ -599,15 +599,32 @@ assign imeas_vif.cic_rst_n           = `RST_CTRL_TOP.filter_rstn;
 assign imeas_vif.ref_model           = exp_cic_out;
 assign imeas_vif.ref_model_dev2      = exp_cic_out_dev2; //24/10/2025, added by supriya to support for dev2 when daisy_en is enabled
 assign imeas_vif.offset              = offset; 
-assign imeas_vif.chdata              = `IMEAS_WRAPPER_TOP.imeas_chdata_adcclk;
-assign imeas_vif.chdata_en           = `IMEAS_WRAPPER_TOP.chdata_en_adcclk;
-assign imeas_vif.ch_en               = ~dut_vif.imeas_en_dis_ch; /*& ((dut_vif.no_of_adc_dev1 == 0) ? 8'h03 :
-                                       (dut_vif.no_of_adc_dev1 == 1) ? 'hF :
-                                       (dut_vif.no_of_adc_dev1 == 2) ? 'h3F :
-                                       (dut_vif.no_of_adc_dev1 == 3) ? 'hFF :
-                                       (dut_vif.no_of_adc_dev1 == 4) ? 'h3FF :
-                                       (dut_vif.no_of_adc_dev1 == 5) ? 'hFFF :
-                                       (dut_vif.no_of_adc_dev1 == 6) ? 'h3FFF :  'hFFFF);*/
+assign imeas_vif.chdata              = `IMEAS_WRAPPER_TOP.imeas_chdata_out;
+assign imeas_vif.chdata_en           = {`IMEAS_WRAPPER_TOP.genblk1[15].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[14].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[13].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[12].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[11].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[10].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[9].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[8].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[7].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[6].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[5].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[4].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[3].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[2].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[1].u_filter_wrapper.u_imeas.chdata_en,
+                                        `IMEAS_WRAPPER_TOP.genblk1[0].u_filter_wrapper.u_imeas.chdata_en
+                                        };
+
+assign imeas_vif.ch_en               = ~dut_vif.imeas_en_dis_ch & ((dut_vif.no_of_adc_dev1 == 0) ? 'hFFFF :
+                                       (dut_vif.no_of_adc_dev1 == 1) ? 'h3FFF :      // 'hF : 
+                                       (dut_vif.no_of_adc_dev1 == 2) ? 'hFFF  :      // 'h3F :
+                                       (dut_vif.no_of_adc_dev1 == 3) ? 'h3FF  :      // 'hFF :
+                                       (dut_vif.no_of_adc_dev1 == 4) ? 'hFF   :      // 'h3FF :
+                                       (dut_vif.no_of_adc_dev1 == 5) ? 'h3F   :      // 'hFFF :
+                                       (dut_vif.no_of_adc_dev1 == 6) ? 'hF  :  'h3); // 'h3FFF
 
 assign imeas_vif.conv_valid          = |imeas_vif.chdata_en;
 assign imeas_vif.exp_chdata_en       = exp_cic_out_valid;
@@ -623,29 +640,50 @@ assign imeas_vif.STABLE_TIME         = dut_vif.stable_time;
 assign imeas_vif.IMEAS_REG_RST       = `SPI_TOP.spi_reg_u.imeas_reg_0[1];//imeas_rst
 assign imeas_vif.stable_cnt_dis_rstn = `RST_CTRL_TOP.adc_resetn;
 assign dut_vif.imeas_pos_done        =  |imeas_vif.chdata_en;
-assign dut_vif.filter_data_out        = `FILTER_WRAPPER_TOP.imeas_chdata_out;
-assign dut_vif.filter_data_out_dev2   = `FILTER_WRAPPER_TOP_S1.imeas_chdata_out;
+assign dut_vif.filter_data_out        = `IMEAS_WRAPPER_TOP.imeas_chdata_out;
+assign dut_vif.filter_data_out_dev2   = `IMEAS_WRAPPER_TOP_S1.imeas_chdata_out;
 
-assign `SPI_TOP.i_channel_max =  dut_vif.no_of_adc_dev1 == 0 ? 2 
-                               : dut_vif.no_of_adc_dev1 == 1 ? 4
-                               : dut_vif.no_of_adc_dev1 == 2 ? 6 
-                               : dut_vif.no_of_adc_dev1 == 3 ? 8 
-                               : dut_vif.no_of_adc_dev1 == 4 ? 10 
-                               : dut_vif.no_of_adc_dev1 == 5 ? 12
-                               : dut_vif.no_of_adc_dev1 == 6 ? 14 
-                               : dut_vif.no_of_adc_dev1 == 7 ? 16 :0  ; 
+//assign `SPI_TOP.i_channel_max =  dut_vif.no_of_adc_dev1 == 0 ? 2 
+//                               : dut_vif.no_of_adc_dev1 == 1 ? 4
+//                               : dut_vif.no_of_adc_dev1 == 2 ? 6 
+//                               : dut_vif.no_of_adc_dev1 == 3 ? 8 
+//                               : dut_vif.no_of_adc_dev1 == 4 ? 10 
+//                               : dut_vif.no_of_adc_dev1 == 5 ? 12
+//                               : dut_vif.no_of_adc_dev1 == 6 ? 14 
+//                               : dut_vif.no_of_adc_dev1 == 7 ? 16 :0  ; 
+//
+//assign `SPI_TOP_S1.i_channel_max = dut_vif.no_of_adc_dev2 == 0 ? 2 
+//                               : dut_vif.no_of_adc_dev2 == 1 ? 4
+//                               : dut_vif.no_of_adc_dev2 == 2 ? 6 
+//                               : dut_vif.no_of_adc_dev2 == 3 ? 8 
+//                               : dut_vif.no_of_adc_dev2 == 4 ? 10 
+//                               : dut_vif.no_of_adc_dev2 == 5 ? 12
+//                               : dut_vif.no_of_adc_dev2 == 6 ? 14 
+//                               : dut_vif.no_of_adc_dev2 == 7 ? 16 :0  ;
 
-assign `SPI_TOP_S1.i_channel_max = dut_vif.no_of_adc_dev2 == 0 ? 2 
-                               : dut_vif.no_of_adc_dev2 == 1 ? 4
-                               : dut_vif.no_of_adc_dev2 == 2 ? 6 
-                               : dut_vif.no_of_adc_dev2 == 3 ? 8 
-                               : dut_vif.no_of_adc_dev2 == 4 ? 10 
-                               : dut_vif.no_of_adc_dev2 == 5 ? 12
-                               : dut_vif.no_of_adc_dev2 == 6 ? 14 
-                               : dut_vif.no_of_adc_dev2 == 7 ? 16 :0  ;
+assign `SPI_TOP.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
+assign `SPI_TOP_S1.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
 
-assign dut_vif.max_ch_dev1 = `SPI_TOP.i_channel_max ;
-assign dut_vif.max_ch_dev2 = `SPI_TOP_S1.i_channel_max ;
+//assign dut_vif.max_ch_dev1 = `SPI_TOP.i_channel_max ;
+//assign dut_vif.max_ch_dev2 = `SPI_TOP_S1.i_channel_max ;
+assign dut_vif.max_ch_dev1 =   dut_vif.no_of_adc_dev1 == 0 ? 16 
+                             : dut_vif.no_of_adc_dev1 == 1 ? 14
+                             : dut_vif.no_of_adc_dev1 == 2 ? 12 
+                             : dut_vif.no_of_adc_dev1 == 3 ? 10 
+                             : dut_vif.no_of_adc_dev1 == 4 ? 8 
+                             : dut_vif.no_of_adc_dev1 == 5 ? 6
+                             : dut_vif.no_of_adc_dev1 == 6 ? 4 
+                             : dut_vif.no_of_adc_dev1 == 7 ? 2 :16  ; 
+ 
+
+assign dut_vif.max_ch_dev2 =   dut_vif.no_of_adc_dev2 == 0 ? 16 
+                             : dut_vif.no_of_adc_dev2 == 1 ? 14
+                             : dut_vif.no_of_adc_dev2 == 2 ? 12 
+                             : dut_vif.no_of_adc_dev2 == 3 ? 10 
+                             : dut_vif.no_of_adc_dev2 == 4 ? 8 
+                             : dut_vif.no_of_adc_dev2 == 5 ? 6
+                             : dut_vif.no_of_adc_dev2 == 6 ? 4 
+                             : dut_vif.no_of_adc_dev2 == 7 ? 2 :16  ; 
 
 //assign `SPI_TOP.daisy_in = `SPI_TOP_S1.o_miso;
 //assign `SPI_TOP_S1.daisy_in = !`SPI_TOP.o_miso;

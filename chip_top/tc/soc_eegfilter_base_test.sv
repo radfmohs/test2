@@ -150,16 +150,36 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_filter_case   {  filter_case == 0; }  
 
-  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:0]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
+  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
-  constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {[0:0]};
-                                            (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {[0:1]};
-                                            (no_of_adc_dev1 == 2) -> no_of_adc_dev2 inside {[0:2]};
-                                            (no_of_adc_dev1 == 3) -> no_of_adc_dev2 inside {[0:3]};
-                                            (no_of_adc_dev1 == 4) -> no_of_adc_dev2 inside {[0:4]};
-                                            (no_of_adc_dev1 == 5) -> no_of_adc_dev2 inside {[0:5]};
-                                            (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[0:6]};
-                                            (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[0:7]}; }
+  //constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {[0:0]};
+  //                                          (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {[0:1]};
+  //                                          (no_of_adc_dev1 == 2) -> no_of_adc_dev2 inside {[0:2]};
+  //                                          (no_of_adc_dev1 == 3) -> no_of_adc_dev2 inside {[0:3]};
+  //                                          (no_of_adc_dev1 == 4) -> no_of_adc_dev2 inside {[0:4]};
+  //                                          (no_of_adc_dev1 == 5) -> no_of_adc_dev2 inside {[0:5]};
+  //                                          (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[0:6]};
+  //                                          (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[0:7]}; }
+
+  constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {[0:7]};
+                                            (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {[1:7]};
+                                            (no_of_adc_dev1 == 2) -> no_of_adc_dev2 inside {[2:7]};
+                                            (no_of_adc_dev1 == 3) -> no_of_adc_dev2 inside {[3:7]};
+                                            (no_of_adc_dev1 == 4) -> no_of_adc_dev2 inside {[4:7]};
+                                            (no_of_adc_dev1 == 5) -> no_of_adc_dev2 inside {[5:7]};
+                                            (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[6:7]};
+                                            (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[7:7]}; }
+
+  // making sure atlist 1 channel keeps enable
+  constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFF]}; 
+                                 (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
+                                 (no_of_adc_dev1 == 2) -> imeas_en_dis_ch inside {[0:'hFFE]};
+                                 (no_of_adc_dev1 == 3) -> imeas_en_dis_ch inside {[0:'h3FE]};
+                                 (no_of_adc_dev1 == 4) -> imeas_en_dis_ch inside {[0:'hFE]};
+                                 (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
+                                 (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
+                                 (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; }
+
 
   constraint c_sine_num_of_period   {  sine_num_of_period == 20; }  
   // -----------------------------------------------
@@ -257,8 +277,6 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.eeg_int_en = top_test_cfg.eeg_int_en;
     `DUT_IF.daisy_en = top_test_cfg.daisy_en;
 
-     if(`DUT_IF.daisy_en === 1) `DUT_IF.total_chip_num = 2;
-
     `DUT_IF.no_of_samples = top_test_cfg.no_of_samples;
     `DUT_IF.filter_case = top_test_cfg.filter_case;
 
@@ -278,6 +296,15 @@ class `TESTNAME extends soc_base_test;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase
+
+  virtual task post_reset_phase(nnc_phase phase);
+    phase.raise_objection(this);
+    super.post_reset_phase(phase);
+
+    if(`DUT_IF.daisy_en === 1) `DUT_IF.total_chip_num = 2;
+
+    phase.drop_objection(this);
+  endtask : post_reset_phase
 
   task imeas_config();
     bit [1:0] imeas_data_format_mode;
@@ -413,8 +440,8 @@ class `TESTNAME extends soc_base_test;
         top_test_cfg.eeg_int_sts = rd_data[0];
       end
       else begin // new general intr sts reg
-        `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_2_REG,top_test_cfg.pads, rd_data); // ch0  and ch1 sts
-        top_test_cfg.eeg_int_sts = rd_data[4];
+        `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, rd_data); // 
+        top_test_cfg.eeg_int_sts = rd_data[1];
       end
 
       if(top_test_cfg.eeg_int_sts !== exp_int_sts)begin
@@ -442,8 +469,8 @@ class `TESTNAME extends soc_base_test;
 	`nnc_info("SOC_TEST", "eeg int sts cleared by old int sts reg - r1c", NNC_LOW)
       end
       else begin // new general intr sts reg
-        `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_2_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); // ch0  and ch1 sts
-        top_test_cfg.eeg_int_sts = top_test_cfg.rd_data[4][0];
+        `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); // ch0  and ch1 sts
+        top_test_cfg.eeg_int_sts = top_test_cfg.rd_data[0][1];
 	`nnc_info("SOC_TEST", "eeg int sts cleared by new general int sts reg - r1c", NNC_LOW)
       end
     end
@@ -452,7 +479,7 @@ class `TESTNAME extends soc_base_test;
 
   task wait_for_intb();
     `nnc_info("SOC_TEST", "wait for EEG filter int and INTB assert", NNC_MEDIUM)
-     wait(`FILTER_WRAPPER_TOP.o_eeg_int === 1);    
+     wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 1);    
      if(`DUT_IF.int_active_level_high_or_low == 1) 
         wait(`SOC_TB.INTB === 1);
       else 
@@ -469,7 +496,7 @@ class `TESTNAME extends soc_base_test;
         wait(`SOC_TB.INTB === 1);
     end 
     else begin
-      wait(`FILTER_WRAPPER_TOP.o_eeg_int === 0);    
+      wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 0);    
     end 
     `nnc_info("SOC_TEST", "wait done for INTB clear", NNC_MEDIUM)
   endtask : wait_for_intb_clear
@@ -534,7 +561,7 @@ class `TESTNAME extends soc_base_test;
   task wait_for_one_conversion_to_finish();
     `nnc_info("SOC_TEST", "wait for one conversion after stop cmd", NNC_LOW)
  
-    if(`FILTER_WRAPPER_TOP.o_eeg_int === 1)begin
+    if(`IMEAS_WRAPPER_TOP.o_eeg_int === 1)begin
       fork
         clear_int_sts_reg();
 	//compare_imeas_chdata_through_rdata_cmd(0);
@@ -557,7 +584,7 @@ class `TESTNAME extends soc_base_test;
     join_any
     disable wait_for_conversion;
 
-    if(`FILTER_WRAPPER_TOP.eeg_int_sts === 1)begin
+    if(`IMEAS_WRAPPER_TOP.eeg_int_sts === 1)begin
       fork
         //clear_int_sts_reg();
 	compare_imeas_chdata_through_rdata_cmd(0);
@@ -1086,7 +1113,7 @@ class `TESTNAME extends soc_base_test;
       if((`DUT_IF.intr_length_slct_level_or_pulse === 1) && (`DUT_IF.int_active_level_high_or_low === 1)) begin//if active high pulse INTB is selected
 	@(posedge `DUT_IF.sys_clk);
 	@(negedge `DUT_IF.sys_clk);
-        if(`SOC_TB.INTB !== 0 && (!(`FILTER_WRAPPER_TOP.o_eeg_int === 1)))
+        if(`SOC_TB.INTB !== 0 && (!(`IMEAS_WRAPPER_TOP.o_eeg_int === 1)))
     	  `nnc_error("SOC_TEST", "Error! pulse INTB more than 1 pclk!")
 	else
 	  `nnc_info("SOC_TEST", "pulse INTB is 1 pclk!", NNC_MEDIUM)
@@ -1101,7 +1128,7 @@ class `TESTNAME extends soc_base_test;
       if((`DUT_IF.intr_length_slct_level_or_pulse === 1) && (`DUT_IF.int_active_level_high_or_low === 0)) begin//if active low pulse INTB is selected
 	@(posedge `DUT_IF.sys_clk);
 	@(negedge `DUT_IF.sys_clk);
-        if(`SOC_TB.INTB !== 1 && !((`FILTER_WRAPPER_TOP.o_eeg_int === 1)))
+        if(`SOC_TB.INTB !== 1 && !((`IMEAS_WRAPPER_TOP.o_eeg_int === 1)))
     	  `nnc_error("SOC_TEST", "Error! pulse INTB more than 1 pclk!")
 	else
 	  `nnc_info("SOC_TEST", "pulse INTB is 1 pclk!", NNC_MEDIUM)
@@ -1114,7 +1141,7 @@ class `TESTNAME extends soc_base_test;
   begin
     forever @(posedge `SOC_TB.INTB or negedge `SOC_TB.INTB) begin
       if((`DUT_IF.intr_length_slct_level_or_pulse === 0) && (`DUT_IF.int_active_level_high_or_low === 1)) begin//if active high level INTB is selected
-        if(`SOC_TB.INTB !== (`FILTER_WRAPPER_TOP.o_eeg_int))
+        if(`SOC_TB.INTB !== (`IMEAS_WRAPPER_TOP.o_eeg_int))
     	  `nnc_error("SOC_TEST", "Error! level INTB not expected!")
 	else
 	  `nnc_info("SOC_TEST", "level INTB is expected!", NNC_MEDIUM)
@@ -1127,7 +1154,7 @@ class `TESTNAME extends soc_base_test;
   begin
     forever @(posedge `SOC_TB.INTB or negedge `SOC_TB.INTB) begin
       if((`DUT_IF.intr_length_slct_level_or_pulse === 0) && (`DUT_IF.int_active_level_high_or_low === 0)) begin//if active low level INTB is selected
-        if(`SOC_TB.INTB !== ~(`FILTER_WRAPPER_TOP.o_eeg_int))
+        if(`SOC_TB.INTB !== ~(`IMEAS_WRAPPER_TOP.o_eeg_int))
     	  `nnc_error("SOC_TEST", "Error! level INTB not expected!")
 	else
 	  `nnc_info("SOC_TEST", "level INTB is expected!", NNC_MEDIUM)

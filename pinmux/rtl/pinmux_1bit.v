@@ -10,13 +10,13 @@
 //------------------------------------------------------------------------------
 // Revision     Date        Author          Description      
 //------------------------------------------------------------------------------
-// 0.1         16/04/2021  Daniel         Initial Rev 
+// 0.1         16/04/2021  Daniel           Initial Rev 
 //------------------------------------------------------------------------------
 
 module pinmux_1bit (
 // test and alternate select
 // input  wire [1:0]   altf_sel,			
-input  wire [3:0]   test_sel,			
+input  wire [4:0]   test_sel,			
 input  wire         test_en,
 input  wire         test0_en,
 input  wire         test1_en,
@@ -28,10 +28,9 @@ input  wire         test6_en,
 input  wire         test7_en,
 input  wire         test8_en,
 input  wire         test9_en,
-// input  wire         test10_en,
+// input  wire      test10_en,
 input  wire	    test_ana,			//added by supriya
 // alternate function
-  
 /*
 // altf0
 input  wire         altf0_ie,
@@ -126,15 +125,16 @@ input  wire         test9_a,
 input  wire         test9_def, 
 output wire         test9_y,    
 /// test10
-// input  wire         test10_ie,   
-// input  wire         test10_oe,   
-// input  wire         test10_a,    
-// input  wire         test10_def,  
-// output wire         test10_y,    
+// input  wire      test10_ie,   
+// input  wire      test10_oe,   
+// input  wire      test10_a,    
+// input  wire      test10_def,  
+// output wire      test10_y,    
 //end
 // analog enable
-//output wire         analog_en,
-//output wire [1:0]     analog_en,
+//output wire       analog_en,
+//output wire [1:0] analog_en,
+
 // with pad interface
 input  wire         iopad_gpio_y,
 output wire         iopad_gpio_ie,
@@ -159,8 +159,6 @@ parameter TEST8_CLKIN = 0;
 parameter TEST9_CLKIN = 0; 
 // parameter TEST10_CLKIN = 0;
 
-	
-
 // wire altf0_en;
 // wire altf1_en;
 // wire altf2_en;
@@ -184,7 +182,6 @@ wire data_bufin;
 // wire altf3_bufin;
 wire altf_bufin;
 
-
 wire test0_bufin;
 wire test1_bufin;
 wire test2_bufin;
@@ -196,8 +193,6 @@ wire test7_bufin;
 wire test8_bufin;
 wire test9_bufin;
 // wire test10_bufin;
-
-
 
 wire testmode_en;
 wire testmode_ie;
@@ -216,7 +211,6 @@ assign altf3_en = (altf_sel ==2'b11) & ~test_en;
 */
 assign altf_en = ~test_en ? 1'b1 : 1'b0;
 
-//
 /*
 assign altf0_bufin = ALTF0_CLKIN ? clk_bufin : data_bufin;
 assign altf1_bufin = ALTF1_CLKIN ? clk_bufin : data_bufin;
@@ -225,7 +219,6 @@ assign altf3_bufin = ALTF3_CLKIN ? clk_bufin : data_bufin;
 */
 assign altf_bufin  = ALTF_CLKIN ? clk_bufin : data_bufin;
 
-//
 assign test0_bufin = TEST0_CLKIN ? clk_bufin : data_bufin;
 assign test1_bufin = TEST1_CLKIN ? clk_bufin : data_bufin;
 assign test2_bufin = TEST2_CLKIN ? clk_bufin : data_bufin;
@@ -237,7 +230,6 @@ assign test7_bufin = TEST7_CLKIN ? clk_bufin : data_bufin;
 assign test8_bufin = TEST8_CLKIN ? clk_bufin : data_bufin;
 assign test9_bufin = TEST9_CLKIN ? clk_bufin : data_bufin;
 // assign test10_bufin = TEST10_CLKIN ? clk_bufin : data_bufin;
-
 
 cell_mx16 u_test_ie (.Z(test_mux_ie), .A(test0_ie), .B(test1_ie), .C(test2_ie), .D(test3_ie), .E(test4_ie), .F(test5_ie),  .G(test6_ie),  .H(test7_ie),  .I(test8_ie),
      				     .J(test9_ie),  .K(1'b0),  .L(1'b0),  .M(1'b0),  .N(1'b0),  .O(1'b0),  .P(1'b0),
@@ -265,8 +257,6 @@ cell_mx16 u_test_a  (.Z(test_mux_a),  .A(test0_a),  .B(test1_a),  .C(test2_a),  
 //cell_mx4 u_altf_ie (.Z(altf_mux_ie), .A(altf0_ie), .B(altf1_ie), .C(altf2_ie), .D(altf3_ie), .S0(altf_sel[0]), .S1(altf_sel[1]));
 //cell_mx4 u_altf_oe (.Z(altf_mux_oe), .A(altf0_oe), .B(altf1_oe), .C(altf2_oe), .D(altf3_oe), .S0(altf_sel[0]), .S1(altf_sel[1]));
 //cell_mx4 u_altf_a  (.Z(altf_mux_a),  .A(altf0_a),  .B(altf1_a),  .C(altf2_a),  .D(altf3_a),  .S0(altf_sel[0]), .S1(altf_sel[1]));
- 
-
 
 //cell_mx2 u_ie_out  (.Z(iopad_gpio_ie), .A(altf_mux_ie), .B(test_mux_ie), .S(test_en));
 //cell_mx2 u_oe_out  (.Z(iopad_gpio_oe), .A(altf_mux_oe), .B(test_mux_oe), .S(test_en));
@@ -281,18 +271,15 @@ cell_mx4 u_ie_out  (.Z(iopad_gpio_ie), .A(altf_ie), .B(altf_ie), .C(test_mux_ie)
 cell_mx4 u_oe_out  (.Z(iopad_gpio_oe), .A(altf_oe), .B(altf_oe), .C(test_mux_oe), .D(1'b0), .S0(test_ana), .S1(test_en));
 cell_mx4 u_a_out   (.Z(iopad_gpio_a),  .A(altf_a),  .B(altf_a),  .C(test_mux_a),  .D(1'b0), .S0(test_ana), .S1(test_en));
 
-//
 cell_clkbuf u_clk_bufin  (.CLK(clk_bufin), .CK(iopad_gpio_y));
 cell_buf    u_data_bufin (.Y(data_bufin),  .A(iopad_gpio_y));
 
-//
 //cell_mx2 u_altf0_y (.Z(altf0_y), .A(altf0_def), .B(altf0_bufin), .S(altf0_en));
 //cell_mx2 u_altf1_y (.Z(altf1_y), .A(altf1_def), .B(altf1_bufin), .S(altf1_en));
 //cell_mx2 u_altf2_y (.Z(altf2_y), .A(altf2_def), .B(altf2_bufin), .S(altf2_en));
 //cell_mx2 u_altf3_y (.Z(altf3_y), .A(altf3_def), .B(altf3_bufin), .S(altf3_en));
 cell_mx2 u_altf0_y (.Z(altf_y), .A(altf_def), .B(altf_bufin), .S(altf_en));
 
-//
 cell_mx2 u_test0_y (.Z(test0_y), .A(test0_def), .B(test0_bufin), .S(test0_en));
 cell_mx2 u_test1_y (.Z(test1_y), .A(test1_def), .B(test1_bufin), .S(test1_en));
 cell_mx2 u_test2_y (.Z(test2_y), .A(test2_def), .B(test2_bufin), .S(test2_en));
@@ -307,6 +294,5 @@ cell_mx2 u_test8_y (.Z(test8_y), .A(test8_def), .B(test8_bufin), .S(test8_en));
 
 cell_mx2 u_test9_y (.Z(test9_y), .A(test9_def), .B(test9_bufin), .S(test9_en));
 //cell_mx2 u_test10_y (.Z(test10_y), .A(test10_def), .B(test10_bufin), .S(test10_en));
-
 
 endmodule

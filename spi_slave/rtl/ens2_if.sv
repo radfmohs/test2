@@ -14,9 +14,9 @@
 //------------------------------------------------------------------------------
 
 interface spi_otp #(
-TRIM_NUMBER = 10,
-SO=23,
-OS=27
+  TRIM_NUMBER = 10,
+  SO=23,
+  OS=27
 )();
 
 wire [7:0] trim [TRIM_NUMBER-1 :0]; //trim from spi to otp
@@ -25,34 +25,33 @@ wire [SO-1:0] so_ctrl;//spi to otp
 wire [OS-1:0] os_ctrl;//otp to spi
 
 modport master(
-output trim, 
-output so_ctrl,
-input  trim_read, 
-input  os_ctrl
+  output trim, 
+  output so_ctrl,
+  input  trim_read, 
+  input  os_ctrl
 );
-modport slave (
-input  trim,
-input  so_ctrl,
-output trim_read,
-output os_ctrl
 
+modport slave (
+  input  trim,
+  input  so_ctrl,
+  output trim_read,
+  output os_ctrl
 );
 
 endinterface
 
 interface spi_wg #(
-NO_OF_WAVEGEN = 2
-
+  NO_OF_WAVEGEN = 2
 )();
 
-  // wavegen
+// wavegen
 wire  [7:0]    i_wg_driver_in_wave_addr[NO_OF_WAVEGEN-1:0];
 wire  [7:0]    i_wg_driver_ems_wave_addr[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_wg_driver_source[NO_OF_WAVEGEN-1:0];
-//wire  [7:0]    i_hlf_wave_cnt[NO_OF_WAVEGEN-1:0];
+//wire  [7:0]  i_hlf_wave_cnt[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_period_num[NO_OF_WAVEGEN-1:0];
 wire           o_wg_driver_en[NO_OF_WAVEGEN-1:0];    
-wire  [4:0]  	 o_period_sel[NO_OF_WAVEGEN-1:0];                  
+wire  [4:0]    o_period_sel[NO_OF_WAVEGEN-1:0];                  
 wire  [7:0]    o_config_reg[NO_OF_WAVEGEN-1:0];
 wire  [15:0]   o_wg_driver_rest_t[NO_OF_WAVEGEN-1:0];
 wire  [31:0]   o_wg_driver_silent_t[NO_OF_WAVEGEN-1:0]; 
@@ -70,9 +69,9 @@ wire  [7:0]    o_reg_wg_driver_point_config[NO_OF_WAVEGEN-1:0];
 wire  [15:0]   o_wg_driver_alter_lim[NO_OF_WAVEGEN-1:0];
 wire  [15:0]   o_wg_driver_alter_silent_lim[NO_OF_WAVEGEN-1:0]; 
 wire  [15:0]   o_wg_driver_alter_rest_lim[NO_OF_WAVEGEN-1:0]; 
-wire  [15:0]    o_wg_driver_sw_config[NO_OF_WAVEGEN-1:0];
+wire  [15:0]   o_wg_driver_sw_config[NO_OF_WAVEGEN-1:0];
 wire  [15:0]   o_wg_driver_delay_lim[NO_OF_WAVEGEN-1:0];
-//wire  [2:0]    o_wg_driver_isel[NO_OF_WAVEGEN-1:0];
+//wire  [2:0]  o_wg_driver_isel[NO_OF_WAVEGEN-1:0];
 wire  	       o_mult_elec[NO_OF_WAVEGEN-1:0];
 wire  [11:0]   o_wg_driver_in_wave[NO_OF_WAVEGEN-1:0];
 wire  [7:0]    o_wg_driver_int_addr0[NO_OF_WAVEGEN-1:0];
@@ -85,11 +84,12 @@ wire  [1:0]    i_wg_driver_int_sts[NO_OF_WAVEGEN-1:0];
 wire  [7:0]    o_pullba_ctrl[NO_OF_WAVEGEN-1:0];
 wire  [17:0]   dirve[NO_OF_WAVEGEN-1:0];      
 wire           global_en;
+wire           stimu_en;
 wire  [NO_OF_WAVEGEN-1:0]    stop_wavegen;
 wire           o_no_of_num_slient_disable[NO_OF_WAVEGEN-1:0];
-wire  [15:0]    o_no_of_num_slient_tar[NO_OF_WAVEGEN-1:0];
+wire  [15:0]   o_no_of_num_slient_tar[NO_OF_WAVEGEN-1:0];
 
-wire [2:0]     w_isel[NO_OF_WAVEGEN-1:0];
+wire w_isel[NO_OF_WAVEGEN-1:0];
 
 wire [7:0]     o_reg_wg_cal_addr[NO_OF_WAVEGEN-1:0];
 wire [3:0]     o_data_scl[NO_OF_WAVEGEN-1:0];
@@ -105,7 +105,6 @@ wire [7:0]     wg_driver_neg_scale[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_pos_scale[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_neg_offset[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_pos_offset[NO_OF_WAVEGEN-1:0];
-
 
 modport master(
   output o_wg_driver_en,          
@@ -140,6 +139,7 @@ modport master(
   output o_pullba_ctrl,
   output dirve,
   output global_en,
+  output stimu_en,
   output stop_wavegen,
   output o_no_of_num_slient_disable,
   output o_no_of_num_slient_tar,
@@ -165,7 +165,7 @@ modport master(
   input i_wg_driver_in_wave_addr,
   input i_wg_driver_ems_wave_addr,
   input i_wg_driver_source,
-//  input i_hlf_wave_cnt, 
+//input i_hlf_wave_cnt, 
   input i_period_num,
   input i_wg_driver_int_sts
 );
@@ -203,6 +203,7 @@ modport slave (
   input o_pullba_ctrl,
   input dirve,
   input global_en,
+  input stimu_en,
   input stop_wavegen,
   input o_no_of_num_slient_disable,
   input o_no_of_num_slient_tar,
@@ -228,19 +229,15 @@ modport slave (
   output i_wg_driver_in_wave_addr,
   output i_wg_driver_ems_wave_addr,
   output i_wg_driver_source,
-//  output i_hlf_wave_cnt, 
+//output i_hlf_wave_cnt, 
   output i_period_num,
   output i_wg_driver_int_sts
-
 );
-
-
 
 endinterface
 
-
 interface spi_anac #(
-NO_OF_WAVEGEN = 2
+  NO_OF_WAVEGEN = 2
 )();
 
 //I
@@ -248,7 +245,7 @@ wire          ana_lvd_intr_en;
 //O
 wire          ana_lvd_intr_pin;
 ////I
-wire                        int_length_slct;
+wire          int_length_slct;
 //wire [31:0]                 ana_stimu_ch_timer_TH[NO_OF_WAVEGEN-1 :0];	
 //wire [31:0]                 ana_stimu_ch_counter_TH[NO_OF_WAVEGEN-1 :0];	
 //wire [NO_OF_WAVEGEN-1 :0 ]  ana_comp_ch_intr_en;
@@ -266,8 +263,8 @@ wire                        int_length_slct;
 //wire [NO_OF_WAVEGEN-1 :0]   ana_comp_ch_intr_sts;
 
 modport master(
-output ana_lvd_intr_en,
-output int_length_slct,
+  output ana_lvd_intr_en,
+  output int_length_slct,
 //output ana_stimu_ch_timer_TH,
 //output ana_stimu_ch_counter_TH,
 //output ana_comp_ch_intr_en,
@@ -279,18 +276,15 @@ output int_length_slct,
 //output anac_short_leadoff_en,
 //output anac_int_pol,
 
-input ana_lvd_intr_pin
+  input ana_lvd_intr_pin
 //input counter_th_cnt_dbg,
 //input ana_stimu_ch_intr_sts,
 //input ana_comp_ch_intr_sts
-
 );
 
-
-
 modport slave (
-input ana_lvd_intr_en,
-input int_length_slct,
+  input ana_lvd_intr_en,
+  input int_length_slct,
 //input ana_stimu_ch_timer_TH,
 //input ana_stimu_ch_counter_TH,
 //input ana_comp_ch_intr_en,
@@ -302,20 +296,12 @@ input int_length_slct,
 //input anac_short_leadoff_en,
 //input anac_int_pol,
 
-
-output ana_lvd_intr_pin
+  output ana_lvd_intr_pin
 //output counter_th_cnt_dbg,
 //output ana_stimu_ch_intr_sts,
 //output ana_comp_ch_intr_sts
-
 );
-
-
-
-
 endinterface
-
-
 
 //interface spi_leadoff #(
 //NO_OF_WAVEGEN = 8
@@ -360,8 +346,6 @@ endinterface
 //
 //);
 
-
-
 //modport slave (
 ////I
 //input   timer_cnt_tgt,	
@@ -387,11 +371,6 @@ endinterface
 //
 //
 //endinterface
-
-
-
-
-
 
 // Interface between PINMUX and ANA_WRAPPER
 interface pinmux_if #(
@@ -461,7 +440,6 @@ modport D2A (
 );
 endinterface
 
-
 // Interface between SPI and ANA_WRAPPER
 interface spi_ana_if #(
   REG_NUMBER = 10
@@ -483,7 +461,6 @@ modport ana (
   output A2D_ANA_GEN_REG
 );
 endinterface
-
 
 // Interface between SPI and PINMUX
 interface spi_pinmux_if #(
@@ -511,20 +488,24 @@ modport pinmux(
 endinterface
 
 // Interface between ANA and NIRS
-interface ana_nirs_if
+interface ana_nirs_if #(
+  parameter NO_OF_NIRS = 8
+)
 ();
 
-wire        D2A_NIRS_RESET_SW;
-wire        D2A_NIRS_ILED_SW;
-wire        D2A_NIRS_IIN_SW;
-wire  [8:0] D2A_NIRS_IDAC;
-wire  [1:0] D2A_NIRS_RATIO;
-wire        A2D_NIRS_IREFCOARSE;
-wire        A2D_NIRS_IREFFINE;
+wire        D2A_NIRS_EN         [NO_OF_NIRS-1:0];
+wire        D2A_NIRS_RESET_SW   [NO_OF_NIRS-1:0];
+wire        D2A_NIRS_IPD_SW     [NO_OF_NIRS-1:0];
+wire        D2A_NIRS_IIN_SW     [NO_OF_NIRS-1:0];
+wire  [8:0] D2A_NIRS_IDAC       [NO_OF_NIRS-1:0];
+wire  [1:0] D2A_NIRS_RATIO      [NO_OF_NIRS-1:0];
+wire        A2D_NIRS_IREFCOARSE [NO_OF_NIRS-1:0];
+wire        A2D_NIRS_IREFFINE   [NO_OF_NIRS-1:0];
 
 modport nirs (
+  output    D2A_NIRS_EN,
   output    D2A_NIRS_RESET_SW,
-  output    D2A_NIRS_ILED_SW,
+  output    D2A_NIRS_IPD_SW,
   output    D2A_NIRS_IIN_SW,
   output    D2A_NIRS_IDAC,
   output    D2A_NIRS_RATIO,
@@ -533,8 +514,9 @@ modport nirs (
 );
 
 modport ana (
+  input     D2A_NIRS_EN,
   input     D2A_NIRS_RESET_SW,
-  input     D2A_NIRS_ILED_SW,
+  input     D2A_NIRS_IPD_SW,
   input     D2A_NIRS_IIN_SW,
   input     D2A_NIRS_IDAC,
   input     D2A_NIRS_RATIO,
@@ -544,20 +526,29 @@ modport ana (
 endinterface
 
 // Interface between SPI and NIRS
-interface spi_nirs_if
+interface spi_nirs_if #(
+  parameter NO_OF_NIRS = 8
+)
 ();
 
-  wire  [7:0] NIRS_CTRL[7:0];
-  wire  [7:0] NIRS_DOUT[7:0];
-
+  wire              [7:0] NIRS_CTRL   [NO_OF_NIRS-1:0][10:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
+  wire              [7:0] NIRS_DOUT   [18:0];
+  wire              [7:0] NIRS_DEBUG  [NO_OF_NIRS-1:0][5:0];
+  wire   [NO_OF_NIRS-1:0] NIRS_CTRL_EN;       
+  wire   [NO_OF_NIRS-1:0] NIRS_CTRL_MEAS; 
 modport nirs (
   input   NIRS_CTRL,
-  output  NIRS_DOUT
+  output  NIRS_DOUT,
+  output  NIRS_DEBUG,
+  input   NIRS_CTRL_EN,
+  input   NIRS_CTRL_MEAS
 );
 
 modport spi (
   output  NIRS_CTRL,
-  input   NIRS_DOUT
+  input   NIRS_DOUT,
+  input   NIRS_DEBUG,
+  output  NIRS_CTRL_EN,
+  output  NIRS_CTRL_MEAS
 );
 endinterface
-

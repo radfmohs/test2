@@ -592,57 +592,57 @@ class `TESTNAME extends soc_base_test;
 
     //Module : CH1 , Direction : WG , Connection : WG.
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_sourcea_driver_a[0]  = $random;
+        force `ANA_WRAPPER_TOP.i_source_driver[0]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_sourcea_driver_a[0];
+        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[0];
         if (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_sourcea_driver_a: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_sourcea_driver_a[0];              
+      release  `ANA_WRAPPER_TOP.i_source_driver[0];              
     end  
 
     //Module : CH1 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_sourceb_driver_a[0]  = $random;
+        force `ANA_WRAPPER_TOP.i_source_driver[0]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_sourceb_driver_a[0];
+        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[0];
         if (`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_sourceb_driver_a: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_sourceb_driver_a[0];              
+      release  `ANA_WRAPPER_TOP.i_source_driver[0];              
     end
 
     //Module : CH1 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pullda_driver_a[0]  = $random;
+        force `ANA_WRAPPER_TOP.i_pulldn_driver[0]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pullda_driver_a[0];
+        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[0];
         if (`ANA_TOP.D2A_DRIVERA_PULLDA_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pullda_driver_a: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH1, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH1, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_pullda_driver_a[0];              
+      release  `ANA_WRAPPER_TOP.i_pulldn_driver[0];              
     end
 
     //Module : CH1 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldb_driver_a[0]  = $random;
+        force `ANA_WRAPPER_TOP.i_pulldn_driver[0]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldb_driver_a[0];
+        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[0];
         if (`ANA_TOP.D2A_DRIVERA_PULLDB_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldb_driver_a: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH1, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH1, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_pulldb_driver_a[0];              
+      release  `ANA_WRAPPER_TOP.i_pulldn_driver[0];              
     end
 
     //Module : CH1 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_out_wave_drivera_dac0[11:0] = $random;
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0] = $random;
         #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_drivera_dac0[11:0];
+        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0];
         if (`ANA_TOP.D2A_IDAC_DIN_CH1 !== rand_num[11:0]) begin
         `nnc_error("ANA", $sformatf("D2A_IDAC_DIN_CH1 :%b is not as expectation of rand_num[11:0]: %b",`ANA_TOP.D2A_IDAC_DIN_CH1, rand_num[11:0]))
         end
-      release  `ANA_WRAPPER_TOP.i_out_wave_drivera_dac0[11:0];              
+      release  `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0];              
     end
 
     //Module : PMU , Direction : A2D , Connection : SPI THROUGH PINMUX.
@@ -902,57 +902,57 @@ class `TESTNAME extends soc_base_test;
 
     //Module : CH2 , Direction : WG , Connection : WG.
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_sourcea_driver_a[1]  = $random;
+        force `ANA_WRAPPER_TOP.i_source_driver[1]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_sourcea_driver_a[1];
+        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[1];
         if (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_sourcea_driver_a: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_sourcea_driver_a[1];              
+      release  `ANA_WRAPPER_TOP.i_source_driver[1];              
     end  
 
     //Module : CH2 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_sourceb_driver_a[1]  = $random;
+        force `ANA_WRAPPER_TOP.i_source_driver[1]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_sourceb_driver_a[1];
+        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[1];
         if (`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_sourceb_driver_a: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_sourceb_driver_a[1];              
+      release  `ANA_WRAPPER_TOP.i_source_driver[1];              
     end
 
     //Module : CH2 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pullda_driver_a[1]  = $random;
+        force `ANA_WRAPPER_TOP.i_pulldn_driver[1]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pullda_driver_a[1];
+        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[1];
         if (`ANA_TOP.D2A_DRIVERA_PULLDA_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pullda_driver_a: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH2, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH2, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_pullda_driver_a[1];              
+      release  `ANA_WRAPPER_TOP.i_pulldn_driver[1];              
     end
 
     //Module : CH2 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldb_driver_a[1]  = $random;
+        force `ANA_WRAPPER_TOP.i_pulldn_driver[1]  = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldb_driver_a[1];
+        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[1];
         if (`ANA_TOP.D2A_DRIVERA_PULLDB_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldb_driver_a: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH2, rand_bit))
+        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH2, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.i_pulldb_driver_a[1];              
+      release  `ANA_WRAPPER_TOP.i_pulldn_driver[1];              
     end
 
     //Module : CH2 , Direction : WG , Connection : WG.    
     for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_out_wave_drivera_dac1[11:0] = $random;
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0] = $random;
         #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_drivera_dac1[11:0];
+        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0];
         if (`ANA_TOP.D2A_IDAC_DIN_CH2 !== rand_num[11:0]) begin
         `nnc_error("ANA", $sformatf("D2A_IDAC_DIN_CH2 :%b is not as expectation of rand_num[11:0]: %b",`ANA_TOP.D2A_IDAC_DIN_CH2, rand_num[11:0]))
         end
-      release  `ANA_WRAPPER_TOP.i_out_wave_drivera_dac1[11:0];              
+      release  `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0];              
     end
 
     //Module : CH2 , Direction : A2D , Connection : A2D.    

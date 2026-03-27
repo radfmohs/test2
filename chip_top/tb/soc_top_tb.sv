@@ -15,7 +15,7 @@
 `define ANA_WRAPPER_TOP `SOC_TOP.u_top_ana_wrapper
 `define ANA_TOP `ANA_WRAPPER_TOP.u_top_ana
 `define IMEAS_WRAPPER_TOP `DIG_TOP.u_imeas_wrapper
-`define FILTER_WRAPPER_TOP `DIG_TOP.u_filter_wrapper
+`define FILTER_WRAPPER_TOP `IMEAS_WRAPPER_TOP.genblk1[0].u_filter_wrapper
 `define LEADOFF_WRAPPER_TOP `DIG_TOP.u_lead_off_detector_wrapper //u_lead_off_detector
 `define LEADOFF_TOP_0 `LEADOFF_WRAPPER_TOP.lead_off_block[0].u_lead_off_detector
 `define LEADOFF_TOP_1 `LEADOFF_WRAPPER_TOP.lead_off_block[1].u_lead_off_detector
@@ -38,7 +38,7 @@
 `define ANA_WRAPPER_TOP_S1 `SOC_TOP_S1.u_top_ana_wrapper
 `define ANA_TOP_S1 `ANA_WRAPPER_TOP_S1.u_top_ana
 `define IMEAS_WRAPPER_TOP_S1 `DIG_TOP_S1.u_imeas_wrapper
-`define FILTER_WRAPPER_TOP_S1 `DIG_TOP_S1.u_filter_wrapper
+`define FILTER_WRAPPER_TOP_S1 `IMEAS_WRAPPER_TOP_S1.genblk1[0].u_filter_wrapper
 //`define LEADOFF_TOP_1 `DIG_TOP_1.u_lead_off_detector
 `define LEADOFF_WRAPPER_TOP_S1 `DIG_TOP_S1.u_lead_off_detector_wrapper //u_lead_off_detector
 `define LEADOFF_TOP_0_S1 `LEADOFF_WRAPPER_TOP_S1.lead_off_block[0].u_lead_off_detector
@@ -59,7 +59,7 @@
 `define ANA_WRAPPER_TOP_S2 `SOC_TOP_S2.u_top_ana_wrapper
 `define ANA_TOP_S2 `ANA_WRAPPER_TOP_S2.u_top_ana
 `define IMEAS_WRAPPER_TOP_S2 `DIG_TOP_S2.u_imeas_wrapper
-`define FILTER_WRAPPER_TOP_S2 `DIG_TOP_S2.u_filter_wrapper
+`define FILTER_WRAPPER_TOP_S2 `IMEAS_WRAPPER_TOP_S2.genblk1[0].u_filter_wrapper
 //`define LEADOFF_TOP_2 `DIG_TOP_2.u_lead_off_detector
 `define LEADOFF_WRAPPER_TOP_2 `DIG_TOP_S2.u_lead_off_detector_wrapper
 `define LEADOFF_TOP_0_S2 `LEADOFF_WRAPPER_TOP_S2.lead_off_block[0].u_lead_off_detector
@@ -82,10 +82,38 @@
 `define SPI_STATUS_REG_CHECK_EN top_cfg.spi_cfg.soc_spi_status_reg_check_en
 
 `define WAVEGEN_SCB_DRV_0_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[0]
-`define CHIP_1_WAVEGEN_SCB_DRV_0_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[0]
-
 `define WAVEGEN_SCB_DRV_1_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[1]
+`define WAVEGEN_SCB_DRV_2_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[2]
+`define WAVEGEN_SCB_DRV_3_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[3]
+`define WAVEGEN_SCB_DRV_4_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[4]
+`define WAVEGEN_SCB_DRV_5_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[5]
+`define WAVEGEN_SCB_DRV_6_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[6]
+`define WAVEGEN_SCB_DRV_7_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[7]
+`define WAVEGEN_SCB_DRV_8_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[8]
+`define WAVEGEN_SCB_DRV_9_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[9]
+`define WAVEGEN_SCB_DRV_10_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[10]
+`define WAVEGEN_SCB_DRV_11_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[11]
+`define WAVEGEN_SCB_DRV_12_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[12]
+`define WAVEGEN_SCB_DRV_13_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[13]
+`define WAVEGEN_SCB_DRV_14_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[14]
+`define WAVEGEN_SCB_DRV_15_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scoreboard_en[15]
+
+`define CHIP_1_WAVEGEN_SCB_DRV_0_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[0]
 `define CHIP_1_WAVEGEN_SCB_DRV_1_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[1]
+`define CHIP_1_WAVEGEN_SCB_DRV_2_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[2]
+`define CHIP_1_WAVEGEN_SCB_DRV_3_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[3]
+`define CHIP_1_WAVEGEN_SCB_DRV_4_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[4]
+`define CHIP_1_WAVEGEN_SCB_DRV_5_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[5]
+`define CHIP_1_WAVEGEN_SCB_DRV_6_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[6]
+`define CHIP_1_WAVEGEN_SCB_DRV_7_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[7]
+`define CHIP_1_WAVEGEN_SCB_DRV_8_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[8]
+`define CHIP_1_WAVEGEN_SCB_DRV_9_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[9]
+`define CHIP_1_WAVEGEN_SCB_DRV_10_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[10]
+`define CHIP_1_WAVEGEN_SCB_DRV_11_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[11]
+`define CHIP_1_WAVEGEN_SCB_DRV_12_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[12]
+`define CHIP_1_WAVEGEN_SCB_DRV_13_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[13]
+`define CHIP_1_WAVEGEN_SCB_DRV_14_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[14]
+`define CHIP_1_WAVEGEN_SCB_DRV_15_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scoreboard_en[15]
 
 `define WAVEGEN_SCB_SCALE_OFFSET_CHECK_EN top_cfg.wavegen_cfg[0].nnc_wavegen_scale_offset_check_en
 `define CHIP_1_WAVEGEN_SCB_SCALE_OFFSET_CHECK_EN top_cfg.wavegen_cfg[1].nnc_wavegen_scale_offset_check_en
@@ -119,7 +147,8 @@
 `define POSTSCAN_NETLIST_ROOT "../netlist/prelayout"
 `define POSTLAYOUT_NETLIST_ROOT "../netlist/postlayout"
 
-`define GPIO_NUM 11
+`define GPIO_NUM 22
+`define SCAN_SIZE 9
 
 // SPI VIP TASKs
 `define WR_NORMAL_REG `SPIM_VIP.spi_wr_single_normal_reg
@@ -237,8 +266,8 @@ wire                            SDM_OUT;
 wire                            scan_rst_n;
 wire                            scan_clk;
 wire                            scan_en;
-wire  [3:0]                     scan_in;
-wire  [3:0]                     scan_out;
+wire  [`SCAN_SIZE-1:0]          scan_in;
+wire  [`SCAN_SIZE-1:0]          scan_out;
 wire                            scan_compression_in;
 wire                            atpg_en;
 wire                            INTB;
@@ -279,9 +308,9 @@ Nanochap_ENS2 u_Nanochap_ENS2
 
 );
 `else
-assign CLK0   = (dut_vif.mult_chip_en === 1'b1)  ? ((dut_vif.mult_chip_typ === 2'b00) ? IOBUF_PAD[9] : (dut_vif.mult_chip_typ === 2'b01) ? 1'b0 : (dut_vif.mult_chip_typ === 2'b10) ? ext_hfclk : 1'b0) : (dut_vif.ext_clk_en === 1'b1)    ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
-assign CLK1   = (dut_vif.mult_chip_en === 1'b1)  ? IOBUF_PAD[9] : (dut_vif.ext_clk_en === 1'b1)    ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
-assign CLK2   = (dut_vif.mult_chip_en === 1'b1)  ? IOBUF_PAD[9] : (dut_vif.ext_clk_en === 1'b1)    ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK0  = (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.mult_chip_typ === 2'b00) ? IOBUF_PAD[10] : (dut_vif.mult_chip_typ === 2'b01) ? 1'b0 : (dut_vif.mult_chip_typ === 2'b10) ? ext_hfclk : 1'b0) : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK1  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[10] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK2  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[10] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
 
 wire clk_sel = (dut_vif.testmode_sel === 2'b11) ? UNLOCK       : (dut_vif.testmode_sel === 2'b00) ? ((dut_vif.ext_clk_en === 1'b0) ?  (dut_vif.gpio_pd_en[11] ? 1'bz : 1'b0) : 1'b1) : 1'bz;
 
@@ -299,13 +328,13 @@ assign testmode_conn_2[0] = (dut_vif.testmode_sel[1:0] !== 2'b00) ? dut_vif.test
 
 // Connecting power from PMU to PADs
 `ifndef MIX_SIM_EN 
-assign VDD_DIG   = `ANA_TOP.PMU_SW.DVDD;
-assign VDD_DIG_S1 = `ANA_TOP_S1.PMU_SW.DVDD;
-assign VDD_DIG_S2 = `ANA_TOP_S2.PMU_SW.DVDD;
+  assign VDD_DIG    = `ANA_TOP.PMU_SW.DVDD;
+  assign VDD_DIG_S1 = `ANA_TOP_S1.PMU_SW.DVDD;
+  assign VDD_DIG_S2 = `ANA_TOP_S2.PMU_SW.DVDD;
 `else
-assign VDD_DIG   = `ANA_TOP.VDD_DIG;
-assign VDD_DIG_S1 = `ANA_TOP_S1.VDD_DIG;
-assign VDD_DIG_S2 = `ANA_TOP_S2.VDD_DIG;
+  assign VDD_DIG    = `ANA_TOP.VDD_DIG;
+  assign VDD_DIG_S1 = `ANA_TOP_S1.VDD_DIG;
+  assign VDD_DIG_S2 = `ANA_TOP_S2.VDD_DIG;
 `endif
 
 //assign VPP = dut_vif.VPP;
@@ -398,16 +427,31 @@ assign spi_miso_conn = (dut_vif.altf_gpio_sel === 2'b00) ? (((dut_vif.mult_chip_
 // ==============================
 assign scan_rst_n = 1'b1;
 assign iopad_resetn = (dut_vif.testmode_sel === 2'b11) ? ext_resetn : (dut_vif.testmode_sel === 2'b10) ? RESETb : (dut_vif.testmode_sel === 2'b01) ? scan_rst_n : (dut_vif.gpio_pu_en[14] === 1'b1) ? 1'bz : ext_resetn;               // Checked
-assign IOBUF_PAD[10]= ((dut_vif.testmode_sel === 2'b00) || (dut_vif.testmode_sel === 2'b10))      ? ((dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'bz) : 1'bz;
+
+// INT_OSC_OUT_EN
+assign IOBUF_PAD[11]= ((dut_vif.testmode_sel === 2'b00) || (dut_vif.testmode_sel === 2'b10))      ? ((dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'bz) : 1'bz;
+// HFOSC_OUT
+assign IOBUF_PAD[10]= 1'bz;
+// OTP_VPP_EN
+assign IOBUF_PAD[9]= 1'bz;
+// INTB
 assign IOBUF_PAD[8] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? 1'bz                : 1'bz;                // Checked
+// DAISY_IN
 assign IOBUF_PAD[7] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? 1'bz : (dut_vif.daisy_en === 1'b1) ? IOBUF_PAD_S1[6] : 1'bz;                // Checked
-assign IOBUF_PAD[6] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? TDI    :   (dut_vif.testmode_sel === 2'b01) ? scan_in[3]          : gpio6_conn;          // Checked
-assign IOBUF_PAD[5] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? STROBE :   (dut_vif.testmode_sel === 2'b01) ? scan_in[2]          : gpio5_conn;          // Checked
+// MISO
+assign IOBUF_PAD[6] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? TDI    :   (dut_vif.testmode_sel === 2'b01) ? scan_in[3]          : gpio6_conn;          // Checked
+// MOSI
+assign IOBUF_PAD[5] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? STROBE :   (dut_vif.testmode_sel === 2'b01) ? scan_in[2]          : gpio5_conn;          // Checked
+// SCLK
 assign IOBUF_PAD[4] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? scan_in[1]          : gpio4_conn;          // Checked
+// NSS
 assign IOBUF_PAD[3] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? scan_in[0]          : gpio3_conn;          // Checked  
+// CPHA
 assign IOBUF_PAD[2] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? scan_compression_in : ((dut_vif.spimode_sel[0] === 1'b1) ? IOBUF_CPHA : (dut_vif.gpio_pd_en[2] ? 1'bz : 1'b0));          // Checked
+// CPOLn
 assign IOBUF_PAD[1] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? scan_en             : ((dut_vif.spimode_sel[1] === 1'b1) ?IOBUF_CPOLn : (dut_vif.gpio_pd_en[1] ? 1'bz : 1'b0));         // Checked
-assign IOBUF_PAD[0] =  (dut_vif.testmode_sel === 2'b11) ? ext_hfclk : (dut_vif.testmode_sel === 2'b10) ? TCK : (dut_vif.testmode_sel === 2'b01) ? scan_clk            : CLK0;                 // Checked
+// CLKSEL
+assign IOBUF_PAD[0] =  (dut_vif.testmode_sel === 2'b11) ? ext_hfclk : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? TCK : (dut_vif.testmode_sel === 2'b01) ? scan_clk            : CLK0;                 // Checked
 
 assign spi_miso     = (dut_vif.testmode_sel === 2'b10) ? 1'bz             : spi_miso_conn; // Checked 
 assign scan_out     = (dut_vif.testmode_sel === 2'b01) ? IOBUF_PAD[10:7]  : 4'bzzzz;       // Checked  
@@ -415,26 +459,26 @@ assign TDO_SEROUT   = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[3]     : 1'bz
 assign TDO          = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[4]     : 1'bz;          // Checked
 assign WBUSY        = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[5]     : 1'bz;          // Checked
 assign INTB         = (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[8]     : 1'bz;          // Checked
-assign VPP_EN       = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[9]     : (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[8]    : 1'bz; // Checked
-wire A2D_COMP0      = (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[8]     : 1'bz;
-wire A2D_COMP1      = (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[8]     : 1'bz;
+assign VPP_EN       = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[9]     : (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[9]    : 1'bz; // Checked
+wire A2D_COMP0      = (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[12]     : 1'bz;
+wire A2D_COMP1      = (dut_vif.testmode_sel === 2'b00) ? IOBUF_PAD[13]     : 1'bz;
 assign dut_vif.INTB = INTB;          // Checked
 
 //assign IOBUF_PAD_S1[12:11] =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[12:11] : 0;
-assign IOBUF_PAD_S1[10]    =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[10] : 0;
+assign IOBUF_PAD_S1[11]    =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[11] : 0;
 //assign IOBUF_PAD_S1[9]   =  IOBUF_PAD[9];
 //assign IOBUF_PAD_S1[8]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[8] : 0;
-assign IOBUF_PAD_S1[7]     =  (dut_vif.daisy_en === 1'b1) ? !IOBUF_PAD[6] : 0; // Connected to inverter of MISO from Chip 1 to Chip 2!
-//assign IOBUF_PAD_S1[6]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[6] : 0;
-assign IOBUF_PAD_S1[5]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[5] : 0;
+assign IOBUF_PAD_S1[7]     =  (dut_vif.mult_chip_en === 1'b1 && dut_vif.testmode_sel === 2'b10) ? 1'bz : (dut_vif.daisy_en === 1'b1) ? !IOBUF_PAD[6] : 0; // Connected to inverter of MISO from Chip 1 to Chip 2!
+assign IOBUF_PAD_S1[6]     =  (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.testmode_sel === 2'b10) ? TDI : 1'bz) : 0;
+assign IOBUF_PAD_S1[5]     =  (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.testmode_sel === 2'b10) ? STROBE : IOBUF_PAD[5]) : 0;
 assign IOBUF_PAD_S1[4]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[4] : 0;
 assign IOBUF_PAD_S1[3]     =  (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.mult_chip_mode === 2'b10) ? spi_nss : (dut_vif.mult_chip_mode === 2'b01) ? 1'b1 : IOBUF_PAD[3]) : 1'b1;
 assign IOBUF_PAD_S1[2]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[2] : 0;
 assign IOBUF_PAD_S1[1]     =  (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[1] : 0;
-assign IOBUF_PAD_S1[0]     =  (dut_vif.mult_chip_en === 1'b1) ? CLK1 : 0;
+assign IOBUF_PAD_S1[0]     =  (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.testmode_sel === 2'b10) ? TCK : CLK1) : 0;
 
 //assign IOBUF_PAD_S2[12:11] =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_sdf_en === 1'b1) ? IOBUF_PAD[12:11] : 0;
-assign IOBUF_PAD_S2[10]    =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_sdf_en === 1'b1) ? IOBUF_PAD[10] : 0;
+assign IOBUF_PAD_S2[11]    =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_sdf_en === 1'b1) ? IOBUF_PAD[11] : 0;
 //assign IOBUF_PAD_S2[9]   =  IOBUF_PAD[9];
 //assign IOBUF_PAD_S2[8]     =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_sdf_en === 1'b1) ? IOBUF_PAD[8] : 0;
 //assign IOBUF_PAD_S2[7]     =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_sdf_en === 1'b1) ? IOBUF_PAD[7] : 0;
@@ -546,15 +590,15 @@ end
 // =======================================
 wire  VDD_DIG_01;
 assign VDD_DIG_01 = VDD_DIG;
-assign #(dut_vif.otp_vpp_delay) VPP = (VDD_DIG_01 === 1'b1) ? ((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : IOBUF_PAD[7]) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD[10:8] === 3'b000) ? IOBUF_PAD[7] & `SOC_TOP.CLKSEL : 0) : 0) : 0;
+assign #(dut_vif.otp_vpp_delay) VPP = (dut_vif.mult_master_inf_en == 1'b1) && ((VDD_DIG_01 === 1'b1) ? ((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD[9] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : IOBUF_PAD[7]) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD[10:8] === 3'b000) ? IOBUF_PAD[9] & `SOC_TOP.CLKSEL : 0) : 0) : 0);
 
 wire  VDD_DIG_S11;
 assign VDD_DIG_S11 = VDD_DIG_S1;
-assign #(dut_vif.otp_vpp_delay) VPP_S1 = ((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S11 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S1[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S11 === 1'b1) ? IOBUF_PAD_S1[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S1[10:8] === 3'b000) ? IOBUF_PAD_S1[7] && `SOC_TOP_S1.CLKSEL : 0) : 0) : 0;
+assign #(dut_vif.otp_vpp_delay) VPP_S1 = (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S11 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S1[9] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S11 === 1'b1) ? IOBUF_PAD_S1[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S1[10:8] === 3'b000) ? IOBUF_PAD_S1[9] && `SOC_TOP_S1.CLKSEL : 0) : 0) : 0);
 
 wire  VDD_DIG_S21;
 assign VDD_DIG_S21 = VDD_DIG_S2;
-assign #(dut_vif.otp_vpp_delay) VPP_S2 = ((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S21 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S2[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S21 === 1'b1) ? IOBUF_PAD_S2[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S2[10:8] === 3'b000) ? IOBUF_PAD_S2[7] && `SOC_TOP_S2.CLKSEL : 0) : 0) : 0;
+assign #(dut_vif.otp_vpp_delay) VPP_S2 = (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S21 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S2[9] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S21 === 1'b1) ? IOBUF_PAD_S2[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S2[10:8] === 3'b000) ? IOBUF_PAD_S2[9] && `SOC_TOP_S2.CLKSEL : 0) : 0) : 0);
 
 `endif
 

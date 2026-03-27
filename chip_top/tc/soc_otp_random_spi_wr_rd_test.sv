@@ -328,7 +328,7 @@ class `TESTNAME extends soc_base_test;
           //5.a.wait for OTP_VPP_EN=0
           //force soc_top_tb.u_Nanochap_ENS2.VPP =1'b1;
           `nnc_info("SOC_TEST", $sformatf("Wait for otp_vpp_en to go low"), UVM_LOW)  
-          @(negedge soc_top_tb.IOBUF_PAD[8]);   
+          @(negedge `SOC_TB.VPP_EN);   
           //5.b.Change back VPP to VDD(1.8V) for read in 20us, in digital VDD(1.8V)== means Zero(0)
           //so VPP = will be 0 for read
 
@@ -349,7 +349,7 @@ class `TESTNAME extends soc_base_test;
                 `nnc_info("SOC_TEST", $sformatf("READ UNLOCK bit %h !!!", top_test_cfg.rd_data[0][0]), UVM_LOW) 
              end while (top_test_cfg.rd_data[0][0] == 1'b1);
               `nnc_info("SOC_TEST", "unlock bit cleared automatically", UVM_LOW)
-             wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);
+             wait(`SOC_TB.VPP_EN === 1'b0);
              //5.b.Change back VPP to VDD(1.8V) for read in 20us, in digital VDD(1.8V)== means Zero(0)
              //so VPP = will be 0 for read
 
@@ -366,7 +366,7 @@ class `TESTNAME extends soc_base_test;
         else if(wait_for_unlock_clear === 3'd2)begin
           `nnc_info("SOC_TEST", "poll wr_working_high of debug1_reg", UVM_LOW)  
            wait_wr_working_high();
-           wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);
+           wait(`SOC_TB.VPP_EN === 1'b0);
            //5.b.Change back VPP to VDD(1.8V) for read in 20us, in digital VDD(1.8V)== means Zero(0)
            //so VPP = will be 0 for read
 
@@ -382,7 +382,7 @@ class `TESTNAME extends soc_base_test;
         else if(wait_for_unlock_clear === 3'd3)begin
           `nnc_info("SOC_TEST", "poll PPROG bit of debug1_reg", UVM_LOW)
           wait_otp_ip_wr(); ////PPROG signal monitor control im OTP IP
-          wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);
+          wait(`SOC_TB.VPP_EN === 1'b0);
           //5.b.Change back VPP to VDD(1.8V) for read in 20us, in digital VDD(1.8V)== means Zero(0)
           //so VPP = will be 0 for read
         end

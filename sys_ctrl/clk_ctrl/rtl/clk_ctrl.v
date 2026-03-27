@@ -15,6 +15,8 @@
 // R003 remove sram_en/dotp_en                  09/10/2019                         
 //------------------------------------------------------------------------------
 module clk_ctrl (
+output reg [4:0] i_channel_max,
+
 input  wire         presetn,                // global reset after sync by hfosc
 input  wire         poresetn,               // global reset after sync by hfosc
 input  wire 	      adc_resetn,
@@ -63,22 +65,21 @@ output wire start_sample_pclk,
 output wire stop_sample_pclk,
 */
 
+input wire [2:0]    PROD_ID,
 
-input wire [2:0]  PROD_ID,
-
-input  wire enable_cic,
-input  wire imeas_working_sync,
-input  wire imeas_working,
-input  wire [15:0] en_channels,
+input  wire         enable_cic,
+input  wire         imeas_working_sync,
+input  wire         imeas_working,
+input  wire [15:0]  en_channels,
 
 input  wire  [3:0]  iclk_div,               // imeas adc clock divider
 input  wire	    imeas_adc_inv,	    // invert the input to analog imeas if 1, otherwise not inverted
-output wire [15:0]        imeas_pclk,             // for imeas pclk
-output wire [15:0]        imeas_dig_adc_clk,      // imeas adc clock for digital 
-output wire [15:0]        notch_clk,  
-output wire [15:0]        lpf_clk,
-output wire [15:0]        hpf_clk,
-output wire [15:0]        imeas_dig_filter_clk_post,
+output wire [15:0]  imeas_pclk,             // for imeas pclk
+output wire [15:0]  imeas_dig_adc_clk,      // imeas adc clock for digital 
+output wire [15:0]  notch_clk,  
+output wire [15:0]  lpf_clk,
+output wire [15:0]  hpf_clk,
+output wire [15:0]  imeas_dig_filter_clk_post,
 output wire         imeas_adc_clk,          // imeas adc clock for analog
 output wire 	    adc_clk_running,
 
@@ -88,15 +89,15 @@ input  wire [15:0]  lpf_clk_gtg_en,
 input  wire [15:0]  hpf_clk_gtg_en,
 input  wire [3:0]   osr_sel,
 //==================
-//input  wire         fclk_dynen,             // fclk dynamic clock enable
-//input  wire  [1:0]  pclk_div,             // pclk divider
+//input  wire       fclk_dynen,             // fclk dynamic clock enable
+//input  wire  [1:0]pclk_div,             // pclk divider
 input  wire 	    o_clk_sel,             //0 is osc, 1 is mux 
 input  wire  [2:0]  pclk_div,               // pclk divider
 input  wire         int_clk_out,            // from spi for multi chip mode (if 1, then int clk is sent out)
 input  wire         int_clk_out_gpio,       // from gpio for multi chip mode (if 1, then int clk is sent out)
 output wire         hfosc_atpg,             // hfosc after atpg mux
 output wire         otp_bist_tck_atpg,      // otp bist clock after atpg mux
-//output wire         fclk,                   // fclk after clock switching
+//output wire       fclk,                   // fclk after clock switching
 output wire         pclk,                   // periperal clock free-running
 input  wire         otp_dpstb_en,
 input  wire         anac_clock_en,
@@ -111,69 +112,73 @@ output wire         wave_gen_fclk,          // for wave gen pclk
 output wire         hfosc_out
 );
 
-//reg  [2:0]  pclk_div_cnt;
-reg  [6:0]  pclk_div_cnt;
-wire         i_pclken;
+//reg  [2:0]        pclk_div_cnt;
+reg  [6:0]          pclk_div_cnt;
+wire                i_pclken;
 wire		    fclk_en;
-reg         div_fclk_d;
-reg         div_fclk_d_1t;
-wire	      div_fclk_q;
-wire        hfosc_mux;
-wire         fclk;                   // fclk after clock switching
+reg                 div_fclk_d;
+reg                 div_fclk_d_1t;
+wire	            div_fclk_q;
+wire                hfosc_mux;
+wire                fclk;                   // fclk after clock switching
 
 `ifdef FPGA
-assign hfosc_mux = hfosc;
-assign hfosc_atpg = hfosc_mux;
-assign otp_bist_tck_atpg = otp_bist_tck;
+  assign hfosc_mux = hfosc;
+  assign hfosc_atpg = hfosc_mux;
+  assign otp_bist_tck_atpg = otp_bist_tck;
 `else
-// external clock select
-// wire hfosc_gate;
-//assign hfosc_gate = hfosc;
-/*
-common_clock_gate 
-u_hfosc_gate_hclk (
-.clk        (hfosc),
-.enable     (1'b1),
-.bypass     (atpg_en),
-.gated_clk  (hfosc_gate));
-*/
+  // external clock select
+  // wire hfosc_gate;
+  //assign hfosc_gate = hfosc;
+  /*
+  common_clock_gate u_hfosc_gate_hclk (
+    .clk        (hfosc),
+    .enable     (1'b1),
+    .bypass     (atpg_en),
+    .gated_clk  (hfosc_gate));
+  */
 
-//NBL_CKMX2D0 DNT_HFOSC_MUX (.D0(hfosc), .D1(ext_hfclk), .S(ext_clk_sel), .Z(hfosc_mux));
-CLKMX2_X4_A7TULL DNT_HFOSC_MUX (.A(hfosc), .B(ext_hfclk), .S0(ext_clk_sel), .Y(hfosc_mux));
-//if multiple wavegen chip needed, and this is master chip for clk, then ext_clk_sel can be fixed to 1 externally, then spi writes int_clk_out to 1, 
-//then chip will get clk (from hfosc_out going out and then from ext_hfclk coming back (and also going to slave wavegen chip))
-//if multiple wavegen chip needed, and this is slave chip for clk, then ext_clk_sel fixed to 1, and ext_hfclk will be connected to hfosc_out of master chip for clk
-//assign hfosc_out = hfosc & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
-wire  clk_outside;
-assign  clk_outside = o_clk_sel ? hfosc_mux : hfosc;
-//assign hfosc_out = hfosc_mux & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
-assign hfosc_out = clk_outside & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
+  //NBL_CKMX2D0 DNT_HFOSC_MUX (.D0(hfosc), .D1(ext_hfclk), .S(ext_clk_sel), .Z(hfosc_mux));
+  CLKMX2_X4_A7TULL DNT_HFOSC_MUX (.A(hfosc), .B(ext_hfclk), .S0(ext_clk_sel), .Y(hfosc_mux));
+  //if multiple wavegen chip needed, and this is master chip for clk, then ext_clk_sel can be fixed to 1 externally, then spi writes int_clk_out to 1, 
+  //then chip will get clk (from hfosc_out going out and then from ext_hfclk coming back (and also going to slave wavegen chip))
+  //if multiple wavegen chip needed, and this is slave chip for clk, then ext_clk_sel fixed to 1, and ext_hfclk will be connected to hfosc_out of master chip for clk
+  //assign hfosc_out = hfosc & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
 
-// scan clock mux
-//NBL_CKMX2D0 DNT_HFOSC_ATPG (.D0(hfosc_mux), .D1(scan_clk), .S(atpg_en), .Z(hfosc_atpg));
-CLKMX2_X4_A7TULL DNT_HFOSC_ATPG (.A(hfosc_mux), .B(scan_clk), .S0(atpg_en), .Y(hfosc_atpg));
-// otp_bist_tck atpg mux
-//NBL_CKMX2D0 DNT_FLASH_BIST_TCK_ATPG (.D0(otp_bist_tck), .D1(scan_clk), .S(atpg_en), .Z(otp_bist_tck_atpg));
-CLKMX2_X4_A7TULL DNT_FLASH_BIST_TCK_ATPG (.A(otp_bist_tck), .B(scan_clk), .S0(atpg_en), .Y(otp_bist_tck_atpg));
+  wire  clk_outside;
+  assign  clk_outside = o_clk_sel ? hfosc_mux : hfosc;
+
+  //assign hfosc_out = hfosc_mux & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
+  assign hfosc_out = clk_outside & (int_clk_out | int_clk_out_gpio);//hfosc_out goes to pin mux then io cell. int_clk_out is from spi. no need to sync otherwise chip won't work at startup
+
+  // scan clock mux
+  //NBL_CKMX2D0 DNT_HFOSC_ATPG (.D0(hfosc_mux), .D1(scan_clk), .S(atpg_en), .Z(hfosc_atpg));
+  CLKMX2_X4_A7TULL DNT_HFOSC_ATPG (.A(hfosc_mux), .B(scan_clk), .S0(atpg_en), .Y(hfosc_atpg));
+
+  // otp_bist_tck atpg mux
+  //NBL_CKMX2D0 DNT_FLASH_BIST_TCK_ATPG (.D0(otp_bist_tck), .D1(scan_clk), .S(atpg_en), .Z(otp_bist_tck_atpg));
+  CLKMX2_X4_A7TULL DNT_FLASH_BIST_TCK_ATPG (.A(otp_bist_tck), .B(scan_clk), .S0(atpg_en), .Y(otp_bist_tck_atpg));
 `endif
 
 //assign fclk_en = ~fclk_dynen | pmu_fclk_en;
 assign fclk_en =  pmu_fclk_en;
+
 //hclk gating
-common_clock_gate 
-u_cmsdk_clock_gate_hclk (
-.clk        (hfosc_atpg),
-.enable     (fclk_en),
-.bypass     (scan_enable),
-.gated_clk  (fclk));
+common_clock_gate u_cmsdk_clock_gate_hclk (
+  .clk        (hfosc_atpg),
+  .enable     (fclk_en),
+  .bypass     (scan_enable),
+  .gated_clk  (fclk)
+);
 
 wire [2:0] pclk_div_sync;
 common_sync_bit common_bit_sync_pclk_div[2:0](
-                .async_in(pclk_div),
-                //.async_in(3'd7),
-                .clk(fclk),
-                .rst_(poresetn),      
-                .sync_out(pclk_div_sync));
+  .async_in(pclk_div),
+//.async_in(3'd7),
+  .clk(fclk),
+  .rst_(poresetn),      
+  .sync_out(pclk_div_sync)
+);
 
 /*
 wire fclk_inv_bak;
@@ -277,6 +282,7 @@ wire poresetn_final;
 //   NBL_CKMX2D0 DNT_RSTINV_ATPG (.D0((!(pclk_div_sync0_chg | pclk_div_sync1_chg)) & poresetn ) , .D1(poresetn),  .S(atpg_en), .Z(poresetn_final));
 //CLKMX2_X4_A7TULL DNT_RSTINV_ATPG (.A ((!(pclk_div_sync0_chg | pclk_div_sync1_chg)) & poresetn ),   .B(poresetn), .S0(atpg_en), .Y(poresetn_final));
 CLKMX2_X4_A7TULL DNT_RSTINV_ATPG (.A (poresetn),   .B(poresetn), .S0(atpg_en), .Y(poresetn_final));
+
 always @ (posedge fclk or negedge poresetn_final) begin
   if (~poresetn_final) 
 //always @ (posedge fclk or negedge poresetn_fclk) begin
@@ -310,6 +316,7 @@ always @ (*) begin
   endcase
 end
 */
+
 reg i_pclken_bak;
 always @ (*) begin
   //case (pclk_div)
@@ -326,11 +333,12 @@ always @ (*) begin
     default: i_pclken_bak = 1'b1;
   endcase
 end
+
 //assign i_pclken = pclk_div_sync_chg ? 1'b0 : i_pclken_bak;
 assign i_pclken =  i_pclken_bak;
 
 
-  //removed for clock gating to generate pclk 30May2025
+//removed for clock gating to generate pclk 30May2025
 /*
 wire pclk_div_changed_sync;
 common_sync_bit u_pclk_div_changed_sync(
@@ -389,129 +397,157 @@ common_clk_switch u_DIV_PCLK(
 .o_ind_b()
 );
 */
-common_clock_gate 
-u_cmsdk_clock_gate_pclk (
-.clk        (fclk),
-.enable     (i_pclken), .bypass     (scan_enable), .gated_clk  (pclk_wire));
+common_clock_gate u_cmsdk_clock_gate_pclk (
+  .clk(fclk),
+  .enable(i_pclken), 
+  .bypass(scan_enable), 
+  .gated_clk(pclk_wire)
+);
 
 //  NBL_CKMX2D0  DNT_DIV_PCLK_ATPG (.D0(pclk_wire), .D1(scan_clk),  .S(atpg_en), .Z(pclk));
-CLKMX2_X4_A7TULL DNT_DIV_PCLK_ATPG  (.A(pclk_wire),  .B(scan_clk), .S0(atpg_en), .Y(pclk));
-
+CLKMX2_X4_A7TULL DNT_DIV_PCLK_ATPG  (
+  .A(pclk_wire),
+  .B(scan_clk), 
+  .S0(atpg_en), 
+  .Y(pclk)
+);
 `endif
 
 wire wave_gen_dis_sync;
 common_sync_bit common_bit_sync_i_data_rd_req(
-                .async_in(wave_gen_dis),
-                .clk(pclk),
-                .rst_(presetn),      
-                .sync_out(wave_gen_dis_sync));
+  .async_in(wave_gen_dis),
+  .clk(pclk),
+  .rst_(presetn),      
+  .sync_out(wave_gen_dis_sync)
+);
 
 wire otp_dpstb_en_sync;
 common_sync_bit u_otp_dpstb_en_sync(
-                .async_in(!otp_dpstb_en),
-                .clk(pclk),
-                .rst_(presetn),      
-                .sync_out(otp_dpstb_en_sync));	
+  .async_in(!otp_dpstb_en),
+  .clk(pclk),
+  .rst_(presetn),      
+  .sync_out(otp_dpstb_en_sync)
+);	
 
 wire anac_clock_en_sync;
 common_sync_bit u_anac_clock_en_sync(
-                .async_in(!anac_clock_en),
-                .clk(pclk),
-                .rst_(presetn),      
-                .sync_out(anac_clock_en_sync));	
+  .async_in(!anac_clock_en),
+  .clk(pclk),
+  .rst_(presetn),      
+  .sync_out(anac_clock_en_sync)
+);	
 
 wire temp_sar_clock_en_sync;
 common_sync_bit u_temp_sar_clock_en_sync(
-                .async_in(!temp_sar_clock_dis),
-                .clk(pclk),
-                .rst_(presetn),      
-                .sync_out(temp_sar_clock_en_sync));	
+  .async_in(!temp_sar_clock_dis),
+  .clk(pclk),
+  .rst_(presetn),      
+  .sync_out(temp_sar_clock_en_sync)
+);	
+
 wire ppg_dis_sync;
 common_sync_bit common_bit_sync_fclk_ppg(
-                .async_in(ppg_dis),
-                .clk(fclk),
-                .rst_(poresetn),      
-                .sync_out(ppg_dis_sync));
-
+  .async_in(ppg_dis),
+  .clk(fclk),
+  .rst_(poresetn),      
+  .sync_out(ppg_dis_sync)
+);
 
 wire ppg_sys_en;
 assign ppg_sys_en = (pclk_div_cnt[1:0]==2'd0) & (~ppg_dis_sync);
-common_clock_gate 
-u_cmsdk_clock_gate_sys_ppg (
-.clk        (fclk),
-.enable     (ppg_sys_en), .bypass     (scan_enable), .gated_clk  (clk_sys_ppg)); 
+
+common_clock_gate u_cmsdk_clock_gate_sys_ppg (
+  .clk(fclk),
+  .enable(ppg_sys_en), 
+  .bypass(scan_enable), 
+  .gated_clk(clk_sys_ppg)
+); 
 
 //wave gen pclk/pclkg gating
 
-common_clock_gate 
-u_cmsdk_clock_gate_wave_gen_pclk (
-.clk        (pclk),
-.enable     (~wave_gen_dis_sync), .bypass     (scan_enable), .gated_clk  (wave_gen_pclk)); 
+common_clock_gate u_cmsdk_clock_gate_wave_gen_pclk (
+  .clk(pclk),
+  .enable(~wave_gen_dis_sync), 
+  .bypass(scan_enable), 
+  .gated_clk(wave_gen_pclk)
+); 
 
-common_clock_gate 
-u_cmsdk_clock_gate_wave_gen_fclk (
-.clk        (fclk),
-.enable     (~wave_gen_dis_sync), .bypass     (scan_enable), .gated_clk  (wave_gen_fclk));
+common_clock_gate u_cmsdk_clock_gate_wave_gen_fclk (
+  .clk(fclk),
+  .enable(~wave_gen_dis_sync), 
+  .bypass(scan_enable),
+  .gated_clk(wave_gen_fclk)
+);
 
 wire lead_off_en_sync;
 common_sync_bit common_bit_sync_lead_off(
-                .async_in(lead_off_en),
-                .clk(pclk),
-                .rst_(presetn),      
-                .sync_out(lead_off_en_sync));
+  .async_in(lead_off_en),
+  .clk(pclk),
+  .rst_(presetn),      
+  .sync_out(lead_off_en_sync)
+);
 
-common_clock_gate 
-u_cmsdk_clock_gate_lead_off_pclk (
-.clk        (pclk),
-.enable     (lead_off_en_sync), .bypass     (scan_enable), .gated_clk  (lead_off_pclk)); 
+common_clock_gate u_cmsdk_clock_gate_lead_off_pclk (
+  .clk(pclk),
+  .enable(lead_off_en_sync), 
+  .bypass(scan_enable), 
+  .gated_clk(lead_off_pclk)
+); 
 
-common_clock_gate 
-u_cmsdk_clock_gate_otp_pclk (
-.clk        (pclk),
-.enable     (otp_dpstb_en_sync), .bypass     (scan_enable), .gated_clk  (otp_pclk)); 
+common_clock_gate u_cmsdk_clock_gate_otp_pclk (
+  .clk(pclk),
+  .enable(otp_dpstb_en_sync),
+  .bypass(scan_enable),
+  .gated_clk(otp_pclk)
+); 
 
-common_clock_gate 
-u_cmsdk_clock_gate_anac_pclk (
-.clk        (pclk),
-.enable     (anac_clock_en_sync), .bypass     (scan_enable), .gated_clk  (anac_pclk)); 
+common_clock_gate u_cmsdk_clock_gate_anac_pclk (
+  .clk(pclk),
+  .enable(anac_clock_en_sync),
+  .bypass(scan_enable),
+  .gated_clk(anac_pclk)
+); 
 
-common_clock_gate 
-u_cmsdk_clock_gate_temp_sar_pclk (
-.clk        (pclk),
-.enable     (temp_sar_clock_en_sync), .bypass     (scan_enable), .gated_clk  (temp_sar_pclk)); 
-
+common_clock_gate u_cmsdk_clock_gate_temp_sar_pclk (
+  .clk(pclk),
+  .enable(temp_sar_clock_en_sync),
+  .bypass(scan_enable),
+  .gated_clk(temp_sar_pclk)
+); 
 
 //====================
 //for bps function
 //====================
 //reg         div_fclk_d;
 //reg         div_fclk_d_1t;
-//wire	    div_fclk_q;
+//wire	      div_fclk_q;
 
-reg  [10:0]  iclk_div_cnt;
-reg  [10:0]  iclk_div_num;
-wire        iclk;
-wire	    imeas_adc_inv_atpg;
+reg  [10:0]   iclk_div_cnt;
+reg  [10:0]   iclk_div_num;
+wire          iclk;
+wire	      imeas_adc_inv_atpg;
 
 /*
 wire imeas_en_sync;
 common_sync_bit u_imeas_en_sync(
-                .async_in(imeas_en),
-    //.async_in(1),
-    .clk(pclk),
-                .rst_(presetn),
-                .sync_out(imeas_en_sync));
-
+  .async_in(imeas_en),
+//.async_in(1),
+  .clk(pclk),
+  .rst_(presetn),
+  .sync_out(imeas_en_sync)
+);
 
 //wire imeas_working;
 assign imeas_working = (imeas_en_sync | flg_measure) & D2A_POWER_EN;
 
 //wire imeas_working_sync;
 common_sync_bit u_imeas_working_sync(
-                .async_in(imeas_working),
-                .clk(adc_clk_running),
-                .rst_(adc_resetn),      
-                .sync_out(imeas_working_sync));	
+  .async_in(imeas_working),
+  .clk(adc_clk_running),
+  .rst_(adc_resetn),      
+  .sync_out(imeas_working_sync)
+);
+	
 reg imeas_working_sync_d1;
 always @ (posedge adc_clk_running or negedge adc_resetn) begin
   if (~adc_resetn)
@@ -528,16 +564,15 @@ always @ (posedge pclk or negedge adc_ctrl_resetn) begin
   imeas_working_sync_d1_pclk <= imeas_working;
 end
 
-
 //wire [7:0] en_channels;
 assign en_channels=8'hff;
 */
 /*
 assign en_channels = is_2channels ? 8'b00000011 :
-         is_4channels ? 8'b00001111 : 
-           is_6channels ? 8'b00111111 :
-         is_8channels ? 8'b11111111 : 
-            8'b11111111 ;
+                     is_4channels ? 8'b00001111 : 
+                     is_6channels ? 8'b00111111 :
+                     is_8channels ? 8'b11111111 : 
+                                    8'b11111111 ;
 */
 //input  wire 	    adc_resetn,
 //input  wire 	    adc_ctrl_resetn,
@@ -545,48 +580,54 @@ assign en_channels = is_2channels ? 8'b00000011 :
 reg [15:0] en_channels_prod;
 always @ (*) begin
   case (PROD_ID)
-    3'b000: en_channels_prod  = 16'hffff;   //16 channels
-    3'b001: en_channels_prod  = 16'h3fff;   //14 channels
-    3'b010: en_channels_prod  = 16'hfff;   //12 channels
-    3'b011: en_channels_prod  = 16'h3ff;   //10 channels
-    3'b100: en_channels_prod  = 16'hff;   //8 channels
-    3'b101: en_channels_prod  = 16'h3f;   //6 channels
-    3'b110: en_channels_prod  = 16'hf;   //4 channels
-    3'b111: en_channels_prod  = 16'h3;   //2 channels
-    default: en_channels_prod = 16'hffff;   //16 channels
+    3'b000: begin en_channels_prod  = 16'hffff;  i_channel_max=5'h10; end //16 channels
+    3'b001: begin en_channels_prod  = 16'h3fff;  i_channel_max=5'h0E; end //14 channels
+    3'b010: begin en_channels_prod  = 16'hfff;   i_channel_max=5'h0C; end//12 channels
+    3'b011: begin en_channels_prod  = 16'h3ff;   i_channel_max=5'h0A; end//10 channels
+    3'b100: begin en_channels_prod  = 16'hff;    i_channel_max=5'h08; end//8 channels
+    3'b101: begin en_channels_prod  = 16'h3f;    i_channel_max=5'h06; end//6 channels
+    3'b110: begin en_channels_prod  = 16'hf;    i_channel_max=5'h04; end//4 channels
+    3'b111: begin en_channels_prod  = 16'h3;    i_channel_max=5'h02; end//2 channels
+    default: begin en_channels_prod = 16'hffff;    i_channel_max=5'h10; end//16 channels
   endcase
 end
+
 
 
 wire [15:0] en_channels_final;
 assign      en_channels_final = en_channels_prod & en_channels;
 wire [15:0] en_channels_sync_adcclk;
 wire [15:0] en_channels_sync_pclk;
-common_sync_bit u_en_channel_sync_adc[15:0](
-                //.async_in(en_channels),
-                .async_in(en_channels_final),
-                .clk(adc_clk_running),
-                .rst_(adc_resetn),      
-                .sync_out(en_channels_sync_adcclk));	
-common_sync_bit u_en_channel_sync_pclk[15:0](
-                //.async_in(en_channels),
-                .async_in(en_channels_final),
-                .clk(pclk),
-                .rst_(adc_ctrl_resetn),      
-                .sync_out(en_channels_sync_pclk));	
 
+common_sync_bit u_en_channel_sync_adc[15:0](
+//.async_in(en_channels),
+  .async_in(en_channels_final),
+  .clk(adc_clk_running),
+  .rst_(adc_resetn),      
+  .sync_out(en_channels_sync_adcclk)
+);	
+
+common_sync_bit u_en_channel_sync_pclk[15:0](
+//.async_in(en_channels),
+  .async_in(en_channels_final),
+  .clk(pclk),
+  .rst_(adc_ctrl_resetn),      
+  .sync_out(en_channels_sync_pclk)
+);	
 
 //imeas pclk/pclkg gating
-common_clock_gate 
-u_cmsdk_clock_gate_imeas_pclk[15:0] (
-.clk        (pclk),
-//.enable     (imeas_en),
-//.enable     ({16{imeas_working}} & en_channels), .bypass     (atpg_en),
-.enable     ({16{imeas_working}} & en_channels_sync_pclk), .bypass     (atpg_en),
-.gated_clk  (imeas_pclk[15:0])); 
+common_clock_gate u_cmsdk_clock_gate_imeas_pclk[15:0] (
+  .clk(pclk),
+//.enable(imeas_en),
+//.enable({16{imeas_working}} & en_channels), .bypass     (atpg_en),
+  .enable({16{imeas_working}} & en_channels_sync_pclk), .bypass     (atpg_en),
+  .gated_clk(imeas_pclk[15:0])
+); 
+
 //imeas adc clock divider 50% duty
 wire  [3:0]  iclk_div_final;               // imeas adc clock divider
 assign iclk_div_final =  iclk_div ;               // imeas adc clock divider
+
 always @ (*) begin
   //case (iclk_div)
   case (iclk_div_final)
@@ -629,61 +670,73 @@ always @ (posedge fclk or negedge poresetn) begin
 end
 
 `ifdef FPGA
-reg div_fclk_q_reg;
-assign div_fclk_q = div_fclk_q_reg;
-always @(posedge fclk or negedge poresetn) begin
-if(~poresetn)
-  div_fclk_q_reg <= 1'b0;
-else	
-  div_fclk_q_reg <= div_fclk_d;
-end
-assign iclk = (iclk_div_final == 4'b000) ? fclk : div_fclk_q;
+  reg div_fclk_q_reg;
+  assign div_fclk_q = div_fclk_q_reg;
+
+  always @(posedge fclk or negedge poresetn) begin
+    if(~poresetn)
+      div_fclk_q_reg <= 1'b0;
+    else	
+      div_fclk_q_reg <= div_fclk_d;
+  end
+
+  assign iclk = (iclk_div_final == 4'b000) ? fclk : div_fclk_q;
 `else
-// creat_generate_clk here
-//DFFRQX4M DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
-DFFRHQ_X4_A7TULL DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
-wire not_dividor;
-assign not_dividor = (iclk_div_final == 4'b000);
-wire div_fclk_q_final;
-//CLKMX2X4M DNT_DIV_ADC_CLK (.A(div_fclk_q), .B(fclk), .S0(not_dividor), .Y(div_fclk_q_final));
-//CLKMX2X4M DNT_DIV_FCLK_ATPG (.A(div_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk));
-CLKMX2_X4_A7TULL DNT_DIV_ADC_CLK (.A(div_fclk_q), .B(fclk), .S0(not_dividor), .Y(div_fclk_q_final));
-CLKMX2_X4_A7TULL DNT_DIV_FCLK_ATPG (.A(div_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk));
+  // creat_generate_clk here
+  //DFFRQX4M DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
+  DFFRHQ_X4_A7TULL DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
+
+  wire not_dividor;
+  assign not_dividor = (iclk_div_final == 4'b000);
+
+  wire div_fclk_q_final;
+  //CLKMX2X4M DNT_DIV_ADC_CLK (.A(div_fclk_q), .B(fclk), .S0(not_dividor), .Y(div_fclk_q_final));
+  //CLKMX2X4M DNT_DIV_FCLK_ATPG (.A(div_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk));
+  CLKMX2_X4_A7TULL DNT_DIV_ADC_CLK (.A(div_fclk_q), .B(fclk), .S0(not_dividor), .Y(div_fclk_q_final));
+  CLKMX2_X4_A7TULL DNT_DIV_FCLK_ATPG (.A(div_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk));
 `endif
 
 assign adc_clk_running = iclk;
 //reg enable_cic;
 
 //imeas adc clock gating
-common_clock_gate 
-u_cmsdk_clock_gate_iadc_clk[15:0] (
-.clk        (iclk),
-//.enable     (imeas_en),
-//.enable     ({8{imeas_working}} & en_channels & {8{enable_cic}}),
-//.enable     ({16{imeas_working_sync}} & en_channels & {16{enable_cic}}),
-.enable     ({16{imeas_working_sync}} & en_channels_sync_adcclk & {16{enable_cic}}),
-.bypass     (atpg_en),
-.gated_clk  (imeas_dig_adc_clk[15:0]));
+common_clock_gate u_cmsdk_clock_gate_iadc_clk[15:0] (
+  .clk(iclk),
+//.enable(imeas_en),
+//.enable({8{imeas_working}} & en_channels & {8{enable_cic}}),
+//.enable({16{imeas_working_sync}} & en_channels & {16{enable_cic}}),
+  .enable({16{imeas_working_sync}} & en_channels_sync_adcclk & {16{enable_cic}}),
+  .bypass(atpg_en),
+  .gated_clk(imeas_dig_adc_clk[15:0])
+);
 
 wire imeas_analog_adc_clk;
-common_clock_gate 
-u_cmsdk_clock_gate_analog_adcclk (
-.clk        (iclk),
-//.enable     (imeas_working),
-.enable     (imeas_working_sync),
-.bypass     (atpg_en),
-.gated_clk  (imeas_analog_adc_clk));
-
+common_clock_gate u_cmsdk_clock_gate_analog_adcclk (
+  .clk(iclk),
+//.enable(imeas_working),
+  .enable(imeas_working_sync),
+  .bypass(atpg_en),
+  .gated_clk(imeas_analog_adc_clk)
+);
 
 `ifdef FPGA
-assign imeas_adc_clk = imeas_adc_inv ? imeas_dig_adc_clk[0] : ~imeas_dig_adc_clk[0];
+  assign imeas_adc_clk = imeas_adc_inv ? imeas_dig_adc_clk[0] : ~imeas_dig_adc_clk[0];
 `else
-//CLKMX2X2M DNT_ADC_CLK_ATPG (.A(imeas_adc_inv), .B(1'b0), .S0(atpg_en), .Y(imeas_adc_inv_atpg));
-CLKMX2_X4_A7TULL DNT_ADC_CLK_ATPG (.A(imeas_adc_inv), .B(1'b0), .S0(atpg_en), .Y(imeas_adc_inv_atpg));
-//need change if analog seperate different clock
-//CLKMX2X4M DNT_ADC_CLK_INV  (.A(imeas_dig_adc_clk[0]),
-CLKMX2_X4_A7TULL DNT_ADC_CLK_INV  (.A(imeas_analog_adc_clk),
-.B(~imeas_analog_adc_clk), .S0(imeas_adc_inv_atpg), .Y(imeas_adc_clk));
+  //CLKMX2X2M DNT_ADC_CLK_ATPG (.A(imeas_adc_inv), .B(1'b0), .S0(atpg_en), .Y(imeas_adc_inv_atpg));
+  CLKMX2_X4_A7TULL DNT_ADC_CLK_ATPG (
+    .A(imeas_adc_inv), 
+    .B(1'b0), 
+    .S0(atpg_en), 
+    .Y(imeas_adc_inv_atpg)
+  );
+  //need change if analog seperate different clock
+  //CLKMX2X4M DNT_ADC_CLK_INV  (.A(imeas_dig_adc_clk[0]),
+  CLKMX2_X4_A7TULL DNT_ADC_CLK_INV  (
+   .A(imeas_analog_adc_clk),
+   .B(~imeas_analog_adc_clk), 
+   .S0(imeas_adc_inv_atpg), 
+   .Y(imeas_adc_clk)
+  );
 `endif
 
 //for analog stable
@@ -735,41 +788,47 @@ end
 wire filter_clk_sclt;
 assign filter_clk_sclt = notch_filter_valid? ~(|osr_sel[3:2]) && ~(&osr_sel[1:0]) : ~(|osr_sel[3:1]);
 
-CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK[15:0] (.A(imeas_dig_adc_clk), .B(fclk), .S0(filter_clk_sclt), .Y(imeas_dig_filter_clk_post));
+CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK[15:0] (
+  .A(imeas_dig_adc_clk), 
+  .B(fclk), 
+  .S0(filter_clk_sclt), 
+  .Y(imeas_dig_filter_clk_post)
+);
 
 //HPF CLOCK
 common_clock_gate u_hpf_clk_gate[15:0] (
-.clk        (imeas_dig_filter_clk_post),
-.enable     (hpf_clk_gtg_en),
-.bypass     (atpg_en),
-.gated_clk  (hpf_clk));
-
+  .clk(imeas_dig_filter_clk_post),
+  .enable(hpf_clk_gtg_en),
+  .bypass(atpg_en),
+  .gated_clk(hpf_clk)
+);
 //END
 
 //LPF CLOCK
 common_clock_gate u_lpf_clk_gate[15:0] (
-.clk        (imeas_dig_filter_clk_post),
-.enable     (lpf_clk_gtg_en),
-.bypass     (atpg_en),
-.gated_clk  (lpf_clk));
-
+  .clk        (imeas_dig_filter_clk_post),
+  .enable     (lpf_clk_gtg_en),
+  .bypass     (atpg_en),
+  .gated_clk  (lpf_clk)
+);
 //END
 
 //NOTCH CLOCK
-
 common_clock_gate u_notch_clk_gate[15:0] (
-.clk        (imeas_dig_filter_clk_post),
-.enable     (notch_clk_gtg_en),
-.bypass     (atpg_en),
-.gated_clk  (notch_clk));
-
+  .clk        (imeas_dig_filter_clk_post),
+  .enable     (notch_clk_gtg_en),
+  .bypass     (atpg_en),
+  .gated_clk  (notch_clk)
+);
 //END
+
 //for ppg
 reg  [1:0]  ppg_clk_div_cnt;
 reg  [1:0]  ppg_clk_div_num;
 wire        ppg_clk;
 wire  [1:0]  ppg_clk_div_final;               // imeas adc clock divider
 assign ppg_clk_div_final =  ppg_clk_div ;               // imeas adc clock divider
+
 always @ (*) begin
   case (ppg_clk_div_final)
     2'b01: ppg_clk_div_num = 2'd3; //6M
@@ -778,13 +837,17 @@ always @ (*) begin
     default: ppg_clk_div_num = 2'd0;
   endcase
 end
+
 wire fclk_gate;
 wire fclk_gate_en;
 assign fclk_gate_en = ppg_clk50duty ? (ppg_clk_div_final[1]==1'b1)  : 1'b0;
-common_clock_gate 
-u_cmsdk_clock_gate_fclk_1 (
-.clk        (fclk),
-.enable     (fclk_gate_en), .bypass     (scan_enable), .gated_clk  (fclk_gate));
+
+common_clock_gate u_cmsdk_clock_gate_fclk_1 (
+  .clk        (fclk),
+  .enable     (fclk_gate_en), 
+  .bypass     (scan_enable), 
+  .gated_clk  (fclk_gate)
+);
 
 //always @ (posedge fclk or negedge poresetn) begin
 always @ (posedge fclk_gate or negedge poresetn) begin
@@ -798,20 +861,21 @@ end
 
 reg ppg_div_fclk_d;
 reg ppg_div_fclk_d_1t;
-reg ppg_div_fclk_q;
+//reg ppg_div_fclk_q;
+wire ppg_div_fclk_q;
 always @ (*) begin
-    if (ppg_clk_div_cnt >= ppg_clk_div_num)
-        ppg_div_fclk_d = ~ppg_div_fclk_d_1t;
-    else
-        ppg_div_fclk_d = ppg_div_fclk_d_1t;
+  if (ppg_clk_div_cnt >= ppg_clk_div_num)
+     ppg_div_fclk_d = ~ppg_div_fclk_d_1t;
+  else
+     ppg_div_fclk_d = ppg_div_fclk_d_1t;
 end
 
 //always @ (posedge fclk or negedge poresetn) begin
 always @ (posedge fclk_gate or negedge poresetn) begin
-    if (~poresetn)
-        ppg_div_fclk_d_1t <= 1'b0;
-    else
-        ppg_div_fclk_d_1t <= ppg_div_fclk_d;
+  if (~poresetn)
+    ppg_div_fclk_d_1t <= 1'b0;
+  else
+    ppg_div_fclk_d_1t <= ppg_div_fclk_d;
 end
 
 `ifdef FPGA
@@ -820,9 +884,9 @@ end
 //DFFRQX4M DFF_DIV_FCLK (.Q(div_fclk_q), .CK(fclk), .D(div_fclk_d), .RN(poresetn));
 //DFFRHQ_X4_A7TULL DFF_PPG_DIV_FCLK (.Q(ppg_div_fclk_q), .CK(fclk), .D(ppg_div_fclk_d), .RN(poresetn));
 DFFRHQ_X4_A7TULL DFF_PPG_DIV_FCLK (.Q(ppg_div_fclk_q), .CK(fclk_gate), .D(ppg_div_fclk_d), .RN(poresetn));
+
 wire duty50_div0_1;
 assign duty50_div0_1 = ppg_clk50duty ? ((ppg_clk_div_final == 2'b00) | (ppg_clk_div_final == 2'b01)) : 1'b0;
-
 
 reg ppg_clk_en;
 always @ (*) begin
@@ -836,16 +900,18 @@ always @ (*) begin
 end
 
 wire ppg_clk_gateG;
-common_clock_gate 
-u_cmsdk_clock_gate_ppgclk_gate (
-.clk        (fclk),
-.enable     (ppg_clk_en), .bypass     (scan_enable), .gated_clk  (ppg_clk_gateG));
+common_clock_gate u_cmsdk_clock_gate_ppgclk_gate (
+  .clk        (fclk),
+  .enable     (ppg_clk_en), 
+  .bypass     (scan_enable), 
+  .gated_clk  (ppg_clk_gateG)
+);
+
 wire ppg_div_fclk_q_final;
 //wire ppg_clk_8m_6m;
 wire ppg_div_fclk_q_final_50;
 //CLKMX2_X4_A7TULL DNT_DIV_PRE_PPG_CLK (.A(fclk), .B(ppg_clk_gateG), .S0((ppg_clk_div_final == 2'b01)), .Y(ppg_clk_8m_6m));
 CLKMX2_X4_A7TULL DNT_DIV_PPG_50_CLK (.A(ppg_div_fclk_q), .B(ppg_clk_gateG), .S0(duty50_div0_1), .Y(ppg_div_fclk_q_final_50));
-
 
 CLKMX2_X4_A7TULL DNT_DIV_PPG_CLK (.A(ppg_clk_gateG), .B(ppg_div_fclk_q_final_50), .S0(ppg_clk50duty), .Y(ppg_div_fclk_q_final));
 CLKMX2_X4_A7TULL DNT_DIV_PPGCLK_ATPG (.A(ppg_div_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(ppg_clk));
@@ -854,30 +920,38 @@ CLKMX2_X4_A7TULL DNT_DIV_PPGCLK_ATPG (.A(ppg_div_fclk_q_final), .B(scan_clk), .S
 assign ppg_clk_running = ppg_clk;
 
 //imeas adc clock gating
-common_clock_gate 
-u_cmsdk_clock_gate_ippg_clk (
-.clk        (ppg_clk),
-.enable     (~ppg_dis_sync),
-.bypass     (atpg_en),
-.gated_clk  (clk_ppg));
+common_clock_gate u_cmsdk_clock_gate_ippg_clk (
+  .clk        (ppg_clk),
+  .enable     (~ppg_dis_sync),
+  .bypass     (atpg_en),
+  .gated_clk  (clk_ppg)
+);
 
 wire ppg_analog_ppg_clk;
-common_clock_gate 
-u_cmsdk_clock_gate_analog_clk (
-.clk        (ppg_clk),
-.enable     (~ppg_dis_sync),
-.bypass     (atpg_en),
-.gated_clk  (ppg_analog_ppg_clk));
-
+common_clock_gate u_cmsdk_clock_gate_analog_clk (
+  .clk        (ppg_clk),
+  .enable     (~ppg_dis_sync),
+  .bypass     (atpg_en),
+  .gated_clk  (ppg_analog_ppg_clk)
+);
 
 `ifdef FPGA
 `else
-wire ppg_inv_atpg;
-CLKMX2_X4_A7TULL DNT_PPG_CLK_ATPG (.A(ana_ppgclk_inv), .B(1'b0), .S0(atpg_en), .Y(ppg_inv_atpg));
-//need change if analog seperate different clock
-//CLKMX2X4M DNT_ADC_CLK_INV  (.A(ppg_dig_adc_clk[0]),
-CLKMX2_X4_A7TULL DNT_PPG_CLK_INV  (.A(ppg_analog_ppg_clk),
-.B(~ppg_analog_ppg_clk), .S0(ppg_inv_atpg), .Y(ana_clk_ppg));
+  wire ppg_inv_atpg;
+  CLKMX2_X4_A7TULL DNT_PPG_CLK_ATPG (
+    .A(ana_ppgclk_inv), 
+    .B(1'b0), 
+    .S0(atpg_en), 
+    .Y(ppg_inv_atpg)
+  );
+  //need change if analog seperate different clock
+  //CLKMX2X4M DNT_ADC_CLK_INV  (.A(ppg_dig_adc_clk[0]),
+  CLKMX2_X4_A7TULL DNT_PPG_CLK_INV  (
+    .A(ppg_analog_ppg_clk),
+    .B(~ppg_analog_ppg_clk), 
+    .S0(ppg_inv_atpg), 
+    .Y(ana_clk_ppg)
+  );
 `endif
 
 endmodule

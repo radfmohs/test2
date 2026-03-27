@@ -30,34 +30,27 @@ parameter ADDR_WIDTH = 12,
 //--------outputs to analog------//
 	 //DRIVER A
   spi_wg.slave           spi_wg,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac0,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac1,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac2,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac3,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac4,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac5,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac6,
-  output logic  [WAVE_NO_BITS-1:0] o_out_wave_drivera_dac7,
-
+  output logic  [WAVE_NO_BITS-1:0] o_out_wave_driver_idac [ELEC_NO_C-1:0],
 
   output logic [ELEC_NO_C-1:0] drive_en,
 
-  output logic [ELEC_NO_C-1:0]   	o_sourcea_driver_c,       //
-  output logic [ELEC_NO_C-1:0]   	o_sourceb_driver_c,       // 
-  output logic [ELEC_NO_C-1:0]   	o_pullda_driver_c,       // 
-  output logic [ELEC_NO_C-1:0]   	o_pulldb_driver_c,       // 
+  output logic [ELEC_NO_C-1:0]   	o_source_driver,       //
+//  output logic [ELEC_NO_C-1:0]   	o_sourceb_driver_c,       // 
+  output logic [ELEC_NO_C-1:0]   	o_pulldn_driver,       // 
+//  output logic [ELEC_NO_C-1:0]   	o_pulldb_driver_c,       // 
 
-  output logic [2:0]    		o_ds_driver_c_ct0,
-  output logic [2:0]    		o_ds_driver_c_ct1,
-  output logic [2:0]    		o_ds_driver_c_ct2,
-  output logic [2:0]    		o_ds_driver_c_ct3,
-  output logic [2:0]    		o_ds_driver_c_ct4,
-  output logic [2:0]    		o_ds_driver_c_ct5,
-  output logic [2:0]    		o_ds_driver_c_ct6,
-  output logic [2:0]    		o_ds_driver_c_ct7,
-  output logic [ELEC_NO_C-1:0]		o_ds_driver_en_driver_c,
-  output logic 				o_ds_driver_en_current_c,
-  output logic 				o_driver_en_sw_c,
+//  output logic [2:0]    		o_ds_driver_c_ct0,
+//  output logic [2:0]    		o_ds_driver_c_ct1,
+//  output logic [2:0]    		o_ds_driver_c_ct2,
+//  output logic [2:0]    		o_ds_driver_c_ct3,
+//  output logic [2:0]    		o_ds_driver_c_ct4,
+//  output logic [2:0]    		o_ds_driver_c_ct5,
+//  output logic [2:0]    		o_ds_driver_c_ct6,
+//  output logic [2:0]    		o_ds_driver_c_ct7,
+  output logic [ELEC_NO_C-1:0]		o_ds_driver_en_driver,
+  output logic 				o_ds_driver_en_current,
+  output logic [ELEC_NO_C-1:0]		o_driver_en_sw,
+  output logic 				o_stimu_en,
 
 
   
@@ -136,9 +129,9 @@ assign  spi_wg.i_wg_driver_int_sts           = o_wg_driver_int_sts          ;
 
 
 reg [ELEC_NO_C-1:0]   	o_source_ds_driver_c;
-reg [ELEC_NO_C-1:0]   	o_sink_ds_driver_c;
+//reg [ELEC_NO_C-1:0]   	o_sink_ds_driver_c;
 reg [ELEC_NO_C-1:0]   	o_sw_pulldn_driver_c;
-reg [ELEC_NO_C-1:0]   	o_sw_pullup_driver_c;
+//reg [ELEC_NO_C-1:0]   	o_sw_pullup_driver_c;
 //reg [ELEC_NO_C-1:0]	   	o_driver_driver_a_en_temp;
 reg [ELEC_NO_C-1:0] [WAVE_NO_BITS-1:0]   o_out_wave_drivera_dac_temp;
 //reg [WAVE_NO_BITS-1:0]   o_out_wave_drivera_dac1_temp;
@@ -147,40 +140,49 @@ wire [ELEC_NO_C-1:0] [1:0] w_source;      // source A:0 or B:1 packed array
 //wire [ELEC_NO_C-1:0] [2:0] w_isel; // isel (current select)
 wire [ELEC_NO_C-1:0] w_driver_sel; 
 wire [ELEC_NO_C-1:0] [WAVE_NO_BITS-1:0] w_out_wave_val;
+wire [ELEC_NO_C-1:0] [WAVE_NO_BITS-1:0] w_out_wave_val_adj;
 wire [ELEC_NO_C-1:0] [WAVE_NO_BITS-1:0]   o_out_wave_drivera_dac;
 wire [7:0] w_elec_no;
-reg [ELEC_NO_C-1:0] [2:0] driver_c_ct;
-wire [1:0] w_sw[ELEC_NO_C-1:0] ;
+//reg [ELEC_NO_C-1:0] [2:0] driver_c_ct;
+wire  w_sw[ELEC_NO_C-1:0] ;
 
 
-assign o_out_wave_drivera_dac0 = o_out_wave_drivera_dac[0];
-assign o_out_wave_drivera_dac1 = o_out_wave_drivera_dac[1];
-assign o_out_wave_drivera_dac2 = o_out_wave_drivera_dac[2];
-assign o_out_wave_drivera_dac3 = o_out_wave_drivera_dac[3];
-assign o_out_wave_drivera_dac4 = o_out_wave_drivera_dac[4];
-assign o_out_wave_drivera_dac5 = o_out_wave_drivera_dac[5];
-assign o_out_wave_drivera_dac6 = o_out_wave_drivera_dac[6];
-assign o_out_wave_drivera_dac7 = o_out_wave_drivera_dac[7];
+//assign o_out_wave_drivera_dac0 = o_out_wave_drivera_dac[0];
+//assign o_out_wave_drivera_dac1 = o_out_wave_drivera_dac[1];
+//assign o_out_wave_drivera_dac2 = o_out_wave_drivera_dac[2];
+//assign o_out_wave_drivera_dac3 = o_out_wave_drivera_dac[3];
+//assign o_out_wave_drivera_dac4 = o_out_wave_drivera_dac[4];
+//assign o_out_wave_drivera_dac5 = o_out_wave_drivera_dac[5];
+//assign o_out_wave_drivera_dac6 = o_out_wave_drivera_dac[6];
+//assign o_out_wave_drivera_dac7 = o_out_wave_drivera_dac[7];
+//assign o_out_wave_drivera_dac8 = o_out_wave_drivera_dac[8];
+//assign o_out_wave_drivera_dac9 = o_out_wave_drivera_dac[9];
+//assign o_out_wave_drivera_dac10 = o_out_wave_drivera_dac[10];
+//assign o_out_wave_drivera_dac11 = o_out_wave_drivera_dac[11];
+//assign o_out_wave_drivera_dac12 = o_out_wave_drivera_dac[12];
+//assign o_out_wave_drivera_dac13 = o_out_wave_drivera_dac[13];
+//assign o_out_wave_drivera_dac14 = o_out_wave_drivera_dac[14];
+//assign o_out_wave_drivera_dac15 = o_out_wave_drivera_dac[15];
 
-assign o_ds_driver_c_ct0 = driver_c_ct[0];
-assign o_ds_driver_c_ct1 = driver_c_ct[1] ;
-assign o_ds_driver_c_ct2 = driver_c_ct[2] ;
-assign o_ds_driver_c_ct3 = driver_c_ct[3] ;
-assign o_ds_driver_c_ct4 = driver_c_ct[4] ;
-assign o_ds_driver_c_ct5 = driver_c_ct[5] ;
-assign o_ds_driver_c_ct6 = driver_c_ct[6] ;
-assign o_ds_driver_c_ct7 = driver_c_ct[7] ;
+//assign o_ds_driver_c_ct0 = driver_c_ct[0];
+//assign o_ds_driver_c_ct1 = driver_c_ct[1] ;
+//assign o_ds_driver_c_ct2 = driver_c_ct[2] ;
+//assign o_ds_driver_c_ct3 = driver_c_ct[3] ;
+//assign o_ds_driver_c_ct4 = driver_c_ct[4] ;
+//assign o_ds_driver_c_ct5 = driver_c_ct[5] ;
+//assign o_ds_driver_c_ct6 = driver_c_ct[6] ;
+//assign o_ds_driver_c_ct7 = driver_c_ct[7] ;
 
-
+assign o_stimu_en = spi_wg.stimu_en;
 genvar i;
 generate 
    for (i=0;i < ELEC_NO_C; i=i+1) begin
 
-assign  o_sourcea_driver_c[i]   = spi_wg.dirve[i][4]? spi_wg.dirve[i][0] : o_source_ds_driver_c[i];
-assign  o_sourceb_driver_c[i]   = spi_wg.dirve[i][4]? spi_wg.dirve[i][1] : o_sink_ds_driver_c[i];
-assign  o_pullda_driver_c[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][2] : o_sw_pulldn_driver_c[i];
-assign  o_pulldb_driver_c[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][3] : o_sw_pullup_driver_c[i];
-assign  o_out_wave_drivera_dac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] : spi_wg.dirve[i][4]? spi_wg.dirve[i][17:6] : o_out_wave_drivera_dac_temp[i];
+assign  o_source_driver[i]   = spi_wg.dirve[i][4]? spi_wg.dirve[i][0] : o_source_ds_driver_c[i];
+//assign  o_sourceb_driver_c[i]   = spi_wg.dirve[i][4]? spi_wg.dirve[i][1] : o_sink_ds_driver_c[i];
+assign  o_pulldn_driver[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][2] : o_sw_pulldn_driver_c[i];
+//assign  o_pulldb_driver_c[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][3] : o_sw_pullup_driver_c[i];
+assign  o_out_wave_driver_idac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] : spi_wg.dirve[i][4]? spi_wg.dirve[i][17:6] : o_out_wave_drivera_dac_temp[i];
 
 assign drive_en[i] = (spi_wg.global_en | spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
 
@@ -281,20 +283,30 @@ common_rst_sync u_addr1_int_clr_sync(
 .RSTOUTn   (i_addr1_int_clr_sync[i])
 );
 
+assign w_out_wave_val_adj[i] = ((i_config_reg_sync[i][1] & i_config_reg_sync[i][3] & !i_config_reg_sync[i][7]) | i_config_reg_sync[i][4])? (w_source[i]==2'b01)?  (w_out_wave_val[i] >> 1) +(12'h7f8 >> spi_wg.data_scl[i] ):
+                                                                                                      (w_source[i]==2'b10)? $signed(-(w_out_wave_val[i] >> 1)) + $signed((12'h7f8 >> spi_wg.data_scl[i])): 12'h000
+                                                                                                    : w_out_wave_val[i];
+
+
+
+
 always_ff @(posedge i_pclk or negedge i_presetn) begin
 	if (~i_presetn) begin
 		//Driver A wire connections
 		o_out_wave_drivera_dac_temp[i] <= 'b0;	
-                driver_c_ct[i] 	               <= 'b0;
+                o_driver_en_sw[i]               <= 'b0;
+//                driver_c_ct[i] 	               <= 'b0;
 	end
         else begin
-		o_out_wave_drivera_dac_temp[i] <= w_out_wave_val[i];	
-                driver_c_ct[i] 	               <= spi_wg.w_isel[i];
+		o_out_wave_drivera_dac_temp[i] <= w_out_wave_val_adj[i];	
+//                driver_c_ct[i] 	               <= spi_wg.w_isel[i];
+                o_driver_en_sw[i]               <= spi_wg.w_isel[i]; 
+
         end
 end
 
 
-assign o_ds_driver_en_driver_c[i] = drive_en[i];
+assign o_ds_driver_en_driver[i] = drive_en[i];
 
 end
 
@@ -302,12 +314,10 @@ endgenerate
 
 always_ff @(posedge i_pclk or negedge i_presetn) begin
 	if (~i_presetn) begin
-                o_driver_en_sw_c               <= 'b0;
-                o_ds_driver_en_current_c       <= 'b0;
+                o_ds_driver_en_current       <= 'b0;
 	end
         else begin
-                o_driver_en_sw_c               <= o_ds_driver_en_current_c;  
-                o_ds_driver_en_current_c       <= |drive_en;              
+                o_ds_driver_en_current       <= |drive_en;              
         end
 end
 
@@ -316,23 +326,23 @@ end
 always_ff @(posedge i_pclk or negedge i_presetn) begin
 	if (~i_presetn) begin
 		o_source_ds_driver_c <= {ELEC_NO_C{1'b0}};
-		o_sink_ds_driver_c <= {ELEC_NO_C{1'b0}};
+//		o_sink_ds_driver_c <= {ELEC_NO_C{1'b0}};
 	end
 	else begin
 		for (integer idx = 0; idx < ELEC_NO_C; idx = idx+1) begin
 			if (w_driver_sel[idx]) begin
                              if(w_source[idx][0] && w_source[idx][1]) begin
 				o_source_ds_driver_c[idx] <= 1'b0;
-				o_sink_ds_driver_c[idx] <= 1'b0;
+//				o_sink_ds_driver_c[idx] <= 1'b0;
                              end
                              else begin
-				o_source_ds_driver_c[idx] <= w_source[idx][0];
-				o_sink_ds_driver_c[idx] <= w_source[idx][1];
+				o_source_ds_driver_c[idx] <= (w_source[idx][0] ^ w_source[idx][1]);
+//				o_sink_ds_driver_c[idx] <= w_source[idx][1];
                              end
 			end
 			else begin
 				o_source_ds_driver_c[idx] <= 1'b0;
-				o_sink_ds_driver_c[idx] <= 1'b0;
+//				o_sink_ds_driver_c[idx] <= 1'b0;
 			end
 		end
 	end
@@ -343,17 +353,17 @@ genvar idx;
 for (idx = 0; idx < ELEC_NO_C; idx = idx+1) begin //number of switches
 	always_ff @(posedge i_pclk or negedge i_presetn) begin
 		if (~i_presetn) begin
-			o_sw_pullup_driver_c[idx] <= 1'b0;
+//			o_sw_pullup_driver_c[idx] <= 1'b0;
 			o_sw_pulldn_driver_c[idx] <= 1'b0;
 		end
 		else begin
                       if(w_source[idx][0] && w_source[idx][1]) begin
-	                o_sw_pullup_driver_c[idx] <= 1'b1;
+//	                o_sw_pullup_driver_c[idx] <= 1'b1;
 			o_sw_pulldn_driver_c[idx] <= 1'b1;
                      end
 	             else begin
-			o_sw_pullup_driver_c[idx] <= w_sw[idx][0];
-			o_sw_pulldn_driver_c[idx] <= w_sw[idx][1];
+//			o_sw_pullup_driver_c[idx] <= w_sw[idx];
+			o_sw_pulldn_driver_c[idx] <= w_sw[idx];
                      end
 		end
 	end

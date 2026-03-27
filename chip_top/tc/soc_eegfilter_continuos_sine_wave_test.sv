@@ -183,7 +183,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.eeg_int_sts_en = 0;
     top_test_cfg.wr_data[0] = {6'b0,`DUT_IF.eeg_int_sts_en,`DUT_IF.eeg_int_en};
     `WR_NORMAL_REG(`SOC_FILTER_INT_CTRL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
-    wait(`FILTER_WRAPPER_TOP.eeg_int_sts === 0);
+    wait(`IMEAS_WRAPPER_TOP.eeg_int_sts === 0);
     check_int_sts_reg(0); //  sts should disabled
 
     `nnc_info("SOC_TEST", "soc_eegfilter_continuos_sine_wave_test end now", UVM_LOW)

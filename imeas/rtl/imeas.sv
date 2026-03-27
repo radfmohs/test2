@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 
 module imeas #(
-parameter DATA_WIDTH =32 
+  parameter DATA_WIDTH =32 
 )
 (
 //clock and reset
@@ -88,7 +88,7 @@ imeas_reg u_imeas_reg(
 //.preset_n(presetn),
 //.int_set(int_set),
 
-.reg_ctrl(reg_ctrl),
+  .reg_ctrl(reg_ctrl),
 //.reg_ch(reg_ch),
 //.reg_seq(reg_seq),
 //.int_clr(int_clr),
@@ -103,65 +103,65 @@ imeas_reg u_imeas_reg(
 //.imeas_int_alarm(imeas_int_alarm),
 //.int_alarm_set(int_alarm_set),
 
-.imeas_input_format(imeas_input_format),
+  .imeas_input_format(imeas_input_format),
 //.alpha_0(alpha_0),
 //.alpha_1(alpha_1),
 //.alpha_2(alpha_2),
 //.cic_rate(cic_rate),
 //.chrsv(chrsv),
-.format_sel(format_sel)
+  .format_sel(format_sel)
 //.sd16rst(sd16rst)
 );
 
 imeas_cdc u_imeas_cdc(
-.pclk(pclk),
-.adc_clk(adc_clk),
-.preset_n(presetn),
-.atpg_en(atpg_en),
-.sd16eoc(sd16eoc),
+  .pclk(pclk),
+  .adc_clk(adc_clk),
+  .preset_n(presetn),
+  .atpg_en(atpg_en),
+  .sd16eoc(sd16eoc),
 //.cic_rst(cic_rst),
-.sd16eoc_sync(sd16eoc_sync)
+  .sd16eoc_sync(sd16eoc_sync)
 //.cic_rst_n(cic_rst_n)
 );
 
 imeas_ctrl u_imeas_ctrl(
 //.adc_clk(adc_clk),
 //.cic_rst_n(cic_rst_n),
-.pclk(pclk),
-.preset_n(presetn),
-.sd16eoc_sync(sd16eoc_sync),
-.sd16cic_data(sd16cic_data),
+  .pclk(pclk),
+  .preset_n(presetn),
+  .sd16eoc_sync(sd16eoc_sync),
+  .sd16cic_data(sd16cic_data),
 //.sd16rst(sd16rst),
 //.chmod(chmod),
 //.chnum(chnum),
-.ch0data(chdata_tmp),
-.ch0data_en(chdata_en),
+  .ch0data(chdata_tmp),
+  .ch0data_en(chdata_en),
 //.cic_rst(cic_rst),
 //.threshold_hi(threshold_hi),
 //.threshold_lo(threshold_lo),
-.int_set(int_set)
+  .int_set(int_set)
 //.int_alarm_set(int_alarm_set)
 );
 
 imeas_cic u_imeas_cic(
-.clk(adc_clk),
-.resetn(cic_rst_n),
-.imeas_input_format(imeas_input_format),
-.DR(DR),
+  .clk(adc_clk),
+  .resetn(cic_rst_n),
+  .imeas_input_format(imeas_input_format),
+  .DR(DR),
 //.DR(1),
 /*
- .d2a_tsc_core_fch_reg(d2a_tsc_core_fch_reg),
- .d2a_tsc_sdm_chop_reg(d2a_tsc_sdm_chop_reg),
- .core_sel(core_sel),
- .chop_sel(chop_sel),
- .wave_sel(wave_sel),
- .d2a_tsc_core_fch(d2a_tsc_core_fch),
- .d2a_tsc_sdm_chop(d2a_tsc_sdm_chop),
+  .d2a_tsc_core_fch_reg(d2a_tsc_core_fch_reg),
+  .d2a_tsc_sdm_chop_reg(d2a_tsc_sdm_chop_reg),
+  .core_sel(core_sel),
+  .chop_sel(chop_sel),
+  .wave_sel(wave_sel),
+  .d2a_tsc_core_fch(d2a_tsc_core_fch),
+  .d2a_tsc_sdm_chop(d2a_tsc_sdm_chop),
 */
-.format_sel(format_sel),
-.filter_in(imeas_adc_din),
-.filter_out(sd16cic_data),
-.eoc_out(sd16eoc)
+  .format_sel(format_sel),
+  .filter_in(imeas_adc_din),
+  .filter_out(sd16cic_data),
+  .eoc_out(sd16eoc)
 );
 
 assign    chdata_adcclk = sd16cic_data;

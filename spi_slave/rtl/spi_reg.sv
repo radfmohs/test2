@@ -61,15 +61,13 @@
 `define  OTP_TRIMDATA9                  `OTP_BASE_ADDR+8'h0F//19 
 `define  OTP_WAVEGEN_NUMBER             `OTP_BASE_ADDR+8'h10//1a 
 
-
- //spare reg `OTP_BASE_ADDR + 8'h10~`OTP_BASE_ADDR + 8'h15//1a~1F
+//spare reg `OTP_BASE_ADDR + 8'h10~`OTP_BASE_ADDR + 8'h15//1a~1F
 
 //gpio
 `define  GPIO_BASE_ADDR                 8'h20
 `define  GPIO_PU_CTRL                   `GPIO_BASE_ADDR+8'h00//20
 `define  GPIO_PD_CTRL                   `GPIO_BASE_ADDR+8'h01//21
 `define  GPIO_SR_PDRV0_1_CTRL           `GPIO_BASE_ADDR+8'h02//22
-`define  GPIO_COMP_OUT_CTRL             `GPIO_BASE_ADDR+8'h03//23
  //spare reg `GPIO_BASE_ADDR + 8'h03~`GPIO_BASE_ADDR + 8'h05//23~25
 
 //lead_off
@@ -108,7 +106,6 @@
 
 //analog register define
 `define  ANA_REG_BASE_ADDR               8'h40
-  
 `define  ANA_ENABLE_REG_0		 `ANA_REG_BASE_ADDR+8'h00//40
 `define  ANA_ENABLE_REG_1		 `ANA_REG_BASE_ADDR+8'h01//41
 `define  ANA_ENABLE_REG_2         	 `ANA_REG_BASE_ADDR+8'h02//42
@@ -187,13 +184,10 @@
 //`define  COUNTER_CNT_DBG_2               `DEBUG_REG_BASE_ADDR+8'h03//83
 //`define  COUNTER_CNT_DBG_3               `DEBUG_REG_BASE_ADDR+8'h04//84
 //`define  LEAD_OFF_COUNTER_CNT       `DEBUG_REG_BASE_ADDR+8'h05//85
-
 //`define  LEAD_OFF_COUNTER_CNT       `DEBUG_REG_BASE_ADDR+8'h06//86
 
 `define  OTP_TRIMS_DBG_SEL               `DEBUG_REG_BASE_ADDR+8'h07//87
 `define  OTP_TRIMS_DBG_DATA              `DEBUG_REG_BASE_ADDR+8'h08//88
-
-
 
 `define IMEAS_REG_BASE_ADDR             8'h90
 `define IMEAS_REG_0                     `IMEAS_REG_BASE_ADDR+8'h00
@@ -226,42 +220,72 @@
 `define FILTER_COEFF_DATA2               `FILTER_REG_BASE_ADDR +8'h0D
 `define FILTER_COEFF_DATA3               `FILTER_REG_BASE_ADDR +8'h0E
 
-`define NIRS_REG_BASE_ADDR               8'hC0
-`define NIRS_CTRL_0                      `NIRS_REG_BASE_ADDR + 8'h00
-`define NIRS_CTRL_1                      `NIRS_REG_BASE_ADDR + 8'h01
-`define NIRS_CTRL_2                      `NIRS_REG_BASE_ADDR + 8'h02
-`define NIRS_CTRL_3                      `NIRS_REG_BASE_ADDR + 8'h03
-`define NIRS_CTRL_4                      `NIRS_REG_BASE_ADDR + 8'h04
-`define NIRS_CTRL_5                      `NIRS_REG_BASE_ADDR + 8'h05
-`define NIRS_CTRL_6                      `NIRS_REG_BASE_ADDR + 8'h06
-`define NIRS_DOUT_0                      `NIRS_REG_BASE_ADDR + 8'h07
-`define NIRS_DOUT_1                      `NIRS_REG_BASE_ADDR + 8'h08
-`define NIRS_DOUT_2                      `NIRS_REG_BASE_ADDR + 8'h09
-`define NIRS_DOUT_3                      `NIRS_REG_BASE_ADDR + 8'h0A
-`define NIRS_DOUT_4                      `NIRS_REG_BASE_ADDR + 8'h0B
-`define NIRS_DOUT_5                      `NIRS_REG_BASE_ADDR + 8'h0C
-`define NIRS_DOUT_6                      `NIRS_REG_BASE_ADDR + 8'h0D
-`define NIRS_DOUT_7                      `NIRS_REG_BASE_ADDR + 8'h0E
+`define NIRS_REG_BASE_ADDR_0            8'hC0
 
-`define NIRS_CTRL_7                      `NIRS_REG_BASE_ADDR + 8'h0F
+`define NIRS_CTRL_ADDR                  `NIRS_REG_BASE_ADDR_0 + 8'h00 
+`define NIRS_CTRL_0                     `NIRS_REG_BASE_ADDR_0 + 8'h01
+`define NIRS_CTRL_1                     `NIRS_REG_BASE_ADDR_0 + 8'h02
+`define NIRS_CTRL_2                     `NIRS_REG_BASE_ADDR_0 + 8'h03
+`define NIRS_CTRL_3                     `NIRS_REG_BASE_ADDR_0 + 8'h04
+`define NIRS_CTRL_4                     `NIRS_REG_BASE_ADDR_0 + 8'h05  
+`define NIRS_CTRL_5                     `NIRS_REG_BASE_ADDR_0 + 8'h06
+`define NIRS_CTRL_6                     `NIRS_REG_BASE_ADDR_0 + 8'h07
+`define NIRS_CTRL_7                     `NIRS_REG_BASE_ADDR_0 + 8'h08
+`define NIRS_CTRL_8                     `NIRS_REG_BASE_ADDR_0 + 8'h09
+`define NIRS_CTRL_9                     `NIRS_REG_BASE_ADDR_0 + 8'h0A
+`define NIRS_CTRL_10                    `NIRS_REG_BASE_ADDR_0 + 8'h0B
+//`define NIRS_CTRL_11                    `NIRS_REG_BASE_ADDR_0 + 8'h0C
+`define NIRS_CTRL_CLK                   `NIRS_REG_BASE_ADDR_0 + 8'h0D
+`define NIRS_CTRL_EN                    `NIRS_REG_BASE_ADDR_0 + 8'h0E
+`define NIRS_CTRL_MEAS                  `NIRS_REG_BASE_ADDR_0 + 8'h0F
 
+`define NIRS_REG_BASE_ADDR_1            8'hD0
+`define NIRS_DEBUG_0                    `NIRS_REG_BASE_ADDR_1 + 8'h00
+`define NIRS_DEBUG_1                    `NIRS_REG_BASE_ADDR_1 + 8'h01
+`define NIRS_DEBUG_2                    `NIRS_REG_BASE_ADDR_1 + 8'h02
+`define NIRS_DEBUG_3                    `NIRS_REG_BASE_ADDR_1 + 8'h03
+`define NIRS_DEBUG_4                    `NIRS_REG_BASE_ADDR_1 + 8'h04
+`define NIRS_DEBUG_5                    `NIRS_REG_BASE_ADDR_1 + 8'h05
+//`define NIRS_DEBUG_6                    `NIRS_REG_BASE_ADDR_1 + 8'h06
+`define NIRS_INT_STATUS                 `NIRS_REG_BASE_ADDR_1 + 8'h07
+
+`define NIRS_DOUT_0                     `NIRS_REG_BASE_ADDR_1 + 8'h08
+`define NIRS_DOUT_1                     `NIRS_REG_BASE_ADDR_1 + 8'h09
+`define NIRS_DOUT_2                     `NIRS_REG_BASE_ADDR_1 + 8'h0A
+`define NIRS_DOUT_3                     `NIRS_REG_BASE_ADDR_1 + 8'h0B
+`define NIRS_DOUT_4                     `NIRS_REG_BASE_ADDR_1 + 8'h0C
+`define NIRS_DOUT_5                     `NIRS_REG_BASE_ADDR_1 + 8'h0D
+`define NIRS_DOUT_6                     `NIRS_REG_BASE_ADDR_1 + 8'h0E
+`define NIRS_DOUT_7                     `NIRS_REG_BASE_ADDR_1 + 8'h0F 
+
+`define NIRS_REG_BASE_ADDR_2             8'hE0
+`define NIRS_DOUT_8                     `NIRS_REG_BASE_ADDR_2 + 8'h00
+`define NIRS_DOUT_9                     `NIRS_REG_BASE_ADDR_2 + 8'h01
+`define NIRS_DOUT_10                    `NIRS_REG_BASE_ADDR_2 + 8'h02
+`define NIRS_DOUT_11                    `NIRS_REG_BASE_ADDR_2 + 8'h03
+`define NIRS_DOUT_12                    `NIRS_REG_BASE_ADDR_2 + 8'h04
+`define NIRS_DOUT_13                    `NIRS_REG_BASE_ADDR_2 + 8'h05
+`define NIRS_DOUT_14                    `NIRS_REG_BASE_ADDR_2 + 8'h06
+`define NIRS_DOUT_15                    `NIRS_REG_BASE_ADDR_2 + 8'h07
+`define NIRS_DOUT_16                    `NIRS_REG_BASE_ADDR_2 + 8'h08
+`define NIRS_DOUT_17                    `NIRS_REG_BASE_ADDR_2 + 8'h09
+`define NIRS_DOUT_18                    `NIRS_REG_BASE_ADDR_2 + 8'h0A
 
 
 `timescale 1ns/1ps
-
 module spi_reg #(
   parameter ADDR_WIDTH =8,
   parameter DATA_WIDTH =8,
   parameter HLF_WV_NO_PTS = 6, 
   parameter OUT_NO_BITS = 12,
-  parameter NO_OF_WAVEGEN=8)
+  parameter NO_OF_WAVEGEN=8,
+  parameter NO_OF_NIRS = 8)
 (
   // inputs
   spi_otp.master         spi_otp,
   spi_wg.master          spi_wg,
   spi_anac.master        spi_anac,
-//  spi_leadoff.master        spi_leadoff,
-
+//spi_leadoff.master        spi_leadoff,
 
   input                  i_clk,
   input                  i_rst_n,
@@ -296,8 +320,8 @@ module spi_reg #(
   output  wire 	          reset_cmd,
   output  wire 	          start_cmd,
   output  wire 	          stop_cmd,
-  //output  wire 	          wakeup_cmd,
-  //output  wire 	          standby_cmd,
+//output  wire 	          wakeup_cmd,
+//output  wire 	          standby_cmd,
   output  wire 	          single_shot,
 
   output                  imeas_en,
@@ -311,81 +335,77 @@ module spi_reg #(
   output                  cic_rst,
   output  wire [15:0]     stable_time,
 
-output wire         ppg_dis,           //ppg disble 
-output wire  [1:0]  ppg_clk_div,       // ppg clock divider
-output wire         ana_ppgclk_inv,   // ana ppg clock 
-output wire         ppg_clk50duty,            
-output  wire 	    ppg_rst_reg,
+  output  wire            ppg_dis,           //ppg disble 
+  output  wire  [1:0]     ppg_clk_div,       // ppg clock divider
+  output  wire            ana_ppgclk_inv,   // ana ppg clock 
+  output  wire            ppg_clk50duty,            
+  output  wire 	          ppg_rst_reg,
 
-//========================
-
-
+  // ========================
   output  wire  	  otp_rst_reg,
   output  wire  	  dig_rst_reg,
   output  wire  	  lead_off_rst,
   output  wire  	  lead_off_en,
 
   input  wire [NO_OF_WAVEGEN-1:0]  	A2D_COMP0_7,   
-
  
- output reg   [7:0]  	en_reg_sel,
- output reg   [7:0]     tsc_vdac8b_din_ch1,
- output wire            tsc_comp_low_ch1,
- output wire            tsc_vdac8b_en_ch1,
- output wire  		tsc_comp_en_ch1,
- output wire  	        tsc_en_ch1,
- input  wire  [7:0]     VDAC_NOR,
+  output reg   [7:0]  	  en_reg_sel,
+  output reg   [7:0]      tsc_vdac8b_din_ch1,
+  output wire             tsc_comp_low_ch1,
+  output wire             tsc_vdac8b_en_ch1,
+  output wire  		  tsc_comp_en_ch1,
+  output wire  	          tsc_en_ch1,
+  input  wire  [7:0]      VDAC_NOR,
  
- output wire 	        ana_lvd_sts,
+  output wire 	          ana_lvd_sts,
 
   // clk_ctrl
-//  output  wire         o_fclk_dynen,
-//output  wire  [1:0]  o_pclk_div,
- output  wire  [2:0]  o_pclk_div,
- output  wire         o_int_clk_out,
- output  wire         int_length_slct, 
+//output  wire            o_fclk_dynen,
+//output  wire  [1:0]     o_pclk_div,
+  output  wire  [2:0]     o_pclk_div,
+  output  wire            o_int_clk_out,
+  output  wire            int_length_slct, 
+  output  wire  [2:0]     PROD_ID,
 
   // gpio
-  output wire [7:0]   gpio_pu_ctrl,
-  output wire [7:0]   gpio_pd_ctrl,
-  output wire [2:0]   gpio_sr_pdrv0_1_ctrl,
-  output wire [3:0]   gpio_comp_out_ctrl,
+  output wire [7:0]       gpio_pu_ctrl,
+  output wire [7:0]       gpio_pd_ctrl,
+  output wire [2:0]       gpio_sr_pdrv0_1_ctrl,
          
-  output  wire        tsc_intr_en, 
-  output  wire        tsc_intr_trans_sel,
-  output  reg         tsc_intr_sts_clr,
-  input   wire 	      tsc_intr_sts,
+  output  wire            tsc_intr_en, 
+  output  wire            tsc_intr_trans_sel,
+  output  reg             tsc_intr_sts_clr,
+  input   wire 	          tsc_intr_sts,
        
   // PMU
-  output  wire        o_pmuenable,            // pmu enable
-  output  wire        o_hresetreq,            // system reset request
-  output  wire        o_sleepdeep,            // system enters deep-sleep state
-  output  wire        o_otp_dpstb_en,        // otp deep power down standby mode enable 
-  output  wire        anac_clock_en,
-  output  wire        temp_sar_clock_dis,
-  output  wire        anac_reset,
-  output  reg [7:0]   sample_duration,
-  output  reg [11:0]  stable_duration,
-  input   wire        busy_doing,
-  output  wire        temp_sar_reset,
-//output  wire        o_fclk_sleep_en,
+  output  wire            o_pmuenable,            // pmu enable
+  output  wire            o_hresetreq,            // system reset request
+  output  wire            o_sleepdeep,            // system enters deep-sleep state
+  output  wire            o_otp_dpstb_en,        // otp deep power down standby mode enable 
+  output  wire            anac_clock_en,
+  output  wire            temp_sar_clock_dis,
+  output  wire            anac_reset,
+  output  reg [7:0]       sample_duration,
+  output  reg [11:0]      stable_duration,
+  input   wire            busy_doing,
+  output  wire            temp_sar_reset,
+//output  wire            o_fclk_sleep_en,
 
-  output reg  [15:0]  notch_filter_bypass,
-  output reg  [15:0]  lpf_filter_bypass,
-  output reg  [15:0]  hpf_filter_bypass,
-//  output reg  [2:0]   filter_seq,
-  output reg  [1:0]   eeg_int_en,
-  output reg          eeg_int_clr,
-  input  wire         eeg_int_sts,
-  output reg  [15:0]  cic_data_ignore_tar,
+  output reg  [15:0]      notch_filter_bypass,
+  output reg  [15:0]      lpf_filter_bypass,
+  output reg  [15:0]      hpf_filter_bypass,
+//  output reg  [2:0]     filter_seq,
+  output reg  [1:0]       eeg_int_en,
+  output reg              eeg_int_clr,
+  input  wire             eeg_int_sts,
+  output reg  [15:0]      cic_data_ignore_tar,
 
-  output wire [17:0]  lpf_coeff_data_o[31:0],
-  output wire [19:0]  notch_coeff_data_o[41:0],
-  output wire [23:0]  hpf_coeff_data_o,
+  output wire [17:0]      lpf_coeff_data_o[31:0],
+  output wire [19:0]      notch_coeff_data_o[41:0],
+  output wire [23:0]      hpf_coeff_data_o,
  //wave gen
-  output  wire 	      o_wave_gen_dis,
-  output  wire 	      o_wave_gen_rst
-
+  output  wire 	          o_wave_gen_dis,
+  output  wire 	          o_wave_gen_rst
 );
 
 //reg [3:0] counter_cnt_dbg_sel;
@@ -439,7 +459,7 @@ output  wire 	    ppg_rst_reg,
 
 
  // internal reg and signals declaration
-  reg [7:0]	reg_rd_data;
+ reg [7:0]	reg_rd_data;
  
  // clk_ctr_reg
  reg [7:0]	clk_ctrl_reg;
@@ -458,8 +478,8 @@ output  wire 	    ppg_rst_reg,
 //=============
 
  //analog reg
- wire [7:0] A2D_ANA_GEN_REG_0;
- wire [7:0] A2D_SPARE_RO_REG_0;
+ wire [7:0]     A2D_ANA_GEN_REG_0;
+ wire [7:0]     A2D_SPARE_RO_REG_0;
 
  reg [7:0]      ana_gen_reg_0;
  reg [7:0] 	ana_enable_reg_0;
@@ -488,16 +508,18 @@ output  wire 	    ppg_rst_reg,
  reg [7:0] 	ana_gen_reg_12;
 
 
- reg    drivea_global_en;
- reg [1:0]   drive_slct_03_47;
+ reg            drivea_global_en;
+ reg            stimu_en;
+ reg [1:0]      drive_slct_03_47;
  
  reg [1:0]      atm_hc_sel_reg;
 
  //bps function
  wire [3:0]     imeas_data_sel;
 
-  wire 	          wakeup_cmd;
-  wire 	          standby_cmd;
+ wire 	        wakeup_cmd;
+ wire 	        standby_cmd;
+
 assign wakeup_cmd  = imeas_reg_2[2:0] == 3'h0;
 assign standby_cmd = imeas_reg_2[2:0] == 3'h1;
 assign start_cmd   = imeas_reg_2[2:0] == 3'h2;
@@ -508,12 +530,12 @@ assign reset_cmd   = imeas_reg_2[2:0] == 3'h4;
 //wire [3:0]    imeas_data_sel;
 //assign          wakeup_cmd =    imeas_reg_2[2:0] == 3'h0;
 //assign          standby_cmd =   imeas_reg_2[2:0] == 3'h1;
-assign          start_cmd =     imeas_reg_2[2:0] == 3'h2;
-assign          stop_cmd =      imeas_reg_2[2:0] == 3'h3;
-assign          reset_cmd =     imeas_reg_2[2:0] == 3'h4;
+//assign          start_cmd =     imeas_reg_2[2:0] == 3'h2;
+//assign          stop_cmd =      imeas_reg_2[2:0] == 3'h3;
+//assign          reset_cmd =     imeas_reg_2[2:0] == 3'h4;
 //wire dummy_cmd;
 //assign          dummy_cmd =     imeas_reg_2[2:0] == 3'h7;
-//
+
 assign single_shot    = imeas_ctrl[3];
 assign imeas_data_sel = imeas_ctrl[7:4];
 
@@ -551,10 +573,8 @@ assign cic_rst       = imeas_reg_0[1];
 assign imeas_adc_inv = imeas_reg_0[4];
 
 assign stable_time   = {stable_time_1,stable_time_0};
-//====================
  
- 
- //-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //------------------------------------config register write---------------------------
 //------------------------------------------------------------------------------------
 reg[3:0]  anac_ctrl;
@@ -581,37 +601,32 @@ assign 	imeas_en_chn = {~imeas_en_dis_chn_h, ~imeas_en_dis_chn_l};
 
 always@(posedge i_clk or negedge i_rst_n) begin
   if(!i_rst_n)begin
-    
     // pmu ctrl
     pmu_reg0             <= 8'h01;  
     pmu_reg1             <= 2'b10;  
     o_clk_sel            <= 1'h0;  
-
     //bps imeas
-    imeas_en_dis_chn_l      <= 8'b0;
-    imeas_en_dis_chn_h      <= 8'b0;
-    imeas_reg_0             <= 8'h18;
-    imeas_reg_1             <= 8'h47;
-    imeas_reg_2             <= 8'h0;
-    imeas_ctrl              <= 8'h0;
-    stable_time_0           <= 8'h10;
-    stable_time_1           <= 8'h0;
-
+    imeas_en_dis_chn_l   <= 8'b0;
+    imeas_en_dis_chn_h   <= 8'b0;
+    imeas_reg_0          <= 8'h18;
+    imeas_reg_1          <= 8'h47;
+    imeas_reg_2          <= 8'h0;
+    imeas_ctrl           <= 8'h0;
+    stable_time_0        <= 8'h10;
+    stable_time_1        <= 8'h0;
     // clk_ctrl
-    clk_ctrl_reg       <= 8'h30; 
-    anac_ctrl          <= 4'b0;
-    tsc_ctrl           <= 4'b0;
-    sample_duration    <= 8'h10;
-    stable_duration    <= 12'h1ff;
-    en_reg_sel         <= 8'b0;
-    tsc_vdac8b_din_ch1 <= 8'hFF;
-
+    clk_ctrl_reg         <= 8'h30; 
+    anac_ctrl            <= 4'b0;
+    tsc_ctrl             <= 4'b0;
+    sample_duration      <= 8'h10;
+    stable_duration      <= 12'h1ff;
+    en_reg_sel           <= 8'b0;
+    tsc_vdac8b_din_ch1   <= 8'hFF;
     // analog_regsiters
     ana_enable_reg_0     <=`DEFINE_DEFAULT_ANA_ENABLE_REG_0 ; //8'h00;
     ana_enable_reg_1     <=`DEFINE_DEFAULT_ANA_ENABLE_REG_1;  //8'h00;
     ana_enable_reg_2     <=`DEFINE_DEFAULT_ANA_ENABLE_REG_2;  //8'h00;
     ana_enable_reg_3     <=`DEFINE_DEFAULT_ANA_ENABLE_REG_3;  //8'h00;
-
     ana_gen_reg_1        <=`DEFINE_DEFAULT_ANA_GEN_REG_1;     //8'h00;
     ana_gen_reg_2        <=`DEFINE_DEFAULT_ANA_GEN_REG_2;     //8'h00;
     ana_gen_reg_3        <=`DEFINE_DEFAULT_ANA_GEN_REG_3;     //8'h00;
@@ -621,17 +636,13 @@ always@(posedge i_clk or negedge i_rst_n) begin
     ana_gen_reg_7        <=`DEFINE_DEFAULT_ANA_GEN_REG_7;     //8'h00;  
     ana_gen_reg_8        <=`DEFINE_DEFAULT_ANA_GEN_REG_8;    //8'h00;
     ana_gen_reg_9        <=`DEFINE_DEFAULT_ANA_GEN_REG_9;    //8'h00;
-
-
-
-    drivea_global_en                <= 1'b0;
-    drive_slct_03_47                <= 2'b0;
-
- //   counter_cnt_dbg_sel             <= 4'b0;
-
-    atm_hc_sel_reg          <= 2'b0;
-    tsc_int_crtl_reg        <= 2'b0;
-    tsc_intr_sts_clr        <= 1'b0;
+    drivea_global_en     <= 1'b0;
+    stimu_en             <= 1'b0;
+    drive_slct_03_47     <= 2'b0;
+ // counter_cnt_dbg_sel  <= 4'b0;
+    atm_hc_sel_reg       <= 2'b0;
+    tsc_int_crtl_reg     <= 2'b0;
+    tsc_intr_sts_clr     <= 1'b0;
   end
   else begin
     case(i_addr[ADDR_WIDTH-1:0])   	
@@ -644,12 +655,10 @@ always@(posedge i_clk or negedge i_rst_n) begin
       `IMEAS_CTRL                : imeas_ctrl           <= i_wr  ?  i_wr_data[7:0] : imeas_ctrl [7:0];
       `STABLE_TIME_0             : stable_time_0        <= i_wr  ?  i_wr_data[7:0] : stable_time_0[7:0];
       `STABLE_TIME_1             : stable_time_1        <= i_wr  ?  i_wr_data[7:0] : stable_time_1[7:0];
-
       // pmu 
       `PMU_REG0         	 : pmu_reg0              <= i_wr  ?  i_wr_data[7:0] : pmu_reg0[7:0];
       `PMU_REG1         	 : pmu_reg1              <= i_wr  ?  i_wr_data[1:0] : pmu_reg1[1:0];
       `O_CLK_SEL         	 : o_clk_sel             <= i_wr  ?  i_wr_data[0]   : o_clk_sel;
-
       // clk_ctrl  
       `CLK_CTRL_REG      	 : clk_ctrl_reg          <=  i_wr ?  i_wr_data[7:0]: clk_ctrl_reg;
       `ANAC_CTRL                 : anac_ctrl             <=  i_wr ?  i_wr_data[3:0]: anac_ctrl;
@@ -658,40 +667,29 @@ always@(posedge i_clk or negedge i_rst_n) begin
       `TSC_VDAC8B_DIN_CH1        : tsc_vdac8b_din_ch1    <=  i_wr ?  i_wr_data[7:0]: tsc_vdac8b_din_ch1;
       `TSC_INT_CRTL              : tsc_int_crtl_reg      <=  i_wr ?  i_wr_data[1:0]: tsc_int_crtl_reg;
       `TSC_INT_STATUS            : tsc_intr_sts_clr      <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? {tsc_intr_sts & i_rd} : 1'b0;
-
       `SMP_DURATION	         : sample_duration       <=  i_wr ?  i_wr_data[7:0]: sample_duration;		
       `STABLE_DURATION_L	 : stable_duration[7:0]  <=  i_wr ?  i_wr_data[7:0]: stable_duration[7:0];		
       `STABLE_DURATION_H	 : stable_duration[11:8] <=  i_wr ?  i_wr_data[3:0]: stable_duration[11:8];		
-
       // ANALOG Registers
-      
-     `ANA_ENABLE_REG_0		 : ana_enable_reg_0	<= i_wr ? i_wr_data[7:0] : ana_enable_reg_0;
-     `ANA_ENABLE_REG_1		 : ana_enable_reg_1	<= i_wr ? i_wr_data[7:0] : ana_enable_reg_1;
-     `ANA_ENABLE_REG_2		 : ana_enable_reg_2	<= i_wr ? i_wr_data[7:0] : ana_enable_reg_2;
-     `ANA_ENABLE_REG_3		 : ana_enable_reg_3	<= i_wr ? i_wr_data[7:0] : ana_enable_reg_3;
-
-     `ANA_GEN_REG_1		: ana_gen_reg_1		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_1;
-     `ANA_GEN_REG_2		: ana_gen_reg_2		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_2;
-     `ANA_GEN_REG_3		: ana_gen_reg_3		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_3;
-     `ANA_GEN_REG_4		: ana_gen_reg_4		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_4;
-     `ANA_GEN_REG_5		: ana_gen_reg_5		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_5;
-     `ANA_GEN_REG_6		: ana_gen_reg_6		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_6;
-     `ANA_GEN_REG_7		: ana_gen_reg_7		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_7;
-     `ANA_GEN_REG_8		: ana_gen_reg_8		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_8;
-     `ANA_GEN_REG_9		: ana_gen_reg_9		<= i_wr ? i_wr_data[7:0] : ana_gen_reg_9;
-   
-     `GENERAL_INTERUPT_STATUS_REG01 : tsc_intr_sts_clr <= (i_rd & int_clear_type)? tsc_intr_sts & i_rd : 1'b0; 
-
-
- //      `COUNTER_CNT_DBG_SEL           : counter_cnt_dbg_sel[3:0]     <= i_wr? i_wr_data[3:0]       :         counter_cnt_dbg_sel[3:0];
-
-//     `ANA_INT_CH1_INT_NUMBER     : ana_stimu_int1_num                <= i_wr? i_wr_data       :        ana_stimu_int1_num; 
-//     `ANA_INT_CH2_INT_NUMBER     : ana_stimu_int2_num                <= i_wr? i_wr_data       :        ana_stimu_int2_num; 
-      
-       `WAVEGEN_GLOBAL_REG      :  {drive_slct_03_47,drivea_global_en}         <= i_wr ? i_wr_data[2:0]   : {drive_slct_03_47,drivea_global_en};
-
-       `ATM_HC_SEL              :  atm_hc_sel_reg           <= i_wr ? i_wr_data[1:0] : atm_hc_sel_reg;
-    
+      `ANA_ENABLE_REG_0		 : ana_enable_reg_0	 <= i_wr ? i_wr_data[7:0] : ana_enable_reg_0;
+      `ANA_ENABLE_REG_1		 : ana_enable_reg_1	 <= i_wr ? i_wr_data[7:0] : ana_enable_reg_1;
+      `ANA_ENABLE_REG_2		 : ana_enable_reg_2	 <= i_wr ? i_wr_data[7:0] : ana_enable_reg_2;
+      `ANA_ENABLE_REG_3		 : ana_enable_reg_3	 <= i_wr ? i_wr_data[7:0] : ana_enable_reg_3;
+      `ANA_GEN_REG_1		: ana_gen_reg_1		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_1;
+      `ANA_GEN_REG_2		: ana_gen_reg_2		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_2;
+      `ANA_GEN_REG_3		: ana_gen_reg_3		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_3;
+      `ANA_GEN_REG_4		: ana_gen_reg_4		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_4;
+      `ANA_GEN_REG_5		: ana_gen_reg_5		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_5;
+      `ANA_GEN_REG_6		: ana_gen_reg_6		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_6;
+      `ANA_GEN_REG_7		: ana_gen_reg_7		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_7;
+      `ANA_GEN_REG_8		: ana_gen_reg_8		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_8;
+      `ANA_GEN_REG_9		: ana_gen_reg_9		 <= i_wr ? i_wr_data[7:0] : ana_gen_reg_9;
+      `GENERAL_INTERUPT_STATUS_REG01 : tsc_intr_sts_clr <= (i_rd & int_clear_type)? tsc_intr_sts & i_rd : 1'b0; 
+//    `COUNTER_CNT_DBG_SEL      : counter_cnt_dbg_sel[3:0]  <= i_wr? i_wr_data[3:0]       :         counter_cnt_dbg_sel[3:0];
+//    `ANA_INT_CH1_INT_NUMBER   : ana_stimu_int1_num        <= i_wr? i_wr_data       :        ana_stimu_int1_num; 
+//    `ANA_INT_CH2_INT_NUMBER   : ana_stimu_int2_num        <= i_wr? i_wr_data       :        ana_stimu_int2_num; 
+      `WAVEGEN_GLOBAL_REG      :  {stimu_en,drive_slct_03_47,drivea_global_en}         <= i_wr ? i_wr_data[3:0]   : {stimu_en,drive_slct_03_47,drivea_global_en};
+      `ATM_HC_SEL              :  atm_hc_sel_reg            <= i_wr ? i_wr_data[1:0] : atm_hc_sel_reg;
       //  default :  begin  
       //            end
     endcase  
@@ -726,7 +724,6 @@ assign iclk_div                 = clk_ctrl_reg[7:4];
 reg [7:0]   pu_ctrl;
 reg [7:0]   pd_ctrl;
 reg [2:0]   sr_pdrv0_1_ctrl;
-reg [3:0]   comp_out_ctrl;
 
 
 //reg [5:0] gpio_0_ctrl,gpio_1_ctrl,gpio_2_ctrl,gpio_3_ctrl,gpio_4_ctrl; 
@@ -737,7 +734,6 @@ reg [3:0]   comp_out_ctrl;
 assign gpio_pu_ctrl           =  pu_ctrl;
 assign gpio_pd_ctrl           =  pd_ctrl;
 assign gpio_sr_pdrv0_1_ctrl   =  sr_pdrv0_1_ctrl;
-assign gpio_comp_out_ctrl     =  comp_out_ctrl;
 //assign gpio_3_ctrl_all =  gpio_3_ctrl;
 //assign gpio_4_ctrl_all =  gpio_4_ctrl;
 //assign gpio_5_ctrl_all =  gpio_5_ctrl;
@@ -761,16 +757,12 @@ always@(posedge i_clk or negedge i_rst_n) begin
      pu_ctrl    		  <= 8'h00; 
      pd_ctrl    		  <= 8'h1F; 
      sr_pdrv0_1_ctrl  <= 3'b000; 	
-     comp_out_ctrl    <= 4'b00;
-      
   end
   else begin
     case (i_addr[ADDR_WIDTH-1:0])
-     `GPIO_PU_CTRL     		  : pu_ctrl    	    <= i_wr ? i_wr_data[7:0] : pu_ctrl;	  
-     `GPIO_PD_CTRL     		  : pd_ctrl    	    <= i_wr ? i_wr_data[7:0] : pd_ctrl;
-     `GPIO_SR_PDRV0_1_CTRL  : sr_pdrv0_1_ctrl <= i_wr ? i_wr_data[2:0] : sr_pdrv0_1_ctrl;   
-     `GPIO_COMP_OUT_CTRL    : comp_out_ctrl   <= i_wr ? i_wr_data[3:0] : comp_out_ctrl;
-        
+     `GPIO_PU_CTRL         : pu_ctrl         <= i_wr ? i_wr_data[7:0] : pu_ctrl;	  
+     `GPIO_PD_CTRL     	   : pd_ctrl         <= i_wr ? i_wr_data[7:0] : pd_ctrl;
+     `GPIO_SR_PDRV0_1_CTRL : sr_pdrv0_1_ctrl <= i_wr ? i_wr_data[2:0] : sr_pdrv0_1_ctrl;   
     endcase
   end
 end
@@ -790,7 +782,6 @@ end
 assign int_length_slct  = int_ctrl_reg[0];//0:level; 1:pulse
 assign int_clear_type   = int_ctrl_reg[1];//0:W1C;   1:R1C
 assign int_active_level = int_ctrl_reg[2];//0:low    1: high
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////anac register ///////////////////////////////////////////////
@@ -855,7 +846,6 @@ always@(posedge i_clk or negedge i_rst_n) begin
     endcase
   end
 end
-
 
 //interface spi-anac
 assign spi_anac.ana_lvd_intr_en            = ana_lvd_intr_en_reg;
@@ -959,8 +949,6 @@ assign ana_lvd_intr_pin      = spi_anac.ana_lvd_intr_pin;
 //assign lead_off_Counter_cnt_dac0_final_dbg = spi_leadoff.lead_off_Counter_cnt_dac0_final_dbg;
 //assign lead_off_Counter_cnt_dac0_dbg  = spi_leadoff.lead_off_Counter_cnt_dac0_dbg;
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////filter register ///////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1010,8 +998,6 @@ localparam [23:0] coeff_data_def [0:LPF_COEFF+NOTCH_COEFF+HPF_COEFF-1] = '{
 24'b0000_0011_1110_1110_1110_0101,
 24'b0000_1000_1000_0100_1100_0101,
 24'b0000_0011_1101_1101_1100_1001,
-
-
 //HPF
 24'b0111_1111_1001_1001_0110_0001 //scale
 };
@@ -1060,9 +1046,7 @@ assign notch_coeff_data_o[39]  = 20'b0100_0000_0000_0000_0000;
 assign notch_coeff_data_o[40] = coeff_data[LPF_COEFF+17][19:0];
 assign notch_coeff_data_o[41] = coeff_data[LPF_COEFF+18][19:0];
 
-
 //LPF LOGIC
-
 genvar b;
 generate
    for(b=0;b<LPF_COEFF;b++) begin : LPF_COEFFS
@@ -1099,27 +1083,20 @@ always@(posedge i_clk or negedge i_rst_n) begin : FILTER_SPI_REG
   `FILTER_NOF_BP_H       :  notch_filter_bypass[15:8]<= i_wr? i_wr_data[7:0] : notch_filter_bypass[15:8]; 
   `FILTER_INT_CTRL       :  eeg_int_en               <= i_wr? i_wr_data[1:0]   : eeg_int_en; 
   `FILTER_INT_STS        :  eeg_int_clr              <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (eeg_int_sts & i_rd) : 1'b0;
-
   `GENERAL_INTERUPT_STATUS_REG01 :  eeg_int_clr      <= (i_rd & int_clear_type)? (eeg_int_sts & i_rd) : 1'b0;
-
   `FILTER_NOTCH_DATA_GONE_L       :  cic_data_ignore_tar[7:0] <= i_wr? i_wr_data[7:0] : cic_data_ignore_tar[7:0]; 
   `FILTER_NOTCH_DATA_GONE_H       :  cic_data_ignore_tar[15:8]<= i_wr? i_wr_data[7:0] : cic_data_ignore_tar[15:8]; 
-
   `FILTER_COEFF_ADDR          :  coeff_addr                         <= i_wr? i_wr_data[7:0] : coeff_addr;
   `FILTER_COEFF_DATA1         :  coeff_data[coeff_addr][7:0]    <= i_wr? i_wr_data[7:0] : coeff_data[coeff_addr][7:0]; 
   `FILTER_COEFF_DATA2         :  coeff_data[coeff_addr][15:8]   <= i_wr? i_wr_data[7:0] : coeff_data[coeff_addr][15:8]; 
   `FILTER_COEFF_DATA3         :  coeff_data[coeff_addr][23:16]  <= i_wr? i_wr_data[7:0] : coeff_data[coeff_addr][23:16]; 
-
-
   endcase
   end
 end
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////Lead off register ///////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 //reg [NO_OF_WAVEGEN-1:0] lead_off_int;
 //wire [NO_OF_WAVEGEN-1:0] lead_off_int_rstn;
@@ -1149,8 +1126,6 @@ end
 
 //assign  sel_stim          = lead_off_ctrl[0];
 //assign lead_off_sts_clear    = lead_off_int;   
-
-
 //assign  dac_en            = lead_off_ctrl[5:4];
 //assign lead_off_stop_en       = lead_off_int[0]; 
 //assign lead_off_sts_clear    = lead_off_int[1];   
@@ -1159,96 +1134,39 @@ end
 //assign comp_low_ch0              = lead_off_int[2]; 
 //assign comp_low_ch1              = lead_off_int[6]; 
 
-
-
-
-
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////OTP_Registers Write///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+localparam NO_OF_TRIM = 10;
 /////////////////////
 ////interface
 /////////////////////
 //spi-otp
- // from otp
-wire [7:0] 	d2a_trim0_from_otp;
-wire [7:0] 	d2a_trim1_from_otp;
-wire [7:0] 	d2a_trim2_from_otp;
-wire [7:0] 	d2a_trim3_from_otp;
-wire [7:0] 	d2a_trim4_from_otp;
-wire [7:0] 	d2a_trim5_from_otp;
-wire [7:0] 	d2a_trim6_from_otp;
-wire [7:0] 	d2a_trim7_from_otp;
-wire [7:0] 	d2a_trim8_from_otp;
-wire [7:0] 	d2a_trim9_from_otp;
-
 //to otp
-wire  [7:0] 	trim_tag_reg;
-wire  [7:0] 	d2a_trim1_to_otp;
-wire  [7:0] 	d2a_trim2_to_otp;
-wire  [7:0] 	d2a_trim3_to_otp;
-wire  [7:0] 	d2a_trim4_to_otp;
-wire  [7:0] 	d2a_trim5_to_otp;
-wire  [7:0] 	d2a_trim6_to_otp;
-wire  [7:0] 	d2a_trim7_to_otp;
-wire  [7:0] 	d2a_trim8_to_otp;
-wire  [7:0] 	d2a_trim9_to_otp;
-
+wire  [7:0] 	trim_to_otp[NO_OF_TRIM-1:0];
 
 //local reg for otp inputs
-wire [7:0] 	trim0_from_otp;
-wire [7:0] 	trim1_from_otp; 
-wire [7:0] 	trim2_from_otp;
-wire [7:0] 	trim3_from_otp;
-wire [7:0] 	trim4_from_otp;
-wire [7:0] 	trim5_from_otp;
-wire [7:0] 	trim6_from_otp;
-wire [7:0] 	trim7_from_otp;
-wire [7:0] 	trim8_from_otp;
-wire [7:0] 	trim9_from_otp;
+wire [7:0] 	trim_from_otp[NO_OF_TRIM-1:0]; 
+reg 		trim_reg_updated[NO_OF_TRIM-1:0];
+reg [7:0] 	trim_reg[NO_OF_TRIM-1:0];
 
-reg 		trim0_reg_updated;
-reg 		trim1_reg_updated;
-reg 		trim2_reg_updated;
-reg 		trim3_reg_updated;
-reg 		trim4_reg_updated;
-reg 		trim5_reg_updated;
-reg 		trim6_reg_updated;
-reg 		trim7_reg_updated;
-reg 		trim8_reg_updated;
-reg 		trim9_reg_updated;
-
-reg [7:0] 	trim0_reg;
-reg [7:0] 	trim1_reg;
-reg [7:0] 	trim2_reg;
-reg [7:0] 	trim3_reg;
-reg [7:0] 	trim4_reg;
-reg [7:0] 	trim5_reg;
-reg [7:0] 	trim6_reg;
-reg [7:0] 	trim7_reg;
-reg [7:0] 	trim8_reg;
-reg [7:0] 	trim9_reg;
-
-
-reg [1:0] 	alt_fun_reg;
 reg [7:0] 	d2a_spare_wr_reg0;
 reg [7:0] 	d2a_spare_wr_reg1;
 reg [7:0] 	d2a_spare_wr_reg2;
 wire  		OTP_Reset_Done;
 wire 		i_otp_busy;
 wire [15:0] 	i_DEBUG_otp;
-reg       [7:0] unlock_reg;
+reg  [7:0]      unlock_reg;
 wire   		otp_unlock;
 wire   		otp_spi_wr;
-wire      key_trim;
-wire      wr_working;
+wire            key_trim;
+wire            wr_working;
 wire            OTP_Reset_Done_sync;
 
-
 //---------otp sync synchronours---------------//
- //synchronious only the OTP_Reset_Done
+//synchronious only the OTP_Reset_Done
 
 common_sync_bit   //common_bit_sync 
  #(
@@ -1260,210 +1178,37 @@ common_sync_bit   //common_bit_sync
        .sync_out(OTP_Reset_Done_sync)
        );
 
-assign trim0_from_otp = d2a_trim0_from_otp;
-assign trim1_from_otp = d2a_trim1_from_otp;
-assign trim2_from_otp = d2a_trim2_from_otp;
-assign trim3_from_otp = d2a_trim3_from_otp;
-assign trim4_from_otp = d2a_trim4_from_otp;
-assign trim5_from_otp = d2a_trim5_from_otp;
-assign trim6_from_otp = d2a_trim6_from_otp;
-assign trim7_from_otp = d2a_trim7_from_otp;
-assign trim8_from_otp = d2a_trim8_from_otp;
-assign trim9_from_otp = d2a_trim9_from_otp;
-
-
+assign trim_from_otp = spi_otp.trim_read;
 
 ////////////////////////////////////////////////////////////////
 /////trim0(trim_tag)
 ///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim0_reg           <= 8'h00; //8'h5a;
-  trim0_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim0_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim0_reg           <= trim0_from_otp;
-   trim0_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA0) && i_wr) begin
-    trim0_reg          <= i_wr_data;
-  end
-end
-
-//assign d2a_trim0_to_otp =  trim0_reg;
-assign trim_tag_reg = trim0_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim1
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim1_reg           <= 8'h00; //8'h10;
-  trim1_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim1_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim1_reg           <= trim1_from_otp;
-   trim1_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA1) && i_wr) begin
-    trim1_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim1_to_otp =  trim1_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim2
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim2_reg           <= 8'h00; //8'h40; 
-  trim2_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim2_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim2_reg           <= trim2_from_otp;
-   trim2_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA2) && i_wr) begin
-    trim2_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim2_to_otp =  trim2_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim3
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim3_reg           <= 8'h00;  
-  trim3_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim3_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim3_reg           <= trim3_from_otp;
-   trim3_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA3) && i_wr) begin
-    trim3_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim3_to_otp =  trim3_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim4
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim4_reg           <= 8'h00; //8'h40;
-  trim4_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim4_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim4_reg           <= trim4_from_otp;
-   trim4_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA4) && i_wr) begin
-    trim4_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim4_to_otp =  trim4_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim5
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim5_reg           <= 8'h00; //8'h10; 
-  trim5_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim5_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim5_reg           <= trim5_from_otp;
-   trim5_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA5) && i_wr) begin
-    trim5_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim5_to_otp =  trim5_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim6
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim6_reg           <=  8'h00;  //8'h20; 
-  trim6_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim6_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim6_reg           <= trim6_from_otp;
-   trim6_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA6) && i_wr) begin
-    trim6_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim6_to_otp =  trim6_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim7
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim7_reg           <=  8'h00; //8'h20; //8'h02;
-  trim7_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim7_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim7_reg           <= trim7_from_otp;
-   trim7_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA7) && i_wr) begin
-    trim7_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim7_to_otp =  trim7_reg;
-
-////////////////////////////////////////////////////////////////
-/////trim8
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim8_reg           <= 8'h00; //8'h02;
-  trim8_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim8_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim8_reg           <= trim8_from_otp;
-   trim8_reg_updated   <= 1'b1;
-  end
-  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA8) && i_wr) begin
-    trim8_reg          <= i_wr_data;
-  end
-end
-
-assign d2a_trim8_to_otp =  trim8_reg;
 
 
-////////////////////////////////////////////////////////////////
-/////trim8
-///////////////////////////////////////////////////////////////
-always@(posedge i_clk or negedge i_rst_n) begin
-  if(!i_rst_n)begin
-  trim9_reg           <= 8'h00; 
-  trim9_reg_updated   <= 1'b0;
-  end
-  else if(OTP_Reset_Done_sync & !trim9_reg_updated)begin   // @OTP_Reset_Done OTP values are loaded
-   trim9_reg           <= trim9_from_otp;
-   trim9_reg_updated   <= 1'b1;
-  end
-//  else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==`OTP_TRIMDATA9) && i_wr) begin
-//    trim9_reg          <= i_wr_data;
-//  end
-end
+genvar otp_num;
+generate 
 
-assign d2a_trim9_to_otp =  trim9_reg;
+  for (otp_num=0;otp_num<NO_OF_TRIM;otp_num++) begin : otp_trim
+
+    always@(posedge i_clk or negedge i_rst_n) begin
+      if(!i_rst_n)begin
+      trim_reg[otp_num]           <= 8'h00; //8'h5a;
+      trim_reg_updated[otp_num]   <= 1'b0;
+      end
+      else if(OTP_Reset_Done_sync & !trim_reg_updated[otp_num])begin   // @OTP_Reset_Done OTP values are loaded
+       trim_reg[otp_num]           <= trim_from_otp[otp_num];
+       trim_reg_updated[otp_num]   <= 1'b1;
+      end
+      else if(!i_otp_busy & (i_addr[ADDR_WIDTH-1:0]==(`OTP_TRIMDATA0 + otp_num)) && i_wr) begin
+        trim_reg[otp_num]          <= i_wr_data;
+      end
+    end
+
+    assign trim_to_otp[otp_num] = trim_reg[otp_num];
+
+  end
+
+endgenerate
 
 ////////////////////////////////////////////////////////////////
 /////unlock
@@ -1507,16 +1252,13 @@ reg  [7:0] spi_otp_addr,spi_otp_data;
 wire [7:0] spi_data_read;
 wire       spi_otp_addr_valid;
 
-assign     spi_otp_addr_valid = (spi_otp_addr>=8'h10) && (spi_otp_addr<=8'h7F);
-
+assign spi_otp_addr_valid = (spi_otp_addr>=8'h10) && (spi_otp_addr<=8'h7F);
 assign otp_unlock  = unlock_reg[0] && key_trim;
 assign otp_spi_wr  = unlock_reg[1] && key_trim;
 assign spi_wr_data = unlock_reg[0] && key_data && spi_otp_addr_valid;
 assign spi_rd_data = unlock_reg[2] && key_data;
-
-assign key_trim   = unlock_reg[7:3]==5'b10101;
-assign key_data   = unlock_reg[7:3]==5'b01010; 
-
+assign key_trim    = unlock_reg[7:3]==5'b10101;
+assign key_data    = unlock_reg[7:3]==5'b01010; 
 
 always@(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
@@ -1539,7 +1281,6 @@ end
 
 reg  [3:0] otp_trims_sel;
 wire [7:0] otp_trims_data;
-
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
     otp_trims_sel           <= 4'h0;
@@ -1549,17 +1290,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
   end
 end
 
-
-assign otp_trims_data = (otp_trims_sel==4'h0)? d2a_trim0_from_otp : 
-                        (otp_trims_sel==4'h1)? d2a_trim1_from_otp : 
-                        (otp_trims_sel==4'h2)? d2a_trim2_from_otp : 
-                        (otp_trims_sel==4'h3)? d2a_trim3_from_otp : 
-                        (otp_trims_sel==4'h4)? d2a_trim4_from_otp : 
-                        (otp_trims_sel==4'h5)? d2a_trim5_from_otp : 
-                        (otp_trims_sel==4'h6)? d2a_trim6_from_otp : 
-                        (otp_trims_sel==4'h7)? d2a_trim7_from_otp : 
-                        (otp_trims_sel==4'h8)? d2a_trim8_from_otp :
-                        (otp_trims_sel==4'h9)? d2a_trim9_from_otp : d2a_trim0_from_otp;
+assign otp_trims_data = trim_from_otp[otp_trims_sel]; 
 
 reg [2:0] spi_otp_slct;
 always @(posedge i_clk or negedge i_rst_n) begin
@@ -1570,9 +1301,6 @@ always @(posedge i_clk or negedge i_rst_n) begin
     spi_otp_slct           <= i_wr_data[2:0];
   end
 end
-
-
-
 
 wire [7:0] otp_data_spi_sync;
 common_sync_bit    
@@ -1586,33 +1314,9 @@ common_sync_bit
        );
 
 ////OTP outputs via interface 
-assign spi_otp.trim[0] = trim_tag_reg;
-assign spi_otp.trim[1] = d2a_trim1_to_otp;
-assign spi_otp.trim[2] = d2a_trim2_to_otp;
-assign spi_otp.trim[3] = d2a_trim3_to_otp;
-assign spi_otp.trim[4] = d2a_trim4_to_otp;
-assign spi_otp.trim[5] = d2a_trim5_to_otp;
-assign spi_otp.trim[6] = d2a_trim6_to_otp;
-assign spi_otp.trim[7] = d2a_trim7_to_otp;
-assign spi_otp.trim[8] = d2a_trim8_to_otp;
-assign spi_otp.trim[9] = d2a_trim9_to_otp;
+assign spi_otp.trim = trim_to_otp;
 
-
-assign d2a_trim0_from_otp        =  spi_otp.trim_read[0] ;  
-assign d2a_trim1_from_otp        =  spi_otp.trim_read[1] ; 
-assign d2a_trim2_from_otp        =  spi_otp.trim_read[2] ; 
-assign d2a_trim3_from_otp        =  spi_otp.trim_read[3] ; 
-assign d2a_trim4_from_otp        =  spi_otp.trim_read[4] ; 
-assign d2a_trim5_from_otp        =  spi_otp.trim_read[5] ;
-assign d2a_trim6_from_otp        =  spi_otp.trim_read[6] ; 
-assign d2a_trim7_from_otp        =  spi_otp.trim_read[7] ; 
-assign d2a_trim8_from_otp        =  spi_otp.trim_read[8] ;
-assign d2a_trim9_from_otp        =  spi_otp.trim_read[9] ;
-
-
-wire [7:0] PROD_ID;
-assign PROD_ID = d2a_trim9_from_otp;
-
+assign PROD_ID = trim_from_otp[9][2:0];
 
 assign spi_otp.so_ctrl[0] = otp_unlock;
 assign spi_otp.so_ctrl[1] = otp_spi_wr;
@@ -1628,13 +1332,13 @@ assign i_DEBUG_otp    = spi_otp.os_ctrl[17:2];
 assign wr_working     = spi_otp.os_ctrl[18];
 assign spi_data_read = spi_otp.os_ctrl[26:19];
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////wave gen inst //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
-
 assign spi_wg.global_en = drivea_global_en;
 assign spi_wg.stop_wavegen = 1'b0; //ana_int_stop_wavegen_reg & ana_stimu_ch_intr_sts;
+assign spi_wg.stimu_en = stimu_en;
+
 
 wire i_rd_normal;
 assign i_rd_normal = (drive_slct_03_47==2'b00)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG02) & i_rd :
@@ -1642,12 +1346,11 @@ assign i_rd_normal = (drive_slct_03_47==2'b00)? (i_addr[ADDR_WIDTH-1:0] == `GENE
                      (drive_slct_03_47==2'b10)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG04) & i_rd : 
                      (drive_slct_03_47==2'b11)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG05) & i_rd : (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG02) & i_rd ;
 
-
 wire [7:0] o_wg_driver_rd_data[NO_OF_WAVEGEN-1:0];
 genvar i;
 
 generate 
-  for(i=0;i<NO_OF_WAVEGEN;i=i+1) begin : WG_REG_BLOCK
+  for(i=0;i<NO_OF_WAVEGEN;i=i+1) begin : wg_reg_block
 
   spi_reg_wavegen#(
     .ADDR_WIDTH(10),
@@ -1696,33 +1399,33 @@ generate
    .o_pullba_ctrl   (spi_wg.o_pullba_ctrl[i]),
    .o_dirve         (spi_wg.dirve[i]),
 
-                 .o_data_scl                    (spi_wg.o_data_scl[i]),
-                 .o_ems_data_ctrl               (spi_wg.o_ems_data_ctrl[i]),
-                 .alt_ems_cnt_tar               (spi_wg.alt_ems_cnt_tar[i]),
-                 .o_reg_wg_driver_neg_scale     (spi_wg.o_reg_wg_driver_neg_scale[i]),
-                 .o_wg_driver_pos_scale         (spi_wg.o_wg_driver_pos_scale[i]),
-                 .o_reg_wg_driver_neg_offset    (spi_wg.o_reg_wg_driver_neg_offset[i]),
-                 .o_reg_wg_driver_pos_offset    (spi_wg.o_reg_wg_driver_pos_offset[i]),
+   .o_data_scl                    (spi_wg.o_data_scl[i]),
+   .o_ems_data_ctrl               (spi_wg.o_ems_data_ctrl[i]),
+   .alt_ems_cnt_tar               (spi_wg.alt_ems_cnt_tar[i]),
+   .o_reg_wg_driver_neg_scale     (spi_wg.o_reg_wg_driver_neg_scale[i]),
+   .o_wg_driver_pos_scale         (spi_wg.o_wg_driver_pos_scale[i]),
+   .o_reg_wg_driver_neg_offset    (spi_wg.o_reg_wg_driver_neg_offset[i]),
+   .o_reg_wg_driver_pos_offset    (spi_wg.o_reg_wg_driver_pos_offset[i]),
 
-                .data_scl                      (spi_wg.data_scl[i]),
-                 .ems_data_ctrl                 (spi_wg.ems_data_ctrl[i]),
-                .wg_driver_neg_scale           (spi_wg.wg_driver_neg_scale[i]),
-                .wg_driver_pos_scale           (spi_wg.wg_driver_pos_scale[i]),
-                .wg_driver_neg_offset          (spi_wg.wg_driver_neg_offset[i]),
-                .wg_driver_pos_offset          (spi_wg.wg_driver_pos_offset[i]),      
+   .data_scl                      (spi_wg.data_scl[i]),
+   .ems_data_ctrl                 (spi_wg.ems_data_ctrl[i]),
+   .wg_driver_neg_scale           (spi_wg.wg_driver_neg_scale[i]),
+   .wg_driver_pos_scale           (spi_wg.wg_driver_pos_scale[i]),
+   .wg_driver_neg_offset          (spi_wg.wg_driver_neg_offset[i]),
+   .wg_driver_pos_offset          (spi_wg.wg_driver_pos_offset[i]),      
 
-                 .o_reg_wg_cal_addr             (spi_wg.o_reg_wg_cal_addr[i]),
+   .o_reg_wg_cal_addr             (spi_wg.o_reg_wg_cal_addr[i]),
 
    .o_rd_data                     (o_wg_driver_rd_data[i]),
    .o_no_of_num_slient_disable(spi_wg.o_no_of_num_slient_disable[i]),
    .o_no_of_num_slient_tar(spi_wg.o_no_of_num_slient_tar[i]),
-    .o_wg_driver_int_addr0         (spi_wg.o_wg_driver_int_addr0[i]),
-    .o_wg_driver_int_addr1         (spi_wg.o_wg_driver_int_addr1[i]),
-    .o_wg_driver_int_en            (spi_wg.o_wg_driver_int_en[i]),
-    .o_addr0_int_clr               (spi_wg.o_addr0_int_clr[i]),    
-    .o_addr1_int_clr               (spi_wg.o_addr1_int_clr[i]),
-    .o_wg_driver_int_cnt           (spi_wg.o_wg_driver_int_cnt[i]),
-    .i_wg_driver_int_sts           (spi_wg.i_wg_driver_int_sts[i])
+   .o_wg_driver_int_addr0         (spi_wg.o_wg_driver_int_addr0[i]),
+   .o_wg_driver_int_addr1         (spi_wg.o_wg_driver_int_addr1[i]),
+   .o_wg_driver_int_en            (spi_wg.o_wg_driver_int_en[i]),
+   .o_addr0_int_clr               (spi_wg.o_addr0_int_clr[i]),    
+   .o_addr1_int_clr               (spi_wg.o_addr1_int_clr[i]),
+   .o_wg_driver_int_cnt           (spi_wg.o_wg_driver_int_cnt[i]),
+   .i_wg_driver_int_sts           (spi_wg.i_wg_driver_int_sts[i])
   );
      end
 endgenerate
@@ -1732,52 +1435,79 @@ endgenerate
 //------------------------------------------------------------------------------------
 //--------------------NIRS Register---------------------------------------------------
 //------------------------------------------------------------------------------------
-  reg [7:0] nirs_ctrl_reg_0;
-  reg [7:0] nirs_ctrl_reg_1;
-  reg [7:0] nirs_ctrl_reg_2;
-  reg [7:0] nirs_ctrl_reg_3;
-  reg [7:0] nirs_ctrl_reg_4;
-  reg [7:0] nirs_ctrl_reg_5;
-  reg [7:0] nirs_ctrl_reg_6;
-  reg [7:0] nirs_ctrl_reg_7;
-  reg [7:0] nirs_dout_reg_0;
-  reg [7:0] nirs_dout_reg_1;
-  reg [7:0] nirs_dout_reg_2;
-  reg [7:0] nirs_dout_reg_3;
-  reg [7:0] nirs_dout_reg_4;
-  reg [7:0] nirs_dout_reg_5;
-  reg [7:0] nirs_dout_reg_6;
-  reg [7:0] nirs_dout_reg_7;
+  reg [2:0] nirs_ctrl_addr_reg;
+  reg [5:0] nirs_ctrl_clk_reg;
+  reg [7:0] nirs_ctrl_en_reg;
+  reg [7:0] nirs_ctrl_meas_reg;
 
-assign ppg_dis = nirs_ctrl_reg_7[0];           //ppg disble 
-assign ana_ppgclk_inv = nirs_ctrl_reg_7[1];   // ana ppg clock 
-assign ppg_clk_div = nirs_ctrl_reg_7[3:2];       // ppg clock divider
-assign ppg_clk50duty = nirs_ctrl_reg_7[4];            
-assign ppg_rst_reg = nirs_ctrl_reg_7[5];
+  wire [7:0] nirs_ctrl_tmp[10:0];
+  wire [7:0] nirs_debug_tmp[5:0];  
+  reg [7:0] nirs_ctrl_reg[NO_OF_NIRS-1:0][10:0];
+  reg [7:0] nirs_debug_reg[NO_OF_NIRS-1:0][5:0];
+
+  reg [7:0] nirs_int_sts_reg;
+  reg [7:0] nirs_dout_reg[18:0];
+
+assign ppg_dis          = nirs_ctrl_clk_reg[0];           //ppg disble 
+assign ana_ppgclk_inv   = nirs_ctrl_clk_reg[1];   // ana ppg clock 
+assign ppg_clk_div      = nirs_ctrl_clk_reg[3:2];       // ppg clock divider
+assign ppg_clk50duty    = nirs_ctrl_clk_reg[4];            
+assign ppg_rst_reg      = nirs_ctrl_clk_reg[5];
 
 always@(posedge i_clk or negedge i_rst_n) begin
   if(!i_rst_n) begin
-    nirs_ctrl_reg_0 <= 8'h00;
-    nirs_ctrl_reg_1 <= 8'h00;
-    nirs_ctrl_reg_2 <= 8'h00;
-    nirs_ctrl_reg_3 <= 8'h00;
-    nirs_ctrl_reg_4 <= 8'h00;
-    nirs_ctrl_reg_5 <= 8'h00;
-    nirs_ctrl_reg_6 <= 8'h00;
-    nirs_ctrl_reg_7 <= 8'h02;
+    nirs_ctrl_addr_reg  <= 3'h0;
+    nirs_ctrl_clk_reg   <= 6'h00;
+    nirs_ctrl_en_reg    <= 8'h00;
+    nirs_ctrl_meas_reg  <= 8'h00;
   end else begin
     case (i_addr[ADDR_WIDTH-1:0])
-      `NIRS_CTRL_0  : nirs_ctrl_reg_0 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_0[7:0];
-      `NIRS_CTRL_1  : nirs_ctrl_reg_1 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_1[7:0];
-      `NIRS_CTRL_2  : nirs_ctrl_reg_2 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_2[7:0];
-      `NIRS_CTRL_3  : nirs_ctrl_reg_3 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_3[7:0];
-      `NIRS_CTRL_4  : nirs_ctrl_reg_4 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_4[7:0];
-      `NIRS_CTRL_5  : nirs_ctrl_reg_5 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_5[7:0];
-      `NIRS_CTRL_6  : nirs_ctrl_reg_6 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_6[7:0];
-      `NIRS_CTRL_7  : nirs_ctrl_reg_7 <= i_wr ? i_wr_data[7:0] : nirs_ctrl_reg_7[7:0];
+      `NIRS_CTRL_ADDR : nirs_ctrl_addr_reg  <= i_wr ? i_wr_data[2:0] : nirs_ctrl_addr_reg [2:0];
+      `NIRS_CTRL_CLK  : nirs_ctrl_clk_reg   <= i_wr ? i_wr_data[5:0] : nirs_ctrl_clk_reg  [5:0];
+      `NIRS_CTRL_EN   : nirs_ctrl_en_reg    <= i_wr ? i_wr_data[7:0] : nirs_ctrl_en_reg   [7:0];
+      `NIRS_CTRL_MEAS : nirs_ctrl_meas_reg  <= i_wr ? i_wr_data[7:0] : nirs_ctrl_meas_reg [7:0];
     endcase
   end
 end
+
+always@(posedge i_clk or negedge i_rst_n) begin
+  if(!i_rst_n) begin
+    for(int x = 0; x < NO_OF_NIRS; x = x + 1) begin
+      nirs_ctrl_reg [x][0]  <= 8'h00;
+      nirs_ctrl_reg [x][1]  <= 8'h00;
+      nirs_ctrl_reg [x][2]  <= 8'h00;
+      nirs_ctrl_reg [x][3]  <= 8'h00;
+      nirs_ctrl_reg [x][4]  <= 8'h00;
+      nirs_ctrl_reg [x][5]  <= 8'h00;
+      nirs_ctrl_reg [x][6]  <= 8'h00;
+      nirs_ctrl_reg [x][7]  <= 8'h00;
+      nirs_ctrl_reg [x][8]  <= 8'h00;
+      nirs_ctrl_reg [x][9]  <= 8'h00;
+      nirs_ctrl_reg [x][10] <= 8'h00;
+    end
+
+  end else begin
+    for (int y = 0; y < NO_OF_NIRS; y = y + 1)
+      if (nirs_ctrl_addr_reg == y) begin
+        nirs_ctrl_reg [y][0]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][0];
+        nirs_ctrl_reg [y][1]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][1];
+        nirs_ctrl_reg [y][2]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][2];
+        nirs_ctrl_reg [y][3]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][3];
+        nirs_ctrl_reg [y][4]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][4];
+        nirs_ctrl_reg [y][5]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][5];
+        nirs_ctrl_reg [y][6]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][6];
+        nirs_ctrl_reg [y][7]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][7];
+        nirs_ctrl_reg [y][8]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][8];
+        nirs_ctrl_reg [y][9]  <= i_wr ? i_wr_data : nirs_ctrl_reg [y][9];
+        nirs_ctrl_reg [y][10] <= i_wr ? i_wr_data : nirs_ctrl_reg [y][10];
+      end
+  end
+end
+
+  assign nirs_ctrl_tmp  = nirs_ctrl_reg[nirs_ctrl_addr_reg];
+  assign nirs_debug_tmp = nirs_debug_reg[nirs_ctrl_addr_reg];
+
+
 //------------------------------------------------------------------------------------
 //--------------------Register Read---------------------------------------------------
 //------------------------------------------------------------------------------------
@@ -1807,10 +1537,10 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `TSC_EN_REG_SEL     :   reg_rd_data <=en_reg_sel;
       `TSC_CTRL           :   reg_rd_data <={4'b0,tsc_ctrl};
       `TSC_VDAC8B_DIN_CH1 :   reg_rd_data <= tsc_vdac8b_din_ch1;
-      `SMP_DURATION	    :   reg_rd_data <= sample_duration;		
+      `SMP_DURATION	  :   reg_rd_data <= sample_duration;		
       `STABLE_DURATION_L  :   reg_rd_data <= stable_duration[7:0];		
       `STABLE_DURATION_H  :   reg_rd_data <= {4'b0,stable_duration[11:8]};	
-      `TSC_INT_CRTL 	    :   reg_rd_data <= {6'b0,tsc_int_crtl_reg};
+      `TSC_INT_CRTL 	  :   reg_rd_data <= {6'b0,tsc_int_crtl_reg};
       `TSC_INT_STATUS     :   reg_rd_data <= {7'b0,tsc_intr_sts};
 
       `SMP_STS	          :   reg_rd_data <= {7'b0,busy_doing};		
@@ -1827,16 +1557,16 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `OTP_DEBUG1         :   reg_rd_data <=  i_DEBUG_otp[7:0];   //i_DEBUG_OTP[7:0];
       `OTP_DEBUG2         :   reg_rd_data <=  i_DEBUG_otp[15:8];  //i_DEBUG_OTP[15:8];
 
-      `OTP_TRIMDATA0      :   reg_rd_data <=  trim0_reg; //trim_tag_reg; 
-      `OTP_TRIMDATA1      :   reg_rd_data <=  trim1_reg; //d2a_trim1_to_otp;  
-      `OTP_TRIMDATA2      :   reg_rd_data <=  trim2_reg; //d2a_trim2_to_otp; 
-      `OTP_TRIMDATA3      :   reg_rd_data <=  trim3_reg; //d2a_trim3_to_otp; 
-      `OTP_TRIMDATA4      :   reg_rd_data <=  trim4_reg; //d2a_trim4_to_otp; 
-      `OTP_TRIMDATA5      :   reg_rd_data <=  trim5_reg; //d2a_trim5_to_otp; 
-      `OTP_TRIMDATA6      :   reg_rd_data <=  trim6_reg; //d2a_trim6_to_otp;
-      `OTP_TRIMDATA7      :   reg_rd_data <=  trim7_reg; //d2a_trim7_to_otp; 
-      `OTP_TRIMDATA8      :   reg_rd_data <=  trim8_reg; //d2a_trim8_to_otp; 
-      `OTP_TRIMDATA9      :   reg_rd_data <=  trim9_reg; //d2a_trim9_to_otp;
+      `OTP_TRIMDATA0      :   reg_rd_data <=  trim_reg[0]; //trim_tag_reg; 
+      `OTP_TRIMDATA1      :   reg_rd_data <=  trim_reg[1]; //d2a_trim1_to_otp;  
+      `OTP_TRIMDATA2      :   reg_rd_data <=  trim_reg[2]; //d2a_trim2_to_otp; 
+      `OTP_TRIMDATA3      :   reg_rd_data <=  trim_reg[3]; //d2a_trim3_to_otp; 
+      `OTP_TRIMDATA4      :   reg_rd_data <=  trim_reg[4]; //d2a_trim4_to_otp; 
+      `OTP_TRIMDATA5      :   reg_rd_data <=  trim_reg[5]; //d2a_trim5_to_otp; 
+      `OTP_TRIMDATA6      :   reg_rd_data <=  trim_reg[6]; //d2a_trim6_to_otp;
+      `OTP_TRIMDATA7      :   reg_rd_data <=  trim_reg[7]; //d2a_trim7_to_otp; 
+      `OTP_TRIMDATA8      :   reg_rd_data <=  trim_reg[8]; //d2a_trim8_to_otp; 
+      `OTP_TRIMDATA9      :   reg_rd_data <=  trim_reg[9]; //d2a_trim9_to_otp;
       `OTP_WAVEGEN_NUMBER :   reg_rd_data <= {5'b0,spi_otp_slct};
 
       `OTP_UNLOCK         :   reg_rd_data <=   unlock_reg;
@@ -1849,150 +1579,170 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `GPIO_PU_CTRL           :   reg_rd_data <= {pu_ctrl};				  	   
       `GPIO_PD_CTRL           :   reg_rd_data <= {pd_ctrl};                           	 
       `GPIO_SR_PDRV0_1_CTRL   :   reg_rd_data <= {5'b0, sr_pdrv0_1_ctrl};     
-      `GPIO_COMP_OUT_CTRL     :   reg_rd_data <= {4'b0, comp_out_ctrl};                    
        
     //lead off
-//      `LEAD_OFF_CTRL          :  reg_rd_data  <= lead_off_ctrl 	; 
+//    `LEAD_OFF_CTRL          :  reg_rd_data  <= lead_off_ctrl 	; 
 
-//      `COUNTER_TH_TGT_0       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][7:0];
-//      `COUNTER_TH_TGT_1       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][15:8]; 
-//      `COUNTER_TH_TGT_2       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][23:16]; 
-//      `COUNTER_TH_TGT_3       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][31:24];
+//    `COUNTER_TH_TGT_0       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][7:0];
+//    `COUNTER_TH_TGT_1       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][15:8]; 
+//    `COUNTER_TH_TGT_2       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][23:16]; 
+//    `COUNTER_TH_TGT_3       :  reg_rd_data  <= counter_th_tgt[lead_off_blk_slct_reg][31:24];
 
-//      `TIMER_CNT_TGT_0     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][7:0] 	; 
-//      `TIMER_CNT_TGT_1     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][15:8] 	; 
-//      `TIMER_CNT_TGT_2     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][23:16] 	; 
-//      `TIMER_CNT_TGT_3     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][31:24] 	; 
+//    `TIMER_CNT_TGT_0     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][7:0] 	; 
+//    `TIMER_CNT_TGT_1     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][15:8] 	; 
+//    `TIMER_CNT_TGT_2     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][23:16] 	; 
+//    `TIMER_CNT_TGT_3     :  reg_rd_data  <= timer_cnt_tgt[lead_off_blk_slct_reg][31:24] 	; 
 
-//     `LEAD_OFF_DAC_EN      : reg_rd_data  <= lead_off_dac_en      ; 
-//     `LEAD_OFF_STOP_EN     : reg_rd_data  <= lead_off_stop_en     ; 
-//     `LEAD_OFF_INT_EN      : reg_rd_data  <= lead_off_int_en      ; 
-//     `LEAD_OFF_COMP_LOW_EN : reg_rd_data  <= lead_off_comp_low_en ; 		
-//     `LEAD_OFF_STOP     : reg_rd_data  <= lead_off_stop     ; 
-
-
-//      `LEAD_OFF_TGT           :  reg_rd_data  <= lead_off_tgt_reg 	; 
-//      `LEAD_OFF_INT           :  reg_rd_data  <= lead_off_result; 
-//      `LEAD_OFF_ANA           :  reg_rd_data  <= {A2D_COMP0_7}; 
+//    `LEAD_OFF_DAC_EN      : reg_rd_data  <= lead_off_dac_en      ; 
+//    `LEAD_OFF_STOP_EN     : reg_rd_data  <= lead_off_stop_en     ; 
+//    `LEAD_OFF_INT_EN      : reg_rd_data  <= lead_off_int_en      ; 
+//    `LEAD_OFF_COMP_LOW_EN : reg_rd_data  <= lead_off_comp_low_en ; 		
+//    `LEAD_OFF_STOP     : reg_rd_data  <= lead_off_stop     ; 
 
 
+//    `LEAD_OFF_TGT           :  reg_rd_data  <= lead_off_tgt_reg 	; 
+//    `LEAD_OFF_INT           :  reg_rd_data  <= lead_off_result; 
+//    `LEAD_OFF_ANA           :  reg_rd_data  <= {A2D_COMP0_7}; 
 
-    
-     //analog register
-         
-        `ANA_ENABLE_REG_0	:  reg_rd_data  <= ana_enable_reg_0;
-        `ANA_ENABLE_REG_1	:  reg_rd_data  <= ana_enable_reg_1;
-        `ANA_ENABLE_REG_2	:  reg_rd_data  <= ana_enable_reg_2;
-        `ANA_ENABLE_REG_3	:  reg_rd_data  <= ana_enable_reg_3;
-        `ANA_GEN_REG_1		:  reg_rd_data  <= ana_gen_reg_1;
-        `ANA_GEN_REG_2		:  reg_rd_data  <= ana_gen_reg_2;
-        `ANA_GEN_REG_3		:  reg_rd_data  <= ana_gen_reg_3;
-        `ANA_GEN_REG_4		:  reg_rd_data  <= ana_gen_reg_4;
-        `ANA_GEN_REG_5		:  reg_rd_data  <= ana_gen_reg_5;
-        `ANA_GEN_REG_6		:  reg_rd_data  <= ana_gen_reg_6;
-        `ANA_GEN_REG_7		:  reg_rd_data  <= ana_gen_reg_7;
-        `ANA_GEN_REG_8		:  reg_rd_data  <= ana_gen_reg_8;
-        `ANA_GEN_REG_9		:  reg_rd_data  <= ana_gen_reg_9;
+      // analog register
+      `ANA_ENABLE_REG_0	:  reg_rd_data  <= ana_enable_reg_0;
+      `ANA_ENABLE_REG_1	:  reg_rd_data  <= ana_enable_reg_1;
+      `ANA_ENABLE_REG_2	:  reg_rd_data  <= ana_enable_reg_2;
+      `ANA_ENABLE_REG_3	:  reg_rd_data  <= ana_enable_reg_3;
+      `ANA_GEN_REG_1	:  reg_rd_data  <= ana_gen_reg_1;
+      `ANA_GEN_REG_2	:  reg_rd_data  <= ana_gen_reg_2;
+      `ANA_GEN_REG_3	:  reg_rd_data  <= ana_gen_reg_3;
+      `ANA_GEN_REG_4	:  reg_rd_data  <= ana_gen_reg_4;
+      `ANA_GEN_REG_5	:  reg_rd_data  <= ana_gen_reg_5;
+      `ANA_GEN_REG_6	:  reg_rd_data  <= ana_gen_reg_6;
+      `ANA_GEN_REG_7	:  reg_rd_data  <= ana_gen_reg_7;
+      `ANA_GEN_REG_8	:  reg_rd_data  <= ana_gen_reg_8;
+      `ANA_GEN_REG_9	:  reg_rd_data  <= ana_gen_reg_9;
 
-        `A2D_ANA_GEN_REG_0     :  reg_rd_data <= A2D_ANA_GEN_REG_0 ;
-        `A2D_SPARE_RO_REG_0    :  reg_rd_data <= A2D_SPARE_RO_REG_0;
+      `A2D_ANA_GEN_REG_0  :  reg_rd_data <= A2D_ANA_GEN_REG_0 ;
+      `A2D_SPARE_RO_REG_0 :  reg_rd_data <= A2D_SPARE_RO_REG_0;
+ 
+//    `ANAC_SHORT_BLK_SLCT                  : reg_rd_data <= {4'b0,anac_short_blk_slct_reg};              
+//    `ANA_INT_SOTP_WAVEGEN                 : reg_rd_data <= ana_int_stop_wavegen_reg;      
+//
+//    `ANA_STIM_CH_TIMER_CNT_TH00           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][7:0];          
+//    `ANA_STIM_CH_TIMER_CNT_TH01           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][15:8];          
+//    `ANA_STIM_CH_TIMER_CNT_TH02           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][23:16];          
+//    `ANA_STIM_CH_TIMER_CNT_TH03           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][31:24];  
+//
+//    `ANA_STIM_CH_COUNTER_CNT_TH00         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][7:0];          
+//    `ANA_STIM_CH_COUNTER_CNT_TH01         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][15:8];          
+//    `ANA_STIM_CH_COUNTER_CNT_TH02         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][23:16];          
+//    `ANA_STIM_CH_COUNTER_CNT_TH03         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][31:24];  
+//
+      `ANAC_LVD_INT_EN                      : reg_rd_data  <= {7'b0,ana_lvd_intr_en_reg};             
+//    `ANAC_COMP_INT_EN                     : reg_rd_data  <= ana_comp_ch_intr_en_reg;         
+//    `ANAC_COMP_INT_TRANS_SEL              : reg_rd_data  <= ana_comp_ch_intr_trans_sel_reg;  
+//    `ANAC_STIMU_INT_EN                    : reg_rd_data  <= ana_stimu_ch_intr_en_reg;        
+//    `ANAC_STIMU_INT_DIG_EN                : reg_rd_data  <= ana_stimu_ch_intr_dig_reg;       
+//    `ANAC_STIMU_INT_POL_EN                : reg_rd_data  <= ana_stimu_ch_intr_pol_reg;       
+//    `ANA_INT_STIMU_STS                    : reg_rd_data  <= ana_stimu_ch_intr_sts;   
+//    `ANA_INT_COMP_STS                     : reg_rd_data  <= ana_comp_ch_intr_sts;    
+      `ANA_INT_LVD_STS                      : reg_rd_data  <= ana_lvd_intr_pin;    
 
  
-//        `ANAC_SHORT_BLK_SLCT                  : reg_rd_data <= {4'b0,anac_short_blk_slct_reg};              
-//        `ANA_INT_SOTP_WAVEGEN                 : reg_rd_data <= ana_int_stop_wavegen_reg;      
-//
-//        `ANA_STIM_CH_TIMER_CNT_TH00           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][7:0];          
-//        `ANA_STIM_CH_TIMER_CNT_TH01           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][15:8];          
-//        `ANA_STIM_CH_TIMER_CNT_TH02           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][23:16];          
-//        `ANA_STIM_CH_TIMER_CNT_TH03           :  reg_rd_data <= ana_int_ch_timer_th_reg[anac_short_blk_slct_reg][31:24];  
-//
-//        `ANA_STIM_CH_COUNTER_CNT_TH00         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][7:0];          
-//        `ANA_STIM_CH_COUNTER_CNT_TH01         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][15:8];          
-//        `ANA_STIM_CH_COUNTER_CNT_TH02         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][23:16];          
-//        `ANA_STIM_CH_COUNTER_CNT_TH03         :  reg_rd_data <= ana_int_ch_cnt_th_reg[anac_short_blk_slct_reg][31:24];  
-//
-         `ANAC_LVD_INT_EN                      : reg_rd_data  <= {7'b0,ana_lvd_intr_en_reg};             
-//        `ANAC_COMP_INT_EN                     : reg_rd_data  <= ana_comp_ch_intr_en_reg;         
-//        `ANAC_COMP_INT_TRANS_SEL              : reg_rd_data  <= ana_comp_ch_intr_trans_sel_reg;  
-//        `ANAC_STIMU_INT_EN                    : reg_rd_data  <= ana_stimu_ch_intr_en_reg;        
-//        `ANAC_STIMU_INT_DIG_EN                : reg_rd_data  <= ana_stimu_ch_intr_dig_reg;       
-//        `ANAC_STIMU_INT_POL_EN                : reg_rd_data  <= ana_stimu_ch_intr_pol_reg;       
-//        `ANA_INT_STIMU_STS                    : reg_rd_data  <= ana_stimu_ch_intr_sts;   
-//        `ANA_INT_COMP_STS                     : reg_rd_data  <= ana_comp_ch_intr_sts;    
-        `ANA_INT_LVD_STS                     : reg_rd_data  <= ana_lvd_intr_pin;    
+//    `COUNTER_CNT_DBG_SEL           :   reg_rd_data <= {4'b0,counter_cnt_dbg_sel[3:0]}; 
+//    `COUNTER_CNT_DBG_0  : 	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][7:0]; 
+//    `COUNTER_CNT_DBG_1  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][15:8];
+//    `COUNTER_CNT_DBG_2  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][23:16];
+//    `COUNTER_CNT_DBG_3  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][31:24];
 
- 
-//        `COUNTER_CNT_DBG_SEL           :   reg_rd_data <= {4'b0,counter_cnt_dbg_sel[3:0]}; 
-//        `COUNTER_CNT_DBG_0  : 	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][7:0]; 
-//        `COUNTER_CNT_DBG_1  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][15:8];
-//        `COUNTER_CNT_DBG_2  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][23:16];
-//        `COUNTER_CNT_DBG_3  :  	reg_rd_data <= lead_off_Counter_cnt_dac0_final_dbg[counter_cnt_dbg_sel][31:24];
-
-//      `LEAD_OFF_COUNTER_CNT   :  reg_rd_data  <= lead_off_Counter_cnt_dac0_dbg[counter_cnt_dbg_sel] 	; 
+//    `LEAD_OFF_COUNTER_CNT   :  reg_rd_data  <= lead_off_Counter_cnt_dac0_dbg[counter_cnt_dbg_sel] 	; 
 
           
-//        `ANA_INT_SIM_CL             :  reg_rd_data <= {6'b0,ana_stimu_ch2_intr_sts_sync,ana_stimu_ch1_intr_sts_sync};   
-//      `ANA_INT_CH1_INT_NUMBER     :  reg_rd_data <= ana_stimu_int1_num;   
-//      `ANA_INT_CH2_INT_NUMBER     :  reg_rd_data <= ana_stimu_int2_num;   
+//    `ANA_INT_SIM_CL             :  reg_rd_data <= {6'b0,ana_stimu_ch2_intr_sts_sync,ana_stimu_ch1_intr_sts_sync};   
+//    `ANA_INT_CH1_INT_NUMBER     :  reg_rd_data <= ana_stimu_int1_num;   
+//    `ANA_INT_CH2_INT_NUMBER     :  reg_rd_data <= ana_stimu_int2_num;   
 
-        `WAVEGEN_GLOBAL_REG         : reg_rd_data  <=  {5'b0,drive_slct_03_47,drivea_global_en }; // (read/write register)
+      `WAVEGEN_GLOBAL_REG         : reg_rd_data  <=  {4'b0,stimu_en,drive_slct_03_47,drivea_global_en }; // (read/write register)
 
-        `ATM_HC_SEL                 : reg_rd_data  <= {6'b0, atm_hc_sel_reg};
+      `ATM_HC_SEL                 : reg_rd_data  <= {6'b0, atm_hc_sel_reg};
 
-        `GENERAL_INTERUPT_CTRL_REG      : reg_rd_data  <= {5'b0, int_ctrl_reg};    
-        //`GENERAL_INTERUPT_STATUS_REG01  : reg_rd_data  <= {tsc_intr_sts,2'b0,lead_off_result1,lead_off_result,1'b0,eeg_int_sts,ana_lvd_intr_pin};    
-        `GENERAL_INTERUPT_STATUS_REG01  : reg_rd_data  <= {tsc_intr_sts,5'b0,eeg_int_sts,ana_lvd_intr_pin};    
-        `GENERAL_INTERUPT_STATUS_REG02  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[3],spi_wg.i_wg_driver_int_sts[2],spi_wg.i_wg_driver_int_sts[1],spi_wg.i_wg_driver_int_sts[0]};   
-        `GENERAL_INTERUPT_STATUS_REG03  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[7],spi_wg.i_wg_driver_int_sts[6],spi_wg.i_wg_driver_int_sts[5],spi_wg.i_wg_driver_int_sts[4]};   
-        `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[11],spi_wg.i_wg_driver_int_sts[10],spi_wg.i_wg_driver_int_sts[9],spi_wg.i_wg_driver_int_sts[8]};   
-        `GENERAL_INTERUPT_STATUS_REG05  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[15],spi_wg.i_wg_driver_int_sts[14],spi_wg.i_wg_driver_int_sts[13],spi_wg.i_wg_driver_int_sts[12]};   
+      `GENERAL_INTERUPT_CTRL_REG      : reg_rd_data  <= {5'b0, int_ctrl_reg};    
+      //`GENERAL_INTERUPT_STATUS_REG01  : reg_rd_data  <= {tsc_intr_sts,2'b0,lead_off_result1,lead_off_result,1'b0,eeg_int_sts,ana_lvd_intr_pin};    
+      `GENERAL_INTERUPT_STATUS_REG01  : reg_rd_data  <= {tsc_intr_sts,5'b0,eeg_int_sts,ana_lvd_intr_pin};    
+      `GENERAL_INTERUPT_STATUS_REG02  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[3],spi_wg.i_wg_driver_int_sts[2],spi_wg.i_wg_driver_int_sts[1],spi_wg.i_wg_driver_int_sts[0]};   
+      `GENERAL_INTERUPT_STATUS_REG03  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[7],spi_wg.i_wg_driver_int_sts[6],spi_wg.i_wg_driver_int_sts[5],spi_wg.i_wg_driver_int_sts[4]};   
+      `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[11],spi_wg.i_wg_driver_int_sts[10],spi_wg.i_wg_driver_int_sts[9],spi_wg.i_wg_driver_int_sts[8]};   
+      `GENERAL_INTERUPT_STATUS_REG05  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[15],spi_wg.i_wg_driver_int_sts[14],spi_wg.i_wg_driver_int_sts[13],spi_wg.i_wg_driver_int_sts[12]};   
 
-//        `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= lead_off_result;   
+//    `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= lead_off_result;   
 
-//        `FILTER_SEQ_CTRL       :  reg_rd_data  <= {5'b0,filter_seq};               
-        `FILTER_HPF_BP_L       :  reg_rd_data  <= hpf_filter_bypass[7:0];  
-        `FILTER_HPF_BP_H       :  reg_rd_data  <= hpf_filter_bypass[15:8];  
-        `FILTER_LPF_BP_L       :  reg_rd_data  <= lpf_filter_bypass[7:0];   
-        `FILTER_LPF_BP_H       :  reg_rd_data  <= lpf_filter_bypass[15:8];  
-        `FILTER_NOF_BP_L       :  reg_rd_data  <= notch_filter_bypass[7:0]; 
-        `FILTER_NOF_BP_H       :  reg_rd_data  <= notch_filter_bypass[15:8];
-        `FILTER_INT_CTRL       :  reg_rd_data  <= {6'b0,eeg_int_en}; 
-        `FILTER_INT_STS        :  reg_rd_data  <= {7'b0,eeg_int_sts}; 
+//    `FILTER_SEQ_CTRL    :  reg_rd_data  <= {5'b0,filter_seq};               
+      `FILTER_HPF_BP_L    :  reg_rd_data  <= hpf_filter_bypass[7:0];  
+      `FILTER_HPF_BP_H    :  reg_rd_data  <= hpf_filter_bypass[15:8];  
+      `FILTER_LPF_BP_L    :  reg_rd_data  <= lpf_filter_bypass[7:0];   
+      `FILTER_LPF_BP_H    :  reg_rd_data  <= lpf_filter_bypass[15:8];  
+      `FILTER_NOF_BP_L    :  reg_rd_data  <= notch_filter_bypass[7:0]; 
+      `FILTER_NOF_BP_H    :  reg_rd_data  <= notch_filter_bypass[15:8];
+      `FILTER_INT_CTRL    :  reg_rd_data  <= {6'b0,eeg_int_en}; 
+      `FILTER_INT_STS     :  reg_rd_data  <= {7'b0,eeg_int_sts}; 
 
-        `FILTER_NOTCH_DATA_GONE_L    :  reg_rd_data  <= cic_data_ignore_tar[7:0]; 
-        `FILTER_NOTCH_DATA_GONE_H    :  reg_rd_data  <= cic_data_ignore_tar[15:8]; 
-        `FILTER_COEFF_ADDR       :  reg_rd_data  <= coeff_addr;
-        `FILTER_COEFF_DATA1      :  reg_rd_data  <= coeff_data[coeff_addr][7:0]; 
-        `FILTER_COEFF_DATA2      :  reg_rd_data  <= coeff_data[coeff_addr][15:8]; 
-        `FILTER_COEFF_DATA3      :  reg_rd_data  <= coeff_data[coeff_addr][23:16]; 
-      //`FILTER_COEFF_DATA3      :  reg_rd_data  <= (coeff_addr < 8'd16)? {6'b0,coeff_data[coeff_addr][17:16]} : {4'b0,coeff_data[coeff_addr][19:16]}; 
+      `FILTER_NOTCH_DATA_GONE_L    :  reg_rd_data  <= cic_data_ignore_tar[7:0]; 
+      `FILTER_NOTCH_DATA_GONE_H    :  reg_rd_data  <= cic_data_ignore_tar[15:8]; 
+      `FILTER_COEFF_ADDR  :  reg_rd_data  <= coeff_addr;
+      `FILTER_COEFF_DATA1 :  reg_rd_data  <= coeff_data[coeff_addr][7:0]; 
+      `FILTER_COEFF_DATA2 :  reg_rd_data  <= coeff_data[coeff_addr][15:8]; 
+      `FILTER_COEFF_DATA3 :  reg_rd_data  <= coeff_data[coeff_addr][23:16]; 
+    //`FILTER_COEFF_DATA3 :  reg_rd_data  <= (coeff_addr < 8'd16)? {6'b0,coeff_data[coeff_addr][17:16]} : {4'b0,coeff_data[coeff_addr][19:16]}; 
 
-        `NIRS_CTRL_0        :  reg_rd_data  <= nirs_ctrl_reg_0; 
-        `NIRS_CTRL_1        :  reg_rd_data  <= nirs_ctrl_reg_1; 
-        `NIRS_CTRL_2        :  reg_rd_data  <= nirs_ctrl_reg_2; 
-        `NIRS_CTRL_3        :  reg_rd_data  <= nirs_ctrl_reg_3; 
-        `NIRS_CTRL_4        :  reg_rd_data  <= nirs_ctrl_reg_4;
-        `NIRS_CTRL_5        :  reg_rd_data  <= nirs_ctrl_reg_5;
-        `NIRS_CTRL_6        :  reg_rd_data  <= nirs_ctrl_reg_6;
-        `NIRS_CTRL_7        :  reg_rd_data  <= nirs_ctrl_reg_7;
-        `NIRS_DOUT_0        :  reg_rd_data  <= nirs_dout_reg_0;
-        `NIRS_DOUT_1        :  reg_rd_data  <= nirs_dout_reg_1;
-        `NIRS_DOUT_2        :  reg_rd_data  <= nirs_dout_reg_2;
-        `NIRS_DOUT_3        :  reg_rd_data  <= nirs_dout_reg_3;
-        `NIRS_DOUT_4        :  reg_rd_data  <= nirs_dout_reg_4;
-        `NIRS_DOUT_5        :  reg_rd_data  <= nirs_dout_reg_5;
-        `NIRS_DOUT_6        :  reg_rd_data  <= nirs_dout_reg_6;
-        `NIRS_DOUT_7        :  reg_rd_data  <= nirs_dout_reg_7;
+      `NIRS_CTRL_ADDR     :  reg_rd_data  <= nirs_ctrl_addr_reg; 
+      `NIRS_CTRL_CLK      :  reg_rd_data  <= nirs_ctrl_clk_reg;
+      `NIRS_CTRL_EN       :  reg_rd_data  <= nirs_ctrl_en_reg;
+      `NIRS_CTRL_MEAS     :  reg_rd_data  <= nirs_ctrl_meas_reg;
+    //`NIRS_INT_STATUS    :  reg_rd_data  <= nirs_int_sts_reg;
+      
+      `NIRS_DOUT_0        :  reg_rd_data  <= nirs_dout_reg[0];
+      `NIRS_DOUT_1        :  reg_rd_data  <= nirs_dout_reg[1];
+      `NIRS_DOUT_2        :  reg_rd_data  <= nirs_dout_reg[2];
+      `NIRS_DOUT_3        :  reg_rd_data  <= nirs_dout_reg[3];
+      `NIRS_DOUT_4        :  reg_rd_data  <= nirs_dout_reg[4];
+      `NIRS_DOUT_5        :  reg_rd_data  <= nirs_dout_reg[5];
+      `NIRS_DOUT_6        :  reg_rd_data  <= nirs_dout_reg[6];
+      `NIRS_DOUT_7        :  reg_rd_data  <= nirs_dout_reg[7];
+      `NIRS_DOUT_8        :  reg_rd_data  <= nirs_dout_reg[8];
+      `NIRS_DOUT_9        :  reg_rd_data  <= nirs_dout_reg[9];
+      `NIRS_DOUT_10       :  reg_rd_data  <= nirs_dout_reg[10];
+      `NIRS_DOUT_11       :  reg_rd_data  <= nirs_dout_reg[11];
+      `NIRS_DOUT_12       :  reg_rd_data  <= nirs_dout_reg[12];
+      `NIRS_DOUT_13       :  reg_rd_data  <= nirs_dout_reg[13];
+      `NIRS_DOUT_14       :  reg_rd_data  <= nirs_dout_reg[14];
+      `NIRS_DOUT_15       :  reg_rd_data  <= nirs_dout_reg[15];
+      `NIRS_DOUT_16       :  reg_rd_data  <= nirs_dout_reg[16];
+      `NIRS_DOUT_17       :  reg_rd_data  <= nirs_dout_reg[17];
+      `NIRS_DOUT_18       :  reg_rd_data  <= nirs_dout_reg[18];
 
-        default   	        :  reg_rd_data     <= 8'b0;
-      endcase      
+      `NIRS_CTRL_0        :  reg_rd_data  <= nirs_ctrl_tmp[0]; 
+      `NIRS_CTRL_1        :  reg_rd_data  <= nirs_ctrl_tmp[1]; 
+      `NIRS_CTRL_2        :  reg_rd_data  <= nirs_ctrl_tmp[2]; 
+      `NIRS_CTRL_3        :  reg_rd_data  <= nirs_ctrl_tmp[3]; 
+      `NIRS_CTRL_4        :  reg_rd_data  <= nirs_ctrl_tmp[4];
+      `NIRS_CTRL_5        :  reg_rd_data  <= nirs_ctrl_tmp[5];
+      `NIRS_CTRL_6        :  reg_rd_data  <= nirs_ctrl_tmp[6];
+      `NIRS_CTRL_7        :  reg_rd_data  <= nirs_ctrl_tmp[7];
+      `NIRS_CTRL_8        :  reg_rd_data  <= nirs_ctrl_tmp[8];
+      `NIRS_CTRL_9        :  reg_rd_data  <= nirs_ctrl_tmp[9];
+      `NIRS_CTRL_10       :  reg_rd_data  <= nirs_ctrl_tmp[10];
+      `NIRS_DEBUG_0       :  reg_rd_data  <= nirs_debug_tmp[0];
+      `NIRS_DEBUG_1       :  reg_rd_data  <= nirs_debug_tmp[1];
+      `NIRS_DEBUG_2       :  reg_rd_data  <= nirs_debug_tmp[2];
+      `NIRS_DEBUG_3       :  reg_rd_data  <= nirs_debug_tmp[3];
+      `NIRS_DEBUG_4       :  reg_rd_data  <= nirs_debug_tmp[4];
+      `NIRS_DEBUG_5       :  reg_rd_data  <= nirs_debug_tmp[5];
+
+      default             :  reg_rd_data  <= 8'b0;
+     endcase      
    end
    else
       reg_rd_data <= reg_rd_data;  //or 8'b0 =>rd_data=0 when not reading
  end
 
 //////////////wave gen Read/////////////////
-
 reg [7:0] wavegen_rd_data;
 
 always@(*) begin
@@ -2019,13 +1769,12 @@ end
 
 assign o_rd_data = wavegen_cmd_reg? wavegen_rd_data : reg_rd_data;
 
-//////// Analog Inputs
+// Analog Inputs
 assign  A2D_ANA_GEN_REG_0   = spi_ana_if.A2D_ANA_GEN_REG[0];
 assign  A2D_SPARE_RO_REG_0  = spi_ana_if.A2D_ANA_GEN_REG[1]; 
 
 
-//////// Analog Output's
-
+// Analog Output's
 assign spi_pinmux_if.ATM_HC_SEL         = atm_hc_sel_reg[0];
 assign spi_pinmux_if.ANA_BIST_HC_SEL    = atm_hc_sel_reg[1];
 assign spi_pinmux_if.INT_LEVEL_SEL      = int_active_level;
@@ -2046,25 +1795,12 @@ assign spi_ana_if.D2A_ANA_GEN_REG[7]    = ana_gen_reg_8;
 assign spi_ana_if.D2A_ANA_GEN_REG[8]    = ana_gen_reg_9;
 
 //NIRS
-assign spi_nirs_if.NIRS_CTRL[0]         = nirs_ctrl_reg_0;
-assign spi_nirs_if.NIRS_CTRL[1]         = nirs_ctrl_reg_1;
-assign spi_nirs_if.NIRS_CTRL[2]         = nirs_ctrl_reg_2;
-assign spi_nirs_if.NIRS_CTRL[3]         = nirs_ctrl_reg_3;
-assign spi_nirs_if.NIRS_CTRL[4]         = nirs_ctrl_reg_4;
-assign spi_nirs_if.NIRS_CTRL[5]         = nirs_ctrl_reg_5;
-assign spi_nirs_if.NIRS_CTRL[6]         = nirs_ctrl_reg_6;
-assign spi_nirs_if.NIRS_CTRL[7]         = nirs_ctrl_reg_7;
-assign nirs_dout_reg_0                  = spi_nirs_if.NIRS_DOUT[0];
-assign nirs_dout_reg_1                  = spi_nirs_if.NIRS_DOUT[1];
-assign nirs_dout_reg_2                  = spi_nirs_if.NIRS_DOUT[2];
-assign nirs_dout_reg_3                  = spi_nirs_if.NIRS_DOUT[3];
-assign nirs_dout_reg_4                  = spi_nirs_if.NIRS_DOUT[4];
-assign nirs_dout_reg_5                  = spi_nirs_if.NIRS_DOUT[5];
-assign nirs_dout_reg_6                  = spi_nirs_if.NIRS_DOUT[6];
-assign nirs_dout_reg_7                  = spi_nirs_if.NIRS_DOUT[7];
+
+  assign spi_nirs_if.NIRS_CTRL      = nirs_ctrl_reg;
+  assign spi_nirs_if.NIRS_CTRL_EN   = nirs_ctrl_en_reg;
+  assign spi_nirs_if.NIRS_CTRL_MEAS = nirs_ctrl_meas_reg;
+  assign nirs_debug_reg             = spi_nirs_if.NIRS_DEBUG;
+  assign nirs_dout_reg              = spi_nirs_if.NIRS_DOUT;
+
 
 endmodule
-
-
-
-

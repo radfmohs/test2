@@ -18,10 +18,10 @@
 module pinmux (
 
   //PADs 
-  output [10:0]       o_ens2_IOBUF_IE, 
-  output [10:0]       o_ens2_IOBUF_OE, 
-  output [10:0]       o_ens2_IOBUF_A,  
-  input  [10:0]       i_ens2_IOBUF_Y,       
+  output [21:0]       o_ens2_IOBUF_IE, 
+  output [21:0]       o_ens2_IOBUF_OE, 
+  output [21:0]       o_ens2_IOBUF_A,  
+  input  [21:0]       i_ens2_IOBUF_Y,       
         
   //spi 
   output wire         sclk,
@@ -44,8 +44,8 @@ module pinmux (
   output wire         scan_rst_n,                 // scan resetn
   output wire         scan_clk,                   // scan clock
   output wire         scan_en,                    // scan enable
-  output wire [4:0]   scan_in,                    // scan in
-  input  wire [4:0]   scan_out,                   // scan out
+  output wire [8:0]   scan_in,                    // scan in
+  input  wire [8:0]   scan_out,                   // scan out
   output wire         scan_compression_in,        // pin is used to select normal scan mode or compression scan mode. Compression scan mode is used to accelerate scan test, save more time and money.if we have more than 5 scan chain, then we can apply compression scan mode    
 
 //input  wire [1:0]   altf_sel,     //1. configured through bist & store value in otp and switch back to normal(real application we will follow this)
@@ -70,11 +70,11 @@ module pinmux (
   //interrupts
   input  wire         i_wg_drviver_int,
   input  wire         i_lead_off_int,  
-//  input  wire 	      i_lvd_intr_pin,
-//  input  wire 	      i_comp_ch1_intr_pin,
-//  input  wire 	      i_comp_ch2_intr_pin, 
-//  input  wire 	      i_stimu_ch1_intr_pin,
-//  input  wire 	      i_stimu_ch2_intr_pin, 
+//input  wire 	      i_lvd_intr_pin,
+//input  wire 	      i_comp_ch1_intr_pin,
+//input  wire 	      i_comp_ch2_intr_pin, 
+//input  wire 	      i_stimu_ch1_intr_pin,
+//input  wire 	      i_stimu_ch2_intr_pin, 
   input  wire         i_anac_int,
   input  wire         i_tsc_int,
   input  wire         i_eeg_int,
@@ -90,15 +90,29 @@ module pinmux (
   input wire  [7:0]   sys_d2a_trim_reg        [7:0], 
 
   //COMP
-  input  wire         NORMAL_OUT_SEL,
-  input  wire         COMP_OUT_EN,
-  input  wire         COMP_OUT_SEL,
-  input  wire         A2D_COMP1,
-  input  wire         A2D_COMP2,
-  input  wire         COMP_OUT_SEL_STIM,
+//input  wire         NORMAL_OUT_SEL,
+//input  wire         COMP_OUT_EN,
+//input  wire         COMP_OUT_SEL,
+  input  wire         o_A2D_COMP0,
+  input  wire         o_A2D_COMP1,
+//input  wire         COMP_OUT_SEL_STIM,
   input  wire         A2D_STIMU0_1,
   input  wire         A2D_STIMU2_3,
-
+  
+//NIRS
+  input  wire		  NIRS_LED_ON0,
+  input  wire		  NIRS_LED_ON1,
+  input  wire		  NIRS_LED_ON2,
+  input  wire		  NIRS_LED_ON3,
+  input  wire		  NIRS_LED_ON4,
+  input  wire		  NIRS_LED_ON5,
+  input  wire		  NIRS_LED_ON6,
+  input  wire		  NIRS_LED_ON7,
+  input  wire		  NIRS_RESET_SW0,
+  input  wire		  NIRS_IPD_SW0,
+  input  wire		  NIRS_IIN_SW0,
+  input  wire		  A2D_IREFCOARSE0,
+  input  wire		  A2D_IREFFINE0,
 
   pinmux_if.D2A         pinmux_if,
   spi_pinmux_if.pinmux  spi_pinmux_if,
@@ -110,18 +124,18 @@ module pinmux (
   input wire          d2a_tsc_en_ch1
 );
 
-  wire        GPIO8_NORMAL_OUT;
+  wire        GPIO14_NORMAL_OUT;
   wire        ext_clk_sel;
   wire        scan_mode; 
 //wire [3:0]  ana_test_mode;
-  wire [2:0]  ana_test_mode;
-  wire [2:0]  ATM_sel;
-  wire [3:0]  test_sel;
+  wire [4:0]  ana_test_mode;
+  wire [4:0]  ATM_sel;
+  wire [4:0]  test_sel;
   wire        test_en;
   wire        INTB;
   wire        INTB_tmp;
   wire        debug_mode_en;
-  wire [3:0]  wire_ens2_IOBUF_Y; 
+  wire [4:0]  wire_ens2_IOBUF_Y; 
   wire        ATM_CONFG;
   wire        pad_cpoln;
   wire        pad_cpha;
@@ -153,9 +167,9 @@ module pinmux (
   wire [7:0]  CONFIG_ROM3 [7:0];
 
 //ENABLE_REG
-  wire ATM_HC_SEL;
-  wire ANA_BIST_HC_SEL;
-  wire INT_LEVEL_SEL;
+  wire        ATM_HC_SEL;
+  wire        ANA_BIST_HC_SEL;
+  wire        INT_LEVEL_SEL;
 
 //assign pad_d2a_trim0_sig[6] = 1'b0;
 //assign pad_d2a_trim1_sig[6] = 1'b0;
@@ -166,15 +180,15 @@ module pinmux (
 //assign pad_d2a_trim6_sig[6] = 1'b0;
 //assign pad_d2a_trim7_sig[6] = 1'b0;
 
-  assign pad_d2a_trim0_sig[6] = 1'b0;
-  assign pad_d2a_trim0_sig[7] = 1'b0;
-  assign pad_d2a_trim1_sig[7] = 1'b0;
-  assign pad_d2a_trim2_sig[7] = 1'b0;
-  assign pad_d2a_trim3_sig[7] = 1'b0;
-  assign pad_d2a_trim4_sig[7] = 1'b0;
-  assign pad_d2a_trim5_sig[7] = 1'b0;
-  assign pad_d2a_trim6_sig[7] = 1'b0;
-  assign pad_d2a_trim7_sig[7] = 1'b0;
+//assign pad_d2a_trim0_sig[6] = 1'b0;
+//assign pad_d2a_trim0_sig[7] = 1'b0;
+//assign pad_d2a_trim1_sig[7] = 1'b0;
+//assign pad_d2a_trim2_sig[7] = 1'b0;
+//assign pad_d2a_trim3_sig[7] = 1'b0;
+//assign pad_d2a_trim4_sig[7] = 1'b0;
+//assign pad_d2a_trim5_sig[7] = 1'b0;
+//assign pad_d2a_trim6_sig[7] = 1'b0;
+//assign pad_d2a_trim7_sig[7] = 1'b0;
 
   assign pin_rstn         = iopad_resetn_y;
   assign scan_rst_n       = pin_rstn;
@@ -182,7 +196,7 @@ module pinmux (
   assign o_ext_clk_sel    = ext_clk_sel;
 
   wire scan_mode_pre;
-  assign scan_mode_pre     =  (~iopad_testmode1_en_y &  iopad_testmode0_en_y)  ? 1'b1 : 1'b0;
+  assign scan_mode_pre    =  (~iopad_testmode1_en_y &  iopad_testmode0_en_y)  ? 1'b1 : 1'b0;
   BUF_X8_A7TULL DNT_BUF_scan_mode (.A(scan_mode_pre), .Y(scan_mode));
 
 // MODE enables
@@ -192,44 +206,41 @@ module pinmux (
   assign atpg_en        = scan_mode;
   assign test_en        = (scan_mode | otp_bist_en | debug_mode_en) ? 1'b1 : 1'b0;
 //assign ana_test_mode  = debug_mode_en ? ({wire_ens2_IOBUF_Y[3],  wire_ens2_IOBUF_Y[2],   wire_ens2_IOBUF_Y[1],   wire_ens2_IOBUF_Y[0]}) : 4'b0; 
-  assign ana_test_mode  = debug_mode_en ? ({wire_ens2_IOBUF_Y[2],   wire_ens2_IOBUF_Y[1],   wire_ens2_IOBUF_Y[0]}) : 3'b0; 
-  assign ATM_sel        = debug_mode_en ? ana_test_mode : 3'b0;
+  assign ana_test_mode  = debug_mode_en ? ({wire_ens2_IOBUF_Y[4], wire_ens2_IOBUF_Y[3], wire_ens2_IOBUF_Y[2],   wire_ens2_IOBUF_Y[1],   wire_ens2_IOBUF_Y[0]}) : 5'b0; 
+  assign ATM_sel        = debug_mode_en ? ana_test_mode : 5'b0;
 
 //ANALOG OUTPUTS 
-  assign ATM0 = (debug_mode_en && (ana_test_mode== 3'b000))  ? 1'b1 : 1'b0;
-  assign ATM1 = (debug_mode_en && (ana_test_mode== 3'b001))  ? 1'b1 : 1'b0;   
-  assign ATM2 = (debug_mode_en && (ana_test_mode== 3'b010))  ? 1'b1 : 1'b0; 
-  assign ATM3 = (debug_mode_en && (ana_test_mode== 3'b011))  ? 1'b1 : 1'b0;
-  assign ATM4 = (debug_mode_en && (ana_test_mode== 3'b100))  ? 1'b1 : 1'b0;
-  assign ATM5 = (debug_mode_en && (ana_test_mode== 3'b101))  ? 1'b1 : 1'b0;
-  assign ATM6 = (debug_mode_en && (ana_test_mode== 3'b110))  ? 1'b1 : 1'b0;
-  assign ATM7 = (debug_mode_en && (ana_test_mode== 3'b111))  ? 1'b1 : 1'b0;
+  assign ATM0 = (debug_mode_en && (ana_test_mode== 5'b00000))  ? 1'b1 : 1'b0;
+  assign ATM1 = (debug_mode_en && (ana_test_mode== 5'b00001))  ? 1'b1 : 1'b0;   
+  assign ATM2 = (debug_mode_en && (ana_test_mode== 5'b00010))  ? 1'b1 : 1'b0; 
+  assign ATM3 = (debug_mode_en && (ana_test_mode== 5'b00011))  ? 1'b1 : 1'b0;
+  assign ATM4 = (debug_mode_en && (ana_test_mode== 5'b00100))  ? 1'b1 : 1'b0;
+  assign ATM5 = (debug_mode_en && (ana_test_mode== 5'b00101))  ? 1'b1 : 1'b0;
+  assign ATM6 = (debug_mode_en && (ana_test_mode== 5'b00110))  ? 1'b1 : 1'b0;
+  assign ATM7 = (debug_mode_en && (ana_test_mode== 5'b00111))  ? 1'b1 : 1'b0;
 //assign ATM8 = (ana_test_mode== 4'b1001)  ? 1'b1 : 1'b0;
 
   assign pinmux_if.D2A_ATM      = {ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
 //assign pinmux_if.ENCODED_ATM  = ana_test_mode;
-
   
   assign ATM_CONFG =  debug_mode_en ? 1'b1 : 1'b0;
   
-  
-  assign test_sel = ((scan_mode    == 1'b1) ? 4'b0000 : 
-                    (otp_bist_en   == 1'b1) ? 4'b0001 : 
-                    (ana_test_mode == 3'd0) ? 4'b0010 :
-                    (ana_test_mode == 3'd1) ? 4'b0011 :
-                    (ana_test_mode == 3'd2) ? 4'b0100 :
-                    (ana_test_mode == 3'd3) ? 4'b0101 :
-                    (ana_test_mode == 3'd4) ? 4'b0110 :
-                    (ana_test_mode == 3'd5) ? 4'b0111 :
-                    (ana_test_mode == 3'd6) ? 4'b1000 :
-                    (ana_test_mode == 3'd7) ? 4'b1001 : 4'b1011);   //this needs to be updated if require more ATM modes
+  assign test_sel = ((scan_mode    == 1'b1) ? 5'b00000 : 
+                    (otp_bist_en   == 1'b1) ? 5'b00001 : 
+                    (ana_test_mode == 5'd0) ? 5'b00010 :
+                    (ana_test_mode == 5'd1) ? 5'b00011 :
+                    (ana_test_mode == 5'd2) ? 5'b00100 :
+                    (ana_test_mode == 5'd3) ? 5'b00101 :
+                    (ana_test_mode == 5'd4) ? 5'b00110 :
+                    (ana_test_mode == 5'd5) ? 5'b00111 :
+                    (ana_test_mode == 5'd6) ? 5'b01000 :
+                    (ana_test_mode == 5'd7) ? 5'b01001 : 5'b01011);   //this needs to be updated if require more ATM modes
    
 //combine interrupt
  assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int); 
  assign INTB      = (INT_LEVEL_SEL == 1'b1) ? INTB_tmp : ~INTB_tmp;
 
 // EXTERNAL CLOCK
-
   assign ext_clk = ~test_en ?  ext_clk_normal : (debug_mode_en ? ext_clk_0 : 1'b0);
 
 //NORMAL MODE - SPI
@@ -240,15 +251,13 @@ module pinmux (
   assign mosi    = ~test_en ?  pad_mosi   : 1'b0;
 
 //assign GPIO8_NORMAL_OUT = ~test_en ? (~COMP_OUT_EN ? i_otp_vpp_en : (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2)) : 1'b0;
- // assign GPIO8_NORMAL_OUT = ~test_en ? (~COMP_OUT_EN ? 1'b0 : (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2)) : 1'b0;
-  assign GPIO8_NORMAL_OUT = ~test_en ?  (NORMAL_OUT_SEL ? ((~COMP_OUT_EN ? i_otp_vpp_en : COMP_OUT_SEL_STIM ? 
-                                        (~COMP_OUT_SEL ? A2D_STIMU0_1 : A2D_STIMU2_3) :
-                                        (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2))) : INTB) : 1'b0;
+//assign GPIO8_NORMAL_OUT = ~test_en ? (~COMP_OUT_EN ? 1'b0 : (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2)) : 1'b0;
+//assign GPIO8_NORMAL_OUT = ~test_en ?  (NORMAL_OUT_SEL ? ((~COMP_OUT_EN ? i_otp_vpp_en : COMP_OUT_SEL_STIM ? 
+//                                        (~COMP_OUT_SEL ? A2D_STIMU0_1 : A2D_STIMU2_3) :
+//                                        (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2))) : INTB) : 1'b0;
+  assign GPIO14_NORMAL_OUT = ~ test_en ?  (~NIRS_LED_ON0 ? NIRS_RESET_SW0 : (~NIRS_IPD_SW0 ? NIRS_IIN_SW0 : (~A2D_IREFCOARSE0 ? A2D_IREFFINE0 : 1'b0))) : 1'b0;
                            
   assign o_int_clk_out_gpio = ~test_en ? int_clk_out_gpio : 1'b0;
-
-
-
 
   pinmux_rom  u_pinmux_rom (
     .CONFIG_ROM0  (CONFIG_ROM0),
@@ -311,9 +320,6 @@ module pinmux (
   assign pinmux_if.D2A_ANA_OUT_SEL6 = ATM6 ? i_ext_clk_sel : 1'b0;
   assign pinmux_if.D2A_ANA_OUT_SEL7 = ATM7 ? i_ext_clk_sel : 1'b0;
   
-
-
-
 //LOAD TRIMS to OTP
   assign o_OTP_ATM_MODE_SEL   = {ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
 
@@ -365,7 +371,7 @@ pinmux_1bit
 u_gpio0_pinmux (
 // test and alternate select
 //.altf_sel   (2'd0),
-.test_sel   (scan_mode ? 4'd0 : (otp_bist_en ? 4'd1 : (debug_mode_en ? 4'd2 : 4'd11))),
+.test_sel   (scan_mode ? 5'd0 : (otp_bist_en ? 5'd1 : (debug_mode_en ? 5'd2 : 5'd29))),
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (otp_bist_en),
@@ -1393,18 +1399,18 @@ u_gpio6_pinmux (
 ); 
 
 // GPIO7 pad
-// normal: INTB
-// test0 : scan_out[0]
+// normal: DAISY_IN
+// test0 : scan_in[4]
 // test1 : bist_vpp_en
-// test2 : OTP_VPP_EN 
-// test3 : OTP_VPP_EN
-// test4 : OTP_VPP_EN
+// test2 : pad_d2a_trim0_sig[6]
+// test3 : pad_d2a_trim1_sig[6]
+// test4 : pad_d2a_trim2_sig[6]
 // test5 : pad_d2a_trim3_sig[6]
-// test7 : OTP_VPP_EN
-// test6 : OTP_VPP_EN
-// test8 : OTP_VPP_EN
-// test9 : OTP_VPP_EN
-// test10: OTP_VPP_EN
+// test7 : pad_d2a_trim4_sig[6]
+// test6 : pad_d2a_trim5_sig[6]
+// test8 : pad_d2a_trim6_sig[6]
+// test9 : pad_d2a_trim7_sig[6]
+// test10: pad_d2a_trim8_sig[6]
 
 pinmux_1bit 
 #(
@@ -1471,11 +1477,11 @@ u_gpio7_pinmux (
 .altf_y    (o_DAISY_IN),
 // test mode function
 // test0
-.test0_ie   (1'b0),
-.test0_oe   (1'b1), 
-.test0_a    (scan_out[0]),
-.test0_def  (1'b0),
-.test0_y    (),
+.test0_ie   (1'b1),    
+.test0_oe   (1'b0),     
+.test0_a    (1'b0),    
+.test0_def  (1'b0),    
+.test0_y    (scan_in[4]),
 // test1
 .test1_ie   (1'b0),
 .test1_oe   (1'b1),
@@ -1483,11 +1489,11 @@ u_gpio7_pinmux (
 .test1_def  (1'b0),
 .test1_y    (),
 // test2
-.test2_ie   (1'b0),
-.test2_oe   (1'b1),
-.test2_a    (i_otp_vpp_en),
-.test2_def  (1'b0),           
-.test2_y    (),                                 
+.test2_ie   (1'b1),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),
+.test2_y    (pad_d2a_trim0_sig[6]),                                
 // test3
 .test3_ie   (1'b1),
 .test3_oe   (1'b0),
@@ -1544,18 +1550,18 @@ u_gpio7_pinmux (
 ); 
 
 // GPIO8 pad
-// normal: A2D_COMP1 / A2D_COMP2 
-// test0 : scan_out[1]
-// test1 : wire_ens2_IOBUF_Y[0]
-// test2 : None 
-// test3 : None 
-// test4 : None 
-// test5 : None 
-// test6 : None 
-// test7 : None 
-// test8 : None 
-// test9 : None 
-// test10: None 
+// normal: INTB
+// test0 : scan_in[5]
+// test1 : None 
+// test2 : pad_d2a_trim0_sig[7]
+// test3 : pad_d2a_trim1_sig[7]
+// test4 : pad_d2a_trim2_sig[7]
+// test5 : pad_d2a_trim3_sig[7]
+// test7 : pad_d2a_trim4_sig[7]
+// test6 : pad_d2a_trim5_sig[7]
+// test8 : pad_d2a_trim6_sig[7]
+// test9 : pad_d2a_trim7_sig[7]
+// test10: pad_d2a_trim8_sig[7]
 
 pinmux_1bit 
 #(
@@ -1574,18 +1580,18 @@ pinmux_1bit
 u_gpio8_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),     
+.test_sel   (test_sel),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
-.test1_en   (ATM_CONFG),
-.test2_en   (1'b0), 
-.test3_en   (1'b0),
-.test4_en   (1'b0),
-.test5_en   (1'b0),
-.test6_en   (1'b0),
-.test7_en   (1'b0),
-.test8_en   (1'b0),
-.test9_en   (1'b0),
+.test1_en   (otp_bist_en),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
 //.test10_en  (ATM8),
 .test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -1617,16 +1623,316 @@ u_gpio8_pinmux (
 */
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (GPIO8_NORMAL_OUT),
+.altf_a    (INTB),
 .altf_def  (1'b0),
 .altf_y    (),
 // test mode function
 // test0
-.test0_ie   (1'b0),
-.test0_oe   (1'b1), 
-.test0_a    (scan_out[1]),
-.test0_def  (1'b0),
-.test0_y    (),
+.test0_ie   (1'b1),    
+.test0_oe   (1'b0),     
+.test0_a    (1'b0),    
+.test0_def  (1'b0),    
+.test0_y    (scan_in[5]),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),
+.test1_y    (),
+// test2
+.test2_ie   (1'b1),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),
+.test2_y    (pad_d2a_trim0_sig[7]),                                
+// test3
+.test3_ie   (1'b1),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (pad_d2a_trim1_sig[7]),           
+// test4
+.test4_ie   (1'b1),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (pad_d2a_trim2_sig[7]),
+// test5
+.test5_ie   (1'b1),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (pad_d2a_trim3_sig[7]),
+// test6
+.test6_ie   (1'b1),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (pad_d2a_trim4_sig[7]),
+// test7
+.test7_ie   (1'b1),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (pad_d2a_trim5_sig[7]),
+// test8
+.test8_ie   (1'b1),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (pad_d2a_trim6_sig[7]),
+// test9
+.test9_ie   (1'b1),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (pad_d2a_trim7_sig[7]),
+// test10
+// .test10_ie   (1'b1),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (pad_d2a_trim8_sig[7]),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[8]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[8]),
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[8]),
+.iopad_gpio_a    (o_ens2_IOBUF_A[8])
+); 
+
+// GPIO9 pad
+// normal: OTP_VPP_EN
+// test0 : scan_in[6]
+// test1 : None
+// test2 : OTP_VPP_EN
+// test3 : OTP_VPP_EN
+// test4 : OTP_VPP_EN
+// test5 : OTP_VPP_EN
+// test6 : OTP_VPP_EN
+// test7 : OTP_VPP_EN
+// test8 : OTP_VPP_EN
+// test9 : OTP_VPP_EN
+// test10: OTP_VPP_EN
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio9_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),     
+.test_en    (test_en),                  
+.test0_en   (scan_mode),
+.test1_en   (otp_bist_en),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: 
+// alternate function
+/*
+// altf0
+.altf0_ie   (1'b0),
+.altf0_oe   (1'b1),
+.altf0_a    (hfosc_out),
+.altf0_def  (1'b0),
+.altf0_y    (),
+// altf1
+.altf1_ie   (1'b0),         
+.altf1_oe   (1'b0),                         
+.altf1_a    (1'b0),                         
+.altf1_def  (1'b0),                         
+.altf1_y    (), 
+// altf2
+.altf2_ie   (1'b0),         
+.altf2_oe   (1'b0),                         
+.altf2_a    (1'b0),                         
+.altf2_def  (1'b0),                         
+.altf2_y    (), 
+// altf3
+.altf3_ie   (1'b0),         
+.altf3_oe   (1'b0),                         
+.altf3_a    (1'b0),                         
+.altf3_def  (1'b0),                         
+.altf3_y    (),   
+*/   
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (i_otp_vpp_en),
+.altf_def  (1'b0),
+.altf_y    (),
+
+// test0
+.test0_ie   (1'b1),    
+.test0_oe   (1'b0),     
+.test0_a    (1'b0),    
+.test0_def  (1'b0),    
+.test0_y    (scan_in[6]),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),   
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b1),
+// .test10_a    (i_otp_vpp_en),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[9]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[9]),          
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[9]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[9])                                     
+); 
+// GPIO10 pad
+// normal: hfosc_out 
+// test0 : scan_in[7]
+// test1 : wire_ens2_IOBUF_Y[0]
+// test2 : None
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(1),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio10_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
+.test_en    (test_en),                  
+.test0_en   (scan_mode),
+.test1_en   (ATM_CONFG),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+//.test10_en  (1'b0),
+.test_ana   (1'b0),      //Disable IE/OE/A:: 
+// alternate function
+/*
+// altf0
+.altf0_ie   (1'b1),
+.altf0_oe   (1'b0),
+.altf0_a    (1'b0),
+.altf0_def  (1'b0),
+.altf0_y    (int_clk_out_gpio[0]),
+// altf1
+.altf1_ie   (1'b1),
+.altf1_oe   (1'b0),
+.altf1_a    (1'b0),
+.altf1_def  (1'b0),
+.altf1_y    (int_clk_out_gpio[1]),
+// altf2
+.altf2_ie   (1'b1),         
+.altf2_oe   (1'b0),                         
+.altf2_a    (1'b0),                         
+.altf2_def  (1'b0),                         
+.altf2_y    (int_clk_out_gpio[2]), 
+// altf3
+.altf3_ie   (1'b1),         
+.altf3_oe   (1'b0),                         
+.altf3_a    (1'b0),                         
+.altf3_def  (1'b0),                         
+.altf3_y    (int_clk_out_gpio[3]), 
+*/
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (hfosc_out),
+.altf_def  (1'b0),
+.altf_y    (),  
+// test mode function
+// test0
+.test0_ie   (1'b1),    
+.test0_oe   (1'b0),     
+.test0_a    (1'b0),    
+.test0_def  (1'b0),    
+.test0_y    (scan_in[7]),
 // test1
 .test1_ie   (1'b1),
 .test1_oe   (1'b0),
@@ -1682,21 +1988,22 @@ u_gpio8_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b1),
+// .test10_ie   (1'b0),
 // .test10_oe   (1'b0),
 // .test10_a    (1'b0),
 // .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[7]),
+// .test10_y    (),
 // with pad interface
-.iopad_gpio_y    (i_ens2_IOBUF_Y[8]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[8]),
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[8]),
-.iopad_gpio_a    (o_ens2_IOBUF_A[8])
+.iopad_gpio_y    (i_ens2_IOBUF_Y[10]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[10]),
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[10]),
+.iopad_gpio_a    (o_ens2_IOBUF_A[10])
 ); 
 
-// GPIO9 pad
-// normal: hfosc_out
-// test0 : scan_out[2]
+
+// GPIO11 pad
+// normal: int_clk_out_gpio 
+// test0 : scan_in[8]
 // test1 : wire_ens2_IOBUF_Y[1]
 // test2 : None
 // test3 : None
@@ -1721,10 +2028,10 @@ pinmux_1bit
 .TEST8_CLKIN(0),
 .TEST9_CLKIN(0))
 //.TEST10_CLKIN(0))
-u_gpio9_pinmux (
+u_gpio11_pinmux (
 // test and alternate select
 //.altf_sel   (2'b0),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),     
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -1765,18 +2072,18 @@ u_gpio9_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (),   
 */   
-.altf_ie   (1'b0),
-.altf_oe   (1'b1),
-.altf_a    (hfosc_out),
+.altf_ie   (1'b1),
+.altf_oe   (1'b0),
+.altf_a    (1'b0),
 .altf_def  (1'b0),
-.altf_y    (),
+.altf_y    (int_clk_out_gpio),
 // test mode function
 // test0
-.test0_ie   (1'b0),
-.test0_oe   (1'b1), 
-.test0_a    (scan_out[2]),
-.test0_def  (1'b0),
-.test0_y    (),
+.test0_ie   (1'b1),     
+.test0_oe   (1'b0),                     
+.test0_a    (1'b0),                     
+.test0_def  (1'b0),                     
+.test0_y    (scan_in[8]),
 // test1
 .test1_ie   (1'b1),
 .test1_oe   (1'b0),
@@ -1838,15 +2145,15 @@ u_gpio9_pinmux (
 // .test10_def  (1'b0),
 // .test10_y    (),
 // with pad interface
-.iopad_gpio_y    (i_ens2_IOBUF_Y[9]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[9]),          
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[9]),                                    
-.iopad_gpio_a    (o_ens2_IOBUF_A[9])                                     
+.iopad_gpio_y    (i_ens2_IOBUF_Y[11]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[11]),          
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[11]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[11])                                     
 ); 
 
-// GPIO10 pad
-// normal: int_clk_out_gpio 
-// test0 : scan_out[3]
+// GPIO12 pad
+// normal: A2D_COMP0 
+// test0 : scan_out[0]
 // test1 : wire_ens2_IOBUF_Y[2]
 // test2 : None
 // test3 : None
@@ -1872,10 +2179,10 @@ pinmux_1bit
 .TEST8_CLKIN(0),
 .TEST9_CLKIN(0))
 //.TEST10_CLKIN(0))
-u_gpio10_pinmux (
+u_gpio12_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),     
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -1916,16 +2223,16 @@ u_gpio10_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (int_clk_out_gpio[3]), 
 */
-.altf_ie   (1'b1),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (o_A2D_COMP0),
 .altf_def  (1'b0),
-.altf_y    (int_clk_out_gpio),   
+.altf_y    (), 
 // test mode function
 // test0
 .test0_ie   (1'b0), 
 .test0_oe   (1'b1), 
-.test0_a    (scan_out[3]), 
+.test0_a    (scan_out[0]), 
 .test0_def  (1'b0),      
 .test0_y    (),
 // test1
@@ -1989,16 +2296,16 @@ u_gpio10_pinmux (
 // .test10_def  (1'b0),
 // .test10_y    (),
 // with pad interface
-.iopad_gpio_y    (i_ens2_IOBUF_Y[10]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[10]),
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[10]),
-.iopad_gpio_a    (o_ens2_IOBUF_A[10])
+.iopad_gpio_y    (i_ens2_IOBUF_Y[12]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[12]),
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[12]),
+.iopad_gpio_a    (o_ens2_IOBUF_A[12])
 ); 
-/*
-// GPIO11 pad
-// normal:  None 
-// test0 :  scan_out[3] 
-// test1 :  wire_ens4p1_IOBUF_Y[1]
+
+// GPIO13 pad
+// normal:  A2D_COMP1
+// test0 :  scan_out[1] 
+// test1 :  wire_ens2_IOBUF_Y[3]
 // test2 :  None 
 // test3 :  None
 // test4 :  None
@@ -2023,10 +2330,10 @@ pinmux_1bit
 .TEST8_CLKIN(0),
 .TEST9_CLKIN(0))
 //.TEST10_CLKIN(0))
-u_gpio11_pinmux (
+u_gpio13_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),    
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),    
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -2041,7 +2348,7 @@ u_gpio11_pinmux (
 //.test10_en  (1'b0),
 .test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
-
+/*
 // altf0
 .altf0_ie   (1'b0),
 .altf0_oe   (1'b0),
@@ -2066,318 +2373,17 @@ u_gpio11_pinmux (
 .altf3_a    (1'b0),                         
 .altf3_def  (1'b0),                         
 .altf3_y    (),     
-
+*/
 .altf_ie   (1'b0),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (o_A2D_COMP1),
 .altf_def  (1'b0),
 .altf_y    (),
 // test mode function
 // test0
 .test0_ie   (1'b0),
 .test0_oe   (1'b1), 
-.test0_a    (scan_out[3]),
-.test0_def  (1'b0),
-.test0_y    (),
-// test1
-.test1_ie   (1'b1),
-.test1_oe   (1'b0),
-.test1_a    (1'b0),
-.test1_def  (1'b0),
-.test1_y    (wire_ens2_IOBUF_Y[1]),
-// test2
-.test2_ie   (1'b0),
-.test2_oe   (1'b0),
-.test2_a    (1'b0),
-.test2_def  (1'b0),         
-.test2_y    (),           
-// test3
-.test3_ie   (1'b0),
-.test3_oe   (1'b0),
-.test3_a    (1'b0),
-.test3_def  (1'b0),
-.test3_y    (),
-// test4
-.test4_ie   (1'b0),
-.test4_oe   (1'b0),
-.test4_a    (1'b0),
-.test4_def  (1'b0),
-.test4_y    (),
-// test5
-.test5_ie   (1'b0),
-.test5_oe   (1'b0),
-.test5_a    (1'b0),
-.test5_def  (1'b0),
-.test5_y    (),
-// test6
-.test6_ie   (1'b0),
-.test6_oe   (1'b0),
-.test6_a    (1'b0),
-.test6_def  (1'b0),
-.test6_y    (),
-// test7
-.test7_ie   (1'b0),
-.test7_oe   (1'b0),
-.test7_a    (1'b0),
-.test7_def  (1'b0),
-.test7_y    (),
-// test8
-.test8_ie   (1'b0),
-.test8_oe   (1'b0),
-.test8_a    (1'b0),
-.test8_def  (1'b0),
-.test8_y    (),
-// test9
-.test9_ie   (1'b0),
-.test9_oe   (1'b0),
-.test9_a    (1'b0),
-.test9_def  (1'b0),
-.test9_y    (),
-// test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
-// with pad interface
-.iopad_gpio_y    (i_ens2_IOBUF_Y[11]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[11]),
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[11]),
-.iopad_gpio_a    (o_ens2_IOBUF_A[11])
-); 
-
-// GPIO12 pad
-// normal: None 
-// test0 : scan_out[4]
-// test1 : wire_ens4p1_IOBUF_Y[2]
-// test2 : None 
-// test3 : None
-// test4 : None
-// test5 : None
-// test6 : None
-// test7 : None
-// test8 : None
-// test9 : None
-// test10: None
-
-pinmux_1bit 
-#(
-.ALTF_CLKIN(0),
-.TEST0_CLKIN(0),
-.TEST1_CLKIN(0),
-.TEST2_CLKIN(0),
-.TEST3_CLKIN(0),
-.TEST4_CLKIN(0),
-.TEST5_CLKIN(0),
-.TEST6_CLKIN(0),
-.TEST7_CLKIN(0),
-.TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
-//.TEST10_CLKIN(0))
-u_gpio12_pinmux (
-// test and alternate select
-//.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),// this needs to be changed if more than 10 testmodes require(including scan &bist), currently scan,otpbist,ATM0-8 supported
-.test_en    (test_en),                  
-.test0_en   (scan_mode),
-.test1_en   (ATM_CONFG),
-.test2_en   (1'b0), 
-.test3_en   (1'b0),
-.test4_en   (1'b0),
-.test5_en   (1'b0),
-.test6_en   (1'b0),
-.test7_en   (1'b0),
-.test8_en   (1'b0),
-.test9_en   (1'b0),
-//.test10_en  (1'b0),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
-// alternate function
-
-// altf0
-.altf0_ie   (1'b0),
-.altf0_oe   (1'b0),
-.altf0_a    (1'b0),
-.altf0_def  (1'b0),
-.altf0_y    (),
-// altf1
-.altf1_ie   (1'b0),         
-.altf1_oe   (1'b0),                         
-.altf1_a    (1'b0),                         
-.altf1_def  (1'b0),                         
-.altf1_y    (), 
-// altf2
-.altf2_ie   (1'b0),         
-.altf2_oe   (1'b0),                         
-.altf2_a    (1'b0),                         
-.altf2_def  (1'b0),                         
-.altf2_y    (), 
-// altf3
-.altf3_ie   (1'b0),
-.altf3_oe   (1'b0),
-.altf3_a    (1'b0),
-.altf3_def  (1'b0),
-.altf3_y    (),    
-
-.altf_ie   (1'b0),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
-.altf_def  (1'b0),
-.altf_y    (), 
-// test mode function
-// test0
-.test0_ie   (1'b0),     
-.test0_oe   (1'b1),      
-.test0_a    (scan_out[4]),
-.test0_def  (1'b0),
-.test0_y    (),
-// test1
-.test1_ie   (1'b1),
-.test1_oe   (1'b0),
-.test1_a    (1'b0),
-.test1_def  (1'b0),
-.test1_y    (wire_ens2_IOBUF_Y[2]),
-// test2
-.test2_ie   (1'b0),
-.test2_oe   (1'b0),
-.test2_a    (1'b0),
-.test2_def  (1'b0),         
-.test2_y    (),           
-// test3
-.test3_ie   (1'b0),
-.test3_oe   (1'b0),
-.test3_a    (1'b0),
-.test3_def  (1'b0),
-.test3_y    (),
-// test4
-.test4_ie   (1'b0),
-.test4_oe   (1'b0),
-.test4_a    (1'b0),
-.test4_def  (1'b0),
-.test4_y    (),
-// test5
-.test5_ie   (1'b0),
-.test5_oe   (1'b0),
-.test5_a    (1'b0),
-.test5_def  (1'b0),
-.test5_y    (),
-// test6
-.test6_ie   (1'b0),
-.test6_oe   (1'b0),
-.test6_a    (1'b0),
-.test6_def  (1'b0),
-.test6_y    (),
-// test7
-.test7_ie   (1'b0),
-.test7_oe   (1'b0),
-.test7_a    (1'b0),
-.test7_def  (1'b0),
-.test7_y    (),
-// test8
-.test8_ie   (1'b0),
-.test8_oe   (1'b0),
-.test8_a    (1'b0),
-.test8_def  (1'b0),
-.test8_y    (),
-// test9
-.test9_ie   (1'b0),
-.test9_oe   (1'b0),
-.test9_a    (1'b0),
-.test9_def  (1'b0),
-.test9_y    (),
-// test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
-// with pad interface
-.iopad_gpio_y    (i_ens2_IOBUF_Y[12]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[12]),         
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[12]),                                    
-.iopad_gpio_a    (o_ens2_IOBUF_A[12])                                     
-); 
-*/
-/*
-// GPIO13 pad
-// normal: None 
-// test0 : scan_out[5]
-// test1 : wire_ens2_IOBUF_Y[2]
-// test2 : None 
-// test3 : None
-// test4 : None
-// test5 : None
-// test6 : None
-// test7 : None
-// test8 : None
-// test9 : None
-// test10: None
-
-pinmux_1bit 
-#(
-.ALTF_CLKIN(0),
-.TEST0_CLKIN(0),
-.TEST1_CLKIN(0),
-.TEST2_CLKIN(0),
-.TEST3_CLKIN(0),
-.TEST4_CLKIN(0),
-.TEST5_CLKIN(0),
-.TEST6_CLKIN(0),
-.TEST7_CLKIN(0),
-.TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
-//.TEST10_CLKIN(0))
-u_gpio13_pinmux (
-// test and alternate select
-//.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 4'd0 : (ATM_CONFG ? 4'd1 : 4'd11)),//this needs to be changed if more than 10 testmodes require(including scan &bist), currently scan,otpbist,ATM0-8 supported
-.test_en    (test_en),                  
-.test0_en   (scan_mode),
-.test1_en   (ATM_CONFG),
-.test2_en   (1'b0), 
-.test3_en   (1'b0),
-.test4_en   (1'b0),
-.test5_en   (1'b0),
-.test6_en   (1'b0),
-.test7_en   (1'b0),
-.test8_en   (1'b0),
-.test9_en   (1'b0),
-//.test10_en  (1'b0),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
-// alternate function
-// altf0
-.altf0_ie   (1'b0),
-.altf0_oe   (1'b0),
-.altf0_a    (1'b0),
-.altf0_def  (1'b0),
-.altf0_y    (),
-// altf1
-.altf1_ie   (1'b0),         
-.altf1_oe   (1'b0),                         
-.altf1_a    (1'b0),                         
-.altf1_def  (1'b0),                         
-.altf1_y    (), 
-// altf2
-.altf2_ie   (1'b0),         
-.altf2_oe   (1'b0),                         
-.altf2_a    (1'b0),                         
-.altf2_def  (1'b0),                         
-.altf2_y    (), 
-// altf3
-.altf3_ie   (1'b0),         
-.altf3_oe   (1'b0),                         
-.altf3_a    (1'b0),                         
-.altf3_def  (1'b0),                         
-.altf3_y    (),      
-.altf_ie   (1'b0),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
-.altf_def  (1'b0),
-.altf_y    (),
-// test mode function
-// test0
-.test0_ie   (1'b0),     
-.test0_oe   (1'b1),      
-.test0_a    (scan_out[5]),
+.test0_a    (scan_out[1]),
 .test0_def  (1'b0),
 .test0_y    (),
 // test1
@@ -2442,11 +2448,1034 @@ u_gpio13_pinmux (
 // .test10_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[13]),
-.iopad_gpio_ie   (o_ens2_IOBUF_IE[13]),         
-.iopad_gpio_oe   (o_ens2_IOBUF_OE[13]),                                    
-.iopad_gpio_a    (o_ens2_IOBUF_A[13])                                     
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[13]),
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[13]),
+.iopad_gpio_a    (o_ens2_IOBUF_A[13])
 ); 
+
+// GPIO14 pad
+// normal: NIRS_LED_ON0/NIRS_RESET_SW0/NIRS_IPD_SW0/NIRS_IIN_SW0/A2D_IREFCOARSE0/A2D_IREFFINE0
+// test0 : scan_out[2]
+// test1 : wire_ens2_IOBUF_Y[4]
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio14_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),    // this needs to be changed if more than 10 testmodes require(including scan &bist), currently scan,otpbist,ATM0-8 supported
+.test_en    (test_en),                  
+.test0_en   (scan_mode),
+.test1_en   (ATM_CONFG),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+//.test10_en  (1'b0),
+.test_ana   (1'b0),       //Disable IE/OE/A:: 
+// alternate function
+/*
+// altf0
+.altf0_ie   (1'b0),
+.altf0_oe   (1'b0),
+.altf0_a    (1'b0),
+.altf0_def  (1'b0),
+.altf0_y    (),
+// altf1
+.altf1_ie   (1'b0),         
+.altf1_oe   (1'b0),                         
+.altf1_a    (1'b0),                         
+.altf1_def  (1'b0),                         
+.altf1_y    (), 
+// altf2
+.altf2_ie   (1'b0),         
+.altf2_oe   (1'b0),                         
+.altf2_a    (1'b0),                         
+.altf2_def  (1'b0),                         
+.altf2_y    (), 
+// altf3
+.altf3_ie   (1'b0),
+.altf3_oe   (1'b0),
+.altf3_a    (1'b0),
+.altf3_def  (1'b0),
+.altf3_y    (),    
 */
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (GPIO14_NORMAL_OUT),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[2]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b1),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),
+.test1_y    (wire_ens2_IOBUF_Y[4]),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[14]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[14]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[14]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[14])                                     
+); 
+
+
+// GPIO15 pad
+// normal: NIRS_LED_ON1 
+// test0 : scan_out[3]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio15_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON1),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[3]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[15]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[15]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[15]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[15])                                     
+); 
+
+
+// GPIO16 pad
+// normal: NIRS_LED_ON2 
+// test0 : scan_out[4]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio16_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON2),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[4]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[16]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[16]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[16]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[16])                                     
+); 
+
+// GPIO17 pad
+// normal: NIRS_LED_ON3
+// test0 : scan_out[5]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio17_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON3),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[5]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[17]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[17]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[17]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[17])                                     
+); 
+// GPIO18 pad
+// normal: NIRS_LED_ON4 
+// test0 : scan_out[6]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio18_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON4),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[6]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[18]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[18]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[18]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[18])                                     
+); 
+// GPIO19 pad
+// normal: NIRS_LED_ON5 
+// test0 : scan_out[7]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio19_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON5),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[7]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[19]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[19]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[19]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[19])                                     
+); 
+// GPIO20 pad
+// normal: NIRS_LED_ON6 
+// test0 : scan_out[8]
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio20_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON6),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),     
+.test0_oe   (1'b1),      
+.test0_a    (scan_out[8]),
+.test0_def  (1'b0),
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[20]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[20]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[20]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[20])                                     
+); 
+// GPIO21 pad
+// normal: NIRS_LED_ON7 
+// test0 : None
+// test1 : None
+// test2 : None 
+// test3 : None
+// test4 : None
+// test5 : None
+// test6 : None
+// test7 : None
+// test8 : None
+// test9 : None
+// test10: None
+
+pinmux_1bit 
+#(
+.ALTF_CLKIN(0),
+.TEST0_CLKIN(0),
+.TEST1_CLKIN(0),
+.TEST2_CLKIN(0),
+.TEST3_CLKIN(0),
+.TEST4_CLKIN(0),
+.TEST5_CLKIN(0),
+.TEST6_CLKIN(0),
+.TEST7_CLKIN(0),
+.TEST8_CLKIN(0),
+.TEST9_CLKIN(0))
+//.TEST10_CLKIN(0))
+u_gpio21_pinmux (
+// test and alternate select
+//.altf_sel   (altf_sel),   
+.test_sel   (test_sel),
+.test_en    (test_en),
+.test0_en   (scan_mode),
+.test1_en   (1'b0),
+.test2_en   (ATM0),
+.test3_en   (ATM1),
+.test4_en   (ATM2),
+.test5_en   (ATM3),
+.test6_en   (ATM4),
+.test7_en   (ATM5),
+.test8_en   (ATM6),
+.test9_en   (ATM7),
+//.test10_en  (ATM8),
+.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+// alternate function
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (NIRS_LED_ON7),
+.altf_def  (1'b0),
+.altf_y    (), 
+// test mode function
+// test0
+.test0_ie   (1'b0),
+.test0_oe   (1'b0),
+.test0_a    (1'b0),
+.test0_def  (1'b0),         
+.test0_y    (),
+// test1
+.test1_ie   (1'b0),
+.test1_oe   (1'b0),
+.test1_a    (1'b0),
+.test1_def  (1'b0),         
+.test1_y    (),
+// test2
+.test2_ie   (1'b0),
+.test2_oe   (1'b0),
+.test2_a    (1'b0),
+.test2_def  (1'b0),         
+.test2_y    (),           
+// test3
+.test3_ie   (1'b0),
+.test3_oe   (1'b0),
+.test3_a    (1'b0),
+.test3_def  (1'b0),
+.test3_y    (),
+// test4
+.test4_ie   (1'b0),
+.test4_oe   (1'b0),
+.test4_a    (1'b0),
+.test4_def  (1'b0),
+.test4_y    (),
+// test5
+.test5_ie   (1'b0),
+.test5_oe   (1'b0),
+.test5_a    (1'b0),
+.test5_def  (1'b0),
+.test5_y    (),
+// test6
+.test6_ie   (1'b0),
+.test6_oe   (1'b0),
+.test6_a    (1'b0),
+.test6_def  (1'b0),
+.test6_y    (),
+// test7
+.test7_ie   (1'b0),
+.test7_oe   (1'b0),
+.test7_a    (1'b0),
+.test7_def  (1'b0),
+.test7_y    (),
+// test8
+.test8_ie   (1'b0),
+.test8_oe   (1'b0),
+.test8_a    (1'b0),
+.test8_def  (1'b0),
+.test8_y    (),
+// test9
+.test9_ie   (1'b0),
+.test9_oe   (1'b0),
+.test9_a    (1'b0),
+.test9_def  (1'b0),
+.test9_y    (),
+// test10
+// .test10_ie   (1'b0),
+// .test10_oe   (1'b0),
+// .test10_a    (1'b0),
+// .test10_def  (1'b0),
+// .test10_y    (),
+// with pad interface
+.iopad_gpio_y    (i_ens2_IOBUF_Y[21]),
+.iopad_gpio_ie   (o_ens2_IOBUF_IE[21]),         
+.iopad_gpio_oe   (o_ens2_IOBUF_OE[21]),                                    
+.iopad_gpio_a    (o_ens2_IOBUF_A[21])                                     
+); 
 /*
 // GPIO14 pad
 // normal: None 

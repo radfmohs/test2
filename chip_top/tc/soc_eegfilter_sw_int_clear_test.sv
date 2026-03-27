@@ -28,7 +28,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // -----------------------------------------------
   // Adding constraints of randomization
   // -----------------------------------------------
-  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
+  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch == 16'h0 ;} // atlist 1 channel should be enabled 
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -135,7 +135,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
   task wait_for_one_conversion_to_finish();
     `nnc_info("SOC_TEST", "wait for one conversion after stop cmd", UVM_LOW)
  
-    if(`FILTER_WRAPPER_TOP.o_eeg_int === 1)begin
+    if(`IMEAS_WRAPPER_TOP.o_eeg_int === 1)begin
       fork
         clear_int_sts_reg();
 	//compare_imeas_chdata_through_rdata_cmd(0);
@@ -156,7 +156,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     join_any
     disable wait_for_conversion;
 
-    if(`FILTER_WRAPPER_TOP.eeg_int_sts === 1)begin
+    if(`IMEAS_WRAPPER_TOP.eeg_int_sts === 1)begin
       fork
         clear_int_sts_reg();
 	//compare_imeas_chdata_through_rdata_cmd(0);

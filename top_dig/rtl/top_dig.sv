@@ -75,16 +75,16 @@ output D2A_SDM_CLK,
 //input wire  [2:0]     D2A_CPCLK, 
 
   //io_buf_config
-  output wire [10:0]    o_ens2_IOBUF_CS,
-  output wire [10:0]    o_ens2_IOBUF_SR,
-  output wire [10:0]    o_ens2_IOBUF_IE,
-  output wire [10:0]    o_ens2_IOBUF_OE,
-  output wire [10:0]    o_ens2_IOBUF_PU,
-  output wire [10:0]    o_ens2_IOBUF_PD,
-  output wire [10:0]    o_ens2_IOBUF_A,
-  output wire [10:0]    o_ens2_IOBUF_PDRV0,
-  output wire [10:0]    o_ens2_IOBUF_PDRV1,
-  input  wire [10:0]    i_ens2_IOBUF_Y,
+  output wire [21:0]    o_ens2_IOBUF_CS,
+  output wire [21:0]    o_ens2_IOBUF_SR,
+  output wire [21:0]    o_ens2_IOBUF_IE,
+  output wire [21:0]    o_ens2_IOBUF_OE,
+  output wire [21:0]    o_ens2_IOBUF_PU,
+  output wire [21:0]    o_ens2_IOBUF_PD,
+  output wire [21:0]    o_ens2_IOBUF_A,
+  output wire [21:0]    o_ens2_IOBUF_PDRV0,
+  output wire [21:0]    o_ens2_IOBUF_PDRV1,
+  input  wire [21:0]    i_ens2_IOBUF_Y,
 
   output wire           o_IO_clksel_PD,
   output wire           o_IO_exresetn_PD,
@@ -174,18 +174,16 @@ output D2A_SDM_CLK,
   ana_nirs_if.nirs      ana_nirs_if,
 
   //WG
-  output wire  [11:0]    o_out_wave_drivera_dac0,
-  output wire  [11:0]    o_out_wave_drivera_dac1,
-  output wire  [11:0]    o_out_wave_drivera_dac2,
-  output wire  [11:0]    o_out_wave_drivera_dac3,
-  output wire  [11:0]    o_out_wave_drivera_dac4,
-  output wire  [11:0]    o_out_wave_drivera_dac5,
-  output wire  [11:0]    o_out_wave_drivera_dac6,
-  output wire  [11:0]    o_out_wave_drivera_dac7,
-  output wire              [NO_OF_WAVEGEN-1:0]    o_sourcea_driver_a,
-  output wire              [NO_OF_WAVEGEN-1:0]    o_sourceb_driver_a,
-  output wire              [NO_OF_WAVEGEN-1:0]    o_pullda_driver_a,
-  output wire              [NO_OF_WAVEGEN-1:0]    o_pulldb_driver_a
+  output wire  [11:0]    o_out_wave_driver_idac[NO_OF_WAVEGEN-1:0],
+  output wire [NO_OF_WAVEGEN-1:0]	o_ds_driver_en_driver,
+  output wire 				o_ds_driver_en_current,
+  output wire [NO_OF_WAVEGEN-1:0]       o_driver_en_sw,
+  output wire 				o_stimu_en,            
+
+  output wire              [NO_OF_WAVEGEN-1:0]    o_source_driver,
+//  output wire              [NO_OF_WAVEGEN-1:0]    o_sourceb_driver_a,
+  output wire              [NO_OF_WAVEGEN-1:0]    o_pulldn_driver
+//  output wire              [NO_OF_WAVEGEN-1:0]    o_pulldb_driver_a
 //output wire              [1:0]    o_driver_driver_a_en
 //output wire              [2:0]    o_drivera_isel0,
 //output wire              [2:0]    o_drivera_isel1
@@ -221,7 +219,6 @@ wire [17:0]             lpf_coeff_data [31:0];
 wire [19:0]             notch_coeff_data[41:0];
 
 //============
-
   wire    hfosc_out;
   wire    analog_test_mode;
   wire    ext_clk_sel;                                                //from analog IO cells
@@ -476,8 +473,8 @@ wire         ppg_clk50duty;
   wire [15:0] DEBUG_otp; 
   wire [15:0] debug_reg;
   wire        scan_en;
-  wire [4:0]  scan_in;
-  wire [4:0]  scan_out;
+  wire [8:0]  scan_in;
+  wire [8:0]  scan_out;
   wire        scan_compression_in;
   
   wire        pmu_fclk_en;      // sclk enable when in idle state
@@ -553,7 +550,6 @@ wire         ppg_clk50duty;
   wire  [7:0] gpio_pu_ctrl_reg;                  
   wire  [7:0] gpio_pd_ctrl_reg;            
   wire  [2:0] gpio_sr_pdrv0_1_ctrl_reg;     
-  wire  [3:0] gpio_comp_out_ctrl_reg;     
 
 /*
  wire		w_D2A_LVD_EN;
@@ -658,10 +654,6 @@ wire         ppg_clk50duty;
   wire        int_clk_out;
   wire        int_clk_out_gpio;
   wire        wg_driver_interrupt;
-  wire        NORMAL_OUT_SEL;
-  wire        COMP_OUT_EN;
-  wire        COMP_OUT_SEL;
-  wire        COMP_OUT_SEL_STIM;
   wire         int_length_slct;
 
   wire         notch_filter_valid;
@@ -674,7 +666,6 @@ gpio u_gpio(
   .i_gpio_pu_ctrl         (gpio_pu_ctrl_reg),             
   .i_gpio_pd_ctrl         (gpio_pd_ctrl_reg),            
   .i_gpio_sr_pdrv0_1_ctrl (gpio_sr_pdrv0_1_ctrl_reg), 
-  .i_gpio_comp_out_ctrl   (gpio_comp_out_ctrl_reg),         
   .o_ens2_IOBUF_CS        (o_ens2_IOBUF_CS),
   .o_ens2_IOBUF_SR        (o_ens2_IOBUF_SR),
   .o_ens2_IOBUF_PDRV0     (o_ens2_IOBUF_PDRV0),
@@ -690,12 +681,7 @@ gpio u_gpio(
   .o_IO_clksel_PU         (o_IO_clksel_PU),
   .o_IO_exresetn_PU       (o_IO_exresetn_PU),
   .o_IO_testmode0_PU      (o_IO_testmode0_PU),
-  .o_IO_testmode1_PU      (o_IO_testmode1_PU),
-
-  .o_NORMAL_OUT_SEL       (NORMAL_OUT_SEL),
-  .o_COMP_OUT_EN          (COMP_OUT_EN),
-  .o_COMP_OUT_SEL_STIM    (COMP_OUT_SEL_STIM),
-  .o_COMP_OUT_SEL         (COMP_OUT_SEL)
+  .o_IO_testmode1_PU      (o_IO_testmode1_PU)
 );
 
 
@@ -762,12 +748,12 @@ pinmux u_pinmux (
   .o_OTP_ANA_TESTMODE   (analog_test_mode),
   .o_OTP_ATM_TRIM_DATA  (atm_data), 
 
-  .NORMAL_OUT_SEL       (NORMAL_OUT_SEL),
-  .COMP_OUT_EN          (COMP_OUT_EN),
-  .COMP_OUT_SEL         (COMP_OUT_SEL),
-  .COMP_OUT_SEL_STIM         (COMP_OUT_SEL_STIM),
-  .A2D_COMP1            (A2D_COMP1),
-  .A2D_COMP2            (A2D_COMP2),
+//.NORMAL_OUT_SEL       (),
+//.COMP_OUT_EN          (),
+//.COMP_OUT_SEL         (),
+//.COMP_OUT_SEL_STIM    (),
+  .o_A2D_COMP0            (A2D_COMP1),
+  .o_A2D_COMP1            (A2D_COMP2),
   .A2D_STIMU0_1             (spi_ana_if.A2D_ANA_GEN_REG[0][1]), //A2D_COMP_OUT_STIMU0
   .A2D_STIMU2_3             (spi_ana_if.A2D_ANA_GEN_REG[0][2]), //A2D_COMP_OUT_STIMU1
 
@@ -780,8 +766,21 @@ pinmux u_pinmux (
   .d2a_tsc_vdac8b_din_ch1 (d2a_tsc_vdac8b_din_ch1),
   .d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
   .d2a_tsc_comp_en_ch1    (d2a_tsc_comp_en_ch1),
-  .d2a_tsc_en_ch1         (d2a_tsc_en_ch1)
-          
+  .d2a_tsc_en_ch1         (d2a_tsc_en_ch1),
+// NIRS
+  .NIRS_LED_ON0		(),
+  .NIRS_LED_ON1		(),
+  .NIRS_LED_ON2		(),
+  .NIRS_LED_ON3		(),
+  .NIRS_LED_ON4		(),
+  .NIRS_LED_ON5		(),
+  .NIRS_LED_ON6		(),
+  .NIRS_LED_ON7		(),
+  .NIRS_RESET_SW0	(),
+  .NIRS_IPD_SW0		(),
+  .NIRS_IIN_SW0		(),
+  .A2D_IREFCOARSE0	(),
+  .A2D_IREFFINE0	()
 );  
 
 wire lead_off_pclk;
@@ -829,11 +828,14 @@ wire 	   enable_cic;
   wire imeas_working_sync;
   wire imeas_working;
 //====================
+wire [4:0] i_channel_max;
 wire [2:0] PROD_ID;
 clk_ctrl u_clk_ctrl
 (
 //bps imeas
-.PROD_ID(3'b0),
+.PROD_ID(PROD_ID),
+
+  .i_channel_max(i_channel_max),
 
   .enable_cic	(enable_cic),
   .imeas_working_sync(imeas_working_sync),
@@ -1134,29 +1136,23 @@ imeas_wrapper  #(
 .imeas_reg_0	(imeas_reg_0),
 .DR	(DR),
 //.DR	(2),
-.imeas_chdata_adcclk	(imeas_chdata_adcclk),
-.chdata_en_adcclk	(chdata_en_adcclk),
+//.imeas_chdata_adcclk	(imeas_chdata_adcclk),
+//.chdata_en_adcclk	(chdata_en_adcclk),
 
 //.imeas_chdata	(imeas_chdata),
 //.chdata_en	(chdata_en),
 //with analog
-.imeas_adc_din  (imeas_adc_din)  // adc serial data input
+.imeas_adc_din  (imeas_adc_din),  // adc serial data input
 
-);
 
-//=========================
-filter_wrapper #(
-.DATA_WIDTH(EEG_DATA_WIDTH),
-.CHN_NUM(EEG_CHN_NUM))
-u_filter_wrapper(
+
 .clk(imeas_dig_filter_clk_post),   
 .notch_clk(notch_clk),
 .lpf_clk(lpf_clk),
 .hpf_clk(hpf_clk),
-.pclk	(pclk),  // pclk
-.reset(cic_rst_n),
-.sign_en(~imeas_reg_0[7]),
-.osr_sel(DR),
+//.pclk	(pclk),  // pclk
+//.reset(cic_rst_n),
+//.osr_sel(DR),
 .iclk_div(iclk_div),
 //.filter_seq(filter_seq),
 .notch_filter_valid(notch_filter_valid),
@@ -1171,11 +1167,7 @@ u_filter_wrapper(
 .int_length_slct(int_length_slct),
 .eeg_int_en(eeg_int_en),
 .eeg_int_clr(eeg_int_clr),
-.scan_mode(atpg_en),
-//.imeas_chdata_in(imeas_chdata),
-//.chdata_en(chdata_en),
-.imeas_chdata_in(imeas_chdata_adcclk),
-.chdata_en(chdata_en_adcclk),
+//.scan_mode(atpg_en),
 
 .cic_data_ignore_tar(cic_data_ignore_tar),
 .lpf_coeff_data(lpf_coeff_data),
@@ -1187,7 +1179,53 @@ u_filter_wrapper(
 .imeas_chdata_out(imeas_chdata_filter),
 .i_imeas_intr_clr(imeas_intr_clr)
 
-);
+
+);                                                            
+
+//=========================
+//filter_wrapper #(
+//.DATA_WIDTH(EEG_DATA_WIDTH),
+//.CHN_NUM(EEG_CHN_NUM))
+//u_filter_wrapper(
+//.clk(imeas_dig_filter_clk_post),   
+//.notch_clk(notch_clk),
+//.lpf_clk(lpf_clk),
+//.hpf_clk(hpf_clk),
+//.pclk	(pclk),  // pclk
+//.reset(cic_rst_n),
+//.sign_en(~imeas_reg_0[7]),
+//.osr_sel(DR),
+//.iclk_div(iclk_div),
+////.filter_seq(filter_seq),
+//.notch_filter_valid(notch_filter_valid),
+//.notch_clk_gtg_en(notch_clk_gtg_en),
+//.lpf_clk_gtg_en(lpf_clk_gtg_en),
+//.hpf_clk_gtg_en(hpf_clk_gtg_en),
+//
+//.notch_filter_bypass(notch_filter_bypass),
+//.lpf_filter_bypass(lpf_filter_bypass),
+//.hpf_filter_bypass(hpf_filter_bypass),
+////.hpf_filter_bypass(hpf_filter_bypass),
+//.int_length_slct(int_length_slct),
+//.eeg_int_en(eeg_int_en),
+//.eeg_int_clr(eeg_int_clr),
+//.scan_mode(atpg_en),
+////.imeas_chdata_in(imeas_chdata),
+////.chdata_en(chdata_en),
+//.imeas_chdata_in(imeas_chdata_adcclk),
+//.chdata_en(chdata_en_adcclk),
+//
+//.cic_data_ignore_tar(cic_data_ignore_tar),
+//.lpf_coeff_data(lpf_coeff_data),
+//.hpf_coeff_data(hpf_coeff_data),
+//.notch_coeff_data(notch_coeff_data),
+//.o_eeg_int(o_eeg_int),
+//.eeg_int_sts(eeg_int_sts),
+//.meas_done_d1(meas_done_filter),
+//.imeas_chdata_out(imeas_chdata_filter),
+//.i_imeas_intr_clr(imeas_intr_clr)
+//
+//);
 
 
 wire sel_stim;
@@ -1202,6 +1240,8 @@ spi_top  #(
   .OUT_NO_BITS          (OUT_NO_BITS)
 )
 u_spi_top (
+  .i_channel_max(i_channel_max),
+
 //  .spi_leadoff(spi_leadoff),
   .spi_anac(spi_anac),
   .spi_otp(spi_otp),
@@ -1223,8 +1263,8 @@ u_spi_top (
   .o_miso               (miso),
   .o_imeas_intr_clr     (imeas_intr_clr),
 
-   .i_imeas_done(meas_done_filter),
-
+  .i_imeas_done(meas_done_filter),
+  .PROD_ID(PROD_ID),
 //.rd_cmd_ind           (rd_cmd_ind),
 //.first_neg_sclk       (first_neg_sclk),
 //.reset_cmd            (reset_cmd),
@@ -1344,8 +1384,7 @@ u_spi_top (
  //--gpio
   .gpio_pu_ctrl                 (gpio_pu_ctrl_reg),         
   .gpio_pd_ctrl                 (gpio_pd_ctrl_reg),         
-  .gpio_sr_pdrv0_1_ctrl         (gpio_sr_pdrv0_1_ctrl_reg),
-  .gpio_comp_out_ctrl           (gpio_comp_out_ctrl_reg) 
+  .gpio_sr_pdrv0_1_ctrl         (gpio_sr_pdrv0_1_ctrl_reg)
 
 //output to always on
   
@@ -1415,33 +1454,25 @@ wg_driver_top_wrapper #(
 (
 /*AUTOINST*/
  // Outputs
-  .o_out_wave_drivera_dac0      (o_out_wave_drivera_dac0),
-  .o_out_wave_drivera_dac1      (o_out_wave_drivera_dac1),
-  .o_out_wave_drivera_dac2      (o_out_wave_drivera_dac2),
-  .o_out_wave_drivera_dac3      (o_out_wave_drivera_dac3),
-  .o_out_wave_drivera_dac4      (o_out_wave_drivera_dac4),
-  .o_out_wave_drivera_dac5      (o_out_wave_drivera_dac5),
-  .o_out_wave_drivera_dac6      (o_out_wave_drivera_dac6),
-  .o_out_wave_drivera_dac7      (o_out_wave_drivera_dac7),
-//.o_out_wave_drivera_dac2      (),//(o_out_wave_drivera_dac2[7:0]),
-//.o_out_wave_drivera_dac3      (),//(o_out_wave_drivera_dac3[7:0]),
-  .drive_en              (drive_en),            //bit0=1 is dac0, , bit1=1 is dac1 
-  .o_sourcea_driver_c           (o_sourcea_driver_a),//(o_sourcea_driver_a[3:0]),
-  .o_sourceb_driver_c           (o_sourceb_driver_a),//(o_sourceb_driver_a[3:0]),
-  .o_pullda_driver_c            (o_pullda_driver_a),//(o_pullda_driver_a[3:0]),
-  .o_pulldb_driver_c            (o_pulldb_driver_a),//(o_pulldb_driver_a[3:0]),
+  .o_out_wave_driver_idac      (o_out_wave_driver_idac),
+  .drive_en                  (drive_en),            //bit0=1 is dac0, , bit1=1 is dac1 
+  .o_source_driver           (o_source_driver),//(o_sourcea_driver_a[3:0]),
+//  .o_sourceb_driver_c           (o_sourceb_driver_a),//(o_sourceb_driver_a[3:0]),
+  .o_pulldn_driver           (o_pulldn_driver),//(o_pullda_driver_a[3:0]),
+//  .o_pulldb_driver_c            (o_pulldb_driver_a),//(o_pulldb_driver_a[3:0]),
 
-  .o_ds_driver_c_ct0(),
-  .o_ds_driver_c_ct1(),
-  .o_ds_driver_c_ct2(),
-  .o_ds_driver_c_ct3(),
-  .o_ds_driver_c_ct4(),
-  .o_ds_driver_c_ct5(),
-  .o_ds_driver_c_ct6(),
-  .o_ds_driver_c_ct7(),
-  .o_ds_driver_en_driver_c(),
-  .o_ds_driver_en_current_c(),
-  .o_driver_en_sw_c(),
+//  .o_ds_driver_c_ct0(),
+//  .o_ds_driver_c_ct1(),
+//  .o_ds_driver_c_ct2(),
+//  .o_ds_driver_c_ct3(),
+//  .o_ds_driver_c_ct4(),
+//  .o_ds_driver_c_ct5(),
+//  .o_ds_driver_c_ct6(),
+//  .o_ds_driver_c_ct7(),
+  .o_ds_driver_en_driver(o_ds_driver_en_driver),
+  .o_ds_driver_en_current(o_ds_driver_en_current),
+  .o_driver_en_sw(o_driver_en_sw),
+  .o_stimu_en(o_stimu_en),
 
 //  .o_driver_driver_a_en         (o_driver_driver_a_en),//(o_driver_driver_a_en[3:0]),
 //  .o_drivera_isel0              (o_drivera_isel0),//(o_drivera_isel0[2:0]),
@@ -1618,6 +1649,7 @@ u_anac(
 
 nirs_ppg_wrapper u_nirs_wrapper (
   .rst_n          (ppg_resetn),  // Temporary - Xin will provide the alternative later
+  .scan_mode      (atpg_en),
   .clk_ppg        (clk_ppg),     // Temporary - Xin will provide the alternative later
   .clk_sys        (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
   .ana_nirs_if    (ana_nirs_if),

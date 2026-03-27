@@ -316,7 +316,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.clk_freq = 8192 / (2**`DUT_IF.pclk_sel);
     top_test_cfg.half_period_limit = (top_test_cfg.NO_OF_POINTS * 1000) / top_test_cfg.clk_freq;
 
-    for(int i = 0; i < `WAVEGEN_NUM_OF_DRIVERS; i++) begin
+    for(int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
     assert(top_test_cfg.randomize() with {half_period0 > half_period_limit; half_period1 > half_period_limit; half_period2 > half_period_limit;});
     //wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
     wavegen_calc_clock_num(top_test_cfg.clk_freq, 100, 1000, top_test_cfg.half_period0, top_test_cfg.half_period0);

@@ -18,7 +18,7 @@ module Nanochap_ENS2  (
   // digital power ground pads
 `ifdef FPGA 
   input wire        clk_in1,
-  inout wire [10:0] IOBUF_PAD     //xin might change
+  inout wire [21:0] IOBUF_PAD     //xin might change
 `else
   inout wire        VPP,          //Supriya:22/03/2024:ENS2 pending to check with Xin
   inout wire        VDDIO,        //Supriya:22/03/2024:ENS2 pending to check with Xin
@@ -30,7 +30,7 @@ module Nanochap_ENS2  (
   inout wire        VSS_DIG,      //Supriya:22/03/2024:ENS2 pending to check with Xin
 //inout wire        VSS_DIG_AO,   //Supriya:22/03/2024:ENS2 pending to check with Xin  
 // digital data/clk pads
-  inout wire [10:0] IOBUF_PAD,
+  inout wire [21:0] IOBUF_PAD,
 //inout wire        CLK,          //Supriya:22/03/2024:ENS2 pending to check with Xin
   input wire        CLKSEL,
 //added by supriya
@@ -57,16 +57,16 @@ module Nanochap_ENS2  (
 //with PMU
   wire        A2D_SW_POWER_POR;    //??? //V
   wire        A2D_VDDI_POR;  //V
-  wire [10:0] IOBUF_CS;
-  wire [10:0] IOBUF_SR;
-  wire [10:0] IOBUF_IE;
-  wire [10:0] IOBUF_OE;
-  wire [10:0] IOBUF_PU;
-  wire [10:0] IOBUF_PD;
-  wire [10:0] IOBUF_A;
-  wire [10:0] IOBUF_PDRV0;
-  wire [10:0] IOBUF_PDRV1;
-  wire [10:0] IOBUF_Y;
+  wire [21:0] IOBUF_CS;
+  wire [21:0] IOBUF_SR;
+  wire [21:0] IOBUF_IE;
+  wire [21:0] IOBUF_OE;
+  wire [21:0] IOBUF_PU;
+  wire [21:0] IOBUF_PD;
+  wire [21:0] IOBUF_A;
+  wire [21:0] IOBUF_PDRV0;
+  wire [21:0] IOBUF_PDRV1;
+  wire [21:0] IOBUF_Y;
   
   wire        IO_clksel_PU;
   wire        IO_exresetn_PU;
@@ -169,18 +169,15 @@ wire  D2A_SDM_CLK;
   ana_nirs_if                                       ana_nirs_if();
 
 //WG
-  wire  [11:0] out_wave_drivera_dac0;
-  wire  [11:0] out_wave_drivera_dac1;
-  wire  [11:0] out_wave_drivera_dac2;
-  wire  [11:0] out_wave_drivera_dac3;
-  wire  [11:0] out_wave_drivera_dac4;
-  wire  [11:0] out_wave_drivera_dac5;
-  wire  [11:0] out_wave_drivera_dac6;
-  wire  [11:0] out_wave_drivera_dac7;
-  wire  [15:0] sourcea_driver_a;
-  wire  [15:0] sourceb_driver_a;
-  wire  [15:0] pullda_driver_a;
-  wire  [15:0] pulldb_driver_a;
+  wire [11:0] out_wave_driver_idac[15:0];
+  wire [15:0] ds_driver_en_driver;
+  wire 	      ds_driver_en_current;
+  wire [15:0] driver_en_sw;
+  wire 	      stimu_en;    
+  wire  [15:0] source_driver;
+//  wire  [15:0] sourceb_driver_a;
+  wire  [15:0] pulldn_driver;
+//  wire  [15:0] pulldb_driver_a;
 
 `ifdef FPGA
 fpga_behavior u_fpga_hehavior(
@@ -266,19 +263,17 @@ top_dig u_top_dig (
   .ana_nirs_if          (ana_nirs_if),
 
   //WG
-  .o_out_wave_drivera_dac0  (out_wave_drivera_dac0),
-  .o_out_wave_drivera_dac1  (out_wave_drivera_dac1),
-  .o_out_wave_drivera_dac2  (out_wave_drivera_dac2),
-  .o_out_wave_drivera_dac3  (out_wave_drivera_dac3),
-  .o_out_wave_drivera_dac4  (out_wave_drivera_dac4),
-  .o_out_wave_drivera_dac5  (out_wave_drivera_dac5),
-  .o_out_wave_drivera_dac6  (out_wave_drivera_dac6),
-  .o_out_wave_drivera_dac7  (out_wave_drivera_dac7),
+  .o_out_wave_driver_idac  (out_wave_driver_idac),
 
-  .o_sourcea_driver_a       (sourcea_driver_a),
-  .o_sourceb_driver_a       (sourceb_driver_a),
-  .o_pullda_driver_a        (pullda_driver_a),
-  .o_pulldb_driver_a        (pulldb_driver_a)
+  .o_ds_driver_en_driver(ds_driver_en_driver),
+  .o_ds_driver_en_current(ds_driver_en_current),
+  .o_driver_en_sw(driver_en_sw),
+  .o_stimu_en(stimu_en),
+
+  .o_source_driver       (source_driver),
+//  .o_sourceb_driver_a       (sourceb_driver_a),
+  .o_pulldn_driver        (pulldn_driver)
+//  .o_pulldb_driver_a        (pulldb_driver_a)
 
 
 ); 
@@ -410,7 +405,7 @@ GF_CI_VPP u_iopad_plvpp (
 );
 
 // GPIO
-GF_CI_BI_T_POC  u_iopad_gpio[10:0]
+GF_CI_BI_T_POC  u_iopad_gpio[21:0]
 (
   .CS         (IOBUF_CS),       // Input Type select: 0: CMOS buffer; 1: Schmitt Trigger
   .SL         (IOBUF_SR),       // Output Slew Rate: 0: Fast; 1: Slow
@@ -421,7 +416,7 @@ GF_CI_BI_T_POC  u_iopad_gpio[10:0]
   .A          (IOBUF_A),        // Data from core to PAD
   .PDRV0      (IOBUF_PDRV0),    // Slew Rate select //**need to recheck**
   .PDRV1      (IOBUF_PDRV1),    // {PDRV1, PDRV0}: 00: 4mA; 01: 8mA; 10: 12mA; 11: 16mA //**need to recheck**
-  .PAD        (IOBUF_PAD[10:0]),// PAD
+  .PAD        (IOBUF_PAD[21:0]),// PAD
   .Y          (IOBUF_Y),        // Data from PAD to core
   .DVDD       (VDDIO),
   .DVSS       (VSSIO),
@@ -473,12 +468,18 @@ ENS2_ANA_CHIP_wrapper u_top_ana_wrapper (
   .ana_nirs_if              (ana_nirs_if),
 
   //WG
-  .i_out_wave_drivera_dac0  (out_wave_drivera_dac0),
-  .i_out_wave_drivera_dac1  (out_wave_drivera_dac1),
-  .i_sourcea_driver_a       (sourcea_driver_a),
-  .i_sourceb_driver_a       (sourceb_driver_a),
-  .i_pullda_driver_a        (pullda_driver_a),
-  .i_pulldb_driver_a        (pulldb_driver_a)
+  .i_out_wave_driver_idac  (out_wave_driver_idac),
+
+  .i_ds_driver_en_driver(ds_driver_en_driver),
+  .i_ds_driver_en_current(ds_driver_en_current),
+  .i_driver_en_sw(driver_en_sw),
+  .i_stimu_en(stimu_en),
+
+
+  .i_source_driver       (source_driver),
+//  .i_sourceb_driver_a       (sourceb_driver_a),
+  .i_pulldn_driver        (pulldn_driver)
+//  .i_pulldb_driver_a        (pulldb_driver_a)
  );  
 
 endmodule

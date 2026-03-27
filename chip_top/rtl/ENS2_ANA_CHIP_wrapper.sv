@@ -59,12 +59,16 @@ input  wire  D2A_SDM_CLK,
   ana_nirs_if.ana ana_nirs_if,
 
   //WG
-  input [11:0] i_out_wave_drivera_dac0,
-  input [11:0] i_out_wave_drivera_dac1,
-  input [15:0] i_sourcea_driver_a,
-  input [15:0] i_sourceb_driver_a,
-  input [15:0] i_pullda_driver_a,
-  input [15:0] i_pulldb_driver_a
+  input wire [11:0] i_out_wave_driver_idac[15:0],
+  input wire [15:0] i_ds_driver_en_driver,
+  input wire 	    i_ds_driver_en_current,
+  input wire [15:0] i_driver_en_sw,
+  input wire 	    i_stimu_en,            
+
+  input [15:0] i_source_driver,
+//  input [15:0] i_sourceb_driver_a,
+  input [15:0] i_pulldn_driver
+//  input [15:0] i_pulldb_driver_a
 );
 
 wire  [7:0] A2D_ANA_GEN_REG_0;
@@ -221,13 +225,14 @@ wire        D2A_IREF_TSC_OUT_SEL;
 wire        D2A_IDAC_TSC_COMP_OUT_SEL;
 
 //NIRS
-wire        D2A_NIRS_RESET_SW;
-wire        D2A_NIRS_ILED_SW;
-wire        D2A_NIRS_IIN_SW;
-wire  [8:0] D2A_NIRS_IDAC;
-wire  [1:0] D2A_NIRS_RATIO;
-wire        A2D_NIRS_IREFCOARSE;
-wire        A2D_NIRS_IREFFINE;
+wire        D2A_NIRS_EN         [7:0];
+wire        D2A_NIRS_RESET_SW   [7:0];
+wire        D2A_NIRS_IPD_SW     [7:0];
+wire        D2A_NIRS_IIN_SW     [7:0];
+wire  [8:0] D2A_NIRS_IDAC       [7:0];
+wire  [1:0] D2A_NIRS_RATIO      [7:0];
+wire        A2D_NIRS_IREFCOARSE [7:0];
+wire        A2D_NIRS_IREFFINE   [7:0];
 
 assign A2D_ANA_GEN_REG_0    = atpg_en ? 8'b0 : {4'b0, A2D_TSC_COMP_OUT_CH1, A2D_COMP_OUT_STIMU2_3, A2D_COMP_OUT_STIMU0_1, A2D_LVD};
 assign A2D_SPARE_RO_REG_0   = atpg_en ? 8'b0 : A2D_SPARE_RO_REG_0_tmp;
@@ -331,11 +336,11 @@ assign D2A_VDAC_DIN_CH1         = {ANA_GEN_REG_3[3:0], ANA_GEN_REG_2};
 assign D2A_CS_TRIM_CH1          = {D2A_TRIM4_SIG[7], D2A_TRIM4_SIG[4:3]};
 
 // WG_CH1
-assign D2A_DRIVERA_SOURCEA_CH1  = i_sourcea_driver_a[0];    //ANA_GEN_REG_2[1]; 
-assign D2A_DRIVERA_SOURCEB_CH1  = i_sourceb_driver_a[0];    //ANA_GEN_REG_2[2]; 
-assign D2A_DRIVERA_PULLDA_CH1   = i_pullda_driver_a[0];     //ANA_GEN_REG_2[3]; 
-assign D2A_DRIVERA_PULLDB_CH1   = i_pulldb_driver_a[0];     //ANA_GEN_REG_2[4]; 
-assign D2A_IDAC_DIN_CH1         = i_out_wave_drivera_dac0;  //{ANA_GEN_REG_6, ANA_GEN_REG_5};
+assign D2A_DRIVERA_SOURCEA_CH1  = i_source_driver[0];    //ANA_GEN_REG_2[1]; 
+//assign D2A_DRIVERA_SOURCEB_CH1  = i_sourceb_driver_a[0];    //ANA_GEN_REG_2[2]; 
+assign D2A_DRIVERA_PULLDA_CH1   = i_pulldn_driver[0];     //ANA_GEN_REG_2[3]; 
+//assign D2A_DRIVERA_PULLDB_CH1   = i_pulldb_driver_a[0];     //ANA_GEN_REG_2[4]; 
+assign D2A_IDAC_DIN_CH1         = i_out_wave_driver_idac[0];  //{ANA_GEN_REG_6, ANA_GEN_REG_5};
 
 // PUMP_CH1
 assign D2A_PUMP_CLK_TRIM_CH1    = D2A_TRIM4_SIG[5];
@@ -363,11 +368,11 @@ assign D2A_CS_TRIM_CH2          = {D2A_TRIM5_SIG[7], D2A_TRIM5_SIG[4:3]};
 
 
 // FROM WG
-assign D2A_DRIVERA_SOURCEA_CH2  = i_sourcea_driver_a[1];    //ANA_GEN_REG_A[1]
-assign D2A_DRIVERA_SOURCEB_CH2  = i_sourceb_driver_a[1];    //ANA_GEN_REG_A[2]
-assign D2A_DRIVERA_PULLDA_CH2   = i_pullda_driver_a[1];     //ANA_GEN_REG_A[3]
-assign D2A_DRIVERA_PULLDB_CH2   = i_pulldb_driver_a[1];     //ANA_GEN_REG_A[4]
-assign D2A_IDAC_DIN_CH2         = i_out_wave_drivera_dac1;  //{ANA_GEN_REG_E, ANA_GEN_REG_D};
+assign D2A_DRIVERA_SOURCEA_CH2  = i_source_driver[1];    //ANA_GEN_REG_A[1]
+//assign D2A_DRIVERA_SOURCEB_CH2  = i_sourceb_driver_a[1];    //ANA_GEN_REG_A[2]
+assign D2A_DRIVERA_PULLDA_CH2   = i_pulldn_driver[1];     //ANA_GEN_REG_A[3]
+//assign D2A_DRIVERA_PULLDB_CH2   = i_pulldb_driver_a[1];     //ANA_GEN_REG_A[4]
+assign D2A_IDAC_DIN_CH2         = i_out_wave_driver_idac[1];  //{ANA_GEN_REG_E, ANA_GEN_REG_D};
 
 // PUMP_CH2
 assign D2A_PUMP_CLK_TRIM_CH2    = D2A_TRIM4_SIG[6];
@@ -385,8 +390,9 @@ assign D2A_TSC_COMP_EN_CH1      = pinmux_if.d2a_tsc_comp_en_ch1;
 assign D2A_TSC_EN_CH1           = pinmux_if.d2a_tsc_en_ch1;
 
 //NIRS
+assign D2A_NIRS_EN              = ana_nirs_if.D2A_NIRS_EN;
 assign D2A_NIRS_RESET_SW        = ana_nirs_if.D2A_NIRS_RESET_SW;
-assign D2A_NIRS_ILED_SW         = ana_nirs_if.D2A_NIRS_ILED_SW;
+assign D2A_NIRS_IPD_SW          = ana_nirs_if.D2A_NIRS_IPD_SW;
 assign D2A_NIRS_IIN_SW          = ana_nirs_if.D2A_NIRS_IIN_SW;
 assign D2A_NIRS_IDAC            = ana_nirs_if.D2A_NIRS_IDAC;
 assign D2A_NIRS_RATIO           = ana_nirs_if.D2A_NIRS_RATIO;
@@ -550,14 +556,14 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_VDAC8B_EN_CH1        (D2A_VDAC8B_EN_CH1),            
   .D2A_VDAC8B_DIN_CH1       (D2A_VDAC8B_DIN_CH1),
 
-  .D2A_NIRS_RESET_SW        (D2A_NIRS_RESET_SW),
-  .D2A_NIRS_ILED_SW         (D2A_NIRS_ILED_SW),
-  .D2A_NIRS_IIN_SW          (D2A_NIRS_IIN_SW),
-  .D2A_NIRS_IDAC            (D2A_NIRS_IDAC),
+  .D2A_NIRS_RESET_SW        (D2A_NIRS_RESET_SW[0]),
+  .D2A_NIRS_ILED_SW         (D2A_NIRS_IPD_SW[0]),
+  .D2A_NIRS_IIN_SW          (D2A_NIRS_IIN_SW[0]),
+  .D2A_NIRS_IDAC            (D2A_NIRS_IDAC[0]),
   .D2A_NIRS_IREFCOARSE      (), //TRIM signal - name will be changed
-  .D2A_NIRS_RATIO           (D2A_NIRS_RATIO),
-  .A2D_NIRS_IREFCOARSE      (A2D_NIRS_IREFCOARSE),
-  .A2D_NIRS_IREFFINE        (A2D_NIRS_IREFFINE)
+  .D2A_NIRS_RATIO           (D2A_NIRS_RATIO[0]),
+  .A2D_NIRS_IREFCOARSE      (A2D_NIRS_IREFCOARSE[0]),
+  .A2D_NIRS_IREFFINE        (A2D_NIRS_IREFFINE[0])
 
 );
 

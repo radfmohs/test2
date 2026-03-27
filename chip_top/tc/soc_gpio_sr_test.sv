@@ -142,13 +142,13 @@ class `TESTNAME extends soc_base_test;
   endtask: main_phase
 
   task do_run;
-    logic [10:0] temp_data;          
+    logic [`GPIO_NUM-1:0] temp_data;          
     begin
     #1000ns;
 
     `ifdef BEHAVIORAL
     // Check the initial pads
-	top_test_cfg.GPIO_SR = {11{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[0]}};  
+	top_test_cfg.GPIO_SR = {`GPIO_NUM{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[0]}};  
        if(`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl !== `INIT_SOC_GPIO_SR_PDRV0_1_CTRL_REG) begin
             `nnc_error("PINMUX", $sformatf("`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl = %h is not as expectation of INIT_SOC_GPIO_SR_PDRV0_1_CTRL_REG: %h",`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl, `INIT_SOC_GPIO_SR_PDRV0_1_CTRL_REG))
         end
@@ -157,11 +157,11 @@ class `TESTNAME extends soc_base_test;
 	    `nnc_error("PINMUX", $sformatf("IOBUF_SR = %h is not as expectation of GPIO_SR = %h",`SOC_TOP.IOBUF_SR, top_test_cfg.GPIO_SR))
 	      end  
 
-      	if(`SOC_TOP.IOBUF_PDRV0 !== {11{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[1]}})begin
+      	if(`SOC_TOP.IOBUF_PDRV0 !== {`GPIO_NUM{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[1]}})begin
 	    `nnc_error("PINMUX", $sformatf("IOBUF_PDRV0 = %h is not as expectation of GPIO_PDRV0 = %h",`SOC_TOP.IOBUF_PDRV0, `SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[1]))
 	      end   
 
-      	if(`SOC_TOP.IOBUF_PDRV1 !== {11{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[2]}})begin
+      	if(`SOC_TOP.IOBUF_PDRV1 !== {`GPIO_NUM{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[2]}})begin
 	    `nnc_error("PINMUX", $sformatf("IOBUF_PDRV1 = %h is not as expectation of GPIO_PDRV1 = %h",`SOC_TOP.IOBUF_PDRV1, `SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[2]))
 	      end           
     `endif
@@ -170,12 +170,16 @@ class `TESTNAME extends soc_base_test;
 	force `SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl = $random;
 	#1000ns;    
 
-	top_test_cfg.GPIO_SR = {11{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[0]}};
+	top_test_cfg.GPIO_SR = {`GPIO_NUM{`SPI_TOP.spi_reg_u.gpio_sr_pdrv0_1_ctrl[0]}};
 
 	#1000ns;
 
 `ifndef BEHAVIORAL
-            temp_data = {`SOC_TOP.u_iopad_gpio_10_.SL,
+            temp_data = {`SOC_TOP.u_iopad_gpio_14_.SL,
+		`SOC_TOP.u_iopad_gpio_13_.SL,
+	        `SOC_TOP.u_iopad_gpio_12_.SL,
+	        `SOC_TOP.u_iopad_gpio_11_.SL,
+	        `SOC_TOP.u_iopad_gpio_10_.SL,	
                 `SOC_TOP.u_iopad_gpio_9_.SL,
                 `SOC_TOP.u_iopad_gpio_8_.SL,
                 `SOC_TOP.u_iopad_gpio_7_.SL,
@@ -187,7 +191,11 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.SL,
                 `SOC_TOP.u_iopad_gpio_0_.SL};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[10].SL,
+            temp_data = {`SOC_TOP.u_iopad_gpio[14].SL,
+		`SOC_TOP.u_iopad_gpio[13].SL,
+		`SOC_TOP.u_iopad_gpio[12].SL,
+		`SOC_TOP.u_iopad_gpio[11].SL,
+		`SOC_TOP.u_iopad_gpio[10].SL,
                 `SOC_TOP.u_iopad_gpio[9].SL,
                 `SOC_TOP.u_iopad_gpio[8].SL,
                 `SOC_TOP.u_iopad_gpio[7].SL,

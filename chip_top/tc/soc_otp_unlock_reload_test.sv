@@ -193,6 +193,9 @@ class `TESTNAME extends soc_base_test;
     // ---------------------------------------------------------------------------------- 
 `ifndef MIX_SIM_EN   
     top_test_cfg.rd_data = new[8];
+    $display("===============================================");
+    $display("Step 1: Reload invaild with failed trim_tag");
+    $display("===============================================");
 //Step 1: Reload invaild with failed trim_tag
     ////set spi_reg
     //assert(top_test_cfg.randomize() with { reg_addr == `SOC_PMU_REG; no_of_bytes == 8'h2; data[1][3] != 1'b1; data[1][1] != 1'b1;});
@@ -205,14 +208,18 @@ class `TESTNAME extends soc_base_test;
             
     //set trim_reg
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; foreach(data[i]) data[i]>8'h0;});
-    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);           
+    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
+           
     foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[7-i];
 
-    for(int i=0; i<8 ; i++) begin
-        `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
+    for (int i=0; i<8 ; i++) begin
+      `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
+
     //set unlock bit0:unlock
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b10101_001;});
+
+    `nnc_info("SOC_TEST", $sformatf("Set UNLOCK bit ADDR: %8h, DATA: %8h", top_test_cfg.reg_addr, top_test_cfg.data[0]), UVM_LOW)
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
  
     // ------------------------------------------------------------------------------- 
@@ -226,7 +233,7 @@ class `TESTNAME extends soc_base_test;
     // ------------------------------------------------------------------------------- 
     // -------------------------------------------------------------------------------
     //wait for OTP_VPP_EN=0 
-    @(negedge soc_top_tb.IOBUF_PAD[8]); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
+    @(negedge soc_top_tb.VPP_EN); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
 
    
     //#20ms;
@@ -257,7 +264,9 @@ class `TESTNAME extends soc_base_test;
     if(top_test_cfg.save_trim_wdata[0:7] === top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
 
 //Step 2 : Unlock invaild with no operate for unlock reg           
-
+    $display("===============================================");
+    $display("Step 2: Unlock invaild with no operate for unlock reg");
+    $display("===============================================");
     //set trim_reg
     //top_test_cfg.save_trim_wdata.rand_mode(1);
     //top_test_cfg.c_save_trim_wdata.constraint_mode(1);
@@ -290,8 +299,10 @@ class `TESTNAME extends soc_base_test;
 
     if(top_test_cfg.save_trim_wdata[0:7] === top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
         
-//Step 3 : Unlock vaild with trim_tag 5A and unlock_key 10101
-
+    //Step 3 : Unlock vaild with trim_tag 5A and unlock_key 10101
+    $display("===========================================================");
+    $display("Step 3: Unlock vaild with trim_tag 5A and unlock_key 10101");
+    $display("===========================================================");
     //set PMU_REG0, set otp_dpstb_en=0, PMU_REG0[3]=0, to disable otp_clk gatin, by default it's disabled 
     //assert(top_test_cfg.randomize() with { reg_addr == `SOC_PMU_REG; no_of_bytes == 8'h1; data[0] == 8'h0000_0001;});
     //`WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
@@ -325,8 +336,8 @@ class `TESTNAME extends soc_base_test;
     // ------------------------------------------------------------------------------- 
     // -------------------------------------------------------------------------------
     //wait for OTP_VPP_EN=0 
-    //wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);  
-    @(negedge soc_top_tb.IOBUF_PAD[8]); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
+    //wait(`SOC_TB.VPP_EN === 1'b0);  
+    @(negedge soc_top_tb.VPP_EN); //minimum 20us require VPP to go LOW level(VDD level 1.8V)
    
     // To program each location require (1.31*9 +0.1)ms (minimum time require to program one location) 
     // #25ms;    
@@ -346,7 +357,8 @@ class `TESTNAME extends soc_base_test;
     do begin
        assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_DEBUG_1_REG; no_of_bytes == 1;});
        `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
-        `nnc_info("SOC_TEST", $sformatf("reload_done =%h",top_test_cfg.rd_data[0][5]), UVM_LOW)
+       `nnc_info("SOC_TEST", $sformatf("reload_done =%h",top_test_cfg.rd_data[0][5]), UVM_LOW)
+       #1000ns;  
     end while (top_test_cfg.rd_data[0][5] == 1'b0);
 
     //set PMU_REG0, set otp_dpstb_en=1, PMU_REG0[3]=0, to disable otp_clk gating    
@@ -369,7 +381,9 @@ class `TESTNAME extends soc_base_test;
     end
 
 //Step 4 : Only unlock check reload trim
-
+    $display("===========================================================");
+    $display("Step 4: Only unlock check reload trim");
+    $display("===========================================================");
     ////set spi_reg
     //assert(top_test_cfg.randomize() with { reg_addr == `SOC_PMU_REG; no_of_bytes == 8'h2; data[1][3] != 1'b1; data[1][1] != 1'b1;});
     //`DUT_IF.pclk_sel = top_test_cfg.data[8'h0][2:0];
@@ -410,6 +424,7 @@ class `TESTNAME extends soc_base_test;
    do begin
        assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_DEBUG_1_REG; no_of_bytes == 1;});
        `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+       #1000ns;
    end while (top_test_cfg.rd_data[0][5] == 1'b0);
    `nnc_info("SOC_TEST", "relaod_done ==1!!!", UVM_LOW)
 
@@ -428,7 +443,10 @@ class `TESTNAME extends soc_base_test;
     end
 
 // Step 5 : 2 times unlock because this test copy from ENS1P4 , in ENs1p4 unlock repeat will case error
-    
+    $display("===========================================================");
+    $display("Step 5:  2 times unlock because this test copy from ENS1P4, unlock repeat will case error");
+    $display("===========================================================");    
+
     disable_otp_clk_gating();
 
     //set unlock bit0:unlock
@@ -464,6 +482,7 @@ class `TESTNAME extends soc_base_test;
     do begin
         assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_DEBUG_1_REG; no_of_bytes == 1;});
         `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+        #1000ns;
     end while (top_test_cfg.rd_data[0][5] == 1'b0);
 
     enable_otp_clk_gating();
@@ -646,7 +665,7 @@ class `TESTNAME extends soc_base_test;
          //`DUT_IF.otp_vpp_delay = top_test_cfg.otp_vpp_delay;  
   
          //wait for OTP_VPP_EN=0 
-         @(negedge soc_top_tb.IOBUF_PAD[8]); //wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);   //minimum 20us require VPP to go LOW level(VDD level 1.8V)
+         @(negedge `SOC_TB.VPP_EN); //wait(`SOC_TB.VPP_EN === 1'b0);   //minimum 20us require VPP to go LOW level(VDD level 1.8V)
     
       end else if(wait_for_unlock_clear === 2'd1) begin
          wait_otp_ip_wr(); //PPROG signal monitor control im OTP IP
@@ -769,18 +788,18 @@ task write_rd_trimregs_to_otp(bit[1:0] wait_for_unlock_clear);
      //`DUT_IF.otp_vpp_delay = top_test_cfg.otp_vpp_delay;
 
       //5.a.wait for OTP_VPP_EN=0 
-      @(negedge soc_top_tb.IOBUF_PAD[8]);
+      @(negedge `SOC_TB.VPP_EN);
     end
     else if (wait_for_unlock_clear === 2'b00)begin 
       // USE PPROGM to complete write operation
      `nnc_info("SOC_TEST", "poll PPROG bit of debug1 register", UVM_LOW)
       wait_otp_ip_wr();
-      wait(soc_top_tb.IOBUF_PAD[8] === 1'b0);
+      wait(`SOC_TB.VPP_EN === 1'b0);
     end
     else if(wait_for_unlock_clear === 2'b10)begin 
      `nnc_info("SOC_TEST", "poll Wr_working bit of debug1 register", UVM_LOW)
       wait_wr_working_high();
-      wait(soc_top_tb.IOBUF_PAD[8] ===1'b0);
+      wait(`SOC_TB.VPP_EN ===1'b0);
     end
 
 
@@ -838,7 +857,8 @@ task wait_reload_done();
     do begin
         assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_DEBUG_1_REG; no_of_bytes == 1;});
         `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
-        `nnc_info("SOC_TEST", $sformatf("Reload_done %h !!!", top_test_cfg.rd_data[0][5]), UVM_LOW) 
+        `nnc_info("SOC_TEST", $sformatf("Reload_done %h !!!", top_test_cfg.rd_data[0][5]), UVM_LOW)
+        #1000ns; 
     end while (top_test_cfg.rd_data[0][5] == 1'b0);
 endtask
 

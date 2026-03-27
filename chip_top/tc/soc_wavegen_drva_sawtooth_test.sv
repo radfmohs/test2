@@ -397,7 +397,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_env.wavegen_vif[chip_num].load_wave_data_till_points = top_test_cfg.LOAD_POINTS; 
     top_env.wavegen_vif[chip_num].no_of_waveforms = top_test_cfg.NO_OF_WAVEFORMS; 
     top_env.wavegen_vif[chip_num].preload_sel = top_test_cfg.PRELOAD;
-    for (int i=0; i < `WAVEGEN_NUM_OF_DRIVERS; i++) begin
+    for (int i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
       top_env.wavegen_vif[chip_num].PULLAB_pos_en[i] = top_test_cfg.PULLAB_CTRL[7];
       top_env.wavegen_vif[chip_num].PULLAB_neg_en[i] = top_test_cfg.PULLAB_CTRL[6];
       top_env.wavegen_vif[chip_num].PULLAB_lim[i] = top_test_cfg.PULLAB_CTRL[5:0];
@@ -408,7 +408,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.clk_freq = 8192 / (2**`DUT_IF.pclk_sel);
     top_test_cfg.half_period_limit = (top_test_cfg.NO_OF_POINTS * 1000) / top_test_cfg.clk_freq;
 
-    for(int i = 0; i < `WAVEGEN_NUM_OF_DRIVERS; i++) begin
+    for(int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
     assert(top_test_cfg.randomize() with {half_period0[0] > top_test_cfg.half_period_limit; half_period1[0] > top_test_cfg.half_period_limit; half_period2[0] > top_test_cfg.half_period_limit;
                                           half_period0[1] > top_test_cfg.half_period_limit; half_period1[1] > top_test_cfg.half_period_limit; half_period2[1] > top_test_cfg.half_period_limit;
                                           (`DUT_IF.python_check_en == 1) -> same_pos_neg_period == 1;
@@ -601,9 +601,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_NEG_SCALE_REG0 (By default it is 1)
     // --------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h01;});
-    //`nnc_info("SOC_TEST", "Scale negative side", NNC_LOW)
-    //`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h01;});
+    `nnc_info("SOC_TEST", "Scale negative side", NNC_LOW)
+    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_POS_SCALE_REG0 (By default it is 1)

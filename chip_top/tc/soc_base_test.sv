@@ -827,6 +827,162 @@
 `define ACCESS_SOC_FILTER_LPF_COEFF_DATA3_REG        16'h03
 `define REG127 SOC_FILTER_LPF_COEFF_DATA3_REG
 
+`define SOC_NIRS_CTRL_ADDRESS_REG                    8'hC0
+`define INIT_SOC_NIRS_CTRL_ADDRESS_REG               8'h00
+`define MASK_SOC_NIRS_CTRL_ADDRESS_REG               8'h07
+`define ACCESS_SOC_NIRS_CTRL_ADDRESS_REG             16'h07
+`define REG151 SOC_NIRS_CTRL_ADDRESS_REG
+
+`define SOC_NIRS_CTRL_0_REG                           8'hC1
+`define INIT_SOC_NIRS_CTRL_0_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_0_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_0_REG                    16'h07
+`define REG128 SOC_NIRS_CTRL_0_REG
+
+`define SOC_NIRS_CTRL_1_REG                           8'hC2 
+`define INIT_SOC_NIRS_CTRL_1_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_1_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_1_REG                    16'h07
+`define REG129 SOC_NIRS_CTRL_1_REG
+
+`define SOC_NIRS_CTRL_2_REG                           8'hC3
+`define INIT_SOC_NIRS_CTRL_2_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_2_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_2_REG                    16'h07
+`define REG130 SOC_NIRS_CTRL_2_REG
+
+`define SOC_NIRS_CTRL_3_REG                           8'hC4 
+`define INIT_SOC_NIRS_CTRL_3_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_3_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_3_REG                    16'h07
+`define REG131 SOC_NIRS_CTRL_3_REG
+
+`define SOC_NIRS_CTRL_4_REG                           8'hC5 
+`define INIT_SOC_NIRS_CTRL_4_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_4_REG                      8'h1F
+`define ACCESS_SOC_NIRS_CTRL_4_REG                    16'h07
+`define REG132 SOC_NIRS_CTRL_4_REG
+
+`define SOC_NIRS_CTRL_5_REG                           8'hC6
+`define INIT_SOC_NIRS_CTRL_5_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_5_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_5_REG                    16'h07
+`define REG133 SOC_NIRS_CTRL_5_REG
+
+`define SOC_NIRS_CTRL_6_REG                           8'hC7
+`define INIT_SOC_NIRS_CTRL_6_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_6_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_6_REG                    16'h07 
+`define REG134 SOC_NIRS_CTRL_6_REG
+
+`define SOC_NIRS_CTRL_7_REG                           8'hC8 
+`define INIT_SOC_NIRS_CTRL_7_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_7_REG                      8'h00
+`define ACCESS_SOC_NIRS_CTRL_7_REG                    16'h07
+`define REG135 SOC_NIRS_CTRL_7_REG
+
+`define SOC_NIRS_CTRL_8_REG                           8'hC9
+`define INIT_SOC_NIRS_CTRL_8_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_8_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_8_REG                    16'h07
+`define REG136 SOC_NIRS_CTRL_8_REG
+
+`define SOC_NIRS_CTRL_9_REG                           8'hCA
+`define INIT_SOC_NIRS_CTRL_9_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_9_REG                      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_9_REG                    16'h07
+`define REG137 SOC_NIRS_CTRL_9_REG
+
+`define SOC_NIRS_CTRL_10_REG 			      8'hCB 
+`define INIT_SOC_NIRS_CTRL_10_REG 		      8'h00
+`define MASK_SOC_NIRS_CTRL_10_REG        	      8'h03
+`define ACCESS_SOC_NIRS_CTRL_10_REG 		      16'h07
+`define REG138 SOC_NIRS_CTRL_10_REG
+
+`define SOC_NIRS_CTRL_11_REG 			      8'hCC
+`define INIT_SOC_NIRS_CTRL_11_REG 		      8'h00
+`define MASK_SOC_NIRS_CTRL_11_REG        	      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_11_REG 		      16'h07
+`define REG139 SOC_NIRS_CTRL_11_REG
+
+`define SOC_NIRS_CTRL_CLK_REG 			      8'hCD
+`define INIT_SOC_NIRS_CTRL_CLK_REG 		      8'h02
+`define MASK_SOC_NIRS_CTRL_CLK_REG        	      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_CLK_REG 		      16'h07
+`define REG140 SOC_NIRS_CTRL_CLK_REG
+
+`define SOC_NIRS_CTRL_EN_REG 			      8'hCE
+`define INIT_SOC_NIRS_CTRL_EN_REG 		      8'h00
+`define MASK_SOC_NIRS_CTRL_EN_REG        	      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_EN_REG 		      16'h07
+`define REG141 SOC_NIRS_CTRL_EN_REG
+
+`define SOC_NIRS_CTRL_MEAS_REG 			      8'hCF
+`define INIT_SOC_NIRS_CTRL_MEAS_REG 		      8'h00
+`define MASK_SOC_NIRS_CTRL_MEAS_REG        	      8'hFF
+`define ACCESS_SOC_NIRS_CTRL_MEAS_REG 		      16'h07
+`define REG142 SOC_NIRS_CTRL_MEAS_REG
+
+`define SOC_NIRS_DOUT_0_REG                           8'hCE
+`define INIT_SOC_NIRS_DOUT_0_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_0_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_0_REG                    16'h02
+`define REG143 SOC_NIRS_DOUT_0_REG
+
+`define SOC_NIRS_DOUT_1_REG                           8'hCF
+`define INIT_SOC_NIRS_DOUT_1_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_1_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_1_REG                    16'h02
+`define REG144 SOC_NIRS_DOUT_1_REG
+
+`define SOC_NIRS_DOUT_2_REG                           8'hD0
+`define INIT_SOC_NIRS_DOUT_2_REG                      8'h02
+`define MASK_SOC_NIRS_DOUT_2_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_2_REG                    16'h07
+`define REG145 SOC_NIRS_DOUT_2_REG
+
+`define SOC_NIRS_DOUT_3_REG                           8'hD1
+`define INIT_SOC_NIRS_DOUT_3_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_3_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_3_REG                    8'h02
+`define REG146 SOC_NIRS_DOUT_3_REG
+
+`define SOC_NIRS_DOUT_4_REG                           8'hD2
+`define INIT_SOC_NIRS_DOUT_4_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_4_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_4_REG                    8'h02
+`define REG147 SOC_NIRS_DOUT_4_REG
+
+`define SOC_NIRS_DOUT_5_REG                           8'hD3
+`define INIT_SOC_NIRS_DOUT_5_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_5_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_5_REG                    8'h02
+`define REG148 SOC_NIRS_DOUT_5_REG
+
+`define SOC_NIRS_DOUT_6_REG                           8'hD4
+`define INIT_SOC_NIRS_DOUT_6_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_6_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_6_REG                    8'h02
+`define REG149 SOC_NIRS_DOUT_6_REG
+
+`define SOC_NIRS_DOUT_7_REG                           8'hD5
+`define INIT_SOC_NIRS_DOUT_7_REG                      8'h00
+`define MASK_SOC_NIRS_DOUT_7_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DOUT_7_REG                    8'h02
+`define REG150 SOC_NIRS_DOUT_7_REG
+
+`define SOC_NIRS_FLAGS_REG                            8'hD7
+`define INIT_SOC_NIRS_FLAGS_REG                       8'h00
+`define MASK_SOC_NIRS_FLAGS_REG                       8'hFF
+`define ACCESS_SOC_NIRS_FLAGS_REG                     8'h01
+`define REG151 SOC_NIRS_FLAGS_REG
+
+//`define SOC_NIRS_CTRL_13_REG                          8'hD6
+//`define INIT_SOC_NIRS_CTRL_7_REG                      8'h02
+//`define MASK_SOC_NIRS_CTRL_7_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_CTRL_7_REG                    8'h07
+//`define REG152 SOC_NIRS_CTRL_7_REG
+
 `define WAVEGEN_0_ADDR_BASE                          8'h00
 `define WAVEGEN_1_ADDR_BASE                          `WAVEGEN_0_ADDR_BASE + `WAVEGEN_DRIVER_OFFSET
 `define WAVEGEN_2_ADDR_BASE                          `WAVEGEN_1_ADDR_BASE + `WAVEGEN_DRIVER_OFFSET
@@ -1093,7 +1249,7 @@
 `define REG_WG41 SOC_ADDR_WG_DRV_PULLBA_REG
 `define SOC_ADDR_WG_DRV_PULLBA_REG                   8'h29 + `WAVEGEN_0_ADDR_BASE// RW
 `define INIT_SOC_ADDR_WG_DRV_PULLBA_REG              8'h00
-`define MASK_SOC_ADDR_WG_DRV_PULLBA_REG              8'hFF
+`define MASK_SOC_ADDR_WG_DRV_PULLBA_REG              8'hBF
 `define ACCESS_SOC_ADDR_WG_DRV_PULLBA_REG            16'h07
 
 `define REG_WG42 SOC_ADDR_WG_DRV_INT_NUM_REG
@@ -1159,7 +1315,7 @@
 `define REG_WG52 SOC_ADDR_WG_DRV_CTRL0_REG
 `define SOC_ADDR_WG_DRV_CTRL0_REG                    8'h34 + `WAVEGEN_0_ADDR_BASE// RW
 `define INIT_SOC_ADDR_WG_DRV_CTRL0_REG               8'h00
-`define MASK_SOC_ADDR_WG_DRV_CTRL0_REG               8'hFF
+`define MASK_SOC_ADDR_WG_DRV_CTRL0_REG               8'h35
 `define ACCESS_SOC_ADDR_WG_DRV_CTRL0_REG             16'h07
 
 `define REG_WG53 SOC_ADDR_WG_DRV_CTRL1_REG
@@ -1356,6 +1512,7 @@ class `TESTCFG extends nnc_object;
     rand logic           spi_o_clk_sel;
 
     rand  bit            ext_clk_en;            // 1: using external clock and 0: using Internal clock
+    rand  bit            mult_master_inf_en;    // 0: disable master chip, connect to slave chip 1: enable master chip, disconnect to slave chip 
     rand  bit            swap_sdf_en;           // 0: Slave Chip A is enabled, 1: Slave Chip B is enabled
     rand  bit            mult_chip_en;          // 1: 3 chip is connected and 0: 1 chip is connected only
     rand  bit            mult_chip_same_clk_en; // 1: the same clk and 0: different clk
@@ -1462,7 +1619,7 @@ class `TESTCFG extends nnc_object;
     constraint c_gpio_pd_en               { soft gpio_pd_en == 15'b0_11_1_100_0000_0111;}
 
     // Delay PAD for program OTP
-    constraint c_otp_vpp_delay            { (otp_program_en == 1'b0) -> otp_vpp_delay == 0;
+    constraint c_otp_vpp_delay            { (otp_program_en == 1'b0) -> otp_vpp_delay == 3;
                                             (otp_program_en == 1'b1) -> otp_vpp_delay == 20; }
 
     // Enable/Disable to program OTP
@@ -1733,9 +1890,11 @@ class `TESTCFG extends nnc_object;
 
     constraint c_imeas_noise_gen_en         { imeas_noise_gen_en == 1'b0; }
 
-    constraint c_no_of_adc_dev1             { soft no_of_adc_dev1 inside {[0:3]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
+    //constraint c_no_of_adc_dev1             { soft no_of_adc_dev1 inside {[0:3]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
+    constraint c_no_of_adc_dev1             { soft no_of_adc_dev1 == 3'd0;} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
-    constraint c_no_of_adc_dev2             { soft no_of_adc_dev2 inside {[0:3]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
+    //constraint c_no_of_adc_dev2             { soft no_of_adc_dev2 inside {[0:3]};} //  0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
+    constraint c_no_of_adc_dev2             { soft no_of_adc_dev2 == 3'd0;} //  0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
     constraint c_nirs_irefcoarse_length     { nirs_irefcoarse_length inside {[100:2000]};}
 
@@ -1743,7 +1902,9 @@ class `TESTCFG extends nnc_object;
 
     constraint c_nirs_ireffine_length       { nirs_ireffine_length inside {[100:1000]};}
 
-    constraint c_imeas_overlap_en            { soft imeas_overlap_en == 1'b1; } 
+    constraint c_imeas_overlap_en           { soft imeas_overlap_en == 1'b1; } 
+
+    constraint c_mult_master_inf_en         { soft mult_master_inf_en == 1'b1; } 
 
 endclass : `TESTCFG
 
@@ -1940,9 +2101,32 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG125);
   `SET_CFG_REG(`REG126);
   `SET_CFG_REG(`REG127);
+  `SET_CFG_REG(`REG128);
+  `SET_CFG_REG(`REG129);
+  `SET_CFG_REG(`REG130);
+  `SET_CFG_REG(`REG131);
+  `SET_CFG_REG(`REG132);
+  `SET_CFG_REG(`REG133);
+  `SET_CFG_REG(`REG134);
+  `SET_CFG_REG(`REG135);
+  `SET_CFG_REG(`REG136);
+  `SET_CFG_REG(`REG137);
+  `SET_CFG_REG(`REG138);
+  `SET_CFG_REG(`REG139);
+  `SET_CFG_REG(`REG140);
+  `SET_CFG_REG(`REG141);
+  `SET_CFG_REG(`REG142);
+  `SET_CFG_REG(`REG143);
+  `SET_CFG_REG(`REG144);
+  `SET_CFG_REG(`REG145);
+  `SET_CFG_REG(`REG146);
+  `SET_CFG_REG(`REG147);
+  `SET_CFG_REG(`REG148);
+  `SET_CFG_REG(`REG149);
+  `SET_CFG_REG(`REG150);
 
 // For Wavegen registers
-  for (int i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
+  for (int i=0; i < `WAVEGEN_DRIVER_NUM/4; i++) begin
     `SET_CFG_WG_REG(`REG_WG0);
     `SET_CFG_WG_REG(`REG_WG1);
     `SET_CFG_WG_REG(`REG_WG2);
@@ -2242,9 +2426,10 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
 
     `DUT_IF.nirs_irefcoarse_length = top_test_cfg.nirs_irefcoarse_length;
     `DUT_IF.nirs_irefcoarse_iref_delay = top_test_cfg.nirs_irefcoarse_iref_delay;
-    `DUT_IF.nirs_ireffine_length = top_test_cfg.nirs_irefcoarse_iref_delay;
+    `DUT_IF.nirs_ireffine_length = top_test_cfg.nirs_ireffine_length;
    
     `DUT_IF.dump_level = top_test_cfg.dump_level;
+    `DUT_IF.mult_master_inf_en = top_test_cfg.mult_master_inf_en;
 
     phase.drop_objection(this);
 endtask : pre_reset_phase
@@ -2255,55 +2440,141 @@ endtask : pre_reset_phase
 task `TESTNAME::reset_phase(nnc_phase phase);
     phase.raise_objection(this);
 
-    if (`DUT_IF.altf_sel !== 2'b00) begin      
-       `DUT_IF.altf_gpio_sel = `DUT_IF.altf_sel;
-       assert(top_test_cfg.randomize() with { testmode_sel == 2'b10; ADDR == 8'h00; data_in == 8'h5A; });
-       // Change to Bist mode for SOC
-       `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
-        #150us;
+    //if (`DUT_IF.altf_sel !== 2'b00) begin      
+    if ((`DUT_IF.no_of_adc_dev1 !== 3'b000)) begin
+
+      assert(top_test_cfg.randomize() with { testmode_sel == 2'b10; dont_check_conf_first_en == 1'b1; mult_chip_en == `DUT_IF.mult_chip_en; });
+      `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
+      // Don't dont_check_conf_first_en 
+      `DUT_IF.dont_check_conf_first_en = top_test_cfg.dont_check_conf_first_en;
+      if(`DUT_IF.mult_chip_en == 1)
+        `DUT_IF.mult_chip_en = 0; // turning off DEV2
 
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
        `BISTM_RESET;
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
+       #150us;
 
        // Program OTP
 `ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, top_test_cfg.ADDR, top_test_cfg.data_in, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h00, 'h5A, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
 `else
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.ADDR, top_test_cfg.data_in);
+       `BISTM_SINGLE_PROGRAM(8'h00, 'h5A);
 `endif
-       assert(top_test_cfg.randomize() with { ADDR == 8'h0D; data_in == {6'h0, `DUT_IF.altf_sel}; });
 
 `ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, top_test_cfg.ADDR, top_test_cfg.data_in, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0C,{5'h0,`DUT_IF.no_of_adc_dev1}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
 `else
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.ADDR, top_test_cfg.data_in);
+       `BISTM_SINGLE_PROGRAM(8'h0C, {5'h0,`DUT_IF.no_of_adc_dev1});
+`endif
+
+`ifdef ENS2_PRODUCT
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+`else
+       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
 `endif
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
        `BISTM_RESET;
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
        
-       assert(top_test_cfg.randomize() with { testmode_sel == 2'b00;} );
+       // Resave the configuration of DEV2 
+       `DUT_IF.mult_chip_en = top_test_cfg.mult_chip_en;
+
+
+       assert(top_test_cfg.randomize() with { testmode_sel == 2'b00; dont_check_conf_first_en == 1'b0; mult_chip_en == 1'b0;} );
        // Change to Normal mode for SOC
        `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;  
+      `DUT_IF.dont_check_conf_first_en = top_test_cfg.dont_check_conf_first_en;
      
-       `nnc_info("SOC_TEST", "Apply Reset via pin", NNC_LOW)
-       `SOC_TB.ext_resetn=1'b0;
+       `nnc_info("SOC_TEST", "Apply Reset via pin in normal mode for master chip", NNC_LOW)
+       //`SOC_TB.ext_resetn=1'b0;
+       //#10us;
+       //`SOC_TB.ext_resetn=1'b1;
+       //#1ms;
+       force `SOC_TB.iopad_resetn=1'b0;
        #10us;
-       `SOC_TB.ext_resetn=1'b1;
-       #1ms;      
-       //`RD_NORMAL_REG(`SOC_OTP_DEBUG_1_REG, 0, top_test_cfg.data[0]);
-       //while (top_test_cfg.data[0][5] != 0) `RD_NORMAL_REG(`SOC_OTP_DEBUG_1_REG, 0, top_test_cfg.data[0]);
-       //`DUT_IF.altf_gpio_sel = `DUT_IF.altf_sel;
-
+       release `SOC_TB.iopad_resetn;
+       #1ms;
     end
+    //else begin
+    //  if (`DUT_IF.disable_init_flash === 1'b0) begin
+    //      `nnc_info("SOC_TEST_DEV0", "Initializing inf0_mem 8 bits by 512 bytes", UVM_LOW)
+    //      `ifdef FPGA
+    //      $readmemh("../../flash_ctrl/sim/inf0.hex", `FLASH_TOP.u_inf0.inf0_mem);
+    //      `else
+    //      $readmemh("../../flash_ctrl/sim/inf0.hex", `FLASH_TOP.u_32k.inf0_mem);
+    //      `endif
+    //  end
+    //end
+
+    //if ((`DUT_IF.no_of_adc_dev2 !== 3'b010) && (`DUT_IF.soc_dev2_en === 1'b1)) begin
+    if ((`DUT_IF.no_of_adc_dev2 !== 3'b000) && (`DUT_IF.mult_chip_en === 1'b1)) begin
+      assert(top_test_cfg.randomize() with { testmode_sel == 2'b10; dont_check_conf_first_en == 1'b1; mult_master_inf_en == 1'b0;});
+      // Select Operation mode for SOC 
+      `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
+      // Don't dont_check_conf_first_en 
+      `DUT_IF.dont_check_conf_first_en = top_test_cfg.dont_check_conf_first_en;
+      // Turn off Dev0 when configuring DEV2 by BIST
+      `DUT_IF.mult_master_inf_en = top_test_cfg.mult_master_inf_en;
+
+       `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
+       `BISTM_RESET;
+       `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
+       #150us;
+
+       // Program OTP
+`ifdef ENS2_PRODUCT
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h00, 'h5A, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+`else
+       `BISTM_SINGLE_PROGRAM(8'h00, 'h5A);
+`endif
+
+`ifdef ENS2_PRODUCT
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0C,{5'h0,`DUT_IF.no_of_adc_dev2}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+`else
+       `BISTM_SINGLE_PROGRAM(8'h0C, {5'h0,`DUT_IF.no_of_adc_dev2});
+`endif
+
+`ifdef ENS2_PRODUCT
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+`else
+       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
+`endif
+       `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
+       `BISTM_RESET;
+       `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
+       
+       assert(top_test_cfg.randomize() with { testmode_sel == 2'b00; dont_check_conf_first_en == 1'b0; mult_master_inf_en == 1'b1; } );
+       // Change to Normal mode for SOC
+       `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;  
+       `DUT_IF.dont_check_conf_first_en = top_test_cfg.dont_check_conf_first_en;
+       // Switch on Master interface again
+       `DUT_IF.mult_master_inf_en = top_test_cfg.mult_master_inf_en;
+       
+       `nnc_info("SOC_TEST", "Apply Reset via pin in normal mode for slave chip", NNC_LOW)
+       force `SOC_TB.iopad_resetn=1'b0;
+       #10us;
+       release `SOC_TB.iopad_resetn;
+       #1ms;
+    end
+    //else begin
+    //  if (`DUT_IF.disable_init_flash === 1'b0) begin
+    //    `nnc_info("SOC_TEST_DEV2", "Initializing inf0_mem 8 bits by 512 bytes", UVM_LOW)
+    //    `ifdef FPGA
+    //    $readmemh("../../flash_ctrl/sim/inf0.hex", `FLASH_TOP_DEV2.u_inf0.inf0_mem);
+    //    `else
+    //    $readmemh("../../flash_ctrl/sim/inf0.hex", `FLASH_TOP_DEV2.u_32k.inf0_mem);
+    //    `endif
+    //   end
+    //end
+    //end
 
     if (`DUT_IF.testmode_sel === 2'b00) begin
      // fork
       if (`DUT_IF.wait_reset_en === 1'b1) begin
         `nnc_info("TOP - Normal", "Waiting for reset operation completely", NNC_LOW)
          wait(`DUT_IF.soc_resetn); // SOC Reset
-        `nnc_info(get_type_name(), "Reset is done", NNC_MEDIUM)
+        `nnc_info(get_type_name(), "Reset is done", NNC_LOW)
         #1ms;
       end
 

@@ -13,47 +13,47 @@
 // 0.1                                      Initial Rev 
 //------------------------------------------------------------------------------
 module imeas_cic (
-                 clk,
-                 resetn,
-		 //imeas_en,
-		 imeas_input_format,
-                 filter_in,
-		 DR,
-                 //cic_rate,
+  clk,
+  resetn,
+//imeas_en,
+  imeas_input_format,
+  filter_in,
+  DR,
+//cic_rate,
 /*
-d2a_tsc_core_fch_reg,
-d2a_tsc_sdm_chop_reg,
-core_sel,
-chop_sel,
- wave_sel,
- d2a_tsc_core_fch,
- d2a_tsc_sdm_chop,
+  d2a_tsc_core_fch_reg,
+  d2a_tsc_sdm_chop_reg,
+  core_sel,
+  chop_sel,
+  wave_sel,
+  d2a_tsc_core_fch,
+  d2a_tsc_sdm_chop,
 */
-                 format_sel,
-                 filter_out,
-                 eoc_out
+  format_sel,
+  filter_out,
+  eoc_out
  );
 
- input           clk;
- input  resetn;
- //input  imeas_en;
- input [1:0]	 imeas_input_format;
- input           filter_in;
- input  [3:0]    DR;
- //input  [2:0]  cic_rate;
+  input            clk;
+  input            resetn;
+//input            imeas_en;
+  input [1:0]	   imeas_input_format;
+  input            filter_in;
+  input  [3:0]     DR;
+//input  [2:0]     cic_rate;
 /*
-input wire       d2a_tsc_core_fch_reg;
-input wire       d2a_tsc_sdm_chop_reg;
-input wire       core_sel;
-input wire       chop_sel;
-input wire [1:0] wave_sel;
-output wire      d2a_tsc_core_fch;
-output wire      d2a_tsc_sdm_chop;
+  input wire       d2a_tsc_core_fch_reg;
+  input wire       d2a_tsc_sdm_chop_reg;
+  input wire       core_sel;
+  input wire       chop_sel;
+  input wire [1:0] wave_sel;
+  output wire      d2a_tsc_core_fch;
+  output wire      d2a_tsc_sdm_chop;
 */
- input           format_sel;
- //output [15:0] filter_out;
- output [31:0]   filter_out;
- output          eoc_out;
+  input            format_sel;
+//output [15:0]    filter_out;
+  output [31:0]    filter_out;
+  output           eoc_out;
 
  //reg imeas_en_d1;
  //reg imeas_en_d2;
@@ -78,7 +78,7 @@ output wire      d2a_tsc_sdm_chop;
  wire [65:0]din_use1;
  wire [16:0]down_rate;
  
- //assign din_use =  {{45{1'b0}},1'b1} ;
+//assign din_use =  {{45{1'b0}},1'b1} ;
 //for 1 to -1 and 0 to 1
 /*
  assign din_use = 
@@ -89,8 +89,8 @@ output wire      d2a_tsc_sdm_chop;
  assign din_use = 
 		  (filter_in) ? {{45{1'b0}},1'b1} : {{45{1'b0}},1'b0};
 */
- wire  [3:0] cic_rate;
- assign   cic_rate = DR;
+wire  [3:0] cic_rate;
+assign   cic_rate = DR;
 /*
  assign din_use = (imeas_input_format == 2'b00) ? 
 			((filter_in) ? {{65{1'b0}},1'b1} : {{65{1'b0}},1'b0}) :  		  
@@ -98,7 +98,7 @@ output wire      d2a_tsc_sdm_chop;
 		        ((filter_in) ? {{65{1'b1}},1'b1} : {{65{1'b0}},1'b1}) :
 		        ((filter_in) ? {{65{1'b0}},1'b1} : {{65{1'b1}},1'b1});
 */
- assign din_use = (imeas_input_format == 2'b00) ? 
+assign din_use = (imeas_input_format == 2'b00) ? 
 			((filter_in) ? {{65{1'b0}},1'b1} : {{65{1'b0}},1'b0}) :  		  
 	          (imeas_input_format == 2'b01) ?
 		        ((filter_in) ? {{65{1'b1}},1'b1} : {{65{1'b0}},1'b1}) :
@@ -106,9 +106,7 @@ output wire      d2a_tsc_sdm_chop;
 		        ((filter_in) ? {{65{1'b0}},1'b1} : {{65{1'b1}},1'b1}) :
 		        ((filter_in) ? {{65{1'b1}},1'b1} : {{65{1'b0}},1'b0}) ;;
 
-
-
- assign down_rate = (cic_rate == 4'b000) ? 17'h7:
+assign down_rate = (cic_rate == 4'b000) ? 17'h7:
                     (cic_rate == 4'b001) ? 17'hf:
                     (cic_rate == 4'b010) ? 17'h1f:
                     (cic_rate == 4'b011) ? 17'h3f:
@@ -193,6 +191,7 @@ assign wave_chg = (wave_sel == 2'b00) ? ((count ==  down_rate_dividedby2) | (cou
  //assign sample = (count >= down_rate);
  wire sample_tmp;
  assign sample_tmp = (count >= down_rate);
+ 
  reg sample_tmp_d1;
  always @(posedge clk or negedge resetn)
    if(!resetn)
@@ -200,17 +199,17 @@ assign wave_chg = (wave_sel == 2'b00) ? ((count ==  down_rate_dividedby2) | (cou
    else
  	sample_tmp_d1 <= sample_tmp;
 
-wire sample = sample_tmp & (~sample_tmp_d1);
+ wire sample = sample_tmp & (~sample_tmp_d1);
 
  always @(posedge clk or negedge resetn)
    if(!resetn)
-      count <= 17'hffff;
+     count <= 17'hffff;
    else if(sample)
-      count <= 17'h0;
+     count <= 17'h0;
    //else
    //else if(imeas_en_d2)
    else 
-      count <= count + 17'b1;
+     count <= count + 17'b1;
 
  always @(posedge clk or negedge resetn)
    if(!resetn) 
@@ -233,6 +232,7 @@ wire sample = sample_tmp & (~sample_tmp_d1);
   assign comb2_dec = comb1_dec - comb2;
   assign comb3_dec = comb2_dec - comb3;
   assign comb4_dec = comb3_dec - comb4;
+
   //because resolution  is changed to 24 bits
   //reg [16:0]cic_out_0;
   reg [32:0]cic_out_0;
@@ -300,6 +300,7 @@ wire sample = sample_tmp & (~sample_tmp_d1);
   reg [2:0]cont_dely;
   wire cont_dely_en;
   assign cont_dely_en = (cont_dely < 3'h5) & sample;
+
   always @(posedge clk or negedge resetn)
     if(!resetn)
       cont_dely <= 3'h0;

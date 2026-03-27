@@ -334,9 +334,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_NEG_SCALE_REG0 (By default it is 1)
     // --------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h01;});
-    //`nnc_info("SOC_TEST", "Scale negative side", NNC_LOW)
-    //`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h01;});
+    `nnc_info("SOC_TEST", "Scale negative side", NNC_LOW)
+    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_POS_SCALE_REG0 (By default it is 1)

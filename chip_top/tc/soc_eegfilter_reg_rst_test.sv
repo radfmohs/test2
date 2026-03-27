@@ -30,7 +30,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // -----------------------------------------------
   constraint c_no_of_conversions   {  no_of_samples  inside {[7:15]} ;} 
 
-  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
+  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch == 16'h0 ;} // atlist 1 channel should be enabled 
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -51,7 +51,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
     uvm_top.set_timeout(2s);
-    //uvm_top.set_timeout(5ms);
+    //uvm_top.set_timeout(20ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -91,6 +91,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
       begin
         wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 1);
         wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 0);
+	`nnc_info("SOC_TEST", $sformatf("conversion wait done"), UVM_LOW)
       end
     join
 

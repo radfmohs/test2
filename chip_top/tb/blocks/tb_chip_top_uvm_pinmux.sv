@@ -22,7 +22,7 @@ nnc_pinmux_interface     pinmux_vif();
     assign pinmux_vif.mosi = (`DIG_TOP.u_pinmux.mosi === 1'bx)? 1'b0 : `DIG_TOP.u_pinmux.mosi;
     assign pinmux_vif.miso = `DIG_TOP.u_pinmux.miso;
     assign pinmux_vif.intb = `DIG_TOP.u_pinmux.INTB;
-    assign pinmux_vif.GPIO8_NORMAL_OUT = `DIG_TOP.u_pinmux.GPIO8_NORMAL_OUT;
+    assign pinmux_vif.GPIO8_NORMAL_OUT = `DIG_TOP.u_pinmux.GPIO14_NORMAL_OUT;
     assign pinmux_vif.hfosc_out = `DIG_TOP.u_pinmux.hfosc_out;
     assign pinmux_vif.int_clk_out_gpio = `DIG_TOP.u_pinmux.o_int_clk_out_gpio;
     //SCAN MODE

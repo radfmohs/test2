@@ -246,7 +246,7 @@ class `TESTNAME extends soc_base_test;
     end while(top_test_cfg.rd_data[6] !== 0);
 
     //wait for OTP_VPP_EN=0 
-    wait(soc_top_tb.IOBUF_PAD[8] === 1'b0); //@(negedge soc_top_tb.IOBUF_PAD[8]);
+    wait(`SOC_TB.VPP_EN === 1'b0); //@(negedge `SOC_TB.VPP_EN);
 
     //wait for sometimeb before power off the chip
     #50us;

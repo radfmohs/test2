@@ -42,7 +42,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_no_of_samples       {  no_of_samples  inside {[10:10]}; }  
 
-  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
+  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
   // -----------------------------------------------
   // End of adding constraints of randomization

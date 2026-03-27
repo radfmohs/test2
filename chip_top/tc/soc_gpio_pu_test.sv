@@ -90,14 +90,14 @@ class `TESTNAME extends soc_base_test;
   endtask: main_phase 
 
   virtual task do_run;
-    logic [10:0] temp_data;          
+    logic [`GPIO_NUM-1:0] temp_data;          
     begin
   
     #1000ns;
 
     `ifdef BEHAVIORAL
     // Check the initial pads
-	top_test_cfg.GPIO_PU = {{5{1'b0}}, `SPI_TOP.spi_reg_u.gpio_pu_ctrl[2:0], {3{1'b0}}};  
+	top_test_cfg.GPIO_PU = {{9{1'b0}}, `SPI_TOP.spi_reg_u.gpio_pu_ctrl[2:0], {3{1'b0}}};  
        if(`SPI_TOP.spi_reg_u.gpio_pu_ctrl !== `INIT_SOC_GPIO_PU_CTRL_REG) begin
             `nnc_error("PINMUX", $sformatf("`SPI_TOP.spi_reg_u.gpio_pu_ctrl = %h is not as expectation of INIT_SOC_GPIO_PU_CTRL_REG: %h",`SPI_TOP.spi_reg_u.gpio_pu_ctrl, `INIT_SOC_GPIO_PU_CTRL_REG))
         end
@@ -116,12 +116,16 @@ class `TESTNAME extends soc_base_test;
 	#1000ns;   
 
 	//top_test_cfg.GPIO_PU = {8'b0,`DIG_TOP.u_gpio.i_gpio_pu_ctrl};
-	top_test_cfg.GPIO_PU = {{5{1'b0}}, `SPI_TOP.spi_reg_u.gpio_pu_ctrl[2:0], {3{1'b0}}};
+	top_test_cfg.GPIO_PU = {{9{1'b0}}, `SPI_TOP.spi_reg_u.gpio_pu_ctrl[2:0], {3{1'b0}}};
 
 	#1000ns; 
 
 `ifndef BEHAVIORAL
-            temp_data = {`SOC_TOP.u_iopad_gpio_10_.PU,
+            temp_data = {`SOC_TOP.u_iopad_gpio_14_.PU,
+                `SOC_TOP.u_iopad_gpio_13_.PU,
+                `SOC_TOP.u_iopad_gpio_12_.PU,
+                `SOC_TOP.u_iopad_gpio_11_.PU,
+		`SOC_TOP.u_iopad_gpio_10_.PU,    
                 `SOC_TOP.u_iopad_gpio_9_.PU,
                 `SOC_TOP.u_iopad_gpio_8_.PU,
                 `SOC_TOP.u_iopad_gpio_7_.PU,
@@ -133,7 +137,11 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.PU,
                 `SOC_TOP.u_iopad_gpio_0_.PU};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[10].PU,
+            temp_data = {`SOC_TOP.u_iopad_gpio[14].PU,
+                `SOC_TOP.u_iopad_gpio[13].PU,
+                `SOC_TOP.u_iopad_gpio[12].PU,
+                `SOC_TOP.u_iopad_gpio[11].PU,
+		`SOC_TOP.u_iopad_gpio[10].PU,    
                 `SOC_TOP.u_iopad_gpio[9].PU,
                 `SOC_TOP.u_iopad_gpio[8].PU,
                 `SOC_TOP.u_iopad_gpio[7].PU,

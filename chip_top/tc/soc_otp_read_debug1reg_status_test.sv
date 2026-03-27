@@ -302,7 +302,7 @@ class `TESTNAME extends soc_base_test;
 
       //5.a.wait for OTP_VPP_EN=0
       //force soc_top_tb.u_Nanochap_ENS2.VPP =1'b1;  
-      wait(soc_top_tb.IOBUF_PAD[8] === 1'b0); //(@(negedge soc_top_tb.IOBUF_PAD[8])
+      wait(`SOC_TB.VPP_EN === 1'b0); //(@(negedge `SOC_TB.VPP_EN)
 
       //5.b.Change back VPP to VDD(1.8V) for read in 20us, in digital VDD(1.8V)== means Zero(0)
       //so VPP = will be 0 for read

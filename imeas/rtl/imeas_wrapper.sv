@@ -37,9 +37,9 @@ input wire                    is_8channels,
 //output wire                 meas_done,
 input  wire                   imeas_en,
 output wire                   start_sample,
-//output wire                   stop_sample,
+//output wire                 stop_sample,
 output wire                   start_sample_pclk,
-//output wire                   stop_sample_pclk,
+//output wire                 stop_sample_pclk,
 output reg                    enable_cic,    //to clk_ctrl
 output wire                   imeas_working,
 output wire                   imeas_working_sync,
@@ -52,7 +52,7 @@ input  wire                   start_cmd,
 input  wire                   stop_cmd,
 input  wire                   single_shot,
 
-//output wire                   data_rdyn,
+//output wire                 data_rdyn,
 
 //++++++++++++++++++++++++++
 //clock and reset
@@ -65,13 +65,52 @@ input wire 		      filter_rstn,
 input wire [7:0]  	      imeas_reg_0,
 input wire [3:0]  	      DR,
 
-output wire [DATA_WIDTH-1:0]  imeas_chdata_adcclk[CHN_NUM-1:0] ,
-output wire [CHN_NUM-1:0]     chdata_en_adcclk,
+//output wire [DATA_WIDTH-1:0]  imeas_chdata_adcclk[CHN_NUM-1:0] ,
+//output wire [CHN_NUM-1:0]     chdata_en_adcclk,
 
 //output wire [DATA_WIDTH-1:0]imeas_chdata[CHN_NUM-1:0] ,
 //output wire [CHN_NUM-1:0]   chdata_en,
 //with analog
-input  wire [CHN_NUM-1:0]     imeas_adc_din    // adc serial data input
+input  wire [CHN_NUM-1:0]     imeas_adc_din,    // adc serial data input
+
+
+//lpf-nf-hpf
+input wire [CHN_NUM-1:0]   clk,   
+input wire [CHN_NUM-1:0]   notch_clk,
+input wire [CHN_NUM-1:0]   lpf_clk,
+input wire [CHN_NUM-1:0]   hpf_clk,
+//input wire    reset,
+//input wire    scan_mode,
+
+//input wire [3:0]   DR,
+input wire [3:0]   iclk_div,
+
+input wire         int_length_slct,
+input wire [1:0]   eeg_int_en,
+input wire         eeg_int_clr,
+input wire [15:0]  cic_data_ignore_tar,
+input wire [23:0]  hpf_coeff_data, 
+input wire [17:0]  lpf_coeff_data [31:0],
+input wire [19:0]  notch_coeff_data[41:0],
+
+
+input wire [CHN_NUM-1:0] notch_filter_bypass,
+input wire [CHN_NUM-1:0] lpf_filter_bypass,
+input wire [CHN_NUM-1:0] hpf_filter_bypass,
+
+input wire                   i_imeas_intr_clr,
+
+output wire [CHN_NUM-1:0]    notch_clk_gtg_en,
+output wire [CHN_NUM-1:0]    lpf_clk_gtg_en,
+output wire [CHN_NUM-1:0]    hpf_clk_gtg_en,
+output wire                  notch_filter_valid,
+
+output wire                   o_eeg_int,
+output reg                    eeg_int_sts,
+output reg                    meas_done_d1,
+output wire  [DATA_WIDTH-1:0] imeas_chdata_out[CHN_NUM-1:0]
+
+
 
 );
 
@@ -84,7 +123,7 @@ wire [CHN_NUM-1:0]            chdata_en;
 //wire [CHN_NUM-1:0]          chdata_en;
 wire                          meas_done;
 
-assign meas_done = |chdata_en;
+//assign meas_done = |chdata_en;
 //assign      imeas_chdata_en = meas_done;
 
 wire start_y_d2;
@@ -125,32 +164,33 @@ assign start_neg = (~final_start) & (final_start_d1);
 
 reg start_cmd_d1;
 reg stop_cmd_d1;
-reg meas_done_d1;
+//reg meas_done_d1;
 
 wire start_cmd_sync;
 common_sync_bit u_start_cmd_sync(
                 .async_in(start_cmd),
                 .clk(pclk),
                 .rst_(adc_ctrl_resetn),
-                .sync_out(start_cmd_sync));
+                .sync_out(start_cmd_sync)
+);
 
 wire stop_cmd_sync;
 common_sync_bit u_stop_cmd_sync(
                 .async_in(stop_cmd),
                 .clk(pclk),
                 .rst_(adc_ctrl_resetn),
-                .sync_out(stop_cmd_sync));
-
+                .sync_out(stop_cmd_sync)
+);
 
 always @ (posedge pclk or negedge adc_ctrl_resetn)
   if (~adc_ctrl_resetn) begin
     start_cmd_d1 <= 1'b0;
     stop_cmd_d1 <= 1'b0;
-    meas_done_d1 <= 1'b0;
+//    meas_done_d1 <= 1'b0;
   end else begin
     start_cmd_d1 <= start_cmd_sync;
     stop_cmd_d1  <= stop_cmd_sync;
-    meas_done_d1 <= meas_done;
+//    meas_done_d1 <= meas_done;
   end
 
 wire imeas_en_sync;
@@ -176,10 +216,14 @@ assign imeas_en_neg = (!imeas_en_sync) & (imeas_en_sync_d1);
 wire start_cmd_pos;
 wire stop_cmd_pos;
 
+wire [CHN_NUM-1:0] notch_filter_bypass_temp; 
+wire [CHN_NUM-1:0] lpf_filter_bypass_temp;
+wire        cic_data_ok;
 wire meas_done_pos;
 assign start_cmd_pos = start_cmd_sync & (~start_cmd_d1);
 assign stop_cmd_pos  = stop_cmd_sync & (~stop_cmd_d1);
-assign meas_done_pos  = meas_done & (~meas_done_d1);
+//assign meas_done_pos  = meas_done & (~meas_done_d1);
+assign meas_done_pos  = (meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp))))) & (~meas_done_d1);
 
 wire start_meas;
 wire stop_meas;
@@ -266,13 +310,11 @@ always @ (posedge pclk or negedge adc_ctrl_resetn)
                         (flg_stop_sent & meas_done_pos)))
     flg_measure <= 1'b0;
 
-
 //seems the following is not useful
 //==================================
 /*
 reg          data_rdyn_single;
 =======
->>>>>>> 3bd481b7e831258b00299a95e67a28028d2b96cf
 wire rstn_drdy;
 assign rstn_drdy = atpg_en ? adc_ctrl_resetn : (adc_ctrl_resetn & (~mode_chg));
 
@@ -321,10 +363,11 @@ assign data_rdyn = data_rdyn_tmp;
 assign imeas_working = (imeas_en_sync | flg_measure) ;
 
 common_sync_bit u_imeas_working_sync(
-                .async_in(imeas_working),
-                .clk(adc_clk_running),
-                .rst_(adc_resetn),
-                .sync_out(imeas_working_sync));
+  .async_in(imeas_working),
+  .clk(adc_clk_running),
+  .rst_(adc_resetn),
+  .sync_out(imeas_working_sync)
+);
 
 reg imeas_working_sync_d1;
 reg imeas_working_sync_d2;
@@ -392,7 +435,6 @@ always @ (posedge adc_clk_running or negedge adc_resetn) begin
     enable_cic <= 1'b1;
 end
 
-
 wire            int_set;
 //wire          int_alarm_set;
 wire [1:0]      imeas_input_format;
@@ -401,28 +443,208 @@ wire            sd16eoc_sync;
 wire   [31:0]   sd16cic_data;
 wire            sd16eoc;
 
+
+//////////////////////////////////////
+//LPF-NF-HPF logic
+//////////////////////////////////////
+
+//wire [CHN_NUM-1:0] notch_filter_bypass_temp; 
+//wire [CHN_NUM-1:0] lpf_filter_bypass_temp;
+wire [CHN_NUM-1:0] hpf_filter_bypass_temp;
+wire [CHN_NUM-1:0] filter_chdata_en;
+
+
+assign notch_filter_valid = |notch_filter_bypass_temp;
+
+
+//OSR logic
+  //NOTCH 
+wire [3:0] data_rate_notch;
+wire [4:0] data_rate_add;
+wire       data_rate_by_pass;
+wire       data_rate_by_pass_lpf;
+
+
+assign data_rate_notch = (data_rate_add<=4'h3)? 4'h0 : (DR - 4'h2 + iclk_div);  
+              
+
+assign data_rate_add     = {1'b0,iclk_div} + {1'b0,DR};
+assign data_rate_by_pass = ~((data_rate_add>=5'h4) & (data_rate_add<=5'hd));
+
+//LPF
+//
+assign data_rate_by_pass_lpf = ~((data_rate_add>=5'h2) & (data_rate_add<=5'hf));
+
+//HPF//
+
+
+
+//int
+wire        meas_done_pulse;
+wire        eeg_sts_clr_sync_pulse;
+wire        eeg_int_sts_pulse;
+wire        eeg_imeas_sts_clr_sync_pulse;
+
+//for shadow notch filter
+reg  [15:0] cic_data_counter;
+wire [15:0] cic_data_counter_tar;
+wire [15:0] cic_data_counter_tar_temp;
+//wire        cic_data_ok;
+wire        cic_data_counter_clr;
+assign cic_data_counter_tar =  (|notch_filter_bypass_temp)?  (|lpf_filter_bypass_temp)? cic_data_ignore_tar : 16'h0000 : cic_data_ignore_tar;    
+
+common_sync_bit u_cic_data_counter_tar_sync[15:0](
+       .clk(pclk),
+       .rst_(cic_rst_n),
+       .async_in(cic_data_counter_tar),
+       .sync_out(cic_data_counter_tar_temp)
+);
+
+common_sync_bit u_cic_data_counter_clr_sync(
+       .clk(pclk),
+       .rst_(cic_rst_n),
+       .async_in(cic_data_counter_tar!=cic_data_counter_tar_temp),
+       .sync_out(cic_data_counter_clr)
+);
+
+always @(posedge pclk or negedge cic_rst_n) begin
+  if(~cic_rst_n) begin
+    cic_data_counter <= 16'h0000;
+  end
+        else if(cic_data_counter_clr) begin
+    cic_data_counter <= 16'h0000;
+        end
+        else if(meas_done & (cic_data_counter!=cic_data_counter_tar_temp)) begin
+    cic_data_counter <= cic_data_counter + 1'b1;
+        end
+end
+
+assign cic_data_ok = cic_data_counter==cic_data_counter_tar_temp;
+
+//int
+assign meas_done = |filter_chdata_en;
+assign o_eeg_int = ((eeg_int_sts & !int_length_slct) | (eeg_int_sts_pulse & int_length_slct)) & eeg_int_en[0];
+
+common_pulse_rising u_eeg_int_sts_pulse(
+.d_in(eeg_int_sts),
+.clk(pclk),
+.rst_(cic_rst_n),
+.d_out(eeg_int_sts_pulse)
+);
+
+common_pulse_async_clr u_eeg_clr_sync(
+.d_in(eeg_int_clr),
+.clk(pclk),
+.rst_(cic_rst_n),
+.int_sts(eeg_int_sts),
+.scan_mode(atpg_en),
+.d_out(eeg_sts_clr_sync_pulse)
+);
+
+wire eeg_int_en_sync;
+common_sync_bit u_eeg_int_en_sync(
+       .clk(pclk),
+       .rst_(cic_rst_n),
+       .async_in(eeg_int_en[1]),
+       .sync_out(eeg_int_en_sync)
+);
+
+common_pulse_async_clr u_eeg_imeas_clr_sync(
+.d_in(i_imeas_intr_clr),
+.clk(pclk),
+.rst_(cic_rst_n),
+.int_sts(eeg_int_sts),
+.scan_mode(atpg_en),
+.d_out(eeg_imeas_sts_clr_sync_pulse)
+);
+
+always @(posedge pclk or negedge cic_rst_n) begin
+  if(~cic_rst_n) begin
+    eeg_int_sts <= 1'b0;
+  end
+        else if(eeg_sts_clr_sync_pulse | !eeg_int_en_sync | eeg_imeas_sts_clr_sync_pulse)begin
+    eeg_int_sts <= 1'b0;
+        end
+        else if(meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp)))))begin
+    eeg_int_sts <= 1'b1;
+        end
+        else begin
+    eeg_int_sts <= eeg_int_sts;
+        end
+end
+
+always @(posedge pclk or negedge cic_rst_n) begin
+  if(~cic_rst_n) begin
+    meas_done_d1 <= 1'b0;
+  end
+        //else if(cic_data_ok | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp)))) begin
+    //meas_done_d1 <= meas_done;
+        else if(meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp))))) begin
+    meas_done_d1 <= 1'b1;
+	end
+	else
+    meas_done_d1 <= 1'b0;
+end
+
+//notch with the osr that it doesn't support
+wire   notch_filter_osr_valid;
+assign notch_filter_osr_valid   =   ~((data_rate_notch >= 4'h2) & (data_rate_notch <= 4'hb));
+assign notch_filter_bypass_temp = notch_filter_bypass | {CHN_NUM{notch_filter_osr_valid}} | {CHN_NUM{data_rate_by_pass}};
+
+
+//lpf with the osr that it doesn't support
+assign lpf_filter_bypass_temp = lpf_filter_bypass | {CHN_NUM{data_rate_by_pass_lpf}};
+
+//lpf with the osr that it doesn't support
+assign hpf_filter_bypass_temp = hpf_filter_bypass;
+
+
+
+//////////////////////////////////////////
 genvar i;
 generate
-for(i=0; i<16; i=i+1) begin
-imeas #(
-.DATA_WIDTH(DATA_WIDTH)
+for(i=0; i<CHN_NUM; i=i+1) begin
+filter_wrapper #(
+  .DATA_WIDTH(DATA_WIDTH)
 )
-u_imeas(
-
-	.pclk(imeas_pclk[i]),
-	.adc_clk(imeas_dig_adc_clk[i]), //SDM_CLK,imeas_dig_adc_clk
-	.DR(DR),
-	.presetn(filter_rstn),
-	.reg_ctrl(imeas_reg_0),//input  wire [15:0] 
-	.cic_rst_n(cic_rst_n),// 
-
-        .chdata_adcclk(imeas_chdata_adcclk[i]),//output wire   [15:0]
-        .chdata_en_adcclk(chdata_en_adcclk[i]),//output wire   [15:0]
+u_filter_wrapper(
+  .pclk(imeas_pclk[i]),
+  .adc_clk(imeas_dig_adc_clk[i]), //SDM_CLK,imeas_dig_adc_clk
+  .DR(DR),
+  .presetn(filter_rstn),
+  .reg_ctrl(imeas_reg_0),//input  wire [15:0] 
+  .cic_rst_n(cic_rst_n),// 
 	
-        .chdata(imeas_chdata[i]),//output wire   [15:0]
-        .chdata_en(chdata_en[i]),//output wire   [15:0]
-	.atpg_en(atpg_en),
-	.imeas_adc_din(imeas_adc_din[i])	//SDM_OUT, imeas_adc_din
+  .chdata(imeas_chdata[i]),//output wire   [15:0]
+  .chdata_en(chdata_en[i]),//output wire   [15:0]
+  .atpg_en(atpg_en),
+  .imeas_adc_din(imeas_adc_din[i]),	//SDM_OUT, imeas_adc_din
+
+/////////////////////////////////////////////////////////
+.cic_data_ok(cic_data_ok),
+.clk(clk[i]),   
+.notch_clk(notch_clk[i]),
+.lpf_clk(lpf_clk[i]),
+.hpf_clk(hpf_clk[i]),
+//.reset(cic_rst_n),
+.sign_en(~imeas_reg_0[7]),
+.notch_clk_gtg_en(notch_clk_gtg_en[i]),
+.lpf_clk_gtg_en(lpf_clk_gtg_en[i]),
+.hpf_clk_gtg_en(hpf_clk_gtg_en[i]),
+
+.notch_filter_bypass_temp(notch_filter_bypass_temp[i]),
+.lpf_filter_bypass_temp(lpf_filter_bypass_temp[i]),
+.hpf_filter_bypass_temp(hpf_filter_bypass_temp[i]),
+.scan_mode(atpg_en),
+
+.lpf_coeff_data(lpf_coeff_data),
+.hpf_coeff_data(hpf_coeff_data),
+.notch_coeff_data(notch_coeff_data),
+.imeas_chdata_out(imeas_chdata_out[i]),
+.filter_chdata_en(filter_chdata_en[i])
+
+
+
 );
 end
 endgenerate
