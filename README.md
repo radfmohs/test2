@@ -4732,6 +4732,27 @@ Overview
 This filter includes three filters, they are High-Pass filter, Low-Pass filter and Notch filter , High-pass filters are used to filter out low-frequency interference signals, low-pass filters are used to filter out high-frequency interference signals, and NOTCH filters can effectively filter out a specific frequency
 ENS2_details_report_for_filter_top.xlsx
 
+Filter Chain Sequence and Timing
+The three filters are applied in a fixed sequential order managed entirely by filter_wrapper:
+
+  Input → LPF (Low-Pass Filter) → Notch Filter → HPF (High-Pass Filter) → Output
+
+This is hardcoded in filter_wrapper.sv:
+  filter5 = imeas_chdata_in        (raw input feeds LPF)
+  filter3 = filter6                (LPF output feeds Notch)
+  filter1 = filter4                (Notch output feeds HPF)
+  imeas_chdata_out_temp = filter2  (HPF output is the final result)
+
+The wrapper manages all inter-filter timing through internal handshaking — no external timing control is required:
+
+Stage         Architecture        Cycles per sample   Trigger
+LPF           32-tap FIR serial   32                  chdata_en rising edge
+Notch         7-biquad IIR serial 42                  LPF output valid (lpf_filter_out_en)
+HPF           1st-order IIR       1                   Notch output valid (notch_chdata_en)
+Total pipeline depth               ≥ 75 clock cycles
+
+Each filter starts only after the previous filter signals completion. The wrapper generates meas_done (on pclk) when the full chain is done and imeas_chdata_out is valid. No sample is output until all three filters have finished processing.
+
  
 
 Data Rate 
