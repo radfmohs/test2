@@ -1,0 +1,6 @@
+size_cell [get_cells AON_CLKBUF_I_28] CLKBUFX4M
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_ahb_subsystem/u_apb_subsystem/u_port10_zmeas/u_zmeas_top/u_zmeas_ctrl/U5] CLKBUFX2M
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_ana_if_dft_wrap/u_DFT_CLKBUF_A2D_OSC_64M/DNT_CLKBUF] CLKBUFX32M
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_ana_if_dft_wrap/u_DFT_CLKBUF_A2D_external_clock_I8M/DNT_CLKBUF] CLKBUFX32M
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_pinmux/U3] CLKBUFX32M
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_pinmux/u_gpio0_pinmux/u_clk_bufin/DNT_CLKCLKBUF] CLKBUFX32M

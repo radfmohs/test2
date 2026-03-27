@@ -1,0 +1,1 @@
+size_cell [get_cells u_dig_top_wrapper/u_dig_top/u_ana_if_dft_wrap/u_DFT_AND2_D2A_Z_TX_CLK/ANA_BUF_I_34] BUFX8M
