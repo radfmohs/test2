@@ -224,7 +224,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
     
     if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-      for(int i =0; i< 16; i++)begin // addr 'h0 to 'hF
+      for(int i =0; i<= 13; i++)begin // addr 'h0 to 'hD
         top_test_cfg.wr_data[0] = i;
         `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
         assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
@@ -234,8 +234,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
         top_test_cfg.wr_data[2] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][i][7:0];
         `WR_BURST_NORMAL_REG(`SOC_FILTER_LPF_COEFF_DATA1_REG, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
       end
-      for(int i =15; i>=0; i--)begin
-        top_test_cfg.wr_data[0] = i; // addr 'hF to 'h0
+      for(int i =13; i>=0; i--)begin
+        top_test_cfg.wr_data[0] = i; // addr 'hD to 'h0
         `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
         assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
 	`nnc_info("SOC_TEST", $sformatf("lpf_coeffs[%0d][%0d][%0d]:%0h",`DUT_IF.lpf_coeff_index_1_select,`DUT_IF.lpf_coeff_index_0_select,j+16,`SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+16]),UVM_LOW)

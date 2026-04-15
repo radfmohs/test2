@@ -17,7 +17,11 @@
 
 `timescale 1ns/1ps
 
-module spi_slave_controller (
+module spi_slave_controller#(
+  parameter EEG_CHN_NUM = 16,
+  parameter DATA_WIDTH = 8,
+  parameter ADDR_WIDTH = 8
+) (
 i_rst_n          ,
 i_sclk           ,
 i_sclk_neg       ,
@@ -35,6 +39,9 @@ o_rd             ,
 wavegen_cmd_reg  ,
 o_wavegen_wr     ,
 o_wavegen_rd     ,
+nirs_cmd_reg     ,
+o_nirs_wr        ,
+o_nirs_rd        ,
 o_wr_data        ,
 i_rd_data        ,
 o_miso           ,
@@ -43,8 +50,8 @@ mode             ,
 imeas_chdata
 );
 
-parameter data_width = 8;
-parameter addr_width = 8;
+//parameter DATA_WIDTH = 8;
+//parameter ADDR_WIDTH = 8;
 
 //Port declarations
 input                   i_rst_n;
@@ -53,8 +60,8 @@ input                   i_sclk_neg;
 //input                 atpg_en;
 input                   i_cs_n;
 input                   i_mosi;
-input [data_width-1:0]  i_rd_data;
-input   wire [31:0]     imeas_chdata[15:0];
+input [DATA_WIDTH-1:0]  i_rd_data;
+input   wire [31:0]     imeas_chdata[EEG_CHN_NUM-1:0];
 input   wire [4:0]      i_channel_max;
 input   wire            daisy_in;
 input   wire            daisy_en;
@@ -67,20 +74,23 @@ output reg              o_rd;
 output reg              wavegen_cmd_reg;
 output reg              o_wavegen_wr;
 output reg              o_wavegen_rd;
-output reg [data_width-1:0] o_wr_data;
-output reg [addr_width-1:0] o_addr;
+output reg              nirs_cmd_reg;
+output reg              o_nirs_wr;
+output reg              o_nirs_rd;
+output reg [DATA_WIDTH-1:0] o_wr_data;
+output reg [ADDR_WIDTH-1:0] o_addr;
 output wire             o_miso;
 output wire             o_imeas_intr_clr;
 
 //output reg            o_addr_vld_for_int_clr;
 //output reg            burst_cmd_reg;
-//output reg [addr_width-1:0] o_pre_addr;
+//output reg [ADDR_WIDTH-1:0] o_pre_addr;
 
 reg                     burst_cmd_reg;
-reg [addr_width-1:0]    o_pre_addr;
+reg [ADDR_WIDTH-1:0]    o_pre_addr;
 
-reg [data_width-1:0]    rx_buf ;
-reg [data_width-1:0]    tx_buf ;
+reg [DATA_WIDTH-1:0]    rx_buf ;
+reg [DATA_WIDTH-1:0]    tx_buf ;
 reg [5:0]               bit_cnt;
 reg                     tx_d,cs_n_d;
 reg                     rd_data_rdy;
@@ -119,7 +129,7 @@ wire [7:0]              imeas_3rd_byte;
 wire [7:0]              imeas_2nd_byte;
 wire [7:0]              imeas_1st_byte;
 
-wire [2:0] mul_val;
+//wire [2:0] mul_val;
 
 // chip select latch
 //assign i_status_words = 40'hAABBCCDDEE;
@@ -133,7 +143,7 @@ wire [2:0] mul_val;
   end else if(bit_cnt ==6'h02) begin
     tx_buf_tmp <= 0;
   end else if (bit_cnt > 6'h8 && byte_bit_count==3'h0 && cov_done==1'b1) begin
-    tx_buf_tmp <= (!mode[1] && !status_done) ? {status_temp[data_width-2:0],1'b0} : {imeas_temp[data_width-2:0],1'b0};
+    tx_buf_tmp <= (!mode[1] && !status_done) ? {status_temp[DATA_WIDTH-2:0],1'b0} : {imeas_temp[DATA_WIDTH-2:0],1'b0};
   end else begin
     tx_buf_tmp <= tx_buf_tmp;
   end 
@@ -162,13 +172,13 @@ always@(posedge i_sclk_neg, negedge i_rst_n)
 //always@(posedge i_sclk , negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    rx_buf <= {data_width{1'b0}};
+    rx_buf <= {DATA_WIDTH{1'b0}};
   end 
  else if (cs_n_d == 1'b1) begin
-    rx_buf <= {data_width{1'b0}};
+    rx_buf <= {DATA_WIDTH{1'b0}};
   end 
  else begin
-   rx_buf <= {rx_buf[data_width-2:0],i_mosi_d};
+   rx_buf <= {rx_buf[DATA_WIDTH-2:0],i_mosi_d};
   end
 end
 
@@ -238,7 +248,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
    // o_addr_vld_for_int_clr <=0;
     o_pre_addr <=0;
   end else if (bit_cnt == 6'h09 ) begin //original 8
-    o_addr  <= rx_buf[addr_width-1:0];    
+    o_addr  <= rx_buf[ADDR_WIDTH-1:0];    
    // o_addr_vld_for_int_clr <=1; 
     o_pre_addr <= o_addr;
   end
@@ -270,19 +280,6 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
 end
 
-//-------------WAVEGEN_CMD---------------------//
-//always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge i_rst_n) begin
-  if (!i_rst_n) begin
-    wavegen_cmd_reg <= 1'b0;
-  end else if (cs_n_d == 1'b1) begin
-    wavegen_cmd_reg <= 1'b0;
- // end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12) 
- end else if (bit_cnt == 6'h0b )begin        // 10th bit is the command bit(10+1=11) 
-    wavegen_cmd_reg <= rx_buf[0];            
-  end
-end
-
 //-------------Burst_CMD-------------------//
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
@@ -293,7 +290,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt == 6'h00) begin
    burst_cmd_reg <= 1'b0;
 //  end else if (bit_cnt == 6'h0d )begin        // 11th bit is the command bit(11+2=13) 
- end else if (bit_cnt == 6'h0c )begin        // 11th bit is the command bit(11+1=12)
+ end else if (bit_cnt == 6'h0b )begin        // 11th bit is the command bit(11+1=12)
     burst_cmd_reg <= rx_buf[0];            
   end
 end
@@ -307,7 +304,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     rdata_cmd <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     rdata_cmd <= 1'b0; 
-  end else if(bit_cnt == 6'h0d) begin
+  end else if(bit_cnt == 6'h0c) begin
     rdata_cmd <= rx_buf[0];
   end
 end
@@ -319,10 +316,40 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     rdatac_cmd <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     rdatac_cmd <= 1'b0;
-  end else if(bit_cnt == 6'h0e) begin
+  end else if(bit_cnt == 6'h0d) begin
     rdatac_cmd <= rx_buf[0];
   end
 end
+
+//-------------WAVEGEN_CMD---------------------//
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
+    wavegen_cmd_reg <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    wavegen_cmd_reg <= 1'b0;
+ // end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12) 
+ end else if (bit_cnt == 6'h0e )begin        // 10th bit is the command bit(10+1=11) 
+    wavegen_cmd_reg <= rx_buf[0];            
+  end
+end
+
+//-------------WAVEGEN_CMD---------------------//
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
+    nirs_cmd_reg <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    nirs_cmd_reg <= 1'b0;
+ // end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12) 
+ end else if (bit_cnt == 6'h0f )begin        // 10th bit is the command bit(10+1=11) 
+    nirs_cmd_reg <= rx_buf[0];            
+  end
+end
+
+
+
+
 // End of Thanh Huu added
 
 //-----------------------wr_data logic--------------------/
@@ -352,7 +379,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     o_wr_data <= 0;
   end else if (latch_state) begin
-    o_wr_data <= rx_buf[data_width-1:0];
+    o_wr_data <= rx_buf[DATA_WIDTH-1:0];
   end
 end
 
@@ -364,7 +391,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
  else if(bit_cnt ==6'h0)begin
     o_wr <=1'b0;
- end else if ((latch_state) && (cmd_reg == 1'b1) && !wavegen_cmd_reg) begin    //can be latch_state
+ end else if ((latch_state) && (cmd_reg == 1'b1) && !wavegen_cmd_reg && !nirs_cmd_reg) begin    //can be latch_state
     o_wr <= 1'b1;
   end else begin
     o_wr <= 1'b0;
@@ -379,14 +406,29 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
  else if(bit_cnt ==6'h0)begin
     o_wavegen_wr <=1'b0;
- end else if ((latch_state) && (cmd_reg == 1'b1) && wavegen_cmd_reg) begin    //can be latch_state
+ end else if ((latch_state) && (cmd_reg == 1'b1) && wavegen_cmd_reg && !nirs_cmd_reg) begin    //can be latch_state
     o_wavegen_wr <= 1'b1;
   end else begin
     o_wavegen_wr <= 1'b0;
   end
 end
 
-// wr_enable
+// nirs wr_enable
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
+    o_nirs_wr <= 1'b0;
+  end
+ else if(bit_cnt ==6'h0)begin
+    o_nirs_wr <=1'b0;
+ end else if ((latch_state) && (cmd_reg == 1'b1) && nirs_cmd_reg && !wavegen_cmd_reg) begin    //can be latch_state
+    o_nirs_wr <= 1'b1;
+  end else begin
+    o_nirs_wr <= 1'b0;
+  end
+end
+
+// rd_enable
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
@@ -394,14 +436,14 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
  else if(bit_cnt ==6'h0)begin
     o_rd <=1'b0;
- end else if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0) && !wavegen_cmd_reg) begin    //can be latch_state
+ end else if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0) && !wavegen_cmd_reg && !nirs_cmd_reg) begin    //can be latch_state
     o_rd <= 1'b1;
   end else begin
     o_rd <= 1'b0;
   end
 end
 
-// wavegen wr_enable
+// wavegen rd_enable
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
@@ -409,12 +451,29 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
  else if(bit_cnt ==6'h0)begin
     o_wavegen_rd <=1'b0;
- end else if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0) && wavegen_cmd_reg) begin    //can be latch_state
+ end else if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0) && wavegen_cmd_reg && !nirs_cmd_reg) begin    //can be latch_state
     o_wavegen_rd <= 1'b1;
   end else begin
     o_wavegen_rd <= 1'b0;
   end
 end
+
+// nirs rd_enable
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
+    o_nirs_rd <= 1'b0;
+  end
+ else if(bit_cnt ==6'h0)begin
+    o_nirs_rd <=1'b0;
+ end else if ((bit_cnt ==6'h15) && (cmd_reg == 1'b0) && nirs_cmd_reg && !wavegen_cmd_reg) begin    //can be latch_state
+    o_nirs_rd <= 1'b1;
+  end else begin
+    o_nirs_rd <= 1'b0;
+  end
+end
+
+
 
 //-----------------------------mosi output------------------//
 
@@ -473,7 +532,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if (cs_n_d == 1'b1) begin
     tx_d <= 1'b0;
    end else if (rd_data_rdy == 1) begin
-     tx_d <= tx_buf[data_width-1];
+     tx_d <= tx_buf[DATA_WIDTH-1];
   end else begin
     tx_d <= rx_buf[5]; // just send what is received //original 2  
  end
@@ -503,18 +562,29 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h02) begin
      tx_buf <= 0;
    end else if (bit_cnt > 6'h8 && byte_bit_count==3'h2) begin // @ the end of the 2nd byte(cmd byte)
-//  end else if (bit_cnt > 6'h8 && byte_bit_count==3'h3) begin // @ the end of the 2nd byte(cmd byte)
-//     tx_buf <= rdata_cmd ? imeas_temp : i_rd_data; 
     tx_buf <= (!mode[1] && !status_done && rdata_cmd && !next_dev_valid) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
   end else begin
-     tx_buf <= {tx_buf[data_width-2:0],1'b0};
+     tx_buf <= {tx_buf[DATA_WIDTH-2:0],1'b0};
   end
 end
 
 // ------------------------------CONTROL SIGNAL---------------------------------//
+
+// mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
 assign adc_inc_val = mode[0] ? 2'b10 : 2'b11;
+
+// mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
 assign chdata_size = mode[0] ? 3'h3 : 3'h4;
 
+/*********************************************
+- When master chip has not finished sending its imeas data (!next_dev_valid) 
+then byte_cnt reset when it reach maximum number of bytes per channel (3 or 4) 
+multiply by number of channel (i_channel_max) plus number of status byte
+- byte_cnt start counting when bit_cnt reach 16 as MISO
+start sending read_data at this time.
+- When master chip finished sending its imeas data (next_dev_valid) 
+then when after every 8 i_sclk_neg or byte_done, byte_cnt increase bt 1 
+*********************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     byte_cnt <= 7'h0;
@@ -526,8 +596,6 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     byte_cnt <= 7'h0;
   end else if ( bit_cnt < 6'h10 ) begin
     byte_cnt <= byte_cnt;
-//  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt < num_status_byte + i_channel_max * chdata_size[2:0] - 1) && !next_dev_valid) begin
-//    byte_cnt <= byte_cnt + 1;
   end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1)) begin
     byte_cnt <= byte_cnt + 1;
   end else begin 
@@ -535,6 +603,11 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
   end
 end
 
+/*********************************************
+Used to track the number of byte count per channel, 
+reset when reach adc_inc_val or when status mode (!mode[1])
+and byte_cnt <= 7'h5
+*********************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     byte_cnt_tmp <= 2'h0;
@@ -544,12 +617,10 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     byte_cnt_tmp <= 2'h0;
   end else if (!mode[1] && (byte_cnt < 7'h5 || ( byte_cnt == 7'h5 && !byte_done )) && !next_dev_valid) begin
     byte_cnt_tmp <= 2'h0;
-  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == adc_inc_val)) begin  // (byte_cnt == num_status_byte + i_channel_max * chdata_size[2:0] - 1) ||
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == adc_inc_val)) begin  
     byte_cnt_tmp <= 2'h0;
   end else if ( bit_cnt < 6'h10 ) begin
     byte_cnt_tmp <= byte_cnt_tmp;
-//  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt < num_status_byte + i_channel_max * chdata_size[2:0] - 1)) begin
-//    byte_cnt_tmp <= byte_cnt_tmp + 1;
   end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1)) begin
     byte_cnt_tmp <= byte_cnt_tmp + 1;
   end else begin
@@ -581,7 +652,17 @@ end
 
 assign cov_int_clr = !cov_done && cov_done_d1;
 
-reg [4:0] adc_cnt; // max is 15
+reg [4:0] adc_cnt; 
+/******************************************************
+Count the number of channels froom 0 to i_channel_max when !next_dev_valid
+When next_dev_valid, if 4 bytes data per channel then adc_cnt reset when reach 5'd16
+(because imeas_chdata_reg = {buffer[x],buffer[x+1],buffer[x+2],buffer[x+3]
+while x*4 + 3 = 67 as discussed in buffer definition => adc_cnt should reset at 5'd16
+
+Similarly, if 3 bytes data per channel then adc_cnt reset when reach 5'd22.
+Because, 22 * 3 = 66 => imeas_chdata_reg = {buffer[x],buffer[x+1],buffer[x+2],buffer[x+3].
+Notice when x+2 and x+3 are 68 and 69, just don't care as no more i_sclk_neg
+******************************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     adc_cnt <= 5'h0;
@@ -589,7 +670,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     adc_cnt <= 5'h0;
   end else if (bit_cnt == 6'h0) begin
     adc_cnt <= 5'h0;
-  end else if(next_dev_valid && (byte_cnt_tmp[1:0] == adc_inc_val) && byte_done && ((adc_cnt == 5'd16 && mul_val== 3'd4) || (adc_cnt == 5'd22 && mul_val== 3'd3))) begin
+  end else if(next_dev_valid && (byte_cnt_tmp[1:0] == adc_inc_val) && byte_done && ((adc_cnt == 5'd16 && chdata_size== 3'd4) || (adc_cnt == 5'd22 && chdata_size== 3'd3))) begin
     adc_cnt <= 5'h0;
   end else if ((adc_cnt == i_channel_max - 1) && (byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
     adc_cnt <= 5'h0; 
@@ -618,6 +699,11 @@ wire [31:0]  imeas_chdata_reg;
 wire next_dev_en;
 assign next_dev_en = (adc_cnt == i_channel_max - 1) && daisy_en && byte_done && (byte_cnt_tmp == adc_inc_val);
 
+/***********************************************
+When master chip has finished transfer its data 
+through MISO, it started sending data of other chip
+stored in buffer.
+***********************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     next_dev_valid <= 1'b0;
@@ -633,9 +719,9 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
 end
 
 
-assign mul_val = (mode[0] == 1'b1) ? 3'd3 : 3'd4;
+//assign mul_val = (mode[0] == 1'b1) ? 3'd3 : 3'd4;
 wire [7:0] x;
-assign x = adc_cnt * mul_val;
+assign x = adc_cnt * chdata_size;
 
 assign imeas_chdata_reg = next_dev_valid ? {buffer[x], buffer[x + 7'd1], buffer[x + 7'd2], buffer[x + 7'd3]} : imeas_chdata[adc_cnt];
 
@@ -679,7 +765,15 @@ reg [6:0] byte_ptr;
 //reg [7:0] buffer [68:0];
 
 integer i;
-
+/*******************************************************
+At first, buffer is designed with 69 elements, each one with 8 bytes 
+because we have maximum 16 channels, each channel maximum is 4 bytes 
+plus 5 bytes status, which make the buffer size 69. However, exploiting  
+imeas_chdata_reg has 4 bytes, later imeas_chdata_reg is assign with 
+{buffer[x], buffer[x+1], buffer[x+2], buffer[x+3]}, in which maximum x is 
+max number of channel (16) multiply by max number of byte per channel (4).
+So buffer size is 16 * 4 + 3 = 67 instead of 68
+*******************************************************/
 always @(posedge i_sclk_neg or negedge i_rst_n) begin
   if(!i_rst_n) begin
     for(i=0; i<=67; i=i+1) begin

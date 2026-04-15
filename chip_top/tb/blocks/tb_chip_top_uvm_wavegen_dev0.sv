@@ -627,6 +627,9 @@ end
 
 nnc_wavegen_if     wavegen_agt_vif[`WAVEGEN_DRIVER_NUM]();
 
+
+logic [0:15] wg_drive_sw_tmp;
+
 generate 
 for(genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin    
     assign wavegen_agt_vif[i].clk         =  `WG_DRIVER_TOP.i_pclk;  
@@ -634,7 +637,14 @@ for(genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin
     assign wavegen_agt_vif[i].fclk        =  `WG_DRIVER_TOP.i_fclk;
     assign wavegen_agt_vif[i].sclk        =   spi_vif.i_sclk;
 
-    assign wavegen_agt_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[1][8'h00+8'h40*i:8'h3F+8'h40*i]}};
+    assign wavegen_agt_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[2][8'h00+8'h40*i:8'h3F+8'h40*i]}};
+
+    assign wavegen_agt_vif[i].wg_drive_sw =   wg_drive_sw_tmp;
+
+
+always@(wavegen_agt_vif[i].wave_reg[8'h01][0])begin
+    if(wavegen_agt_vif[i].wave_reg[8'h01][0])  wg_drive_sw_tmp |= wavegen_agt_vif[i].wave_reg[8'h3E:8'h3F]; 
+end
 
 //int clear type -> r1c
 always@(spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5:4])begin

@@ -609,57 +609,132 @@ assign config_data_imeas = {
 // =====================================================================
 // Connect data from IMEAS to here (2560 words) - local_data_imeas
 // =====================================================================
-always @(negedge `CLK_CTRL_TOP.imeas_dig_adc_clk[imeas_chnum])
-  if ((|`FILTER_WRAPPER_TOP.chdata_en == 1'b1) && (imeas_data_num < `SOC_TB.dut_vif.python_imeas_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
+//always @(negedge `CLK_CTRL_TOP.imeas_dig_adc_clk[imeas_chnum])
+//always @(negedge `CLK_CTRL_TOP.pclk)begin
+//   //`nnc_info("IMEAS INFO", $sformatf("IMEAS DATA NUM: %d, imeas_vif.chdata_en: %h", imeas_data_num, `SOC_TB.imeas_vif.chdata_en), UVM_LOW);
+//  //if ((|`FILTER_WRAPPER_TOP.chdata_en == 1'b1) && (imeas_data_num < `SOC_TB.dut_vif.python_imeas_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
+//  if ((|`SOC_TB.imeas_vif.chdata_en[15:0]) && (imeas_data_num < `SOC_TB.dut_vif.python_imeas_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin 
+//    `nnc_info("IMEAS INFO", $sformatf("[IMEAS_VIF CHDATA_EN] IMEAS DATA NUM: %d, imeas_vif.chdata_en: %h reduction chdata_en: %h ", imeas_data_num, `SOC_TB.imeas_vif.chdata_en,(|`SOC_TB.imeas_vif.chdata_en[15:0])), UVM_LOW);
+//    for (int i=0; i <16; i++) begin 
+//      //`SOC_TB.dut_vif.imeas_data[i] = `FILTER_WRAPPER_TOP.chdata[i] << imeas_data_num*32;
+//      `nnc_info("IMEAS INFO", $sformatf("[LOOP_PY_TB] i: %d,  ", i), UVM_LOW);
+//      `SOC_TB.dut_vif.imeas_data[i] = `SOC_TB.imeas_vif.chdata[i] << imeas_data_num*32;
+//      //if (`SOC_TB.dut_vif.testmode_sel === 2'b00)
+//        //`nnc_info("IMEAS INFO", $sformatf("IMEAS IS SENDING DATA[%d]: %h", imeas_data_num, `SOC_TB.dut_vif.imeas_data[i]), UVM_LOW);
+//    end
+//
+//    //casez (`SOC_TB.dut_vif.imeas_en_dis_ch)
+//    casez (~`SOC_TB.imeas_vif.ch_en)
+//      16'h????_????_????_???0: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[0]; imeas_chnum = 0; end
+//      16'h????_????_????_??01: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[1]; imeas_chnum = 1; end
+//      16'h????_????_????_?011: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[2]; imeas_chnum = 2; end
+//      16'h????_????_????_0111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[3]; imeas_chnum = 3; end
+//      16'h????_????_???0_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[4]; imeas_chnum = 4; end
+//      16'h????_????_??01_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[5]; imeas_chnum = 5; end
+//      16'h????_????_?011_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[6]; imeas_chnum = 6; end
+//      16'h????_????_0111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[7]; imeas_chnum = 7; end
+//      16'h????_???0_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[8]; imeas_chnum = 8; end
+//      16'h????_??01_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[9]; imeas_chnum = 9; end
+//      16'h????_?011_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[10]; imeas_chnum = 10; end
+//      16'h????_0111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[11]; imeas_chnum = 11; end
+//      16'h???0_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[12]; imeas_chnum = 12; end
+//      16'h??01_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[13]; imeas_chnum = 13; end
+//      16'h?011_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[14]; imeas_chnum = 14; end
+//      16'h0111_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[15]; imeas_chnum = 15; end
+//      default:                 begin local_data_imeas = local_data_imeas; imeas_chnum = 0; end
+//    endcase
+///*
+//    local_data_imeas = local_data_imeas | 
+//       `SOC_TB.dut_vif.imeas_data[0] |
+//                       (`SOC_TB.dut_vif.imeas_data[1]  << (1*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[2]  << (2*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[3]  << (3*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[4]  << (4*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[5]  << (5*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[6]  << (6*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[7]  << (7*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[8]  << (8*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[9]  << (9*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[10] << (10*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[11] << (11*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[12] << (12*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[13] << (13*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[14] << (14*`ONE_IMEAS_SIZE)) |
+//                       (`SOC_TB.dut_vif.imeas_data[15] << (15*`ONE_IMEAS_SIZE));
+//    end
+//*/
+//    imeas_data_num++;
+//  end
+//end
+        int selected_ch = -1;
+always @(negedge `CLK_CTRL_TOP.pclk) begin
 
-    for (int i=0; i <16; i++) begin 
-      `SOC_TB.dut_vif.imeas_data[i] = `FILTER_WRAPPER_TOP.chdata[i] << imeas_data_num*32;
-      if (`SOC_TB.dut_vif.testmode_sel === 2'b00)
-        `nnc_info("IMEAS INFO", $sformatf("IMEAS IS SENDING DATA[%d]: %h", imeas_data_num, `SOC_TB.dut_vif.imeas_data[i]), UVM_DEBUG);
+    // Trigger only when:
+    // 1. Any channel has chdata_en = 1
+    // 2. imeas_data_num < python length
+    // 3. python imeas mode enabled
+    if ((|`SOC_TB.imeas_vif.chdata_en[15:0]) &&
+        (imeas_data_num < `SOC_TB.dut_vif.python_imeas_length) &&
+        (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
+
+        `nnc_info("IMEAS INFO",
+            $sformatf("[IMEAS_VIF CHDATA_EN] IMEAS_DATA_NUM=%0d, chdata_en=%h reduction=%0d",
+                imeas_data_num,
+                `SOC_TB.imeas_vif.chdata_en,
+                (|`SOC_TB.imeas_vif.chdata_en)),
+            UVM_LOW
+        );
+
+        // ------------------------------------------------------------
+        // PREPARE ALL 16 CHANNELS (each 32-bit shifted sample)
+        // ------------------------------------------------------------
+        for (int i = 0; i < 16; i++) begin
+            `SOC_TB.dut_vif.imeas_data[i] =
+                `SOC_TB.imeas_vif.chdata[i] << (imeas_data_num * 32);
+
+            `nnc_info("IMEAS_VIF CHDATA_EN",
+                $sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),
+                UVM_LOW
+            );
+        end
+
+
+        // ------------------------------------------------------------
+        // SELECT ONE ACTIVE CHANNEL (LOWEST INDEX PRIORITY)
+        // ------------------------------------------------------------
+
+
+        for (int i = 0; i < 16; i++) begin
+            if (`SOC_TB.imeas_vif.chdata_en[i]) begin
+                selected_ch = i;
+                `nnc_info("IMEAS_VIF CHDATA_EN",
+                $sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),UVM_LOW );
+
+                break;  // pick first active channel
+            end
+        end
+
+        // ------------------------------------------------------------
+        // PACK SELECTED CHANNEL INTO local_data_imeas
+        // ------------------------------------------------------------
+        if (selected_ch != -1) begin
+            local_data_imeas |= `SOC_TB.dut_vif.imeas_data[selected_ch];
+            imeas_chnum = selected_ch;
+
+            `nnc_info("IMEAS_VIF CHDATA_EN",
+                $sformatf("SELECTED CH=%0d, DATA=%h",
+                           selected_ch,           `SOC_TB.dut_vif.imeas_data[selected_ch]),UVM_DEBUG);
+             `nnc_info("IMEAS_VIF CHDATA_EN",
+                      $sformatf("SELECTED CH=%0d, imeas_chnum=%0d",
+                                 selected_ch,      imeas_chnum), UVM_LOW);
+        end
+
+        // ------------------------------------------------------------
+        // INCREMENT SAMPLE COUNTER
+        // ------------------------------------------------------------
+        imeas_data_num++;
     end
-
-    casez (`SOC_TB.dut_vif.imeas_en_dis_ch)
-      16'h????_????_????_???0: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[0]; imeas_chnum = 0; end
-      16'h????_????_????_??01: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[1]; imeas_chnum = 1; end
-      16'h????_????_????_?011: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[2]; imeas_chnum = 2; end
-      16'h????_????_????_0111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[3]; imeas_chnum = 3; end
-      16'h????_????_???0_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[4]; imeas_chnum = 4; end
-      16'h????_????_??01_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[5]; imeas_chnum = 5; end
-      16'h????_????_?011_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[6]; imeas_chnum = 6; end
-      16'h????_????_0111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[7]; imeas_chnum = 7; end
-      16'h????_???0_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[8]; imeas_chnum = 8; end
-      16'h????_??01_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[9]; imeas_chnum = 9; end
-      16'h????_?011_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[10]; imeas_chnum = 10; end
-      16'h????_0111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[11]; imeas_chnum = 11; end
-      16'h???0_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[12]; imeas_chnum = 12; end
-      16'h??01_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[13]; imeas_chnum = 13; end
-      16'h?011_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[14]; imeas_chnum = 14; end
-      16'h0111_1111_1111_1111: begin local_data_imeas = local_data_imeas | `SOC_TB.dut_vif.imeas_data[15]; imeas_chnum = 15; end
-      default:                 begin local_data_imeas = local_data_imeas; imeas_chnum = 0; end
-    endcase
-/*
-    local_data_imeas = local_data_imeas | 
-       `SOC_TB.dut_vif.imeas_data[0] |
-                       (`SOC_TB.dut_vif.imeas_data[1]  << (1*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[2]  << (2*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[3]  << (3*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[4]  << (4*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[5]  << (5*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[6]  << (6*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[7]  << (7*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[8]  << (8*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[9]  << (9*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[10] << (10*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[11] << (11*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[12] << (12*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[13] << (13*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[14] << (14*`ONE_IMEAS_SIZE)) |
-                       (`SOC_TB.dut_vif.imeas_data[15] << (15*`ONE_IMEAS_SIZE));
-    end
-*/
-    imeas_data_num++;
-  end
-
+end
 // =====================================================================
 // Connect data from Filters to here (2560 words) - local_data_filter
 // =====================================================================
@@ -726,5 +801,22 @@ assign python_data_num = (python_data_num_0 > python_data_num_1) ? python_data_n
 `include "/projects/libs/vips/py_lib/sv/nnc_python_api.sv"
 
 `include "../tc/python/sv/soc_py_main_test.sv"
+
+/*
+initial begin
+        file1 = $fopen("output_of_dut.txt", "w");
+        if(!file1) `uvm_error("TEST", "Error!!! cannot open test.txt");
+        wait(reset_n);
+        @(negedge clk_enable);
+        repeat(Nsamples) begin  //Nsamples
+            @(negedge clk_enable);
+            $fwrite(file1,"%d\n", filter_out[0]);
+        end
+        $fclose(file1);
+    if(output_check(get_fs(osr_sel), Nsamples, stable_num, freq, cfg) == 1) begin
+        `uvm_fatal(""," cont get output_check");
+    end
+end
+*/
 
 endmodule

@@ -48,9 +48,9 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
 
   constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[4:11]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[3:11]};
-                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:11]};
+                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[4:7]};//11]};
+                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[3:7]};//11]};
+                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:7]};//11]};
                                      (imeas_cic_rate == 3)  ->  iclk_sel inside {[1:10]};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[0:9]};
                                      (imeas_cic_rate == 5)  ->  iclk_sel inside {[0:8]};
@@ -64,6 +64,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                      (imeas_cic_rate == 13) ->  iclk_sel inside {[0:0]};}
 
   constraint c_imeas_sin_gen_en    { imeas_sin_gen_en == 1'b1; }//generate sdm adc sine
+  constraint c_imeas_noise_gen_en    { imeas_noise_gen_en == 1'b0; }//generate sdm adc sine
 
   constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 1000; }//sine frequency precision 1000: imeas_sin_expected_freq in Hz/1000
 
@@ -96,12 +97,12 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                              (imeas_samp_rate inside {[1000:1024]})   ->  notch_coeff_index_select == 3 ;  
                                              (imeas_samp_rate inside {[2000:2048]})   ->  notch_coeff_index_select == 4 ;  
                                              (imeas_samp_rate inside {[4000:4096]})   ->  notch_coeff_index_select == 5 ;  
-                                             (imeas_samp_rate inside {[8125:8192]})   ->  notch_coeff_index_select == 6 ;  
+                                             (imeas_samp_rate inside {[8000:8192]})   ->  notch_coeff_index_select == 6 ;  
                                              (imeas_samp_rate inside {[16350:16384]}) -> notch_coeff_index_select == 7 ;  
                                              (imeas_samp_rate inside {[32750:32768]}) -> notch_coeff_index_select == 8 ;  
                                              (imeas_samp_rate inside {[65500:65536]}) -> notch_coeff_index_select == 9 ; }
 
-  constraint c_sine_num_of_period   {  sine_num_of_period == 40; }  
+  constraint c_sine_num_of_period   {  sine_num_of_period == 100; }  
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -169,6 +170,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.imeas_osr       = top_test_cfg.imeas_osr;
     `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
     `DUT_IF.imeas_sin_gen_en = top_test_cfg.imeas_sin_gen_en;
+    `DUT_IF.imeas_noise_gen_en = top_test_cfg.imeas_noise_gen_en;
     `DUT_IF.imeas_sin_freq_unit = top_test_cfg.imeas_sin_freq_unit;
     `DUT_IF.imeas_sin_expected_freq = top_test_cfg.imeas_sin_expected_freq;
     `DUT_IF.imeas_sin_no_clk_per_period = top_test_cfg.imeas_sin_no_clk_per_period;
@@ -194,7 +196,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
       `nnc_fatal("SOC_TEST", $sformatf("ERROR:: notch_coeff_index_select:%0d for sample_rate= %0d ",`DUT_IF.notch_coeff_index_select,`DUT_IF.imeas_samp_rate))
 
     if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-      for(int i = 'h10; i<= 'h22 ; i++)begin // addr 'h10 to 'h22
+      for(int i = 'hE; i<= 'h1D ; i++)begin // addr 'hE to 'h1D
         top_test_cfg.wr_data[0] = i;
         `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
         assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
@@ -218,9 +220,18 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `nnc_info("SOC_TEST", $sformatf("input sine frequency: (%0f)",top_test_cfg.sine_input_freq),UVM_LOW)
     top_test_cfg.no_of_samples_per_period = (`DUT_IF.imeas_samp_rate * `DUT_IF.imeas_sin_freq_unit) / `DUT_IF.imeas_sin_expected_freq;
     `nnc_info("SOC_TEST", $sformatf("no_of_samples_per_period: (%d)",top_test_cfg.no_of_samples_per_period),UVM_LOW)
-    `DUT_IF.imeas_sample_num_per_period = top_test_cfg.no_of_samples_per_period;
+    //`DUT_IF.imeas_sample_num_per_period = top_test_cfg.no_of_samples_per_period;
+    if(`DUT_IF.imeas_sin_gen_en === 1)
+    	`DUT_IF.imeas_sample_num_per_period = top_test_cfg.no_of_samples_per_period;
+    else if(`DUT_IF.imeas_noise_gen_en === 1)
+    	`DUT_IF.imeas_sample_num_per_period = `DUT_IF.imeas_samp_rate;
     //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * 30;//2 sine length
-    `DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
+    //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
+    if(`DUT_IF.imeas_sin_gen_en === 1)
+	`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
+    else if(`DUT_IF.imeas_noise_gen_en === 1)
+	//`DUT_IF.no_of_samples = (`DUT_IF.imeas_sample_num_per_period * 2048) / 1000;
+	`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period/2;
     `DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
 
     imeas_config();

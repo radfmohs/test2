@@ -46,6 +46,9 @@ class `TESTCFG extends soc_base_test_cfg;
 
   // spimode_sel[1:0] :  
   // constraint c_spimode_sel { spimode_sel == 2'b00; }
+  
+  // Set GLOBE_DRIVE_EN to 0 as disable both drive 0 and drive 1 can be driven
+  // at the time
     constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
   // -----------------------------------------------
@@ -92,6 +95,8 @@ class `TESTNAME extends soc_base_test;
     // Assign your settings to DUT Interface   
     // `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
     // `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
+
+    // 00: Driver0-3, 01: Driver4-7, 10: Driver8-11, 11: Driver12-15
     `DUT_IF.DRIVE_SLCT = top_test_cfg.wg_glb_reg[2:1];
     // -------------------
     // Scoreboard enables
@@ -115,8 +120,13 @@ class `TESTNAME extends soc_base_test;
     // ==================================================================================
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
+    // ??? Only CFG0, how is CFG1??? for Wavegen 0 -> how is another
+    // wavegens????
     `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG, 8'hFF, 8'h00);
+
+    // Select Driver Group 
     `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, top_test_cfg.wg_glb_reg, 8'h00);
+
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
@@ -130,37 +140,39 @@ class `TESTNAME extends soc_base_test;
     phase.drop_objection(this);
   endtask: main_phase
 
+  // ---------------------------------------
+  // post_main_phase is run after main_phase
+  // ---------------------------------------
   virtual task post_main_phase(nnc_phase phase);
-     phase.raise_objection(this);
+    phase.raise_objection(this);
 
-     super.post_main_phase(phase);
+    super.post_main_phase(phase);
 
-     if(`DUT_IF.python_check_en === 1)
-     	`SOC_TB.py_tb.do_run_python();
+    if (`DUT_IF.python_check_en === 1)
+      `SOC_TB.py_tb.do_run_python();
 
-     phase.drop_objection(this);
+    phase.drop_objection(this);
   endtask
 
-//  task wavegen_drv_enable;
-//  begin
-//    `nnc_info("SOC_TEST", $sformatf("enabling chip_0 wavegen sb now"), NNC_LOW)
-//    `WAVEGEN_SCB_DRV_0_EN = 1'b1;
-//    `WAVEGEN_SCB_DRV_1_EN = 1'b1;
-//    // --------------------------------------------------------
-//    // Write to SOC_WAVEGEN_GLOBAL_REG to sync drivers
-//    // --------------------------------------------------------
-//    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h01;});
-//    `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
-//    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-//  end
-//  endtask
-
+  //  task wavegen_drv_enable;
+  //  begin
+  //    `nnc_info("SOC_TEST", $sformatf("enabling chip_0 wavegen sb now"), NNC_LOW)
+  //    `WAVEGEN_SCB_DRV_0_EN = 1'b1;
+  //    `WAVEGEN_SCB_DRV_1_EN = 1'b1;
+  //    // --------------------------------------------------------
+  //    // Write to SOC_WAVEGEN_GLOBAL_REG to sync drivers
+  //    // --------------------------------------------------------
+  //    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h01;});
+  //    `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+  //    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+  //  end
+  //  endtask
 
   // ------------------------------
   // Declare the report_phase task
   // ------------------------------
   function void report_phase(nnc_phase phase) ;
-  super.report_phase(phase);
+    super.report_phase(phase);
   endfunction
 
 endclass : `TESTNAME

@@ -16,7 +16,7 @@ echo [pwd]
 print_suppressed_messages
 
 suppress_message {ELAB-311}
-
+#set generate_sdf no_sdf;set bottom_up yes; 
 # -----------------------------------------------------------------------------------
 # Setup the configuration
 # -----------------------------------------------------------------------------------
@@ -67,13 +67,13 @@ set_app_var mw_design_library $rm_project_top
 
 set stage prescan_dct
 
-set out_rep  ../reports/synthesis_${stage}_${generate_sdf}
-set out_data ../data/synthesis_${stage}_${generate_sdf}
+set out_rep  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}
+set out_data ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}
 
 sh mkdir -p $out_rep
 sh mkdir -p $out_data
 
-set_svf ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.svf
+set_svf ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 
 # ------------------------------------------------------------------------------
 # Setup for SAIF name mapping database
@@ -152,24 +152,25 @@ set_clock_gating_style -sequential_cell latch \
                        -num_stages 2 \
                        -max_fanout 32
 
-remove_design -all
+#remove_design -all
 if {$bottom_up == "yes"} {
+   	                            
   set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library imeas_wrapper.ddc];# $synthetic_library]
-  set_app_var mw_reference_library [concat . $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
-  set_app_var mw_reference_library [concat $mw_reference_library imeas_wrapper]
-  open_mw_lib $mw_design_library
-} else {
-  sh rm -rf ./$mw_design_library
-
+  set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
+  
+  sh rm -rf ./imeas_wrapper
   create_mw_lib -technology $tech_file \
   	      -mw_reference_library $mw_reference_library \
-  	                            $mw_design_library
-
-  open_mw_lib $mw_design_library
-
-  # Check consistency of logical vs. physical libraries
-  # check_library
+  	                            imeas_wrapper
 }
+
+set_app_var mw_reference_library [concat $mw_reference_library imeas_wrapper]
+  
+sh rm -rf ./$mw_design_library
+create_mw_lib -technology $tech_file \
+	      -mw_reference_library $mw_reference_library \
+	                            $mw_design_library
+open_mw_lib $mw_design_library
 
 #source -echo -verbose ../scripts/${rm_project_top}_verilog.tcl
 
@@ -194,13 +195,13 @@ if {[file exists def.f] == 1 } {
     set def_list [regsub -all {\s+} [read $d] " "];#read into variable and replace whitespace with ,
     puts $def_list
     puts $file_list
-    redirect -tee ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}.read_file { \
+    redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
     	read_file -define $def_list $file_list -auto -top ${rm_project_top}};#read in
     close $d
     close $f
     exec rm rtl.f rtl_tmp.f def.f
 } else {
-    redirect -tee ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}.read_file { \
+    redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
     analyze  $file_list -auto -top ${rm_project_top}}
     close $f 
     exec rm rtl.f rtl_tmp.f
@@ -208,14 +209,13 @@ if {[file exists def.f] == 1 } {
 
 	#read_file $file_list -auto -top ${rm_project_top}}
 # Tee elaboration output to separate log file
-redirect -tee ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}.elaborate { \
+redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.elaborate { \
   elaborate -architecture verilog ${rm_project_top}}
 
-if {$bottom_up == "yes"} {
-  set_dont_touch [get_designs imeas_wrapper]
-  get_attribute [get_designs "imeas_wrapper"] is_mapped
-  get_attribute [get_designs "imeas_wrapper"] dont_touch
+if {$bottom_up == "yes"} {  
+    read_ddc imeas_wrapper.ddc
 }
+
 # ------------------------------------------------------------------------------
 # Link the design
 # ------------------------------------------------------------------------------
@@ -225,10 +225,15 @@ current_design $rm_project_top
 link
 
 if {$bottom_up == "yes"} {
-  current_design imeas_wrapper
-  reset_design
-  current_design $rm_project_top
+  set_dont_touch [get_designs imeas_wrapper]
+  set_dont_touch [get_cells u_top_dig/u_imeas_wrapper]
+  set_ungroup [get_cells u_top_dig/u_imeas_wrapper] false
+  set_boundary_optimization [get_cells u_top_dig/u_imeas_wrapper] false
+  get_attribute [get_designs "imeas_wrapper"] is_mapped
+  get_attribute [get_designs "imeas_wrapper"] dont_touch
+  set_app_var compile_preserve_subdesign_interfaces true
 }
+
 # Disable register merging
 set_register_merging [all_registers] false
 # Control DRC/Fanout for tie cells
@@ -246,7 +251,6 @@ set_clock_gating_objects -exclude u_top_dig/u_spi_top/spi_reg_u/*u_spi_reg_waveg
 set_clock_gating_objects -exclude u_top_dig/u_spi_top/spi_reg_u/*_reg*
 set_clock_gating_objects -exclude u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/*/*_reg*;#no need to clk gate bist as it is active at test time
 set_clock_gating_objects -exclude u_top_dig/u_otp_ctrl_top/*/*_reg*;#otp has its own clock gate
-
 
 set_compile_directives -constant_propagation false [get_pins u_top_dig/VPP_OTP]
 
@@ -325,11 +329,7 @@ set_app_var power_cg_physically_aware_cg true
 # ------------------------------------------------------------------------------
 lappend scenarios S111_min S112_min S121_min S122_min S22_min S3_min S111_max S112_max S121_max S122_max S22_max S3_max;#SXYZ => X: 1=Normal Mode, 2=CP test Mode, 3=Bist Mode. Y: 1=Internal Clock, 2=External Clock. Z: 1=CPHA 0, 2=CPHA 1.
 foreach i $scenarios { 
-  if {$bottom_up == "yes"} {
-    current_scenario $i 
-  } else {
-    create_scenario $i 
-  }
+  create_scenario $i 
   set_scenario_options -setup true -hold true -cts_mode true -leakage_power true -dynamic_power true -cts_corner min_max
   source -echo -verbose ../scripts/Nanochap_imp_constraints.tcl
   #source -echo -verbose ../scripts/Nanochap_imp_constraints_exception.tcl;#these are not written in SDC. Need to reaply in STA
@@ -339,10 +339,10 @@ set_active_scenarios [all_scenarios]
 current_scenario S111_max
 
 
-#write -f verilog  -hierarchy -output ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.link.v
+#write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.link.v
 check_design -no_warnings
 check_design -multiple_designs > \
-  ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}_initial.check_design
+  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_initial.check_design
 
 compile_ultra -check
 compile_ultra  -scan -gate_clock -no_autoungroup; # -spg;# -self_gating;#use place_opt -spg in ICC
@@ -359,7 +359,7 @@ uniquify -force
 
 define_name_rules verilog -case_insensitive
 change_names -rules verilog -hierarchy -verbose > \
-  ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}.change_names
+  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.change_names
 
 # ------------------------------------------------------------------------------
 # Write out design data
@@ -369,27 +369,27 @@ set_app_var verilogout_no_tri true
 # set_app_var power_cg_auto_identify true
 
 #sh mkdir ../data
-write -format ddc -hierarchy -output ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.ddc
-write -f verilog  -hierarchy -output ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.v
+write -format ddc -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.ddc
+write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.v
 
 # Write and close SVF file, make it available for immediate use
 set_svf -off
 
 # Write parasitics data from DCT placement for static timing analysis
-write_parasitics -output ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.spef
+write_parasitics -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.spef
 
 # Write SDF backannotation data from DCT placement for static timing analysis
-write_sdf ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.sdf
+write_sdf ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdf
 
 # Do not write out net RC info into SDC
 set_app_var write_sdc_output_lumped_net_capacitance false
 set_app_var write_sdc_output_net_resistance false
 
 # Write out SDC version 2.0 to omit set_voltage for backwards compatibility
-write_sdc -version 2.1 -nosplit ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.BUD=${bottom_up}.sdc
+write_sdc -version 2.1 -nosplit ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdc
 
 # If SAIF is used, write out SAIF name mapping file for PrimeTime-PX
-saif_map -type ptpx -write_map ../reports/synthesis_${stage}_${generate_sdf}/${rm_project_top}_SAIF.namemap
+saif_map -type ptpx -write_map ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_SAIF.namemap
 
 ######################################################################################
 # ------------------------------------------------------------------------------

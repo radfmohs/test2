@@ -1,7 +1,7 @@
 #if not scan mode
 if {[string match "filter_wrapper*" [get_object_name [current_design]]]} {
   if {[string match S4_m?? $i]==0} {
-    set hfosc_period  [expr {250}]; # 4 MHz
+    set hfosc_period  [expr {100}]; # 10 MHz
     create_clock -name clk {clk} -period $hfosc_period
     create_clock -name notch_clk {notch_clk} -period $hfosc_period
     create_clock -name lpf_clk {lpf_clk} -period $hfosc_period
@@ -15,8 +15,9 @@ if {[string match "filter_wrapper*" [get_object_name [current_design]]]} {
   }
 } else {
   if {[string match S4_m?? $i]==0} {
-      set hfosc_period 250; # 4 MHz
+      set hfosc_period 100; # 10 MHz
       create_clock -name pclk [get_ports {pclk}] -period $hfosc_period
+      create_clock -name adc_clk_running [get_ports {adc_clk_running}] -period $hfosc_period
 
       # 1. Start the group list with the main pclk name
       set async_groups "-group pclk"

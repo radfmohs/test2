@@ -16,8 +16,9 @@
 // add the signals in otp_trim_if.v
 //
 module otp_ctrl_top
-#(parameter NO_SPI_REGS = 16, //this parameter should be  4*n, n is the number of otp addr [6:2] bits which using
-  parameter ATM_MDOE    = 8,
+#(parameter NO_SPI_REGS = 20, //this parameter should be  4*n, n is the number of otp addr [6:2] bits which using
+  parameter NO_OF_TRIM  = 17,
+  parameter ATM_MDOE    = 15,
   parameter NO_OF_WAVEGEN_OTP = 1,
   parameter ATM_DATA    = 8
 )(
@@ -71,65 +72,18 @@ MX2_X8_A7TULL DNT_OTP_RST_ATPG ( .A(otp_rstn_tmp), .B(rst_n), .S0(atpg_en), .Y(o
 
 
 ////interface/////
-wire  [7:0] i_spi_to_otp_trim_tag;
-wire  [7:0] i_spi_to_otp_trim1;
-wire  [7:0] i_spi_to_otp_trim2;
-wire  [7:0] i_spi_to_otp_trim3;
-wire  [7:0] i_spi_to_otp_trim4;
-wire  [7:0] i_spi_to_otp_trim5;
-wire  [7:0] i_spi_to_otp_trim6;
-wire  [7:0] i_spi_to_otp_trim7;
-wire  [7:0] i_spi_to_otp_trim8;
-wire  [7:0] i_spi_to_otp_trim9;
-//wire  [7:0] i_spi_to_otp_trim10;
-//wire  [7:0] i_spi_to_otp_trim11;
-//wire  [7:0] i_spi_to_otp_trim12;
+wire  [7:0] i_spi_to_otp_trim[NO_OF_TRIM-1:0];
 
-wire  [7:0] otp_to_ana_trim0;
-wire  [7:0] otp_to_ana_trim1;
-wire  [7:0] otp_to_ana_trim2;
-wire  [7:0] otp_to_ana_trim3;
-wire  [7:0] otp_to_ana_trim4;
-wire  [7:0] otp_to_ana_trim5;
-wire  [7:0] otp_to_ana_trim6;
-wire  [7:0] otp_to_ana_trim7;
-wire  [7:0] otp_to_ana_trim8;
-wire  [7:0] otp_to_ana_trim9;
-//wire  [7:0] otp_to_ana_trim10;
-//wire  [7:0] otp_to_ana_trim11;
-//wire  [7:0] otp_to_ana_trim12;
+
+wire  [7:0] otp_to_ana_trim[NO_OF_TRIM-1:0];
 
 
 
 
-assign  i_spi_to_otp_trim_tag = spi_otp.trim[0];
-assign  i_spi_to_otp_trim1    = spi_otp.trim[1];
-assign  i_spi_to_otp_trim2    = spi_otp.trim[2];
-assign  i_spi_to_otp_trim3    = spi_otp.trim[3];
-assign  i_spi_to_otp_trim4    = spi_otp.trim[4];
-assign  i_spi_to_otp_trim5    = spi_otp.trim[5];
-assign  i_spi_to_otp_trim6    = spi_otp.trim[6];
-assign  i_spi_to_otp_trim7    = spi_otp.trim[7];
-assign  i_spi_to_otp_trim8    = spi_otp.trim[8];
-assign  i_spi_to_otp_trim9    = spi_otp.trim[9];
-//assign  i_spi_to_otp_trim10   = spi_otp.trim[10];
-//assign  i_spi_to_otp_trim11   = spi_otp.trim[11];
-//assign  i_spi_to_otp_trim12   = spi_otp.trim[12];
 
+assign i_spi_to_otp_trim = spi_otp.trim;
+assign spi_otp.trim_read   = otp_to_ana_trim;
 
-assign spi_otp.trim_read[0]   = otp_to_ana_trim0;
-assign spi_otp.trim_read[1]   = otp_to_ana_trim1;
-assign spi_otp.trim_read[2]   = otp_to_ana_trim2;
-assign spi_otp.trim_read[3]   = otp_to_ana_trim3;
-assign spi_otp.trim_read[4]   = otp_to_ana_trim4;
-assign spi_otp.trim_read[5]   = otp_to_ana_trim5;
-assign spi_otp.trim_read[6]   = otp_to_ana_trim6;
-assign spi_otp.trim_read[7]   = otp_to_ana_trim7;
-assign spi_otp.trim_read[8]   = otp_to_ana_trim8;
-assign spi_otp.trim_read[9]   = otp_to_ana_trim9;
-//assign spi_otp.trim_read[10]  = otp_to_ana_trim10;
-//assign spi_otp.trim_read[11]  = otp_to_ana_trim11;
-//assign spi_otp.trim_read[12]  = otp_to_ana_trim12;
 
 
 wire unlock,spi_wr,spi_wr_data,spi_rd_data;
@@ -263,6 +217,7 @@ assign otp_inf_epm_adr = otp_inf_epm_adr_temp;
 
 otp_trim_if #(
 .NO_SPI_REGS(NO_SPI_REGS),
+.NO_OF_TRIM(NO_OF_TRIM),
 .ATM_MDOE(ATM_MDOE),
 .ATM_DATA(ATM_DATA)
 )u_otp_trim_if(
@@ -271,19 +226,8 @@ otp_trim_if #(
 .spi_regs          (spi_regs),
 .def_regs          (def_regs),
 .shadow_regs       (shadow_regs),
-.otp_to_ana_trim0  (otp_to_ana_trim0), 
-.otp_to_ana_trim1  (otp_to_ana_trim1), 
-.otp_to_ana_trim2  (otp_to_ana_trim2),
-.otp_to_ana_trim3  (otp_to_ana_trim3),
-.otp_to_ana_trim4  (otp_to_ana_trim4),
-.otp_to_ana_trim5  (otp_to_ana_trim5),
-.otp_to_ana_trim6  (otp_to_ana_trim6),
-.otp_to_ana_trim7  (otp_to_ana_trim7),
-.otp_to_ana_trim8  (otp_to_ana_trim8),
-.otp_to_ana_trim9  (otp_to_ana_trim9),
-//.otp_to_ana_trim10 (otp_to_ana_trim10),
-//.otp_to_ana_trim11 (otp_to_ana_trim11),
-//.otp_to_ana_trim12 (otp_to_ana_trim12),
+.otp_to_ana_trim  (otp_to_ana_trim), 
+
 .unlock            (unlock),
 .unlock_sync       (unlock_sync),
 .spi_wr            (spi_wr),
@@ -300,19 +244,7 @@ otp_trim_if #(
 .atm_mode          (atm_mode),
 .atm_data          (atm_data),
 .unlock_gpio       (unlock_gpio),
-.spi_to_otp_trim_tag(i_spi_to_otp_trim_tag),
-.spi_to_otp_trim1(i_spi_to_otp_trim1),
-.spi_to_otp_trim2(i_spi_to_otp_trim2),
-.spi_to_otp_trim3(i_spi_to_otp_trim3),
-.spi_to_otp_trim4(i_spi_to_otp_trim4),
-.spi_to_otp_trim5(i_spi_to_otp_trim5),
-.spi_to_otp_trim6(i_spi_to_otp_trim6),
-.spi_to_otp_trim7(i_spi_to_otp_trim7),
-.spi_to_otp_trim8(i_spi_to_otp_trim8),
-.spi_to_otp_trim9(i_spi_to_otp_trim9)
-//.spi_to_otp_trim10(i_spi_to_otp_trim10),
-//.spi_to_otp_trim11(i_spi_to_otp_trim11)
-//.spi_to_otp_trim12(i_spi_to_otp_trim12)
+.spi_to_otp_trim(i_spi_to_otp_trim)
 
 );
 

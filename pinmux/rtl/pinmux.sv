@@ -83,11 +83,14 @@ module pinmux (
 
   //debug modes
   output wire         o_OTP_UNLOCK,
-  output wire [7:0]   o_OTP_ATM_MODE_SEL,
+  output wire [14:0]   o_OTP_ATM_MODE_SEL,
   output wire         o_OTP_ANA_TESTMODE,
   output wire [7:0]   o_OTP_ATM_TRIM_DATA,
 
-  input wire  [7:0]   sys_d2a_trim_reg        [7:0], 
+  input wire  [7:0]   sys_d2a_trim_reg        [14:0], 
+  output wire [13:0]  o_SPI_ATM_MODE_SEL,
+  output wire         o_SPI_ANA_TESTMODE,
+  output wire [7:0]   o_SPI_ATM_ADJ_DATA,
 
   //COMP
 //input  wire         NORMAL_OUT_SEL,
@@ -119,8 +122,8 @@ module pinmux (
 
 // TSC
   input wire   [7:0]  d2a_tsc_vdac8b_din_ch1,
-  input wire          d2a_tsc_vdac8b_en_ch1,
-  input wire          d2a_tsc_comp_en_ch1,
+//input wire          d2a_tsc_vdac8b_en_ch1,
+//input wire          d2a_tsc_comp_en_ch1,
   input wire          d2a_tsc_en_ch1
 );
 
@@ -153,6 +156,27 @@ module pinmux (
   wire        ATM5;
   wire        ATM6;
   wire        ATM7;
+  wire        ATM8;
+  wire        ATM9;
+  wire        ATM10;
+  wire        ATM11;
+  wire        ATM12;
+  wire        ATM13;
+  wire        ATM14;
+  wire        ATM15;
+  wire        ATM16;
+  wire        ATM17;
+  wire        ATM18;
+  wire        ATM19;
+  wire        ATM20;
+  wire        ATM21;
+  wire        ATM22;
+  wire        ATM23;
+  wire        ATM24;
+  wire        ATM25;
+  wire        ATM26;
+  wire        ATM27;
+  wire        ATM28;
   wire [7:0]  pad_d2a_trim0_sig;
   wire [7:0]  pad_d2a_trim1_sig;
   wire [7:0]  pad_d2a_trim2_sig;
@@ -161,10 +185,31 @@ module pinmux (
   wire [7:0]  pad_d2a_trim5_sig;
   wire [7:0]  pad_d2a_trim6_sig;
   wire [7:0]  pad_d2a_trim7_sig;
-  wire [7:0]  CONFIG_ROM0 [7:0];
-  wire [7:0]  CONFIG_ROM1 [7:0];
-  wire [7:0]  CONFIG_ROM2 [7:0];
-  wire [7:0]  CONFIG_ROM3 [7:0];
+  wire [7:0]  pad_d2a_trim8_sig;
+  wire [7:0]  pad_d2a_trim9_sig;
+  wire [7:0]  pad_d2a_trim10_sig;
+  wire [7:0]  pad_d2a_trim11_sig;
+  wire [7:0]  pad_d2a_trim12_sig;
+  wire [7:0]  pad_d2a_trim13_sig;
+  wire [7:0]  pad_d2a_trim14_sig;
+  wire [7:0]  pad_d2a_adj0_sig; 
+  wire [7:0]  pad_d2a_adj1_sig;
+  wire [7:0]  pad_d2a_adj2_sig;
+  wire [7:0]  pad_d2a_adj3_sig;
+  wire [7:0]  pad_d2a_adj4_sig;
+  wire [7:0]  pad_d2a_adj5_sig;
+  wire [7:0]  pad_d2a_adj6_sig;
+  wire [7:0]  pad_d2a_adj7_sig;
+  wire [7:0]  pad_d2a_adj8_sig;
+  wire [7:0]  pad_d2a_adj9_sig;
+  wire [7:0]  pad_d2a_adj10_sig;
+  wire [7:0]  pad_d2a_adj11_sig;
+  wire [7:0]  pad_d2a_adj12_sig;
+  wire [7:0]  pad_d2a_adj13_sig;
+  wire [7:0]  CONFIG_ROM0 [28:0];
+  wire [7:0]  CONFIG_ROM1 [28:0];
+  wire [7:0]  CONFIG_ROM2 [28:0];
+//wire [7:0]  CONFIG_ROM3 [7:0];
 
 //ENABLE_REG
   wire        ATM_HC_SEL;
@@ -218,23 +263,67 @@ module pinmux (
   assign ATM5 = (debug_mode_en && (ana_test_mode== 5'b00101))  ? 1'b1 : 1'b0;
   assign ATM6 = (debug_mode_en && (ana_test_mode== 5'b00110))  ? 1'b1 : 1'b0;
   assign ATM7 = (debug_mode_en && (ana_test_mode== 5'b00111))  ? 1'b1 : 1'b0;
+  assign ATM8 = (debug_mode_en && (ana_test_mode== 5'b01000))  ? 1'b1 : 1'b0;
+  assign ATM9 = (debug_mode_en && (ana_test_mode== 5'b01001))  ? 1'b1 : 1'b0;
+  assign ATM10 = (debug_mode_en && (ana_test_mode== 5'b01010))  ? 1'b1 : 1'b0;
+  assign ATM11 = (debug_mode_en && (ana_test_mode== 5'b01011))  ? 1'b1 : 1'b0;
+  assign ATM12 = (debug_mode_en && (ana_test_mode== 5'b01100))  ? 1'b1 : 1'b0;
+  assign ATM13 = (debug_mode_en && (ana_test_mode== 5'b01101))  ? 1'b1 : 1'b0;
+  assign ATM14 = (debug_mode_en && (ana_test_mode== 5'b01110))  ? 1'b1 : 1'b0;
+  assign ATM15 = (debug_mode_en && (ana_test_mode== 5'b01111))  ? 1'b1 : 1'b0;
+  assign ATM16 = (debug_mode_en && (ana_test_mode== 5'b10000))  ? 1'b1 : 1'b0;
+  assign ATM17 = (debug_mode_en && (ana_test_mode== 5'b10001))  ? 1'b1 : 1'b0;
+  assign ATM18 = (debug_mode_en && (ana_test_mode== 5'b10010))  ? 1'b1 : 1'b0;
+  assign ATM19 = (debug_mode_en && (ana_test_mode== 5'b10011))  ? 1'b1 : 1'b0;
+  assign ATM20 = (debug_mode_en && (ana_test_mode== 5'b10100))  ? 1'b1 : 1'b0;
+  assign ATM21 = (debug_mode_en && (ana_test_mode== 5'b10101))  ? 1'b1 : 1'b0;
+  assign ATM22 = (debug_mode_en && (ana_test_mode== 5'b10110))  ? 1'b1 : 1'b0;
+  assign ATM23 = (debug_mode_en && (ana_test_mode== 5'b10111))  ? 1'b1 : 1'b0;
+  assign ATM24 = (debug_mode_en && (ana_test_mode== 5'b11000))  ? 1'b1 : 1'b0;
+  assign ATM25 = (debug_mode_en && (ana_test_mode== 5'b11001))  ? 1'b1 : 1'b0;
+  assign ATM26 = (debug_mode_en && (ana_test_mode== 5'b11010))  ? 1'b1 : 1'b0;
+  assign ATM27 = (debug_mode_en && (ana_test_mode== 5'b11011))  ? 1'b1 : 1'b0;
+  assign ATM28 = (debug_mode_en && (ana_test_mode== 5'b11100))  ? 1'b1 : 1'b0;
 //assign ATM8 = (ana_test_mode== 4'b1001)  ? 1'b1 : 1'b0;
 
-  assign pinmux_if.D2A_ATM      = {ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
+  assign pinmux_if.D2A_ATM      = { ATM28, ATM27, ATM26, ATM25, ATM24,ATM23, ATM22, ATM21, ATM20, 
+				    ATM19,ATM18, ATM17, ATM16,ATM15, ATM14, ATM13, ATM12, ATM11, 
+				    ATM10, ATM9,ATM8, ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
 //assign pinmux_if.ENCODED_ATM  = ana_test_mode;
   
   assign ATM_CONFG =  debug_mode_en ? 1'b1 : 1'b0;
   
-  assign test_sel = ((scan_mode    == 1'b1) ? 5'b00000 : 
-                    (otp_bist_en   == 1'b1) ? 5'b00001 : 
-                    (ana_test_mode == 5'd0) ? 5'b00010 :
-                    (ana_test_mode == 5'd1) ? 5'b00011 :
-                    (ana_test_mode == 5'd2) ? 5'b00100 :
-                    (ana_test_mode == 5'd3) ? 5'b00101 :
-                    (ana_test_mode == 5'd4) ? 5'b00110 :
-                    (ana_test_mode == 5'd5) ? 5'b00111 :
-                    (ana_test_mode == 5'd6) ? 5'b01000 :
-                    (ana_test_mode == 5'd7) ? 5'b01001 : 5'b01011);   //this needs to be updated if require more ATM modes
+  assign test_sel = ((scan_mode    == 1'b1) ? 5'b00000: 
+                    (otp_bist_en   == 1'b1) ? 5'b00001: 
+                    (ana_test_mode == 5'd0) ? 5'b00010:
+                    (ana_test_mode == 5'd1) ? 5'b00011:
+                    (ana_test_mode == 5'd2) ? 5'b00100:
+                    (ana_test_mode == 5'd3) ? 5'b00101:
+                    (ana_test_mode == 5'd4) ? 5'b00110:
+                    (ana_test_mode == 5'd5) ? 5'b00111:
+                    (ana_test_mode == 5'd6) ? 5'b01000:
+                    (ana_test_mode == 5'd7) ? 5'b01001: 
+                    (ana_test_mode == 5'd8) ? 5'b01010: 
+                    (ana_test_mode == 5'd9) ? 5'b01011: 
+                    (ana_test_mode == 5'd10)? 5'b01100: 
+                    (ana_test_mode == 5'd11)? 5'b01101: 
+                    (ana_test_mode == 5'd12)? 5'b01110: 
+                    (ana_test_mode == 5'd13)? 5'b01111: 
+                    (ana_test_mode == 5'd14)? 5'b10000: 
+                    (ana_test_mode == 5'd15)? 5'b10001: 
+                    (ana_test_mode == 5'd16)? 5'b10010: 
+                    (ana_test_mode == 5'd17)? 5'b10011: 
+                    (ana_test_mode == 5'd18)? 5'b10100: 
+                    (ana_test_mode == 5'd19)? 5'b10101:
+                    (ana_test_mode == 5'd20)? 5'b10110:
+                    (ana_test_mode == 5'd21)? 5'b10111:
+                    (ana_test_mode == 5'd22)? 5'b11000:
+                    (ana_test_mode == 5'd23)? 5'b11001:
+                    (ana_test_mode == 5'd24)? 5'b11010:
+                    (ana_test_mode == 5'd25)? 5'b11011:
+                    (ana_test_mode == 5'd26)? 5'b11100:
+                    (ana_test_mode == 5'd27)? 5'b11101:
+                    (ana_test_mode == 5'd28)? 5'b11110: 5'b11111);
    
 //combine interrupt
  assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int); 
@@ -262,23 +351,24 @@ module pinmux (
   pinmux_rom  u_pinmux_rom (
     .CONFIG_ROM0  (CONFIG_ROM0),
     .CONFIG_ROM1  (CONFIG_ROM1),
-    .CONFIG_ROM2  (CONFIG_ROM2),
-    .CONFIG_ROM3  (CONFIG_ROM3)
-  );
+    .CONFIG_ROM2  (CONFIG_ROM2)
+ // .CONFIG_ROM3  (CONFIG_ROM3)
+);
 
   assign ATM_HC_SEL       = spi_pinmux_if.ATM_HC_SEL;
   assign ANA_BIST_HC_SEL  = spi_pinmux_if.ANA_BIST_HC_SEL;
   assign INT_LEVEL_SEL    = spi_pinmux_if.INT_LEVEL_SEL;
 
   assign pinmux_if.d2a_tsc_vdac8b_din_ch1 = d2a_tsc_vdac8b_din_ch1;
-  assign pinmux_if.d2a_tsc_vdac8b_en_ch1  = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_vdac8b_en_ch1;
-  assign pinmux_if.d2a_tsc_comp_en_ch1    = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_comp_en_ch1;
-  assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & (ATM6 || ATM1)) ?  1'b1  : d2a_tsc_en_ch1;
+//assign pinmux_if.d2a_tsc_vdac8b_en_ch1  = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_vdac8b_en_ch1;
+//assign pinmux_if.d2a_tsc_comp_en_ch1    = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_comp_en_ch1;
+//assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & (ATM6 || ATM1)) ?  1'b1  : d2a_tsc_en_ch1;
+  assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ( ATM5 || ATM11 || ATM15)) ?  1'b1  : d2a_tsc_en_ch1;
 
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[2]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[2];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[3]  = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM3[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[3];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][0]  = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][0];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][1]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][1];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][2]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][2];
+//assign pinmux_if.D2A_ANA_ENABLE_REG[3]  = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM3[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[3];
 
 //debug_signal_mode0(ATM0)
   assign pinmux_if.D2A_TRIM_SIG[0] =  ATM0 ? pad_d2a_trim0_sig : sys_d2a_trim_reg[0];
@@ -301,27 +391,75 @@ module pinmux (
 //debug_signal_mode1(ATM6)
   assign pinmux_if.D2A_TRIM_SIG[6] =  ATM6 ? pad_d2a_trim6_sig : sys_d2a_trim_reg[6];
 
-//debug_signal_mode1(ATM7)
+//debug_signal_mode1(ATM7) - SPARE
   assign pinmux_if.D2A_TRIM_SIG[7] =  ATM7 ? pad_d2a_trim7_sig : sys_d2a_trim_reg[7];
 
-//debug_signal_mode1(ATM8)
-// assign pinmux_if.D2A_TRIM_SIG[8] =  ATM8 ? pad_d2a_trim8_sig : sys_d2a_trim_reg[8];
+//debug_signal_mode1(ATM8)- SPARE
+  assign pinmux_if.D2A_TRIM_SIG[8] =  ATM8 ? pad_d2a_trim8_sig : sys_d2a_trim_reg[8];
 
-// spare
-//assign pinmux_if.D2A_TRIM_SIG_SPARE[0]  =  sys_d2a_trim_reg_spare[0];
-//assign pinmux_if.D2A_TRIM_SIG_SPARE[1]  =  sys_d2a_trim_reg_spare[1];
-//assign pinmux_if.D2A_TRIM_SIG_SPARE[2]  =  sys_d2a_trim_reg_spare[2];
+//debug_signal_mode1(ATM9)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[9] =  ATM9 ? pad_d2a_trim9_sig : sys_d2a_trim_reg[9];
 
-  assign pinmux_if.D2A_ANA_OUT_SEL1 = ATM1 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL2 = ATM2 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL3 = ATM3 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL4 = ATM4 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL5 = ATM5 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL6 = ATM6 ? i_ext_clk_sel : 1'b0;
-  assign pinmux_if.D2A_ANA_OUT_SEL7 = ATM7 ? i_ext_clk_sel : 1'b0;
+//debug_signal_mode1(ATM10)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[10] = ATM10 ? pad_d2a_trim10_sig : sys_d2a_trim_reg[10];
+
+//debug_signal_mode1(ATM11)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[11] = ATM11 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[11];
+
+//debug_signal_mode1(ATM12)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[12] = ATM12 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[12];
+
+//debug_signal_mode1(ATM13)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[13] = ATM13 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[13];
+
+//debug_signal_mode1(ATM14)- SPARE
+ assign pinmux_if.D2A_TRIM_SIG[14] = ATM14 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[14];
+
+//debug_signal_mode1(ATM15)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[0] =  ATM15 ? pad_d2a_adj0_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM16)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[1] =  ATM16 ? pad_d2a_adj1_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM17)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[2] =  ATM17 ? pad_d2a_adj2_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM18)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[3] =  ATM18 ? pad_d2a_adj3_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM19)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[4] =  ATM19 ? pad_d2a_adj4_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM20)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[5] =  ATM20 ? pad_d2a_adj5_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM21)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[6] =  ATM21 ? pad_d2a_adj6_sig : 8'b00;
+ 
+//debug_signal_mode1(ATM22)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[7] =  ATM22 ? pad_d2a_adj7_sig : 8'b00;
+
+//debug_signal_mode1(ATM23)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[8] =  ATM23 ? pad_d2a_adj8_sig : 8'b00;
+
+//debug_signal_mode1(ATM24)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[9] =  ATM24 ? pad_d2a_adj9_sig : 8'b00;
+
+//debug_signal_mode1(ATM25)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[10] =  ATM25 ? pad_d2a_adj10_sig : 8'b00;
+
+//debug_signal_mode1(ATM26)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[11] =  ATM26 ? pad_d2a_adj11_sig : 8'b00;
+
+//debug_signal_mode1(ATM27)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[12] =  ATM27 ? pad_d2a_adj12_sig : 8'b00;
+
+//debug_signal_mode1(ATM28)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[13] =  ATM28 ? pad_d2a_adj13_sig : 8'b00;
   
 //LOAD TRIMS to OTP
-  assign o_OTP_ATM_MODE_SEL   = {ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
+  assign o_OTP_ATM_MODE_SEL   = { ATM14, ATM13, ATM12, ATM11, ATM10, ATM9, ATM8,
+				ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
 
   assign o_OTP_ANA_TESTMODE   = debug_mode_en;
 
@@ -332,10 +470,37 @@ module pinmux (
                                 ATM4 ? pad_d2a_trim4_sig :
                                 ATM5 ? pad_d2a_trim5_sig :
                                 ATM6 ? pad_d2a_trim6_sig :
-                                ATM7 ? pad_d2a_trim7_sig : 8'h00;
+                                ATM7 ? pad_d2a_trim7_sig : 
+                                ATM8 ? pad_d2a_trim8_sig :
+                                ATM9 ? pad_d2a_trim9_sig :
+                                ATM10 ? pad_d2a_trim10_sig :
+                                ATM11 ? pad_d2a_trim11_sig :
+                                ATM12 ? pad_d2a_trim12_sig :
+                                ATM13 ? pad_d2a_trim13_sig : 
+                                ATM14 ? pad_d2a_trim14_sig : 8'h00;
 
-  assign o_OTP_UNLOCK         = ATM0 ? i_ext_clk_sel : 1'b0;
+  assign o_OTP_UNLOCK         = debug_mode_en ? i_ext_clk_sel : 1'b0;
+ 
 
+  assign o_SPI_ATM_MODE_SEL = {ATM28, ATM27, ATM26, ATM25, ATM24, ATM23, ATM22,
+                               ATM21, ATM20, ATM19, ATM18, ATM17, ATM16, ATM15};
+  assign o_SPI_ANA_TESTMODE   = debug_mode_en;
+
+  assign o_SPI_ATM_ADJ_DATA  =  ATM15 ? pad_d2a_adj0_sig : 
+                                ATM16 ? pad_d2a_adj1_sig :
+                                ATM17 ? pad_d2a_adj2_sig : 
+                                ATM18 ? pad_d2a_adj3_sig : 
+                                ATM19 ? pad_d2a_adj4_sig : 
+                                ATM20 ? pad_d2a_adj5_sig : 
+                                ATM21 ? pad_d2a_adj6_sig : 
+                                ATM22 ? pad_d2a_adj7_sig : 
+                                ATM23 ? pad_d2a_adj8_sig : 
+                                ATM24 ? pad_d2a_adj9_sig : 
+                                ATM25 ? pad_d2a_adj10_sig : 
+                                ATM26 ? pad_d2a_adj11_sig : 
+                                ATM27 ? pad_d2a_adj12_sig : 
+                                ATM28 ? pad_d2a_adj13_sig : 
+                                8'h00;
 // non-scan pad
 // pad->core force to 0, NOT USING in scan mode
 //assign i_ens2_IOBUF15_Y = ~scan_mode &  i_ens2_IOBUF_Y[13];
@@ -354,6 +519,27 @@ module pinmux (
 // test8 : ext_clk
 // test9 : ext_clk
 // test10: ext_clk
+// test11: ext_clk
+// test12: ext_clk
+// test13: ext_clk
+// test14: ext_clk
+// test15: ext_clk
+// test16: ext_clk
+// test17: ext_clk
+// test18: ext_clk
+// test19: ext_clk
+// test20: ext_clk
+// test21: ext_clk
+// test22: ext_clk
+// test23: ext_clk
+// test24: ext_clk
+// test25: ext_clk
+// test26: ext_clk
+// test27: ext_clk
+// test28: ext_clk
+// test29: ext_clk
+// test30: ext_clk
+
 pinmux_1bit 
 #(
 .ALTF_CLKIN(1),
@@ -366,12 +552,33 @@ pinmux_1bit
 .TEST6_CLKIN(1),
 .TEST7_CLKIN(1),
 .TEST8_CLKIN(1),
-.TEST9_CLKIN(1))
+.TEST9_CLKIN(1),
+.TEST10_CLKIN(1),
+.TEST11_CLKIN(1),
+.TEST12_CLKIN(1),
+.TEST13_CLKIN(1),
+.TEST14_CLKIN(1),
+.TEST15_CLKIN(1),
+.TEST16_CLKIN(1),
+.TEST17_CLKIN(1),
+.TEST18_CLKIN(1),
+.TEST19_CLKIN(1),
+.TEST20_CLKIN(1),
+.TEST21_CLKIN(1),
+.TEST22_CLKIN(1),
+.TEST23_CLKIN(1),
+.TEST24_CLKIN(1),
+.TEST25_CLKIN(1),
+.TEST26_CLKIN(1),
+.TEST27_CLKIN(1),
+.TEST28_CLKIN(1),
+.TEST29_CLKIN(1),
+.TEST30_CLKIN(0))
 // .TEST10_CLKIN(0))
 u_gpio0_pinmux (
 // test and alternate select
 //.altf_sel   (2'd0),
-.test_sel   (scan_mode ? 5'd0 : (otp_bist_en ? 5'd1 : (debug_mode_en ? 5'd2 : 5'd29))),
+.test_sel   (scan_mode ? 5'd0 : (otp_bist_en ? 5'd1 : (debug_mode_en ? 5'd2 : 5'd31))),
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (otp_bist_en),
@@ -383,8 +590,28 @@ u_gpio0_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
-// .test10_en  (1'b0),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
 // altf0
@@ -479,11 +706,132 @@ u_gpio0_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[0]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[0]),
@@ -505,6 +853,27 @@ u_gpio0_pinmux (
 // test8 : pad_d2a_trim6_sig[0]
 // test9 : pad_d2a_trim7_sig[0]
 // test10: pad_d2a_trim8_sig[0]
+// test11: pad_d2a_trim9_sig[0]
+// test12: pad_d2a_trim10_sig[0]
+// test13: pad_d2a_trim11_sig[0]
+// test14: pad_d2a_trim12_sig[0]
+// test15: pad_d2a_trim13_sig[0]
+// test16: pad_d2a_trim14_sig[0]
+// test17: pad_d2a_adj0_sig[0]
+// test18: pad_d2a_adj1_sig[0]
+// test19: pad_d2a_adj2_sig[0]
+// test20: pad_d2a_adj3_sig[0]
+// test21: pad_d2a_adj4_sig[0]
+// test22: pad_d2a_adj5_sig[0]
+// test23: pad_d2a_adj6_sig[0]
+// test24: pad_d2a_adj7_sig[0]
+// test25: pad_d2a_adj8_sig[0]
+// test26: pad_d2a_adj9_sig[0]
+// test27: pad_d2a_adj10_sig[0]
+// test28: pad_d2a_adj11_sig[0]
+// test29: pad_d2a_adj12_sig[0]
+// test30: pad_d2a_adj13_sig[0]
+
  
 pinmux_1bit 
 #(
@@ -518,7 +887,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio1_pinmux (
 // test and alternate select
@@ -535,8 +925,29 @@ u_gpio1_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
 // altf0
@@ -631,11 +1042,133 @@ u_gpio1_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[0]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[0]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[0]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[0]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[0]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[0]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[0]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[0]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[0]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[0]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[0]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[0]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[0]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[0]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[0]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[0]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[0]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[0]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[0]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[0]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[0]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[0]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[0]),
+
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[1]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[1]),
@@ -656,6 +1189,27 @@ u_gpio1_pinmux (
 // test8 : pad_d2a_trim6_sig[1]
 // test9 : pad_d2a_trim7_sig[1]
 // test10: pad_d2a_trim8_sig[1]
+// test11: pad_d2a_trim9_sig[1]
+// test12: pad_d2a_trim10_sig[1]
+// test13: pad_d2a_trim11_sig[1]
+// test14: pad_d2a_trim12_sig[1]
+// test15: pad_d2a_trim13_sig[1]
+// test16: pad_d2a_trim14_sig[1]
+// test17: pad_d2a_adj0_sig[1]
+// test18: pad_d2a_adj1_sig[1]
+// test19: pad_d2a_adj2_sig[1]
+// test20: pad_d2a_adj3_sig[1]
+// test21: pad_d2a_adj4_sig[1]
+// test22: pad_d2a_adj5_sig[1]
+// test23: pad_d2a_adj6_sig[1]
+// test24: pad_d2a_adj7_sig[1]
+// test25: pad_d2a_adj8_sig[1]
+// test26: pad_d2a_adj9_sig[1]
+// test27: pad_d2a_adj10_sig[1]
+// test28: pad_d2a_adj11_sig[1]
+// test29: pad_d2a_adj12_sig[1]
+// test30: pad_d2a_adj13_sig[1]
+
   
 pinmux_1bit 
 #(
@@ -669,7 +1223,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio2_pinmux (
 // test and alternate select
@@ -686,8 +1261,28 @@ u_gpio2_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
-//.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
 // altf0
@@ -782,11 +1377,131 @@ u_gpio2_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[1]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[1]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[1]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[1]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[1]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[1]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[1]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[1]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[1]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[1]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[1]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[1]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[1]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[1]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[1]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[1]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[1]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[1]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[1]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[1]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[1]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[1]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[1]),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[2]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[2]),
@@ -807,6 +1522,26 @@ u_gpio2_pinmux (
 // test8 : pad_d2a_trim6_sig[2]
 // test9 : pad_d2a_trim7_sig[2]
 // test10: pad_d2a_trim8_sig[2]
+// test11: pad_d2a_trim9_sig[2]
+// test12: pad_d2a_trim10_sig[2]
+// test13: pad_d2a_trim11_sig[2]
+// test14: pad_d2a_trim12_sig[2]
+// test15: pad_d2a_trim13_sig[2]
+// test16: pad_d2a_trim14_sig[2]
+// test17: pad_d2a_adj0_sig[2]
+// test18: pad_d2a_adj1_sig[2]
+// test19: pad_d2a_adj2_sig[2]
+// test20: pad_d2a_adj3_sig[2]
+// test21: pad_d2a_adj4_sig[2]
+// test22: pad_d2a_adj5_sig[2]
+// test23: pad_d2a_adj6_sig[2]
+// test24: pad_d2a_adj7_sig[2]
+// test25: pad_d2a_adj8_sig[2]
+// test26: pad_d2a_adj9_sig[2]
+// test27: pad_d2a_adj10_sig[2]
+// test28: pad_d2a_adj11_sig[2]
+// test29: pad_d2a_adj12_sig[2]
+// test30: pad_d2a_adj13_sig[2]
 
 pinmux_1bit 
 #(
@@ -820,7 +1555,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio3_pinmux (
 // test and alternate select
@@ -837,8 +1593,29 @@ u_gpio3_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
   /*
 // altf0
@@ -933,11 +1710,132 @@ u_gpio3_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[2]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[2]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[2]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[2]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[2]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[2]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[2]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[2]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[2]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[2]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[2]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[2]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[2]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[2]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[2]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[2]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[2]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[2]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[2]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[2]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[2]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[2]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[2]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[3]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[3]),
@@ -958,6 +1856,26 @@ u_gpio3_pinmux (
 // test8 : pad_d2a_trim6_sig[3]
 // test9 : pad_d2a_trim7_sig[3]
 // test10: pad_d2a_trim8_sig[3]
+// test11: pad_d2a_trim9_sig[3]
+// test12: pad_d2a_trim10_sig[3]
+// test13: pad_d2a_trim11_sig[3]
+// test14: pad_d2a_trim12_sig[3]
+// test15: pad_d2a_trim13_sig[3]
+// test16: pad_d2a_trim14_sig[3]
+// test17: pad_d2a_adj0_sig[3]
+// test18: pad_d2a_adj1_sig[3]
+// test19: pad_d2a_adj2_sig[3]
+// test20: pad_d2a_adj3_sig[3]
+// test21: pad_d2a_adj4_sig[3]
+// test22: pad_d2a_adj5_sig[3]
+// test23: pad_d2a_adj6_sig[3]
+// test24: pad_d2a_adj7_sig[3]
+// test25: pad_d2a_adj8_sig[3]
+// test26: pad_d2a_adj9_sig[3]
+// test27: pad_d2a_adj10_sig[3]
+// test28: pad_d2a_adj11_sig[3]
+// test29: pad_d2a_adj12_sig[3]
+// test30: pad_d2a_adj13_sig[3]
 pinmux_1bit 
 #(
 .ALTF_CLKIN(1),
@@ -970,7 +1888,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio4_pinmux (
 // test and alternate select
@@ -987,8 +1926,28 @@ u_gpio4_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
-//.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
 // altf0
@@ -1083,11 +2042,132 @@ u_gpio4_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[3]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[3]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[3]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[3]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[3]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[3]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[3]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[3]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[3]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[3]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[3]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[3]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[3]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[3]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[3]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[3]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[3]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[3]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[3]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[3]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[3]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[3]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[3]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[4]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[4]),
@@ -1108,6 +2188,26 @@ u_gpio4_pinmux (
 // test8 : pad_d2a_trim6_sig[4]
 // test9 : pad_d2a_trim7_sig[4]
 // test10: pad_d2a_trim8_sig[4]
+// test11: pad_d2a_trim9_sig[4]
+// test12: pad_d2a_trim10_sig[4]
+// test13: pad_d2a_trim11_sig[4]
+// test14: pad_d2a_trim12_sig[4]
+// test15: pad_d2a_trim13_sig[4]
+// test16: pad_d2a_trim14_sig[4]
+// test17: pad_d2a_adj0_sig[4]
+// test18: pad_d2a_adj1_sig[4]
+// test19: pad_d2a_adj2_sig[4]
+// test20: pad_d2a_adj3_sig[4]
+// test21: pad_d2a_adj4_sig[4]
+// test22: pad_d2a_adj5_sig[4]
+// test23: pad_d2a_adj6_sig[4]
+// test24: pad_d2a_adj7_sig[4]
+// test25: pad_d2a_adj8_sig[4]
+// test26: pad_d2a_adj9_sig[4]
+// test27: pad_d2a_adj10_sig[4]
+// test28: pad_d2a_adj11_sig[4]
+// test29: pad_d2a_adj12_sig[4]
+// test30: pad_d2a_adj13_sig[4]
   
 pinmux_1bit 
 #(
@@ -1121,7 +2221,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio5_pinmux (
 // test and alternate select
@@ -1138,8 +2259,29 @@ u_gpio5_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -1234,11 +2376,132 @@ u_gpio5_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[4]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[4]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[4]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[4]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[4]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[4]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[4]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[4]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[4]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[4]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[4]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[4]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[4]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[4]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[4]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[4]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[4]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[4]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[4]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[4]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[4]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[4]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[4]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[5]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[5]),
@@ -1260,6 +2523,26 @@ u_gpio5_pinmux (
 // test8 : pad_d2a_trim6_sig[5]
 // test9 : pad_d2a_trim7_sig[5]
 // test10: pad_d2a_trim8_sig[5]
+// test11: pad_d2a_trim9_sig[5]
+// test12: pad_d2a_trim10_sig[5]
+// test13: pad_d2a_trim11_sig[5]
+// test14: pad_d2a_trim12_sig[5]
+// test15: pad_d2a_trim13_sig[5]
+// test16: pad_d2a_trim14_sig[5]
+// test17: pad_d2a_adj0_sig[5]
+// test18: pad_d2a_adj1_sig[5]
+// test19: pad_d2a_adj2_sig[5]
+// test20: pad_d2a_adj3_sig[5]
+// test21: pad_d2a_adj4_sig[5]
+// test22: pad_d2a_adj5_sig[5]
+// test23: pad_d2a_adj6_sig[5]
+// test24: pad_d2a_adj7_sig[5]
+// test25: pad_d2a_adj8_sig[5]
+// test26: pad_d2a_adj9_sig[5]
+// test27: pad_d2a_adj10_sig[5]
+// test28: pad_d2a_adj11_sig[5]
+// test29: pad_d2a_adj12_sig[5]
+// test30: pad_d2a_adj13_sig[5]
 
 pinmux_1bit 
 #(
@@ -1273,7 +2556,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio6_pinmux (
 // test and alternate select
@@ -1290,8 +2594,29 @@ u_gpio6_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
   /*
 // altf0
@@ -1386,11 +2711,132 @@ u_gpio6_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[5]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[5]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[5]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[5]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[5]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[5]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[5]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[5]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[5]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[5]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[5]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[5]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[5]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[5]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[5]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[5]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[5]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[5]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[5]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[5]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[5]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[5]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[5]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[6]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[6]),          
@@ -1411,6 +2857,27 @@ u_gpio6_pinmux (
 // test8 : pad_d2a_trim6_sig[6]
 // test9 : pad_d2a_trim7_sig[6]
 // test10: pad_d2a_trim8_sig[6]
+// test11: pad_d2a_trim9_sig[6]
+// test12: pad_d2a_trim10_sig[6]
+// test13: pad_d2a_trim11_sig[6]
+// test14: pad_d2a_trim12_sig[6]
+// test15: pad_d2a_trim13_sig[6]
+// test16: pad_d2a_trim14_sig[6]
+// test17: pad_d2a_adj0_sig[6]
+// test18: pad_d2a_adj1_sig[6]
+// test19: pad_d2a_adj2_sig[6]
+// test20: pad_d2a_adj3_sig[6]
+// test21: pad_d2a_adj4_sig[6]
+// test22: pad_d2a_adj5_sig[6]
+// test23: pad_d2a_adj6_sig[6]
+// test24: pad_d2a_adj7_sig[6]
+// test25: pad_d2a_adj8_sig[6]
+// test26: pad_d2a_adj9_sig[6]
+// test27: pad_d2a_adj10_sig[6]
+// test28: pad_d2a_adj11_sig[6]
+// test29: pad_d2a_adj12_sig[6]
+// test30: pad_d2a_adj13_sig[6]
+
 
 pinmux_1bit 
 #(
@@ -1424,7 +2891,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio7_pinmux (
 // test and alternate select
@@ -1441,8 +2929,28 @@ u_gpio7_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
-//.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -1537,11 +3045,132 @@ u_gpio7_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[6]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[6]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[6]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[6]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[6]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[6]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[6]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[6]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[6]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[6]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[6]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[6]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[6]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[6]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[6]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[6]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[6]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[6]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[6]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[6]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[6]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[6]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[6]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[7]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[7]),
@@ -1562,7 +3191,26 @@ u_gpio7_pinmux (
 // test8 : pad_d2a_trim6_sig[7]
 // test9 : pad_d2a_trim7_sig[7]
 // test10: pad_d2a_trim8_sig[7]
-
+// test11: pad_d2a_trim9_sig[7]
+// test12: pad_d2a_trim10_sig[7]
+// test13: pad_d2a_trim11_sig[7]
+// test14: pad_d2a_trim12_sig[7]
+// test15: pad_d2a_trim13_sig[7]
+// test16: pad_d2a_trim14_sig[7]
+// test17: pad_d2a_adj0_sig[7]
+// test18: pad_d2a_adj1_sig[7]
+// test19: pad_d2a_adj2_sig[7]
+// test20: pad_d2a_adj3_sig[7]
+// test21: pad_d2a_adj4_sig[7]
+// test22: pad_d2a_adj5_sig[7]
+// test23: pad_d2a_adj6_sig[7]
+// test24: pad_d2a_adj7_sig[7]
+// test25: pad_d2a_adj8_sig[7]
+// test26: pad_d2a_adj9_sig[7]
+// test27: pad_d2a_adj10_sig[7]
+// test28: pad_d2a_adj11_sig[7]
+// test29: pad_d2a_adj12_sig[7]
+// test30: pad_d2a_adj13_sig[7]
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -1575,7 +3223,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio8_pinmux (
 // test and alternate select
@@ -1583,7 +3252,7 @@ u_gpio8_pinmux (
 .test_sel   (test_sel),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
-.test1_en   (otp_bist_en),
+.test1_en   (1'b0),
 .test2_en   (ATM0),
 .test3_en   (ATM1),
 .test4_en   (ATM2),
@@ -1592,8 +3261,30 @@ u_gpio8_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
+
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -1688,11 +3379,132 @@ u_gpio8_pinmux (
 .test9_def  (1'b0),
 .test9_y    (pad_d2a_trim7_sig[7]),
 // test10
-// .test10_ie   (1'b1),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (pad_d2a_trim8_sig[7]),
+.test10_ie   (1'b1),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (pad_d2a_trim8_sig[7]),
+// test11
+.test11_ie   (1'b1),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (pad_d2a_trim9_sig[7]),
+// test12
+.test12_ie   (1'b1),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (pad_d2a_trim10_sig[7]),
+// test13
+.test13_ie   (1'b1),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (pad_d2a_trim11_sig[7]),
+// test14
+.test14_ie   (1'b1),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (pad_d2a_trim12_sig[7]),
+// test15
+.test15_ie   (1'b1),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (pad_d2a_trim13_sig[7]),
+// test16
+.test16_ie   (1'b1),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (pad_d2a_trim14_sig[7]),
+// test17
+.test17_ie   (1'b1),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (pad_d2a_adj0_sig[7]),
+// test18
+.test18_ie   (1'b1),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (pad_d2a_adj1_sig[7]),
+// test19
+.test19_ie   (1'b1),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (pad_d2a_adj2_sig[7]),
+// test20
+.test20_ie   (1'b1),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (pad_d2a_adj3_sig[7]),
+// test21
+.test21_ie   (1'b1),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (pad_d2a_adj4_sig[7]),
+// test22
+.test22_ie   (1'b1),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (pad_d2a_adj5_sig[7]),
+// test23
+.test23_ie   (1'b1),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (pad_d2a_adj6_sig[7]),
+// test24
+.test24_ie   (1'b1),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (pad_d2a_adj7_sig[7]),
+// test25
+.test25_ie   (1'b1),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (pad_d2a_adj8_sig[7]),
+// test26
+.test26_ie   (1'b1),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (pad_d2a_adj9_sig[7]),
+// test27
+.test27_ie   (1'b1),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (pad_d2a_adj10_sig[7]),
+// test28
+.test28_ie   (1'b1),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (pad_d2a_adj11_sig[7]),
+// test29
+.test29_ie   (1'b1),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (pad_d2a_adj12_sig[7]),
+// test30
+.test30_ie   (1'b1),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (pad_d2a_adj13_sig[7]),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[8]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[8]),
@@ -1713,6 +3525,27 @@ u_gpio8_pinmux (
 // test8 : OTP_VPP_EN
 // test9 : OTP_VPP_EN
 // test10: OTP_VPP_EN
+// test11: OTP_VPP_EN
+// test12: OTP_VPP_EN
+// test13: OTP_VPP_EN
+// test14: OTP_VPP_EN
+// test15: OTP_VPP_EN
+// test16: OTP_VPP_EN
+// test17: OTP_VPP_EN
+// test18: OTP_VPP_EN
+// test19: OTP_VPP_EN
+// test20: OTP_VPP_EN
+// test21: OTP_VPP_EN
+// test22: OTP_VPP_EN
+// test23: OTP_VPP_EN
+// test24: OTP_VPP_EN
+// test25: OTP_VPP_EN
+// test26: OTP_VPP_EN
+// test27: OTP_VPP_EN
+// test28: OTP_VPP_EN
+// test29: OTP_VPP_EN
+// test30: OTP_VPP_EN
+
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -1725,7 +3558,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio9_pinmux (
 // test and alternate select
@@ -1733,7 +3587,7 @@ u_gpio9_pinmux (
 .test_sel   (test_sel),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
-.test1_en   (otp_bist_en),
+.test1_en   (1'b0),
 .test2_en   (ATM0),
 .test3_en   (ATM1),
 .test4_en   (ATM2),
@@ -1742,8 +3596,29 @@ u_gpio9_pinmux (
 .test7_en   (ATM5),
 .test8_en   (ATM6),
 .test9_en   (ATM7),
+.test10_en  (ATM8),
+.test11_en  (ATM9),
+.test12_en  (ATM10),
+.test13_en  (ATM11),
+.test14_en  (ATM12),
+.test15_en  (ATM13),
+.test16_en  (ATM14),
+.test17_en  (ATM15),
+.test18_en  (ATM16),
+.test19_en  (ATM17),
+.test20_en  (ATM18),
+.test21_en  (ATM19),
+.test22_en  (ATM20),
+.test23_en  (ATM21),
+.test24_en  (ATM22),
+.test25_en  (ATM23),
+.test26_en  (ATM24),
+.test27_en  (ATM25),
+.test28_en  (ATM26),
+.test29_en  (ATM27),
+.test30_en  (ATM28),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -1838,11 +3713,132 @@ u_gpio9_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b1),
-// .test10_a    (i_otp_vpp_en),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[9]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[9]),          
@@ -1862,7 +3858,26 @@ u_gpio9_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
-
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(1),
@@ -1875,12 +3890,33 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio10_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd31)),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -1892,8 +3928,29 @@ u_gpio10_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (1'b0),
-.test_ana   (1'b0),      //Disable IE/OE/A:: 
+//.test_ana   (1'b0),      //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -1988,11 +4045,131 @@ u_gpio10_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[10]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[10]),
@@ -2014,6 +4191,26 @@ u_gpio10_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -2026,12 +4223,33 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio11_pinmux (
 // test and alternate select
 //.altf_sel   (2'b0),   
-.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd31)),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -2043,8 +4261,29 @@ u_gpio11_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -2139,11 +4378,132 @@ u_gpio11_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b1),
-// .test10_a    (i_otp_vpp_en),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[11]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[11]),          
@@ -2164,10 +4524,30 @@ u_gpio11_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
-.ALTF_CLKIN(1),
+.ALTF_CLKIN(0),
 .TEST0_CLKIN(0),
 .TEST1_CLKIN(0),
 .TEST2_CLKIN(0),
@@ -2177,12 +4557,33 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio12_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),     
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd31)),     
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -2194,8 +4595,28 @@ u_gpio12_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
-//.test10_en  (1'b0),
-.test_ana   (1'b0),      //Disable IE/OE/A:: 
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
+//.test_ana   (1'b0),      //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -2290,11 +4711,132 @@ u_gpio12_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[12]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[12]),
@@ -2314,7 +4856,27 @@ u_gpio12_pinmux (
 // test7 :  None
 // test8 :  None
 // test9 :  None
-// test10:  None
+// test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -2328,12 +4890,33 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio13_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),    
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd31)),    
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -2345,8 +4928,29 @@ u_gpio13_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (1'b0),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -2440,12 +5044,134 @@ u_gpio13_pinmux (
 .test9_a    (1'b0),
 .test9_def  (1'b0),
 .test9_y    (),
+
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[13]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[13]),
@@ -2466,7 +5192,26 @@ u_gpio13_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
-
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -2479,12 +5224,33 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio14_pinmux (
 // test and alternate select
 //.altf_sel   (altf_sel),   
-.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd11)),    // this needs to be changed if more than 10 testmodes require(including scan &bist), currently scan,otpbist,ATM0-8 supported
+.test_sel   (scan_mode ? 5'd0 : (ATM_CONFG ? 5'd1 : 5'd31)),    // this needs to be changed if more than 10 testmodes require(including scan &bist), currently scan,otpbist,ATM0-8 supported
 .test_en    (test_en),                  
 .test0_en   (scan_mode),
 .test1_en   (ATM_CONFG),
@@ -2496,8 +5262,29 @@ u_gpio14_pinmux (
 .test7_en   (1'b0),
 .test8_en   (1'b0),
 .test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (1'b0),
-.test_ana   (1'b0),       //Disable IE/OE/A:: 
+//.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
 // altf0
@@ -2592,11 +5379,132 @@ u_gpio14_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
+
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[14]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[14]),         
@@ -2618,7 +5526,26 @@ u_gpio14_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
-
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -2631,7 +5558,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio15_pinmux (
 // test and alternate select
@@ -2640,16 +5588,37 @@ u_gpio15_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -2718,11 +5687,131 @@ u_gpio15_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[15]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[15]),         
@@ -2744,6 +5833,26 @@ u_gpio15_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -2757,7 +5866,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio16_pinmux (
 // test and alternate select
@@ -2766,16 +5896,37 @@ u_gpio16_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -2844,11 +5995,131 @@ u_gpio16_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[16]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[16]),         
@@ -2869,6 +6140,26 @@ u_gpio16_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -2882,7 +6173,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio17_pinmux (
 // test and alternate select
@@ -2891,16 +6203,37 @@ u_gpio17_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -2969,11 +6302,131 @@ u_gpio17_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[17]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[17]),         
@@ -2993,6 +6446,26 @@ u_gpio17_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -3006,7 +6479,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio18_pinmux (
 // test and alternate select
@@ -3015,16 +6509,37 @@ u_gpio18_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -3093,11 +6608,131 @@ u_gpio18_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[18]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[18]),         
@@ -3117,6 +6752,26 @@ u_gpio18_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -3130,7 +6785,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio19_pinmux (
 // test and alternate select
@@ -3139,16 +6815,37 @@ u_gpio19_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -3217,11 +6914,131 @@ u_gpio19_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[19]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[19]),         
@@ -3241,6 +7058,26 @@ u_gpio19_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -3254,7 +7091,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio20_pinmux (
 // test and alternate select
@@ -3263,16 +7121,37 @@ u_gpio20_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -3341,11 +7220,131 @@ u_gpio20_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[20]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[20]),         
@@ -3365,6 +7364,26 @@ u_gpio20_pinmux (
 // test8 : None
 // test9 : None
 // test10: None
+// test11: None
+// test12: None
+// test13: None
+// test14: None
+// test15: None
+// test16: None
+// test17: None
+// test18: None
+// test19: None
+// test20: None
+// test21: None
+// test22: None
+// test23: None
+// test24: None
+// test25: None
+// test26: None
+// test27: None
+// test28: None
+// test29: None
+// test30: None
 
 pinmux_1bit 
 #(
@@ -3378,7 +7397,28 @@ pinmux_1bit
 .TEST6_CLKIN(0),
 .TEST7_CLKIN(0),
 .TEST8_CLKIN(0),
-.TEST9_CLKIN(0))
+.TEST9_CLKIN(0),
+.TEST10_CLKIN(0),
+.TEST11_CLKIN(0),
+.TEST12_CLKIN(0),
+.TEST13_CLKIN(0),
+.TEST14_CLKIN(0),
+.TEST15_CLKIN(0),
+.TEST16_CLKIN(0),
+.TEST17_CLKIN(0),
+.TEST18_CLKIN(0),
+.TEST19_CLKIN(0),
+.TEST20_CLKIN(0),
+.TEST21_CLKIN(0),
+.TEST22_CLKIN(0),
+.TEST23_CLKIN(0),
+.TEST24_CLKIN(0),
+.TEST25_CLKIN(0),
+.TEST26_CLKIN(0),
+.TEST27_CLKIN(0),
+.TEST28_CLKIN(0),
+.TEST29_CLKIN(0),
+.TEST30_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio21_pinmux (
 // test and alternate select
@@ -3387,16 +7427,37 @@ u_gpio21_pinmux (
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (1'b0),
-.test2_en   (ATM0),
-.test3_en   (ATM1),
-.test4_en   (ATM2),
-.test5_en   (ATM3),
-.test6_en   (ATM4),
-.test7_en   (ATM5),
-.test8_en   (ATM6),
-.test9_en   (ATM7),
+.test2_en   (1'b0), 
+.test3_en   (1'b0),
+.test4_en   (1'b0),
+.test5_en   (1'b0),
+.test6_en   (1'b0),
+.test7_en   (1'b0),
+.test8_en   (1'b0),
+.test9_en   (1'b0),
+.test10_en   (1'b0),
+.test11_en   (1'b0),
+.test12_en   (1'b0),
+.test13_en   (1'b0),
+.test14_en   (1'b0),
+.test15_en   (1'b0),
+.test16_en   (1'b0),
+.test17_en   (1'b0),
+.test18_en   (1'b0),
+.test19_en   (1'b0),
+.test20_en   (1'b0),
+.test21_en   (1'b0),
+.test22_en   (1'b0),
+.test23_en   (1'b0),
+.test24_en   (1'b0),
+.test25_en   (1'b0),
+.test26_en   (1'b0),
+.test27_en   (1'b0),
+.test28_en   (1'b0),
+.test29_en   (1'b0),
+.test30_en   (1'b0),
 //.test10_en  (ATM8),
-.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
+//.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
@@ -3465,11 +7526,131 @@ u_gpio21_pinmux (
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
-// .test10_ie   (1'b0),
-// .test10_oe   (1'b0),
-// .test10_a    (1'b0),
-// .test10_def  (1'b0),
-// .test10_y    (),
+.test10_ie   (1'b0),
+.test10_oe   (1'b0),
+.test10_a    (1'b0),
+.test10_def  (1'b0),
+.test10_y    (),
+// test11
+.test11_ie   (1'b0),
+.test11_oe   (1'b0),
+.test11_a    (1'b0),
+.test11_def  (1'b0),
+.test11_y    (),
+// test12
+.test12_ie   (1'b0),
+.test12_oe   (1'b0),
+.test12_a    (1'b0),
+.test12_def  (1'b0),
+.test12_y    (),
+// test13
+.test13_ie   (1'b0),
+.test13_oe   (1'b0),
+.test13_a    (1'b0),
+.test13_def  (1'b0),
+.test13_y    (),
+// test14
+.test14_ie   (1'b0),
+.test14_oe   (1'b0),
+.test14_a    (1'b0),
+.test14_def  (1'b0),
+.test14_y    (),
+// test15
+.test15_ie   (1'b0),
+.test15_oe   (1'b0),
+.test15_a    (1'b0),
+.test15_def  (1'b0),
+.test15_y    (),
+// test16
+.test16_ie   (1'b0),
+.test16_oe   (1'b0),
+.test16_a    (1'b0),
+.test16_def  (1'b0),
+.test16_y    (),
+// test17
+.test17_ie   (1'b0),
+.test17_oe   (1'b0),
+.test17_a    (1'b0),
+.test17_def  (1'b0),
+.test17_y    (),
+// test18
+.test18_ie   (1'b0),
+.test18_oe   (1'b0),
+.test18_a    (1'b0),
+.test18_def  (1'b0),
+.test18_y    (),
+// test19
+.test19_ie   (1'b0),
+.test19_oe   (1'b0),
+.test19_a    (1'b0),
+.test19_def  (1'b0),
+.test19_y    (),
+// test20
+.test20_ie   (1'b0),
+.test20_oe   (1'b0),
+.test20_a    (1'b0),
+.test20_def  (1'b0),
+.test20_y    (),
+// test21
+.test21_ie   (1'b0),
+.test21_oe   (1'b0),
+.test21_a    (1'b0),
+.test21_def  (1'b0),
+.test21_y    (),
+// test22
+.test22_ie   (1'b0),
+.test22_oe   (1'b0),
+.test22_a    (1'b0),
+.test22_def  (1'b0),
+.test22_y    (),
+// test23
+.test23_ie   (1'b0),
+.test23_oe   (1'b0),
+.test23_a    (1'b0),
+.test23_def  (1'b0),
+.test23_y    (),
+// test24
+.test24_ie   (1'b0),
+.test24_oe   (1'b0),
+.test24_a    (1'b0),
+.test24_def  (1'b0),
+.test24_y    (),
+// test25
+.test25_ie   (1'b0),
+.test25_oe   (1'b0),
+.test25_a    (1'b0),
+.test25_def  (1'b0),
+.test25_y    (),
+// test26
+.test26_ie   (1'b0),
+.test26_oe   (1'b0),
+.test26_a    (1'b0),
+.test26_def  (1'b0),
+.test26_y    (),
+// test27
+.test27_ie   (1'b0),
+.test27_oe   (1'b0),
+.test27_a    (1'b0),
+.test27_def  (1'b0),
+.test27_y    (),
+// test28
+.test28_ie   (1'b0),
+.test28_oe   (1'b0),
+.test28_a    (1'b0),
+.test28_def  (1'b0),
+.test28_y    (),
+// test29
+.test29_ie   (1'b0),
+.test29_oe   (1'b0),
+.test29_a    (1'b0),
+.test29_def  (1'b0),
+.test29_y    (),
+// test30
+.test30_ie   (1'b0),
+.test30_oe   (1'b0),
+.test30_a    (1'b0),
+.test30_def  (1'b0),
+.test30_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[21]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[21]),         

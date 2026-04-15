@@ -90,8 +90,8 @@ input wire [1:0]   eeg_int_en,
 input wire         eeg_int_clr,
 input wire [15:0]  cic_data_ignore_tar,
 input wire [23:0]  hpf_coeff_data, 
-input wire [17:0]  lpf_coeff_data [31:0],
-input wire [19:0]  notch_coeff_data[41:0],
+input wire [17:0]  lpf_coeff_data [27:0],
+input wire [19:0]  notch_coeff_data[35:0],
 
 
 input wire [CHN_NUM-1:0] notch_filter_bypass,
@@ -635,7 +635,7 @@ u_filter_wrapper(
 .notch_filter_bypass_temp(notch_filter_bypass_temp[i]),
 .lpf_filter_bypass_temp(lpf_filter_bypass_temp[i]),
 .hpf_filter_bypass_temp(hpf_filter_bypass_temp[i]),
-.scan_mode(atpg_en),
+//.scan_mode(atpg_en),
 
 .lpf_coeff_data(lpf_coeff_data),
 .hpf_coeff_data(hpf_coeff_data),

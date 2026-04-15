@@ -1360,6 +1360,9 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `NO_OF_NUM_SLIENT_CTR0               :  reg_rd_data  <=  {7'b0,o_no_of_num_slient_disable}; 
         `NO_OF_NUM_SLIENT_TAR0               :  reg_rd_data  <=  o_no_of_num_slient_tar[7:0];
         `NO_OF_NUM_SLIENT_TAR1               :  reg_rd_data  <=  o_no_of_num_slient_tar[15:8];
+        `ADDR_IS_VALID_FOR_CAL               :  reg_rd_data  <= reg_wg_cal_addr;
+        `EMS_REG_CTRL                        :  reg_rd_data  <=  {2'b00,reg_ems_data_ctrl};
+        `EMS_DATA_NUM                        :  reg_rd_data  <=  alt_ems_cnt_tar; 
         `AWG_DRIVEC_ISEL                     :  reg_rd_data  <=  {7'b0,w_isel_reg};
         `AWG_DRIVEC_SW_CFG0                  :  reg_rd_data  <=  sw_config_reg[7:0];
         `AWG_DRIVEC_SW_CFG1                  :  reg_rd_data  <=  sw_config_reg[15:8];

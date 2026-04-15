@@ -374,28 +374,32 @@ endinterface
 
 // Interface between PINMUX and ANA_WRAPPER
 interface pinmux_if #(
-  TRIM_NUMBER = 8,
-  EN_REG_NUMBER = 1
+  TRIM_NUMBER = 15,
+  EN_REG_NUMBER = 1,
+  ADJ_NUMBER = 14
+
 //SPARE_NUMBER  = 3
 ) ();
 
 //wire              [7:0] D2A_TRIM_SIG_SPARE [SPARE_NUMBER-1:0];
-wire              [7:0] D2A_ANA_ENABLE_REG [EN_REG_NUMBER-1:0];
-wire  [TRIM_NUMBER-1:0] D2A_ATM;                        //from pinmux to ana
+wire              [7:0] D2A_ANA_ENABLE_REG [1:0] [15:0];
+wire						  [28:0] D2A_ATM;                        //from pinmux to ana
 //wire            [2:0] ENCODED_ATM;                    //from pinmux to ana
-wire              [7:0] D2A_TRIM_SIG [TRIM_NUMBER-1:0]; //from pinmux to ana 
+wire              [7:0] D2A_TRIM_SIG [14:0]; //from pinmux to ana 
+wire              [7:0] D2A_ADJ_IO   [ADJ_NUMBER-1:0]; //from pinmux to ana 
+
 //wire            [1:0] A2D_TRIM_SIG [TRIM_NUMBER-1:0]; //from ana to pinmux 
 wire              [7:0] d2a_tsc_vdac8b_din_ch1; 
-wire                    d2a_tsc_vdac8b_en_ch1;  
-wire                    d2a_tsc_comp_en_ch1;    
+//wire                    d2a_tsc_vdac8b_en_ch1;  
+//wire                    d2a_tsc_comp_en_ch1;    
 wire                    d2a_tsc_en_ch1;       
-wire                    D2A_ANA_OUT_SEL1;
-wire                    D2A_ANA_OUT_SEL2;
-wire                    D2A_ANA_OUT_SEL3;
-wire                    D2A_ANA_OUT_SEL4;
-wire                    D2A_ANA_OUT_SEL5;
-wire                    D2A_ANA_OUT_SEL6;
-wire                    D2A_ANA_OUT_SEL7;  
+//wire                    D2A_ANA_OUT_SEL1;
+//wire                    D2A_ANA_OUT_SEL2;
+//wire                    D2A_ANA_OUT_SEL3;
+//wire                    D2A_ANA_OUT_SEL4;
+//wire                    D2A_ANA_OUT_SEL5;
+//wire                    D2A_ANA_OUT_SEL6;
+//wire                    D2A_ANA_OUT_SEL7;  
 
 modport A2D (
 //input  D2A_TRIM_SIG_SPARE,
@@ -403,19 +407,20 @@ modport A2D (
 //input  ENCODED_ATM,
   input  D2A_ATM,
   input  D2A_TRIM_SIG,
+  input  D2A_ADJ_IO,
 //output A2D_TRIM_SIG
   input  d2a_tsc_vdac8b_din_ch1,
-  input  d2a_tsc_vdac8b_en_ch1,
-  input  d2a_tsc_comp_en_ch1,
-  input  d2a_tsc_en_ch1,
+//input  d2a_tsc_vdac8b_en_ch1,
+//input  d2a_tsc_comp_en_ch1,
+  input  d2a_tsc_en_ch1
 
-  input   D2A_ANA_OUT_SEL1,
-  input   D2A_ANA_OUT_SEL2,
-  input   D2A_ANA_OUT_SEL3,
-  input   D2A_ANA_OUT_SEL4,
-  input   D2A_ANA_OUT_SEL5,
-  input   D2A_ANA_OUT_SEL6,
-  input   D2A_ANA_OUT_SEL7
+//input   D2A_ANA_OUT_SEL1,
+//input   D2A_ANA_OUT_SEL2,
+//input   D2A_ANA_OUT_SEL3,
+//input   D2A_ANA_OUT_SEL4,
+//input   D2A_ANA_OUT_SEL5,
+//input   D2A_ANA_OUT_SEL6,
+//input   D2A_ANA_OUT_SEL7
 );
 
 modport D2A (
@@ -424,30 +429,31 @@ modport D2A (
 //output ENCODED_ATM,
   output D2A_ATM,
   output D2A_TRIM_SIG,
+  output D2A_ADJ_IO,
 //input  A2D_TRIM_SIG
   output d2a_tsc_vdac8b_din_ch1,
-  output d2a_tsc_vdac8b_en_ch1,
-  output d2a_tsc_comp_en_ch1,
-  output d2a_tsc_en_ch1,
+//output d2a_tsc_vdac8b_en_ch1,
+//output d2a_tsc_comp_en_ch1,
+  output d2a_tsc_en_ch1
 
-  output  D2A_ANA_OUT_SEL1,
-  output  D2A_ANA_OUT_SEL2,
-  output  D2A_ANA_OUT_SEL3,
-  output  D2A_ANA_OUT_SEL4,
-  output  D2A_ANA_OUT_SEL5,
-  output  D2A_ANA_OUT_SEL6,
-  output  D2A_ANA_OUT_SEL7
+//output  D2A_ANA_OUT_SEL1,
+//output  D2A_ANA_OUT_SEL2,
+//output  D2A_ANA_OUT_SEL3,
+//output  D2A_ANA_OUT_SEL4,
+//output  D2A_ANA_OUT_SEL5,
+//output  D2A_ANA_OUT_SEL6,
+//output  D2A_ANA_OUT_SEL7
 );
 endinterface
 
 // Interface between SPI and ANA_WRAPPER
 interface spi_ana_if #(
-  REG_NUMBER = 10
+  REG_NUMBER = 15
 ) ();
 
 //wire       ATM_HC_SEL;
-wire [7:0] D2A_ANA_GEN_REG [REG_NUMBER-1:0];
-wire [7:0] A2D_ANA_GEN_REG [1:0];
+wire [7:0] D2A_ANA_GEN_REG [7:0][14:0];
+wire [7:0] A2D_ANA_GEN_REG [7:0];
 
 modport spi (
 //output ATM_HC_SEL,
@@ -464,10 +470,10 @@ endinterface
 
 // Interface between SPI and PINMUX
 interface spi_pinmux_if #(
-  EN_REG_NUMBER = 4
+  EN_REG_NUMBER = 16
 ) ();
 
-wire [7:0] ANA_ENABLE_REG [EN_REG_NUMBER-1:0];
+wire [7:0] ANA_ENABLE_REG [1:0][15:0];
 wire       ATM_HC_SEL;
 wire       ANA_BIST_HC_SEL;
 wire       INT_LEVEL_SEL;
@@ -493,62 +499,96 @@ interface ana_nirs_if #(
 )
 ();
 
+wire        D2A_PDBIAS_EN;
+wire  [1:0] D2A_PDBIAS_ADJ;
+wire        D2A_CLK_NIRS;
+wire        D2A_CHOPPER_EN;
+wire  [1:0] D2A_FCHOP_ADJ;
+wire        D2A_TEST_EN;
+
 wire        D2A_NIRS_EN         [NO_OF_NIRS-1:0];
+wire        D2A_IDAC_EN         [NO_OF_NIRS-1:0];
 wire        D2A_NIRS_RESET_SW   [NO_OF_NIRS-1:0];
 wire        D2A_NIRS_IPD_SW     [NO_OF_NIRS-1:0];
 wire        D2A_NIRS_IIN_SW     [NO_OF_NIRS-1:0];
+wire  [1:0] D2A_IPDMIRROR_ADJ   [NO_OF_NIRS-1:0]; //
+wire  [7:0] D2A_IREFC_ADJ       [NO_OF_NIRS-1:0]; //
 wire  [8:0] D2A_NIRS_IDAC       [NO_OF_NIRS-1:0];
 wire  [1:0] D2A_NIRS_RATIO      [NO_OF_NIRS-1:0];
 wire        A2D_NIRS_IREFCOARSE [NO_OF_NIRS-1:0];
 wire        A2D_NIRS_IREFFINE   [NO_OF_NIRS-1:0];
 
+
 modport nirs (
+  output    D2A_PDBIAS_EN,
   output    D2A_NIRS_EN,
+  output    D2A_CLK_NIRS,
   output    D2A_NIRS_RESET_SW,
   output    D2A_NIRS_IPD_SW,
   output    D2A_NIRS_IIN_SW,
   output    D2A_NIRS_IDAC,
+  output    D2A_IDAC_EN,
   output    D2A_NIRS_RATIO,
   input     A2D_NIRS_IREFCOARSE,
-  input     A2D_NIRS_IREFFINE
+  input     A2D_NIRS_IREFFINE,
+  output    D2A_PDBIAS_ADJ,
+  output    D2A_FCHOP_ADJ,
+  output    D2A_CHOPPER_EN,
+  output    D2A_TEST_EN,
+  output    D2A_IPDMIRROR_ADJ,
+  output    D2A_IREFC_ADJ
 );
 
 modport ana (
+  input     D2A_PDBIAS_EN,
   input     D2A_NIRS_EN,
+  input     D2A_CLK_NIRS,
   input     D2A_NIRS_RESET_SW,
   input     D2A_NIRS_IPD_SW,
   input     D2A_NIRS_IIN_SW,
   input     D2A_NIRS_IDAC,
+  input     D2A_IDAC_EN,
   input     D2A_NIRS_RATIO,
   output    A2D_NIRS_IREFCOARSE,
-  output    A2D_NIRS_IREFFINE
+  output    A2D_NIRS_IREFFINE,
+  input     D2A_PDBIAS_ADJ,
+  input     D2A_FCHOP_ADJ,
+  input     D2A_CHOPPER_EN,
+  input     D2A_TEST_EN,
+  input     D2A_IPDMIRROR_ADJ,
+  input     D2A_IREFC_ADJ
 );
 endinterface
 
 // Interface between SPI and NIRS
 interface spi_nirs_if #(
+
   parameter NO_OF_NIRS = 8
 )
 ();
 
-  wire              [7:0] NIRS_CTRL   [NO_OF_NIRS-1:0][10:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
-  wire              [7:0] NIRS_DOUT   [18:0];
-  wire              [7:0] NIRS_DEBUG  [NO_OF_NIRS-1:0][5:0];
-  wire   [NO_OF_NIRS-1:0] NIRS_CTRL_EN;       
-  wire   [NO_OF_NIRS-1:0] NIRS_CTRL_MEAS; 
+  wire              [4:0] NIRS_CTRL_MODE      [NO_OF_NIRS-1:0];
+  wire              [1:0] NIRS_CTRL_CMD       [NO_OF_NIRS-1:0];
+  wire              [7:0] NIRS_CTRL           [NO_OF_NIRS-1:0][1:0][7:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
+  wire              [7:0] NIRS_CTRL_ADJ       [2:0];
+  wire              [7:0] NIRS_DOUT           [NO_OF_NIRS-1:0][3:0];
+  wire              [7:0] NIRS_DEBUG          [NO_OF_NIRS-1:0][4:0];
+
 modport nirs (
+  input   NIRS_CTRL_MODE,
+  input   NIRS_CTRL_CMD,
   input   NIRS_CTRL,
+  input   NIRS_CTRL_ADJ,
   output  NIRS_DOUT,
-  output  NIRS_DEBUG,
-  input   NIRS_CTRL_EN,
-  input   NIRS_CTRL_MEAS
+  output  NIRS_DEBUG
 );
 
 modport spi (
+  output  NIRS_CTRL_MODE,
+  output  NIRS_CTRL_CMD,
   output  NIRS_CTRL,
+  output  NIRS_CTRL_ADJ,
   input   NIRS_DOUT,
-  input   NIRS_DEBUG,
-  output  NIRS_CTRL_EN,
-  output  NIRS_CTRL_MEAS
+  input   NIRS_DEBUG
 );
 endinterface

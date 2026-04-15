@@ -19,6 +19,7 @@ module spi_top#(
   parameter DATA_WIDTH =8,
   parameter HLF_WV_NO_PTS = 6, 
   parameter OUT_NO_BITS = 12,
+  parameter EEG_CHN_NUM = 16,
   parameter addr_width = 8,
   parameter data_width = 8,
   parameter NO_OF_WAVEGEN=8)
@@ -44,7 +45,7 @@ module spi_top#(
   output               o_miso,
 
 //bps imeas
-  input  wire[31:0]    imeas_chdata[15:0],
+  input  wire[31:0]    imeas_chdata[EEG_CHN_NUM-1:0],
   input                i_imeas_done,
   output  wire         reset_cmd,
   output  wire         start_cmd,
@@ -192,16 +193,16 @@ module spi_top#(
   output  wire         tsc_intr_sts_clr,
   input   wire 	       tsc_intr_sts,
 
-  output  wire [15:0]  notch_filter_bypass,
-  output  wire [15:0]  lpf_filter_bypass,
-  output  wire [15:0]  hpf_filter_bypass,
+  output  wire [EEG_CHN_NUM-1:0]  notch_filter_bypass,
+  output  wire [EEG_CHN_NUM-1:0]  lpf_filter_bypass,
+  output  wire [EEG_CHN_NUM-1:0]  hpf_filter_bypass,
 //output  wire [2:0]   filter_seq,
   output  wire [1:0]   eeg_int_en,
   output  wire         eeg_int_clr,
   input   wire         eeg_int_sts,
   output  wire [15:0]  cic_data_ignore_tar,
-  output  wire [17:0]  lpf_coeff_data_o[31:0],
-  output  wire [19:0]  notch_coeff_data_o[41:0],
+  output  wire [17:0]  lpf_coeff_data_o[27:0],
+  output  wire [19:0]  notch_coeff_data_o[35:0],
   output  wire [23:0]  hpf_coeff_data_o,
 
 //output  wire         fclk_sleep_en,
@@ -286,6 +287,9 @@ wire                  rd;
 wire                  wavegen_wr;
 wire                  wavegen_rd;
 wire                  wavegen_cmd_reg;
+wire                  nirs_wr;
+wire                  nirs_rd;
+wire                  nirs_cmd_reg;
 wire [data_width-1:0] wr_data;
 wire [data_width-1:0] rd_data;
 //wire  addr_vld_for_int_clr;
@@ -343,6 +347,11 @@ assign sclk_latch_out =(1^1) ? ~o_sclk : o_sclk;
 */
 
 spi_slave_controller
+#( 
+    .ADDR_WIDTH(ADDR_WIDTH),
+    .DATA_WIDTH(DATA_WIDTH),
+    .EEG_CHN_NUM(EEG_CHN_NUM)
+)
 spi_slv_ctrl_u (
   .i_rst_n       (i_rst_n),
 //.i_sclk        (int_clk),    //original for ENS1-P4     //clk for spi_slave 
@@ -371,6 +380,9 @@ spi_slv_ctrl_u (
   .wavegen_cmd_reg(wavegen_cmd_reg),
   .o_wavegen_wr  (wavegen_wr),
   .o_wavegen_rd  (wavegen_rd),
+  .nirs_cmd_reg  (nirs_cmd_reg),
+  .o_nirs_wr     (nirs_wr),
+  .o_nirs_rd     (nirs_rd),
   .o_wr_data     (wr_data),
   .o_imeas_intr_clr (o_imeas_intr_clr)
   
@@ -378,14 +390,15 @@ spi_slv_ctrl_u (
 //.o_pre_addr    (pre_addr)
 );
 
-defparam spi_slv_ctrl_u.addr_width = addr_width;
-defparam spi_slv_ctrl_u.data_width = data_width;
+//defparam spi_slv_ctrl_u.addr_width = addr_width;
+//defparam spi_slv_ctrl_u.data_width = data_width;
 
 spi_reg #(
     .ADDR_WIDTH(ADDR_WIDTH),
     .DATA_WIDTH(DATA_WIDTH),
     .HLF_WV_NO_PTS(HLF_WV_NO_PTS),
     .NO_OF_WAVEGEN(NO_OF_WAVEGEN),
+    .EEG_CHN_NUM(EEG_CHN_NUM),
     .OUT_NO_BITS(OUT_NO_BITS)
 )
 spi_reg_u (
@@ -407,6 +420,9 @@ spi_reg_u (
   .wavegen_cmd_reg(wavegen_cmd_reg),
   .i_wavegen_wr(wavegen_wr),
   .i_wavegen_rd(wavegen_rd),
+  .nirs_cmd_reg(nirs_cmd_reg),
+  .i_nirs_wr(nirs_wr),
+  .i_nirs_rd(nirs_rd),
   .i_wr_data(wr_data),
   .o_rd_data(rd_data),
 //.i_addr_vld_for_int_clr(addr_vld_for_int_clr),
@@ -435,9 +451,9 @@ spi_reg_u (
   .cic_rst(cic_rst),
   .stable_time(stable_time),
 //.filter_seq(filter_seq),
-  .notch_filter_bypass(notch_filter_bypass),
-  .lpf_filter_bypass(lpf_filter_bypass),
-  .hpf_filter_bypass(hpf_filter_bypass),
+  .o_notch_filter_bypass(notch_filter_bypass),
+  .o_lpf_filter_bypass(lpf_filter_bypass),
+  .o_hpf_filter_bypass(hpf_filter_bypass),
   .eeg_int_en(eeg_int_en),
   .eeg_int_clr(eeg_int_clr),
   .eeg_int_sts(eeg_int_sts),

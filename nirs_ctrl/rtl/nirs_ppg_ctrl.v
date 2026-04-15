@@ -146,12 +146,12 @@ module nirs_ppg_ctrl (
   assign EN_OFF           = IREF_FINE_L_N; //Falling edge of IREF_FINE
   assign QC_COUNTER_EN    = IREF_COARSE_L;
   assign QF_COUNTER_EN    = IREF_FINE_L;
-  assign DOUTC_LATCH_EN   = (cur !== next) && (next == DATA_UPDATE);
-  assign DOUTF_LATCH_EN   = (cur !== next) && (next == DATA_UPDATE);
+  assign DOUTC_LATCH_EN   = (cur != next) && (next == DATA_UPDATE);
+  assign DOUTF_LATCH_EN   = (cur != next) && (next == DATA_UPDATE);
   assign DOUT_EN          = (cur == DATA_UPDATE); 
   assign IDAC_INCREASE    = IREF_COARSE_ON_NOT_OFF || IREF_COARSE_NOT_ON || IREF_FINE_ON_NOT_OFF || IREF_FINE_NOT_ON;
-  assign IDAC_UPDATE_EN   = (cur !== next) && (next == IDLE);
-  assign COUNTERS_CLEAR   = (cur !== next) && (next == IDLE);
+  assign IDAC_UPDATE_EN   = (cur != next) && (next == IDLE);
+  assign COUNTERS_CLEAR   = (cur != next) && (next == IDLE);
 
 
 
@@ -209,6 +209,6 @@ module nirs_ppg_ctrl (
   assign IREF_COARSE_ON_NOT_OFF = IREF_COARSE_ON_NOT_OFF_d;
   assign IREF_COARSE_NOT_ON     = IREF_COARSE_NOT_ON_d;
   assign IREF_FINE_ON_NOT_OFF   = IREF_FINE_ON_NOT_OFF_d;
-  assign IREF_FINE_NOT_ON       = IREF_FINE_NOT_ON_d;
+  assign IREF_FINE_NOT_ON       = IREF_FINE_NOT_ON_d || IREF_COARSE_NOT_ON || IREF_COARSE_ON_NOT_OFF;
 
 endmodule  

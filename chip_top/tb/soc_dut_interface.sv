@@ -71,6 +71,7 @@ interface dut_interface();
   bit 	       ext_clk_en;	      // 1: external driven to ENS2 from external clock
   logic [6:0]  hfosc_jitter;
   logic [6:0]  hfosc_variation;
+  logic [2:0]  hfosc_sel; 
 
   logic        hfosc_fixed_gnd_en;
   logic        ext_hfosc_fixed_gnd_en;
@@ -177,6 +178,7 @@ interface dut_interface();
   //logic [31:0] ch2_addr_range;
 
   logic [39:0] reg_normal[`NORMAL_REG_NUM];
+  logic [39:0] reg_nirs[`NIRS_REG_NUM];
   logic [39:0] reg_wavegen[`WAVEGEN_DRIVER_OFFSET*`WAVEGEN_DRIVER_NUM];
        
   logic        INTB;
@@ -381,8 +383,8 @@ interface dut_interface();
   logic [3:0] imeas_data_sel;
   logic       single_shot_en;
 
-  logic [31:0] exp_chdata[`FILTER_NUM-1:0] ;
-  logic [31:0] exp_chdata_dev2[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH:0] exp_chdata[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH:0] exp_chdata_dev2[`FILTER_NUM-1:0] ;
 
   logic [31:0] imeas_adc_freq;
   logic [15:0] imeas_osr;
@@ -417,8 +419,8 @@ interface dut_interface();
   logic        imeas_status_en;
   logic        imeas_24bitdata_en;
   logic [31:0] no_of_samples; 
-  logic [31:0] filter_data_out[`FILTER_NUM-1:0] ;
-  logic [31:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH:0] filter_data_out[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
   logic        filter_case;
 
   logic [4:0]  max_ch_dev1; 
@@ -452,9 +454,9 @@ interface dut_interface();
   logic        lpf_enable = 0;
   logic        hpf_enable = 0;
 
-  logic [31:0] nirs_irefcoarse_length;
-  logic [31:0] nirs_irefcoarse_iref_delay;
-  logic [31:0] nirs_ireffine_length; 
+  logic [31:0] nirs_irefcoarse_length[7:0];
+  logic [31:0] nirs_irefcoarse_iref_delay[7:0];
+  logic [31:0] nirs_ireffine_length[7:0]; 
 
   logic [2:0]  dump_level; 
   logic [1:0]  OTP_SEL;

@@ -34,7 +34,16 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_no_of_conversions   {  no_of_samples  inside {[3:5]};} // 
 
-  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
+  // making sure atlist 1 channel keeps enable
+  constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFE]}; // atlist 1 channel enabled
+                                 (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
+                                 (no_of_adc_dev1 == 2) -> imeas_en_dis_ch inside {[0:'hFFE]};
+                                 (no_of_adc_dev1 == 3) -> imeas_en_dis_ch inside {[0:'h3FE]};
+                                 (no_of_adc_dev1 == 4) -> imeas_en_dis_ch inside {[0:'hFE]};
+                                 (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
+                                 (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
+                                 (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; 
+  } 
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -102,6 +111,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.imeas_osr       = top_test_cfg.imeas_osr;
     `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
     `DUT_IF.imeas_en_dis_ch = top_test_cfg.imeas_en_dis_ch;
+    `DUT_IF.no_of_adc_dev1 = top_test_cfg.no_of_adc_dev1;
+    `DUT_IF.no_of_adc_dev2 = top_test_cfg.no_of_adc_dev2;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase

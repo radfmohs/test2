@@ -1,9 +1,10 @@
+if {[string match DC $i]==0} {
+  set_tlu_plus_files -max_tluplus $tluplus_file($slow_corner_extraction) \
+               -min_tluplus $tluplus_file($fast_corner_extraction) \
+               -tech2itf_map $tf2itf_map_file
 
-set_tlu_plus_files -max_tluplus $tluplus_file($slow_corner_extraction) \
-             -min_tluplus $tluplus_file($fast_corner_extraction) \
-             -tech2itf_map $tf2itf_map_file
-
-check_tlu_plus_files
+  check_tlu_plus_files
+}
 
 # ------------------------------------------------------------------------------
 # Set design context
@@ -21,7 +22,9 @@ set_max_capacitance  $max_capacitance $rm_project_top
 set_max_area 0
 
 # Load all outputs with suitable capacitance
-set_load $output_load [all_outputs]
+if {[string match DC $i]==0} {
+  set_load $output_load [all_outputs]
+}
 
 set_input_transition  $input_transition [all_inputs]
 
@@ -57,14 +60,22 @@ if {[string match *_min $i]} {
       -max $operating_condition_name($fast_corner_pvt) -max_lib [get_libs $target_library_name($fast_corner_pvt)] \
       -min $operating_condition_name($fast_corner_pvt) -min_lib [get_libs $target_library_name($fast_corner_pvt)] \
       -analysis_type on_chip_variation
-  echo "max op cond applied"
+  echo "min op cond applied"
 }
 if {[string match *_max $i]} {
   set_operating_conditions \
       -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)] \
       -min $operating_condition_name($slow_corner_pvt) -min_lib [get_libs $target_library_name($slow_corner_pvt)] \
       -analysis_type on_chip_variation
-    echo "min op cond applied"
+    echo "max op cond applied"
+}
+
+if {[string match DC $i]} {
+  set_operating_conditions \
+      -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)] \
+      -min $operating_condition_name($fast_corner_pvt) -min_lib [get_libs $target_library_name($fast_corner_pvt)] \
+      -analysis_type on_chip_variation
+    echo "max op cond applied"
 }
 
 # Timing derate

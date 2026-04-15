@@ -12,7 +12,7 @@
 // 0.1          07/2021   Mohsen Radfar   Initial Rev
 //------------------------------------------------------------------------------
 
- `timescale 1 ns /  1ps
+`timescale 1 ns /  1ps
 
 module Nanochap_ENS2  (
   // digital power ground pads
@@ -40,7 +40,7 @@ module Nanochap_ENS2  (
 `endif
 );
 
-  //wire        AVDD;
+//wire        AVDD;
   wire        A2D_COMP1;
   wire        A2D_COMP2;
 //wire        A2D_COMP_OUT_STIMU0;
@@ -49,11 +49,14 @@ module Nanochap_ENS2  (
 //wire        A2D_COMP_OUT_STIMU3;
   
   wire        DVDD_1P5_ANA;
+
 //with OSC
 //wire        cpoln_y;
 //wire        cpha_y;
+
 //with OSC
   wire        A2D_OSC_OUT;
+
 //with PMU
   wire        A2D_SW_POWER_POR;    //??? //V
   wire        A2D_VDDI_POR;  //V
@@ -84,9 +87,10 @@ module Nanochap_ENS2  (
   wire        iopad_testmode1_en_y;
   wire        iopad_resetn_y;
 //wire  [2:0] D2A_CPCLK;
+
 //always on
 //wire  [2:0] dc_clk_div_spi;
-  //wire        poresetn_hf;
+//wire        poresetn_hf;
 //wire        spi_write;
 //wire        external_clock; //external clock from analog IO cells
   wire        CLKSEL_Y; //external clock from analog IO cells
@@ -144,40 +148,38 @@ module Nanochap_ENS2  (
   wire        ELE_BUF_EN;
   wire  [2:0] ELE_BUF_ISEL;
 
- wire  A2D_SDM_OUT0;
-wire  A2D_SDM_OUT1;
-wire  A2D_SDM_OUT2;
-wire  A2D_SDM_OUT3;
-wire  A2D_SDM_OUT4;
-wire  A2D_SDM_OUT5;
-wire  A2D_SDM_OUT6;
-wire  A2D_SDM_OUT7;
-wire  A2D_SDM_OUT8;
-wire  A2D_SDM_OUT9;
-wire  A2D_SDM_OUT10;
-wire  A2D_SDM_OUT11;
-wire  A2D_SDM_OUT12;
-wire  A2D_SDM_OUT13;
-wire  A2D_SDM_OUT14;
-wire  A2D_SDM_OUT15;
-wire  D2A_SDM_CLK;
- 
-
+  wire        A2D_SDM_OUT0;
+  wire        A2D_SDM_OUT1;
+  wire        A2D_SDM_OUT2;
+  wire        A2D_SDM_OUT3;
+  wire        A2D_SDM_OUT4;
+  wire        A2D_SDM_OUT5;
+  wire        A2D_SDM_OUT6;
+  wire        A2D_SDM_OUT7;
+  wire        A2D_SDM_OUT8;
+  wire        A2D_SDM_OUT9;
+  wire        A2D_SDM_OUT10;
+  wire        A2D_SDM_OUT11;
+  wire        A2D_SDM_OUT12;
+  wire        A2D_SDM_OUT13;
+  wire        A2D_SDM_OUT14;
+  wire        A2D_SDM_OUT15;
+  wire        D2A_SDM_CLK;
  
   pinmux_if  #(.TRIM_NUMBER(8), .EN_REG_NUMBER(4))  pinmux_if();
-  spi_ana_if #(.REG_NUMBER(9))                     spi_ana_if(); 
+  spi_ana_if #(.REG_NUMBER(9))                      spi_ana_if(); 
   ana_nirs_if                                       ana_nirs_if();
 
-//WG
+  // WG
   wire [11:0] out_wave_driver_idac[15:0];
   wire [15:0] ds_driver_en_driver;
   wire 	      ds_driver_en_current;
   wire [15:0] driver_en_sw;
   wire 	      stimu_en;    
-  wire  [15:0] source_driver;
-//  wire  [15:0] sourceb_driver_a;
-  wire  [15:0] pulldn_driver;
-//  wire  [15:0] pulldb_driver_a;
+  wire [15:0] source_driver;
+//wire [15:0] sourceb_driver_a;
+  wire [15:0] pulldn_driver;
+//wire [15:0] pulldb_driver_a;
 
 `ifdef FPGA
 fpga_behavior u_fpga_hehavior(
@@ -192,43 +194,43 @@ fpga_behavior u_fpga_hehavior(
 
 );
 `endif
+
 wire atpg_en;
 // instaniate top_dig
 top_dig u_top_dig (
 
-  //bps imeas
-    .A2D_SDM_OUT0(A2D_SDM_OUT0),
-        .A2D_SDM_OUT1(A2D_SDM_OUT1),
-        .A2D_SDM_OUT2(A2D_SDM_OUT2),
-        .A2D_SDM_OUT3(A2D_SDM_OUT3),
-        .A2D_SDM_OUT4(A2D_SDM_OUT4),
-        .A2D_SDM_OUT5(A2D_SDM_OUT5),
-        .A2D_SDM_OUT6(A2D_SDM_OUT6),
-        .A2D_SDM_OUT7(A2D_SDM_OUT7),
-        .A2D_SDM_OUT8(A2D_SDM_OUT8),
-        .A2D_SDM_OUT9(A2D_SDM_OUT9),
-        .A2D_SDM_OUT10(A2D_SDM_OUT10),
-        .A2D_SDM_OUT11(A2D_SDM_OUT11),
-        .A2D_SDM_OUT12(A2D_SDM_OUT12),
-        .A2D_SDM_OUT13(A2D_SDM_OUT13),
-        .A2D_SDM_OUT14(A2D_SDM_OUT14),
-        .A2D_SDM_OUT15(A2D_SDM_OUT15),
-        .D2A_SDM_CLK(D2A_SDM_CLK),
-
+  // bps imeas
+  .A2D_SDM_OUT0(A2D_SDM_OUT0),
+  .A2D_SDM_OUT1(A2D_SDM_OUT1),
+  .A2D_SDM_OUT2(A2D_SDM_OUT2),
+  .A2D_SDM_OUT3(A2D_SDM_OUT3),
+  .A2D_SDM_OUT4(A2D_SDM_OUT4),
+  .A2D_SDM_OUT5(A2D_SDM_OUT5),
+  .A2D_SDM_OUT6(A2D_SDM_OUT6),
+  .A2D_SDM_OUT7(A2D_SDM_OUT7),
+  .A2D_SDM_OUT8(A2D_SDM_OUT8),
+  .A2D_SDM_OUT9(A2D_SDM_OUT9),
+  .A2D_SDM_OUT10(A2D_SDM_OUT10),
+  .A2D_SDM_OUT11(A2D_SDM_OUT11),
+  .A2D_SDM_OUT12(A2D_SDM_OUT12),
+  .A2D_SDM_OUT13(A2D_SDM_OUT13),
+  .A2D_SDM_OUT14(A2D_SDM_OUT14),
+  .A2D_SDM_OUT15(A2D_SDM_OUT15),
+  .D2A_SDM_CLK(D2A_SDM_CLK),
 
   .A2D_COMP1        (A2D_COMP1),
   .A2D_COMP2        (A2D_COMP2),
   .A2D_OSC_OUT      (A2D_OSC_OUT),
   .CLKSEL_Y         (CLKSEL_Y),       //from analog IO cells
 
-  //To/From always on
+  // To/From always on
   .atpg_en          (atpg_en),
   .scan_clk         (scan_clk),
   .scan_rst_n       (scan_rst_n),
 
   .A2D_SW_POWER_POR(A2D_SW_POWER_POR),
 
-//io_buf_config
+  // io_buf_config
   .o_ens2_IOBUF_CS    (IOBUF_CS),
   .o_ens2_IOBUF_SR    (IOBUF_SR),
   .o_ens2_IOBUF_IE    (IOBUF_IE),
@@ -269,13 +271,10 @@ top_dig u_top_dig (
   .o_ds_driver_en_current(ds_driver_en_current),
   .o_driver_en_sw(driver_en_sw),
   .o_stimu_en(stimu_en),
-
   .o_source_driver       (source_driver),
-//  .o_sourceb_driver_a       (sourceb_driver_a),
+//.o_sourceb_driver_a       (sourceb_driver_a),
   .o_pulldn_driver        (pulldn_driver)
-//  .o_pulldb_driver_a        (pulldb_driver_a)
-
-
+//.o_pulldb_driver_a        (pulldb_driver_a)
 ); 
 
 `ifdef FPGA
@@ -475,11 +474,10 @@ ENS2_ANA_CHIP_wrapper u_top_ana_wrapper (
   .i_driver_en_sw(driver_en_sw),
   .i_stimu_en(stimu_en),
 
-
   .i_source_driver       (source_driver),
-//  .i_sourceb_driver_a       (sourceb_driver_a),
+//.i_sourceb_driver_a       (sourceb_driver_a),
   .i_pulldn_driver        (pulldn_driver)
-//  .i_pulldb_driver_a        (pulldb_driver_a)
+//.i_pulldb_driver_a        (pulldb_driver_a)
  );  
 
 endmodule

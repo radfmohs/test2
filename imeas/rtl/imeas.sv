@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 
 module imeas #(
-  parameter DATA_WIDTH =32 
+  parameter DATA_WIDTH =24 
 )
 (
 //clock and reset
@@ -62,7 +62,7 @@ input  wire         imeas_adc_din     // adc serial data input
 
 );
 
-wire   [31:0]   chdata_tmp;
+wire   [DATA_WIDTH-1:0]   chdata_tmp;
 assign   chdata = chdata_tmp[DATA_WIDTH-1:0];
 
 wire            int_set;
@@ -78,7 +78,7 @@ wire            format_sel;
 //wire          cic_rst_n;
 wire            sd16eoc_sync;
 //wire   [15:0] sd16cic_data;
-wire   [31:0]   sd16cic_data;
+wire   [DATA_WIDTH-1:0]   sd16cic_data;
 wire            sd16eoc;
 //wire   [1:0]  imeas_input_format;
 
@@ -124,7 +124,10 @@ imeas_cdc u_imeas_cdc(
 //.cic_rst_n(cic_rst_n)
 );
 
-imeas_ctrl u_imeas_ctrl(
+imeas_ctrl #(
+     .DATA_WIDTH(DATA_WIDTH)
+   )
+u_imeas_ctrl(
 //.adc_clk(adc_clk),
 //.cic_rst_n(cic_rst_n),
   .pclk(pclk),

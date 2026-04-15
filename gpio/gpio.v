@@ -54,7 +54,7 @@ assign  gpio_sr		            =  {22{i_gpio_sr_pdrv0_1_ctrl[0]}};
 assign  gpio_pdrv0		        =  {22{i_gpio_sr_pdrv0_1_ctrl[1]}};
 assign  gpio_pdrv1		        =  {22{i_gpio_sr_pdrv0_1_ctrl[2]}};
 assign  gpio_pu               =  {{16{1'b0}}, i_gpio_pu_ctrl[2:0], {3{1'b0}}};
-assign  gpio_pd               =  {9'b0, i_gpio_pd_ctrl[4], {9{1'b0}}, i_gpio_pd_ctrl[3:1]}; 
+assign  gpio_pd               =  {10'b0, i_gpio_pd_ctrl[4], {8{1'b0}}, i_gpio_pd_ctrl[3:1]}; 
 assign  io_clk_sel_pd         =  i_gpio_pd_ctrl[0];   
 
 assign  o_ens2_IOBUF_CS	    =  ~({22{i_scan_mode}}) & gpio_cs   [21:0];         

@@ -57,7 +57,7 @@ module filter_fir_lpf
   output   wire  [4:0]  o_cur_count;  
 //  input [3:0] sinc_osr_sel;
   
-  input wire signed [17:0]  lpf_coeff_data [31:0];
+  input wire signed [17:0]  lpf_coeff_data [27:0];
   output                filter_out_en;  
   input   signed [31:0] filter_in; //sfix33
   output  signed [31:0] filter_out; //sfix33
@@ -90,10 +90,7 @@ wire signed [17:0] coeff25;
 wire signed [17:0] coeff26;
 wire signed [17:0] coeff27;
 wire signed [17:0] coeff28;
-wire signed [17:0] coeff29;
-wire signed [17:0] coeff30;
-wire signed [17:0] coeff31;
-wire signed [17:0] coeff32;
+
 
 assign coeff1  = lpf_coeff_data[0];
 assign coeff2  = lpf_coeff_data[1];
@@ -123,42 +120,40 @@ assign coeff25 = lpf_coeff_data[24];
 assign coeff26 = lpf_coeff_data[25];
 assign coeff27 = lpf_coeff_data[26];
 assign coeff28 = lpf_coeff_data[27];
-assign coeff29 = lpf_coeff_data[28];
-assign coeff30 = lpf_coeff_data[29];
-assign coeff31 = lpf_coeff_data[30];
-assign coeff32 = lpf_coeff_data[31];
+
 
   // Signals
   reg  [4:0] cur_count; // ufix5
+
   assign o_cur_count = cur_count;
   
-  wire phase_31; // boolean
+  wire phase_27; // boolean
   wire phase_0; // boolean
-  reg  signed [32:0] delay_pipeline [0:31] ; // sfix33
-  wire signed [32:0] inputmux_1; // sfix33
-  reg  signed [52:0] acc_final; // sfix53_En18
-  reg  signed [52:0] acc_out_1; // sfix53_En18
-  wire signed [51:0] product_1; // sfix52_En18
+  reg  signed [32:0] delay_pipeline [0:27] ; // sfix33_En32
+  wire signed [32:0] inputmux_1; // sfix33_En32
+  reg  signed [52:0] acc_final; // sfix53_En50
+  reg  signed [52:0] acc_out_1; // sfix53_En50
+  wire signed [51:0] product_1; // sfix52_En50
   wire signed [17:0] product_1_mux; // sfix18_En18
-  wire signed [50:0] mul_temp; // sfix51_En18
-  wire signed [52:0] prod_typeconvert_1; // sfix53_En18
-  wire signed [52:0] acc_sum_1; // sfix53_En18
-  wire signed [52:0] acc_in_1; // sfix53_En18
-  wire signed [52:0] add_signext; // sfix53_En18
-  wire signed [52:0] add_signext_1; // sfix53_En18
-  wire signed [53:0] add_temp; // sfix54_En18
-  wire signed [32:0] output_typeconvert; // sfix33
-  wire signed [32:0] output_register; // sfix33
+  wire signed [50:0] mul_temp; // sfix51_En50
+  wire signed [52:0] prod_typeconvert_1; // sfix53_En50
+  wire signed [52:0] acc_sum_1; // sfix53_En50
+  wire signed [52:0] acc_in_1; // sfix53_En50
+  wire signed [52:0] add_signext; // sfix53_En50
+  wire signed [52:0] add_signext_1; // sfix53_En50
+  wire signed [53:0] add_temp; // sfix54_En50
+  wire signed [32:0] output_typeconvert; // sfix33_En32
+  reg  signed [32:0] output_register; // sfix33_En32
 
   // Block Statements
   always @ (posedge clk or negedge reset)
     begin: Counter_process
       if (reset == 1'b0) begin
-        cur_count <= 5'b11111;
+        cur_count <= 5'b11011;
       end
       else begin
         if (clk_enable == 1'b1) begin
-          if (cur_count >= 5'b11111) begin
+          if (cur_count >= 5'b11011) begin
             cur_count <= 5'b00000;
           end
           else begin
@@ -168,7 +163,7 @@ assign coeff32 = lpf_coeff_data[31];
       end
     end // Counter_process
 
-  assign  phase_31 = (cur_count == 5'b11111 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_27 = (cur_count == 5'b11011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
   assign  phase_0 = (cur_count == 5'b00000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
@@ -203,15 +198,10 @@ assign coeff32 = lpf_coeff_data[31];
         delay_pipeline[25] <= 0;
         delay_pipeline[26] <= 0;
         delay_pipeline[27] <= 0;
-        delay_pipeline[28] <= 0;
-        delay_pipeline[29] <= 0;
-        delay_pipeline[30] <= 0;
-        delay_pipeline[31] <= 0;
       end
       else begin
-        if (phase_31 == 1'b1) begin
-//          delay_pipeline[0] <= ~sign_en?  (filter_in==32'hffff_ffff)? 33'h8000_0000 :  (filter_in==32'h7fff_ffff)? 33'h0 : $signed({{2{~filter_in[31]}},filter_in[30:0]+1'b1}) : {{2{filter_in[31]}},filter_in[30:0]};
-	  delay_pipeline[0] <=   ~sign_en?  $signed({1'b0,filter_in})-33'sh0_8000_0000 : {{2{filter_in[31]}},filter_in[30:0]};
+        if (phase_27 == 1'b1) begin
+          delay_pipeline[0] <= ~sign_en?  $signed({1'b0,filter_in})-33'sh0_8000_0000 : {{2{filter_in[31]}},filter_in[30:0]};
           delay_pipeline[1] <= delay_pipeline[0];
           delay_pipeline[2] <= delay_pipeline[1];
           delay_pipeline[3] <= delay_pipeline[2];
@@ -239,10 +229,6 @@ assign coeff32 = lpf_coeff_data[31];
           delay_pipeline[25] <= delay_pipeline[24];
           delay_pipeline[26] <= delay_pipeline[25];
           delay_pipeline[27] <= delay_pipeline[26];
-          delay_pipeline[28] <= delay_pipeline[27];
-          delay_pipeline[29] <= delay_pipeline[28];
-          delay_pipeline[30] <= delay_pipeline[29];
-          delay_pipeline[31] <= delay_pipeline[30];
         end
       end
     end // Delay_Pipeline_process
@@ -275,11 +261,7 @@ assign coeff32 = lpf_coeff_data[31];
                      (cur_count == 5'b11000) ? delay_pipeline[24] :
                      (cur_count == 5'b11001) ? delay_pipeline[25] :
                      (cur_count == 5'b11010) ? delay_pipeline[26] :
-                     (cur_count == 5'b11011) ? delay_pipeline[27] :
-                     (cur_count == 5'b11100) ? delay_pipeline[28] :
-                     (cur_count == 5'b11101) ? delay_pipeline[29] :
-                     (cur_count == 5'b11110) ? delay_pipeline[30] :
-                     delay_pipeline[31];
+                     delay_pipeline[27];
 
   //   ------------------ Serial partition # 1 ------------------
 
@@ -310,11 +292,7 @@ assign coeff32 = lpf_coeff_data[31];
                         (cur_count == 5'b11000) ? coeff25 :
                         (cur_count == 5'b11001) ? coeff26 :
                         (cur_count == 5'b11010) ? coeff27 :
-                        (cur_count == 5'b11011) ? coeff28 :
-                        (cur_count == 5'b11100) ? coeff29 :
-                        (cur_count == 5'b11101) ? coeff30 :
-                        (cur_count == 5'b11110) ? coeff31 :
-                        coeff32;
+                        coeff28;
   assign mul_temp = inputmux_1 * product_1_mux;
   assign product_1 = $signed({{1{mul_temp[50]}}, mul_temp});
 
@@ -356,19 +334,19 @@ assign coeff32 = lpf_coeff_data[31];
 ) ? 33'b011111111111111111111111111111111 : 
       (acc_final[52] == 1'b1 && acc_final[51:50] != 2'b11) ? 33'b100000000000000000000000000000000 : (acc_final[50:0] + {acc_final[18], {17{~acc_final[18]}}})>>>18;
 
-  wire   phase_31_dly1; 
+//  reg   phase_27_dly1; 
 //  always @ (posedge clk or negedge reset) begin: Output_Register_process
 //      if (reset == 1'b0) begin
 //        output_register <= 0;
-//	phase_31_dly1   <= 0;
+//	phase_27_dly1   <= 0;
 //      end
 //      else begin
-//        if (phase_31 == 1'b1) begin
+//        if (phase_27 == 1'b1) begin
 assign    output_register = output_typeconvert;
-assign	  phase_31_dly1   = phase_0;	  
+assign 	  phase_27_dly1   = phase_27;	  
 //        end
 //        else begin          
-//	  phase_31_dly1   <= 0;	  
+//	  phase_27_dly1   <= 0;	  
 //        end	
 //      end
 //end // Output_Register_process
@@ -378,7 +356,8 @@ assign	  phase_31_dly1   = phase_0;
  assign output_register_temp = (output_register[32:31]==2'b10)? 32'h8000_0000 : (output_register[32:31]==2'b01)? 32'h7fff_ffff : output_register[31:0];
  assign filter_out  =bypass? filter_in : ~sign_en? output_register_temp[31:0] + 32'h8000_0000 : output_register_temp[31:0];
 
- assign filter_out_en = phase_31_dly1;
+ assign filter_out_en = phase_27;
+
 
 
 endmodule  // filter_comp

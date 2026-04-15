@@ -14,10 +14,10 @@
 //------------------------------------------------------------------------------
 
 module pinmux_rom (
-  output wire [7:0] CONFIG_ROM0 [7:0],  
-  output wire [7:0] CONFIG_ROM1 [7:0],  
-  output wire [7:0] CONFIG_ROM2 [7:0],  
-  output wire [7:0] CONFIG_ROM3 [7:0]   
+  output wire [7:0] CONFIG_ROM0 [28:0],  
+  output wire [7:0] CONFIG_ROM1 [28:0],  
+  output wire [7:0] CONFIG_ROM2 [28:0]  
+//output wire [7:0] CONFIG_ROM3 [28:0]   
 );
 
 `include "param_pinmux.vh"
@@ -27,11 +27,11 @@ assign init_enable = 1'b1;
 
 genvar i;
 generate
-  for (i = 0; i < 8; i = i + 1) begin
+  for (i = 0; i < 29; i = i + 1) begin
     assign CONFIG_ROM0[i] = init_enable ? CONFIG0[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM1[i] = init_enable ? CONFIG1[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM2[i] = init_enable ? CONFIG2[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM3[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM3[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
   end
 endgenerate
 

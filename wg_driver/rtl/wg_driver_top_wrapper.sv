@@ -283,8 +283,8 @@ common_rst_sync u_addr1_int_clr_sync(
 .RSTOUTn   (i_addr1_int_clr_sync[i])
 );
 
-assign w_out_wave_val_adj[i] = ((i_config_reg_sync[i][1] & i_config_reg_sync[i][3] & !i_config_reg_sync[i][7]) | i_config_reg_sync[i][4])? (w_source[i]==2'b01)?  (w_out_wave_val[i] >> 1) +(12'h7f8 >> spi_wg.data_scl[i] ):
-                                                                                                      (w_source[i]==2'b10)? $signed(-(w_out_wave_val[i] >> 1)) + $signed((12'h7f8 >> spi_wg.data_scl[i])): 12'h000
+assign w_out_wave_val_adj[i] = ((i_config_reg_sync[i][1] & i_config_reg_sync[i][3] & !i_config_reg_sync[i][7]) | i_config_reg_sync[i][4])? (w_source[i]==2'b01)?  (w_out_wave_val[i] >> 1) +(12'h7f8 >> spi_wg.data_scl[i][2:0] ):
+                                                                                                      (w_source[i]==2'b10)? $signed(-(w_out_wave_val[i] >> 1)) + $signed((12'h7f8 >> spi_wg.data_scl[i][2:0])): 12'h000
                                                                                                     : w_out_wave_val[i];
 
 

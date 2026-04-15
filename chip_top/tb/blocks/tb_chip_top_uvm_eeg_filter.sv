@@ -32,8 +32,8 @@ generate
  end
 endgenerate
 
-assign sdm_adc_clk = (dut_vif.imeas_adc_inv === 1'b1) ? ~`ANA_TOP.D2A_SDM_CLK : `ANA_TOP.D2A_SDM_CLK;
-assign sdm_adc_clk_dev2 = (dut_vif.imeas_adc_inv === 1'b1) ? ~`ANA_TOP_S1.D2A_SDM_CLK : `ANA_TOP_S1.D2A_SDM_CLK;
+assign sdm_adc_clk = (dut_vif.imeas_adc_inv === 1'b1) ? ~`ANA_TOP.D2A_SDMCLK : `ANA_TOP.D2A_SDMCLK;
+assign sdm_adc_clk_dev2 = (dut_vif.imeas_adc_inv === 1'b1) ? ~`ANA_TOP_S1.D2A_SDMCLK : `ANA_TOP_S1.D2A_SDMCLK;
 assign sdm_adc_rst = `RST_CTRL_TOP.cic_rst_n;
 assign sdm_adc_rst_dev2 = `RST_CTRL_TOP_S1.cic_rst_n;
 
@@ -48,10 +48,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC0_OUT.txt")
  )
   u_imeas_ch0_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
 	.ADC_RST(sdm_adc_rst),
         .ADC_CLK(sdm_adc_clk),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT0),
+	.ADC_IN(`ANA_TOP.A2D_SDM0),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[0]),
@@ -65,10 +65,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC1_OUT.txt")
  )
   u_imeas_ch1_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
 	.ADC_RST(sdm_adc_rst),
         .ADC_CLK(sdm_adc_clk),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT1),
+	.ADC_IN(`ANA_TOP.A2D_SDM1),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[1]),
@@ -82,10 +82,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC2_OUT.txt")
  )
   u_imeas_ch2_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT2),
+	.ADC_IN(`ANA_TOP.A2D_SDM2),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[2]),
@@ -99,10 +99,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC3_OUT.txt")
  )
   u_imeas_ch3_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT3),
+	.ADC_IN(`ANA_TOP.A2D_SDM3),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[3]),
@@ -116,10 +116,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC4_OUT.txt")
  )
   u_imeas_ch4_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT4),
+	.ADC_IN(`ANA_TOP.A2D_SDM4),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[4]),
@@ -133,10 +133,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC5_OUT.txt")
  )
   u_imeas_ch5_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT5),
+	.ADC_IN(`ANA_TOP.A2D_SDM5),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[5]),
@@ -150,10 +150,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC6_OUT.txt")
  )
   u_imeas_ch6_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT6),
+	.ADC_IN(`ANA_TOP.A2D_SDM6),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[6]),
@@ -167,10 +167,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC7_OUT.txt")
  )
   u_imeas_ch7_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT7),
+	.ADC_IN(`ANA_TOP.A2D_SDM7),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[7]),
@@ -184,10 +184,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC8_OUT.txt")
  )
   u_imeas_ch8_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT8),
+	.ADC_IN(`ANA_TOP.A2D_SDM8),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[8]),
@@ -201,10 +201,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC9_OUT.txt")
  )
   u_imeas_ch9_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT9),
+	.ADC_IN(`ANA_TOP.A2D_SDM9),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[9]),
@@ -218,10 +218,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC10_OUT.txt")
  )
   u_imeas_ch10_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT10),
+	.ADC_IN(`ANA_TOP.A2D_SDM10),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[10]),
@@ -235,10 +235,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC11_OUT.txt")
  )
   u_imeas_ch11_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT11),
+	.ADC_IN(`ANA_TOP.A2D_SDM11),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[11]),
@@ -252,10 +252,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC12_OUT.txt")
  )
   u_imeas_ch12_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT12),
+	.ADC_IN(`ANA_TOP.A2D_SDM12),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[12]),
@@ -269,10 +269,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC13_OUT.txt")
  )
   u_imeas_ch13_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT13),
+	.ADC_IN(`ANA_TOP.A2D_SDM13),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[13]),
@@ -286,10 +286,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC14_OUT.txt")
  )
   u_imeas_ch14_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT14),
+	.ADC_IN(`ANA_TOP.A2D_SDM14),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[14]),
@@ -303,10 +303,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC15_OUT.txt")
  )
   u_imeas_ch15_refmodel(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM_OUT15),
+	.ADC_IN(`ANA_TOP.A2D_SDM15),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[15]),
@@ -322,10 +322,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC0_DEV2_OUT.txt")
  )
   u_imeas_ch0_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT0),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM0),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[0]),
@@ -339,10 +339,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC1_DEV2_OUT.txt")
  )
   u_imeas_ch1_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT1),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM1),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[1]),
@@ -356,10 +356,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC2_DEV2_OUT.txt")
  )
   u_imeas_ch2_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT2),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM2),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[2]),
@@ -373,10 +373,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC3_DEV2_OUT.txt")
  )
   u_imeas_ch3_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT3),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM3),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[3]),
@@ -390,10 +390,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC4_DEV2_OUT.txt")
  )
   u_imeas_ch4_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT4),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM4),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[4]),
@@ -407,10 +407,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC5_DEV2_OUT.txt")
  )
   u_imeas_ch5_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT5),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM5),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[5]),
@@ -424,10 +424,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC6_DEV2_OUT.txt")
  )
   u_imeas_ch6_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT6),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM6),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[6]),
@@ -441,10 +441,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC7_DEV2_OUT.txt")
  )
   u_imeas_ch7_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT7),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM7),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[7]),
@@ -458,10 +458,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC8_DEV2_OUT.txt")
  )
   u_imeas_ch8_refmodel_dev2(
-	.POR(`ANA_TOP_S1.A2D_POR_DVDD),
+	.POR(`ANA_TOP_S1.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT8),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM8),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[8]),
@@ -475,10 +475,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC9_DEV2_OUT.txt")
  )
   u_imeas_ch9_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT9),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM9),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[9]),
@@ -492,10 +492,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC10_DEV2_OUT.txt")
  )
   u_imeas_ch10_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT10),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM10),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[10]),
@@ -509,10 +509,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC11_DEV2_OUT.txt")
  )
   u_imeas_ch11_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT11),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM11),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[11]),
@@ -526,10 +526,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC12_DEV2_OUT.txt")
  )
   u_imeas_ch12_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT12),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM12),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[12]),
@@ -543,10 +543,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC13_DEV2_OUT.txt")
  )
   u_imeas_ch13_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT13),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM13),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[13]),
@@ -560,10 +560,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC14_DEV2_OUT.txt")
  )
   u_imeas_ch14_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT14),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM14),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[14]),
@@ -577,10 +577,10 @@ test_SINC_4_24B #(
  .file_adc_out("./ADC15_DEV2_OUT.txt")
  )
   u_imeas_ch15_refmodel_dev2(
-	.POR(`ANA_TOP.A2D_POR_DVDD),
+	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
-	.ADC_IN(`ANA_TOP_S1.A2D_SDM_OUT15),
+	.ADC_IN(`ANA_TOP_S1.A2D_SDM15),
         .CH_EN(1'b1),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[15]),
@@ -599,7 +599,32 @@ assign imeas_vif.cic_rst_n           = `RST_CTRL_TOP.filter_rstn;
 assign imeas_vif.ref_model           = exp_cic_out;
 assign imeas_vif.ref_model_dev2      = exp_cic_out_dev2; //24/10/2025, added by supriya to support for dev2 when daisy_en is enabled
 assign imeas_vif.offset              = offset; 
-assign imeas_vif.chdata              = `IMEAS_WRAPPER_TOP.imeas_chdata_out;
+//assign imeas_vif.chdata              = `IMEAS_WRAPPER_TOP.imeas_chdata_out;
+
+assign imeas_vif.chdata[0]           = `IMEAS_WRAPPER_TOP.genblk1[0].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[1]           = `IMEAS_WRAPPER_TOP.genblk1[1].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[2]           = `IMEAS_WRAPPER_TOP.genblk1[2].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[3]           = `IMEAS_WRAPPER_TOP.genblk1[3].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[4]           = `IMEAS_WRAPPER_TOP.genblk1[4].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[5]           = `IMEAS_WRAPPER_TOP.genblk1[5].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[6]           = `IMEAS_WRAPPER_TOP.genblk1[6].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[7]           = `IMEAS_WRAPPER_TOP.genblk1[7].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[8]           = `IMEAS_WRAPPER_TOP.genblk1[8].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[9]           = `IMEAS_WRAPPER_TOP.genblk1[9].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[10]          = `IMEAS_WRAPPER_TOP.genblk1[10].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[11]          = `IMEAS_WRAPPER_TOP.genblk1[11].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[12]          = `IMEAS_WRAPPER_TOP.genblk1[12].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[13]          = `IMEAS_WRAPPER_TOP.genblk1[13].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[14]          = `IMEAS_WRAPPER_TOP.genblk1[14].u_filter_wrapper.u_imeas.chdata;
+assign imeas_vif.chdata[15]          = `IMEAS_WRAPPER_TOP.genblk1[15].u_filter_wrapper.u_imeas.chdata;
+
+//genvar i;
+//generate
+//for (i = 0; i < `FILTER_NUM; i = i + 1) begin
+//  assign imeas_vif.chdata[i]          = `IMEAS_WRAPPER_TOP.genblk1[i].u_filter_wrapper.u_imeas.chdata;
+//end
+//endgenerate
+
 assign imeas_vif.chdata_en           = {`IMEAS_WRAPPER_TOP.genblk1[15].u_filter_wrapper.u_imeas.chdata_en,
                                         `IMEAS_WRAPPER_TOP.genblk1[14].u_filter_wrapper.u_imeas.chdata_en,
                                         `IMEAS_WRAPPER_TOP.genblk1[13].u_filter_wrapper.u_imeas.chdata_en,

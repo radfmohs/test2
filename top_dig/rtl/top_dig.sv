@@ -20,7 +20,8 @@ module top_dig #(
   parameter EEG_CHN_NUM = 16, 
   parameter HLF_WV_NO_PTS = 7, 
   parameter OUT_NO_BITS = 12,
-  parameter NO_OF_WAVEGEN=16
+  parameter NO_OF_WAVEGEN=16,
+  parameter NO_OF_NIRS = 8
 )
 ( 
 //bps imeas
@@ -192,7 +193,7 @@ output D2A_SDM_CLK,
 
 //  spi_leadoff      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_leadoff();
   spi_anac      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_anac();
-  spi_otp       #(.TRIM_NUMBER(10))               spi_otp();
+  spi_otp       #(.TRIM_NUMBER(17))               spi_otp();
   spi_wg        #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_wg();
   spi_pinmux_if #(.EN_REG_NUMBER(4))              spi_pinmux_if(); 
   spi_nirs_if                                     spi_nirs_if();
@@ -215,8 +216,8 @@ wire                    o_eeg_int;
 wire                    eeg_int_sts;
 wire [15:0]             cic_data_ignore_tar;
 wire [23:0]             hpf_coeff_data;
-wire [17:0]             lpf_coeff_data [31:0];
-wire [19:0]             notch_coeff_data[41:0];
+wire [17:0]             lpf_coeff_data [27:0];
+wire [19:0]             notch_coeff_data[35:0];
 
 //============
   wire    hfosc_out;
@@ -321,7 +322,7 @@ wire [19:0]             notch_coeff_data[41:0];
   //assign       pinmux_if.D2A_TRIM7_SIG = D2A_TRIM7_SIG;
   //assign       pinmux_if.D2A_TRIM8_SIG = D2A_TRIM8_SIG;
 
-  wire  [7:0] atm_mode;
+  wire  [14:0] atm_mode;
   wire  [7:0] atm_data;
   wire        unlock_gpio;
 
@@ -657,9 +658,22 @@ wire         ppg_clk50duty;
   wire         int_length_slct;
 
   wire         notch_filter_valid;
+  wire  [EEG_CHN_NUM-1:0] notch_clk_gtg_en_imeas;
+  wire  [EEG_CHN_NUM-1:0] lpf_clk_gtg_en_imeas;
+  wire  [EEG_CHN_NUM-1:0] hpf_clk_gtg_en_imeas;
+
   wire  [15:0] notch_clk_gtg_en;
   wire  [15:0] lpf_clk_gtg_en;
   wire  [15:0] hpf_clk_gtg_en;
+
+assign notch_clk_gtg_en = {{16-EEG_CHN_NUM{1'b0}}, notch_clk_gtg_en_imeas};
+assign lpf_clk_gtg_en = {{16-EEG_CHN_NUM{1'b0}}, lpf_clk_gtg_en_imeas};
+assign hpf_clk_gtg_en = {{16-EEG_CHN_NUM{1'b0}}, hpf_clk_gtg_en_imeas};
+
+
+
+
+  wire [NO_OF_NIRS-1:0] NIRS_LED_ON;
 
 gpio u_gpio(
   .i_scan_mode            (atpg_en),
@@ -747,6 +761,9 @@ pinmux u_pinmux (
   .o_OTP_ATM_MODE_SEL   (atm_mode),
   .o_OTP_ANA_TESTMODE   (analog_test_mode),
   .o_OTP_ATM_TRIM_DATA  (atm_data), 
+//.o_SPI_ATM_MODE_SEL   (atm_adj_mode),
+//.o_SPI_ANA_TESTMODE   (analog_test_mode),
+//.o_SPI_ATM_ADJ_DATA   (atm_data), 
 
 //.NORMAL_OUT_SEL       (),
 //.COMP_OUT_EN          (),
@@ -760,27 +777,27 @@ pinmux u_pinmux (
   .pinmux_if            (pinmux_if),
   .spi_pinmux_if        (spi_pinmux_if),
           
-  .sys_d2a_trim_reg     (spi_otp.trim_read[8:1]),
+  .sys_d2a_trim_reg     (spi_otp.trim_read[15:1]),
 
 // TSC
   .d2a_tsc_vdac8b_din_ch1 (d2a_tsc_vdac8b_din_ch1),
-  .d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
-  .d2a_tsc_comp_en_ch1    (d2a_tsc_comp_en_ch1),
+//.d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
+//.d2a_tsc_comp_en_ch1    (d2a_tsc_comp_en_ch1),
   .d2a_tsc_en_ch1         (d2a_tsc_en_ch1),
 // NIRS
-  .NIRS_LED_ON0		(),
-  .NIRS_LED_ON1		(),
-  .NIRS_LED_ON2		(),
-  .NIRS_LED_ON3		(),
-  .NIRS_LED_ON4		(),
-  .NIRS_LED_ON5		(),
-  .NIRS_LED_ON6		(),
-  .NIRS_LED_ON7		(),
-  .NIRS_RESET_SW0	(),
-  .NIRS_IPD_SW0		(),
-  .NIRS_IIN_SW0		(),
-  .A2D_IREFCOARSE0	(),
-  .A2D_IREFFINE0	()
+  .NIRS_LED_ON0           (NIRS_LED_ON[0]),
+  .NIRS_LED_ON1           (NIRS_LED_ON[1]),
+  .NIRS_LED_ON2           (NIRS_LED_ON[2]),
+  .NIRS_LED_ON3           (NIRS_LED_ON[3]),
+  .NIRS_LED_ON4           (NIRS_LED_ON[4]),
+  .NIRS_LED_ON5           (NIRS_LED_ON[5]),
+  .NIRS_LED_ON6           (NIRS_LED_ON[6]),
+  .NIRS_LED_ON7           (NIRS_LED_ON[7]),		        
+  .NIRS_RESET_SW0	        (ana_nirs_if.D2A_NIRS_RESET_SW[0]),
+  .NIRS_IPD_SW0		        (ana_nirs_if.D2A_NIRS_IPD_SW[0]),
+  .NIRS_IIN_SW0		        (ana_nirs_if.D2A_NIRS_IIN_SW[0]),
+  .A2D_IREFCOARSE0	      (ana_nirs_if.A2D_NIRS_IREFCOARSE[0]),
+  .A2D_IREFFINE0	        (ana_nirs_if.A2D_NIRS_IREFFINE[0])
 );  
 
 wire lead_off_pclk;
@@ -806,6 +823,21 @@ wire [15:0]  notch_clk;
 wire [15:0]  lpf_clk;
 wire [15:0]  hpf_clk;
 wire [15:0]  imeas_dig_filter_clk_post;
+
+wire [EEG_CHN_NUM-1:0]  imeas_pclk_imeas;
+wire [EEG_CHN_NUM-1:0]  imeas_dig_adc_clk_imeas;
+wire [EEG_CHN_NUM-1:0]  notch_clk_imeas;
+wire [EEG_CHN_NUM-1:0]  lpf_clk_imeas;
+wire [EEG_CHN_NUM-1:0]  hpf_clk_imeas;
+wire [EEG_CHN_NUM-1:0]  imeas_dig_filter_clk_post_imeas;
+
+assign imeas_pclk_imeas = imeas_pclk[EEG_CHN_NUM-1:0];
+assign imeas_dig_adc_clk_imeas = imeas_dig_adc_clk[EEG_CHN_NUM-1:0];
+assign notch_clk_imeas = notch_clk[EEG_CHN_NUM-1:0];
+assign lpf_clk_imeas = lpf_clk[EEG_CHN_NUM-1:0];
+assign hpf_clk_imeas = hpf_clk[EEG_CHN_NUM-1:0];
+assign imeas_dig_filter_clk_post_imeas = imeas_dig_filter_clk_post[EEG_CHN_NUM-1:0];
+
 wire        adc_clk_running;
 wire   imeas_adc_clk;
 wire   imeas_adc_inv;
@@ -1090,6 +1122,10 @@ assign imeas_adc_din = { A2D_SDM_OUT15,
                          A2D_SDM_OUT0
                         };
 
+
+wire [EEG_CHN_NUM-1:0] imeas_adc_din_imeas;
+assign imeas_adc_din_imeas = imeas_adc_din[EEG_CHN_NUM-1:0];
+
 assign D2A_SDM_CLK = imeas_adc_clk;
 
 imeas_wrapper  #(
@@ -1101,8 +1137,8 @@ imeas_wrapper  #(
 .adc_resetn	(adc_resetn),
 .adc_ctrl_resetn	(adc_ctrl_resetn),
 .adc_clk_running	(adc_clk_running),
-        .imeas_pclk(imeas_pclk),
-        .imeas_dig_adc_clk(imeas_dig_adc_clk),
+        .imeas_pclk(imeas_pclk_imeas),
+        .imeas_dig_adc_clk(imeas_dig_adc_clk_imeas),
 
   .imeas_working_sync(imeas_working_sync),
   .imeas_working(imeas_working),
@@ -1142,23 +1178,23 @@ imeas_wrapper  #(
 //.imeas_chdata	(imeas_chdata),
 //.chdata_en	(chdata_en),
 //with analog
-.imeas_adc_din  (imeas_adc_din),  // adc serial data input
+.imeas_adc_din  (imeas_adc_din_imeas),  // adc serial data input
 
 
 
-.clk(imeas_dig_filter_clk_post),   
-.notch_clk(notch_clk),
-.lpf_clk(lpf_clk),
-.hpf_clk(hpf_clk),
+.clk(imeas_dig_filter_clk_post_imeas),   
+.notch_clk(notch_clk_imeas),
+.lpf_clk(lpf_clk_imeas),
+.hpf_clk(hpf_clk_imeas),
 //.pclk	(pclk),  // pclk
 //.reset(cic_rst_n),
 //.osr_sel(DR),
 .iclk_div(iclk_div),
 //.filter_seq(filter_seq),
 .notch_filter_valid(notch_filter_valid),
-.notch_clk_gtg_en(notch_clk_gtg_en),
-.lpf_clk_gtg_en(lpf_clk_gtg_en),
-.hpf_clk_gtg_en(hpf_clk_gtg_en),
+.notch_clk_gtg_en(notch_clk_gtg_en_imeas),
+.lpf_clk_gtg_en(lpf_clk_gtg_en_imeas),
+.hpf_clk_gtg_en(hpf_clk_gtg_en_imeas),
 
 .notch_filter_bypass(notch_filter_bypass),
 .lpf_filter_bypass(lpf_filter_bypass),
@@ -1237,6 +1273,7 @@ spi_top  #(
   .DATA_WIDTH           (8),
   .HLF_WV_NO_PTS        (HLF_WV_NO_PTS),
   .NO_OF_WAVEGEN        (NO_OF_WAVEGEN),
+  .EEG_CHN_NUM          (EEG_CHN_NUM),
   .OUT_NO_BITS          (OUT_NO_BITS)
 )
 u_spi_top (
@@ -1648,10 +1685,12 @@ u_anac(
 );
 
 nirs_ppg_wrapper u_nirs_wrapper (
-  .rst_n          (ppg_resetn),  // Temporary - Xin will provide the alternative later
   .scan_mode      (atpg_en),
+  .rst_n          (ppg_resetn),  // Temporary - Xin will provide the alternative later
+  .clk_ana        (ana_ppgclk_inv),
   .clk_ppg        (clk_ppg),     // Temporary - Xin will provide the alternative later
   .clk_sys        (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
+  .LED_ON_IO      (NIRS_LED_ON),
   .ana_nirs_if    (ana_nirs_if),
   .spi_nirs_if    (spi_nirs_if)
 );

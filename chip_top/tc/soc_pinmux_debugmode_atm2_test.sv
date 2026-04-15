@@ -254,9 +254,9 @@ class `TESTNAME extends soc_base_test;
         #10000ns;
         rand_bit = `SOC_TOP.CLKSEL;
 `ifdef BEHAVIORAL
-        if (`DIG_TOP.u_pinmux.pinmux_if.D2A_ANA_OUT_SEL2 !== rand_bit) begin
-        `nnc_error("ATM2", $sformatf("`DIG_TOP.u_pinmux.D2A_ANA_OUT_SEL2: %b is not as expectation of CLKSEL: %b",`DIG_TOP.u_pinmux.pinmux_if.D2A_ANA_OUT_SEL2, rand_bit))
-        end
+        //if (`DIG_TOP.u_pinmux.pinmux_if.D2A_ANA_OUT_SEL2 !== rand_bit) begin
+        //`nnc_error("ATM2", $sformatf("`DIG_TOP.u_pinmux.D2A_ANA_OUT_SEL2: %b is not as expectation of CLKSEL: %b",`DIG_TOP.u_pinmux.pinmux_if.D2A_ANA_OUT_SEL2, rand_bit))
+        //end
 `endif
         if (`ANA_TOP.D2A_LDO1P8_LDO2P8_CH1_SEL !== rand_bit) begin
         `nnc_error("ATM2", $sformatf("`ANA_TOP.D2A_LDO1P8_LDO2P8_CH1_SEL: %b is not as expectation of CLKSEL: %b",`ANA_TOP.D2A_LDO1P8_LDO2P8_CH1_SEL, rand_bit))

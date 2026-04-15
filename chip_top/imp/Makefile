@@ -103,13 +103,13 @@ init:
 
 synthesis:
 ifeq ($(BUD),yes)
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR};" -f ../scripts/Nanochap_imp_syn_l3.tcl | tee ../logs/synthesis_l3_${SDF_OP}_${BUD_OP}${WORK}.log) 
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR};" -f ../scripts/Nanochap_imp_syn_l2.tcl | tee ../logs/synthesis_l2_${SDF_OP}_${BUD_OP}${WORK}.log) 
+	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn_l3.tcl | tee ../logs/synthesis_l3_${SDF_OP}_${BUD_OPT}${WORK}.log) 
+	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn_l2.tcl | tee ../logs/synthesis_l2_${SDF_OP}_${BUD_OPT}${WORK}.log) 
 endif
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn.tcl | tee ../logs/synthesis_${SDF_OP}_${BUD_OP}${WORK}.log) 
+	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn.tcl | tee ../logs/synthesis_${SDF_OP}_${BUD_OPT}${WORK}.log) 
 
 dft: #dependency is: synthesis
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_dft.tcl | tee ../logs/dft_${SDF_OP}_${BUD_OP}${WORK}.log) 
+	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_dft.tcl | tee ../logs/dft_${SDF_OP}_${BUD_OPT}${WORK}.log) 
 
 
 #####################################

@@ -303,6 +303,20 @@ always @(posedge clk or negedge rst_n) begin
                               shadow_regs[10] <= atm_data_sync;
                              else if(atm_mode_sync[7])
                               shadow_regs[11] <= atm_data_sync;
+                             else if(atm_mode_sync[8])
+                              shadow_regs[12] <= atm_data_sync;
+                             else if(atm_mode_sync[9])
+                              shadow_regs[13] <= atm_data_sync;
+                             else if(atm_mode_sync[10])
+                              shadow_regs[14] <= atm_data_sync;
+                             else if(atm_mode_sync[11])
+                              shadow_regs[15] <= atm_data_sync;
+                             else if(atm_mode_sync[12])
+                              shadow_regs[16] <= atm_data_sync;
+                             else if(atm_mode_sync[13])
+                              shadow_regs[17] <= atm_data_sync;
+                             else if(atm_mode_sync[14])
+                              shadow_regs[18] <= atm_data_sync;
                         end
 		end               
 		else if (unlock) begin //Programming OTP

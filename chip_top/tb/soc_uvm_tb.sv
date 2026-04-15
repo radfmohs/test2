@@ -123,21 +123,24 @@ assign dut_vif.iopad_gpio = `SOC_TB.IOBUF_PAD;
     assign `ANA_TOP.OSC.hfosc_fixed_gnd_en = dut_vif.hfosc_fixed_gnd_en;
     assign `ANA_TOP.OSC.hfosc_jitter = dut_vif.hfosc_jitter;
     assign `ANA_TOP.OSC.hfosc_variation = dut_vif.hfosc_variation;
+    assign `ANA_TOP.OSC.hfosc_sel = dut_vif.hfosc_sel;
 
     assign `ANA_TOP_S1.OSC.hfosc_fixed_gnd_en = dut_vif.hfosc_fixed_gnd_en;
     assign `ANA_TOP_S1.OSC.hfosc_jitter = dut_vif.hfosc_jitter;
     assign `ANA_TOP_S1.OSC.hfosc_variation = dut_vif.hfosc_variation;
+    assign `ANA_TOP_S1.OSC.hfosc_sel = dut_vif.hfosc_sel; 
 
     assign `ANA_TOP_S2.OSC.hfosc_fixed_gnd_en = dut_vif.hfosc_fixed_gnd_en;
     assign `ANA_TOP_S2.OSC.hfosc_jitter = dut_vif.hfosc_jitter;
     assign `ANA_TOP_S2.OSC.hfosc_variation = dut_vif.hfosc_variation;
+    assign `ANA_TOP_S2.OSC.hfosc_sel = dut_vif.hfosc_sel;
 `endif
 
     // External clock connections
     assign `SOC_TB.u_ext_hfosc.ext_hfosc_fixed_gnd_en = dut_vif.ext_hfosc_fixed_gnd_en;
     assign `SOC_TB.u_ext_hfosc.ext_hfosc_jitter = dut_vif.hfosc_jitter;
     assign `SOC_TB.u_ext_hfosc.ext_hfosc_variation = dut_vif.hfosc_variation;
-    assign `SOC_TB.u_ext_hfosc.ext_hfosc_sel = 2'b00; // fixed it to 32Mhz only;
+    assign `SOC_TB.u_ext_hfosc.ext_hfosc_sel = dut_vif.hfosc_sel;
   `endif
 `endif
 
@@ -145,23 +148,23 @@ assign `EPROM_BIST_MASTER_VIP.tPGM_RC = dut_vif.bistm_tPGM_RC;
 assign `EPROM_BIST_MASTER_VIP.tPGM = dut_vif.bistm_tPGM;
 
 `ifndef MIX_SIM_EN
-assign `ANA_TOP.loff_short_ch1.lead_off_en = dut_vif.lead_off_en;
-assign `ANA_TOP.loff_short_ch1.short_en = dut_vif.short_en;
-assign `ANA_TOP.loff_short_ch1.register_val = dut_vif.register_val_ch1;
-assign `ANA_TOP.loff_short_ch1.a2d_comp_delay = dut_vif.a2d_comp_delay_ch1;
-assign `ANA_TOP.loff_short_ch1.comp_stimu_pol_high = dut_vif.anac_stim_CH1_pol;
-assign `ANA_TOP.loff_short_ch1.comp_pol_high = dut_vif.lead_off_ch0_comp_low_active;
-assign `ANA_TOP.loff_short_ch1.pulse_after_source_delay = dut_vif.pulse_after_source_delay;
-assign `ANA_TOP.loff_short_ch1.pulse_after_source = dut_vif.pulse_after_source;
-
-assign `ANA_TOP.loff_short_ch2.lead_off_en = dut_vif.lead_off_en;
-assign `ANA_TOP.loff_short_ch2.short_en = dut_vif.short_en;
-assign `ANA_TOP.loff_short_ch2.register_val = dut_vif.register_val_ch2;
-assign `ANA_TOP.loff_short_ch2.a2d_comp_delay = dut_vif.a2d_comp_delay_ch2;
-assign `ANA_TOP.loff_short_ch2.comp_stimu_pol_high = dut_vif.anac_stim_CH2_pol;
-assign `ANA_TOP.loff_short_ch2.comp_pol_high = dut_vif.lead_off_ch1_comp_low_active;
-assign `ANA_TOP.loff_short_ch2.pulse_after_source_delay = dut_vif.pulse_after_source_delay;
-assign `ANA_TOP.loff_short_ch2.pulse_after_source = dut_vif.pulse_after_source;
+//assign `ANA_TOP.loff_short_ch1.lead_off_en = dut_vif.lead_off_en;
+//assign `ANA_TOP.loff_short_ch1.short_en = dut_vif.short_en;
+//assign `ANA_TOP.loff_short_ch1.register_val = dut_vif.register_val_ch1;
+//assign `ANA_TOP.loff_short_ch1.a2d_comp_delay = dut_vif.a2d_comp_delay_ch1;
+//assign `ANA_TOP.loff_short_ch1.comp_stimu_pol_high = dut_vif.anac_stim_CH1_pol;
+//assign `ANA_TOP.loff_short_ch1.comp_pol_high = dut_vif.lead_off_ch0_comp_low_active;
+//assign `ANA_TOP.loff_short_ch1.pulse_after_source_delay = dut_vif.pulse_after_source_delay;
+//assign `ANA_TOP.loff_short_ch1.pulse_after_source = dut_vif.pulse_after_source;
+//
+//assign `ANA_TOP.loff_short_ch2.lead_off_en = dut_vif.lead_off_en;
+//assign `ANA_TOP.loff_short_ch2.short_en = dut_vif.short_en;
+//assign `ANA_TOP.loff_short_ch2.register_val = dut_vif.register_val_ch2;
+//assign `ANA_TOP.loff_short_ch2.a2d_comp_delay = dut_vif.a2d_comp_delay_ch2;
+//assign `ANA_TOP.loff_short_ch2.comp_stimu_pol_high = dut_vif.anac_stim_CH2_pol;
+//assign `ANA_TOP.loff_short_ch2.comp_pol_high = dut_vif.lead_off_ch1_comp_low_active;
+//assign `ANA_TOP.loff_short_ch2.pulse_after_source_delay = dut_vif.pulse_after_source_delay;
+//assign `ANA_TOP.loff_short_ch2.pulse_after_source = dut_vif.pulse_after_source;
 
 // LVD Model
 assign `ANA_TOP.lvd_circuit.vbat_level = dut_vif.vbat_level;
@@ -172,10 +175,38 @@ assign `ANA_TOP.tsc_monitoring_ch1.a2d_comp_delay = dut_vif.a2d_comp_delay_ch1;
 assign `ANA_TOP.tsc_monitoring_ch1.comp_low_active_en = dut_vif.tsc_comp_low_active_en;
 
 // NIRS Model
-assign `ANA_TOP.nirs_model.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length;      // 32-bit (unit - ns)
-assign `ANA_TOP.nirs_model.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay;  // 32-bit (unit - ns)
-assign `ANA_TOP.nirs_model.nirs_ireffine_length        = dut_vif.nirs_ireffine_length;        // 32-bit (unit - ns)
-
+//CH0
+assign `ANA_TOP.ppg_nirs_top.nirs_model_0.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[0];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_0.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[0];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_0.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[0];        // 32-bit (unit - ns)
+//CH1
+assign `ANA_TOP.ppg_nirs_top.nirs_model_1.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[1];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_1.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[1];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_1.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[1];        // 32-bit (unit - ns)
+//CH2
+assign `ANA_TOP.ppg_nirs_top.nirs_model_2.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[2];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_2.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[2];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_2.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[2];        // 32-bit (unit - ns)
+//CH3
+assign `ANA_TOP.ppg_nirs_top.nirs_model_3.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[3];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_3.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[3];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_3.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[3];        // 32-bit (unit - ns)
+//CH4
+assign `ANA_TOP.ppg_nirs_top.nirs_model_4.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[4];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_4.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[4];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_4.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[4];        // 32-bit (unit - ns)
+//CH5
+assign `ANA_TOP.ppg_nirs_top.nirs_model_5.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[5];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_5.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[5];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_5.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[5];        // 32-bit (unit - ns)
+//CH6
+assign `ANA_TOP.ppg_nirs_top.nirs_model_6.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[6];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_6.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[6];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_6.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[6];        // 32-bit (unit - ns)
+//CH7
+assign `ANA_TOP.ppg_nirs_top.nirs_model_7.nirs_irefcoarse_length      = dut_vif.nirs_irefcoarse_length[7];      // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_7.nirs_irefcoarse_iref_delay  = dut_vif.nirs_irefcoarse_iref_delay[7];  // 32-bit (unit - ns)
+assign `ANA_TOP.ppg_nirs_top.nirs_model_7.nirs_ireffine_length        = dut_vif.nirs_ireffine_length[7];        // 32-bit (unit - ns)
 `endif
 
 // ***************************************** short/leadoff debug response counter register checker ******************************************
@@ -349,36 +380,36 @@ always_ff @(posedge dut_vif.anac_pclk or negedge dut_vif.anac_presetn)begin
 end
 assign dut_vif.expected_anac_ch2_a2d_comp = dut_vif.expected_short_ch2_resp_cnt_en_d2;
 
-always_ff@(posedge dut_vif.leadoff_pclk or negedge dut_vif.leadoff_presetn)begin
-  if(!dut_vif.leadoff_presetn)begin
-    dut_vif.A2D_COMP_OUT_CH1_d1 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_STIMU0_1_d1 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_CH1_d2 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_STIMU0_1_d2 <= 1'b0;
-
-  end
-  else begin
-    dut_vif.A2D_COMP_OUT_CH1_d1 <= `ANA_TOP.A2D_COMP_OUT_CH1; //soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.A2D_COMP_OUT_CH1_tmp
-    dut_vif.A2D_COMP_OUT_STIMU0_1_d1 <= `ANA_TOP.A2D_COMP_OUT_STIMU0_1;
-    dut_vif.A2D_COMP_OUT_CH1_d2 <= dut_vif.A2D_COMP_OUT_CH1_d1;
-    dut_vif.A2D_COMP_OUT_STIMU0_1_d2 <= dut_vif.A2D_COMP_OUT_STIMU0_1_d1; 
-  end 
-end
-
-always_ff@(posedge dut_vif.leadoff_pclk or negedge dut_vif.leadoff_presetn)begin
-  if(!dut_vif.leadoff_presetn)begin
-    dut_vif.A2D_COMP_OUT_CH2_d1 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_STIMU2_3_d1 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_CH2_d2 <= 1'b0;
-    dut_vif.A2D_COMP_OUT_STIMU2_3_d2 <= 1'b0;
-  end
-  else begin
-    dut_vif.A2D_COMP_OUT_CH2_d1 <= `ANA_TOP.A2D_COMP_OUT_CH2;
-    dut_vif.A2D_COMP_OUT_STIMU2_3_d1 <= `ANA_TOP.A2D_COMP_OUT_STIMU2_3;
-   dut_vif.A2D_COMP_OUT_CH2_d2 <= dut_vif.A2D_COMP_OUT_CH2_d1;
-    dut_vif.A2D_COMP_OUT_STIMU2_3_d2 <= dut_vif.A2D_COMP_OUT_STIMU2_3_d1; 
-  end 
-end  
+//always_ff@(posedge dut_vif.leadoff_pclk or negedge dut_vif.leadoff_presetn)begin
+//  if(!dut_vif.leadoff_presetn)begin
+//    dut_vif.A2D_COMP_OUT_CH1_d1 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_STIMU0_1_d1 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_CH1_d2 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_STIMU0_1_d2 <= 1'b0;
+//
+//  end
+//  else begin
+//    dut_vif.A2D_COMP_OUT_CH1_d1 <= `ANA_TOP.A2D_COMP_OUT_CH1; //soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.A2D_COMP_OUT_CH1_tmp
+//    dut_vif.A2D_COMP_OUT_STIMU0_1_d1 <= `ANA_TOP.A2D_COMP_OUT_STIMU0_1;
+//    dut_vif.A2D_COMP_OUT_CH1_d2 <= dut_vif.A2D_COMP_OUT_CH1_d1;
+//    dut_vif.A2D_COMP_OUT_STIMU0_1_d2 <= dut_vif.A2D_COMP_OUT_STIMU0_1_d1; 
+//  end 
+//end
+//
+//always_ff@(posedge dut_vif.leadoff_pclk or negedge dut_vif.leadoff_presetn)begin
+//  if(!dut_vif.leadoff_presetn)begin
+//    dut_vif.A2D_COMP_OUT_CH2_d1 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_STIMU2_3_d1 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_CH2_d2 <= 1'b0;
+//    dut_vif.A2D_COMP_OUT_STIMU2_3_d2 <= 1'b0;
+//  end
+//  else begin
+//    dut_vif.A2D_COMP_OUT_CH2_d1 <= `ANA_TOP.A2D_COMP_OUT_CH2;
+//    dut_vif.A2D_COMP_OUT_STIMU2_3_d1 <= `ANA_TOP.A2D_COMP_OUT_STIMU2_3;
+//   dut_vif.A2D_COMP_OUT_CH2_d2 <= dut_vif.A2D_COMP_OUT_CH2_d1;
+//    dut_vif.A2D_COMP_OUT_STIMU2_3_d2 <= dut_vif.A2D_COMP_OUT_STIMU2_3_d1; 
+//  end 
+//end  
            
 assign dut_vif.A2D_COMP_OUT_CH1                         = dut_vif.short_detect_by_lead_off_en ? dut_vif.A2D_COMP_OUT_STIMU0_1_d2 : dut_vif.A2D_COMP_OUT_CH1_d2; //dut_vif.A2D_COMP_OUT_CH1_d1: dut_vif.A2D_COMP_OUT_STIMU0_1_d1 ;
 assign dut_vif.A2D_COMP_OUT_CH2                         = dut_vif.short_detect_by_lead_off_en ? dut_vif.A2D_COMP_OUT_STIMU2_3_d2 : dut_vif.A2D_COMP_OUT_CH2_d2;//dut_vif.A2D_COMP_OUT_CH2_d1 : dut_vif.A2D_COMP_OUT_STIMU2_3_d1;

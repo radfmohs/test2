@@ -75,6 +75,8 @@
 `define EPROM_BIST_TOP_S2 `EPROM_TOP_S2.u_eprom_bist_top
 `define EPROM_IP_S2 `EPROM_TOP_S2.u_EO32X32GCT2Q_H3
 
+`define POWER_ON_TIME 1000ns
+
 `define SPIM_VIP `SOC_TB.spim_vip
 `define EPROM_BIST_MASTER_VIP `SOC_TB.u_eprom_bist_master
 
@@ -150,9 +152,13 @@
 `define GPIO_NUM 22
 `define SCAN_SIZE 9
 
+// ---------------------------------------------------
 // SPI VIP TASKs
+// ---------------------------------------------------
+// Normal Register
+// ---------------------------------------------------
 `define WR_NORMAL_REG `SPIM_VIP.spi_wr_single_normal_reg
-// `WR_NORMAL_REG(addr, data, pad, ,mask); 
+// `WR_NORMAL_REG(addr, data, pad); 
 
 `define RD_NORMAL_REG `SPIM_VIP.spi_rd_single_normal_reg
 // `RD_NORMAL_REG(addr, number_of_data, data[]);  
@@ -163,6 +169,15 @@
 `define RD_BURST_NORMAL_REG `SPIM_VIP.spi_rd_burst_normal_reg
 // `RD_BURST_NORMAL_REG(addr, number_of_data, data[]); 
 
+`define WR_RD_CHK_NORMAL_REG `SPIM_VIP.spi_wr_rd_single_normal_reg_chk
+// `WR_RD_CHK_NORMAL_REG(addr, data, pad, mask); 
+
+`define RD_RESET_CHK_NORMAL_REG `SPIM_VIP.spi_check_reset_value_normal_reg
+// `RD_RESET_CHK_NORMAL_REG(addr, data, pad);
+
+// ----------------------------------------------------
+// RDATA and RDATAC 
+// ----------------------------------------------------
 `define RD_CONV_BY_RDATA `SPIM_VIP.spi_rd_rdata
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 // `RD_CONV_BY_RDATA(channel_max[11:0], number_of_data, mode[2:0], data[]);
@@ -178,14 +193,11 @@
 // Mode[1:0]: 00: 32-bit of data + 40-bit of status, 01: 24-bit of data + 40-bit of status,  10: 32-bit of data only, 11: 24-bit of data only
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-`define WR_RD_CHK_NORMAL_REG `SPIM_VIP.spi_wr_rd_single_normal_reg_chk
-// `WR_RD_CHK_NORMAL_REG(addr, data, pad, mask); 
-
-`define RD_RESET_CHK_NORMAL_REG `SPIM_VIP.spi_check_reset_value_normal_reg
-// `RD_RESET_CHK_NORMAL_REG(addr, data, pad); 
-
+// ---------------------------------------
+// Wavegen
+// ---------------------------------------
 `define WR_WAVEGEN_REG `SPIM_VIP.spi_wr_single_wavegen_reg
-// `WR_WAVEGEN_REG(addr, data, pad, ,mask); 
+// `WR_WAVEGEN_REG(addr, data, pad); 
 
 `define RD_WAVEGEN_REG `SPIM_VIP.spi_rd_single_wavegen_reg
 // `RD_WAVEGEN_REG(addr, number_of_data, data[]);  
@@ -201,6 +213,27 @@
 
 `define RD_RESET_CHK_WAVEGEN_REG `SPIM_VIP.spi_check_reset_value_wavegen_reg
 // `RD_RESET_CHK_WAVEGEN_REG(addr, data, pad); 
+
+// ---------------------------------------
+// NIRS
+// ---------------------------------------
+`define WR_NIRS_REG `SPIM_VIP.spi_wr_single_nirs_reg
+// `WR_NIRS_REG(addr, data, pad); 
+
+`define RD_NIRS_REG `SPIM_VIP.spi_rd_single_nirs_reg
+// `RD_NIRS_REG(addr, number_of_data, data[]);  
+//
+`define WR_BURST_NIRS_REG `SPIM_VIP.spi_wr_burst_nirs_reg
+// `WR_BURST_NIRS_REG(addr, number_of_data, data[]); 
+
+`define RD_BURST_NIRS_REG `SPIM_VIP.spi_rd_burst_nirs_reg
+// `RD_BURST_NIRS_REG(addr, number_of_data, data[]); 
+
+`define WR_RD_CHK_NIRS_REG `SPIM_VIP.spi_wr_rd_single_nirs_reg_chk
+// `WR_RD_CHK_NIRS_REG(addr, data, pad, mask); 
+
+`define RD_RESET_CHK_NIRS_REG `SPIM_VIP.spi_check_reset_value_nirs_reg
+// `RD_RESET_CHK_NIRS_REG(addr, data, pad); 
 
 // --------------------------------------------------------
 // The list command of OTP are used for performing BISM VIP
@@ -493,18 +526,18 @@ assign IOBUF_PAD_S2[0]     =  (dut_vif.mult_chip_en === 1'b1) && (dut_vif.swap_s
 // ====================================
 // WAVEFORM of master_chip & slave_chip
 // ====================================
-assign master_chip_wave1  = (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH1*/)  ? `ANA_TOP.D2A_IDAC_DIN_CH1[11:0]  :
-                           ((`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH1*/)  ? -`ANA_TOP.D2A_IDAC_DIN_CH1[11:0] : 0);
-assign master_chip_wave2  = (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH2*/)  ? `ANA_TOP.D2A_IDAC_DIN_CH2[11:0]  :
-                           ((`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH2*/)  ? -`ANA_TOP.D2A_IDAC_DIN_CH2[11:0] : 0);
-
-assign slave_chip_wave1   = (dut_vif.swap_sdf_en === 1'b1) ? 
-                           (`ANA_TOP_S2.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH1*/) ? `ANA_TOP_S2.D2A_IDAC_DIN_CH1[11:0]  : ((`ANA_TOP_S2.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH1*/) ? -`ANA_TOP_S2.D2A_IDAC_DIN_CH1[11:0] : 0) : 
-                           (`ANA_TOP_S1.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH1*/) ? `ANA_TOP_S1.D2A_IDAC_DIN_CH1[11:0]  : ((`ANA_TOP_S1.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH1*/) ? -`ANA_TOP_S1.D2A_IDAC_DIN_CH1[11:0] : 0);
-assign slave_chip_wave2   = (dut_vif.swap_sdf_en === 1'b1) ? 
-                           (`ANA_TOP_S2.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH2*/) ? `ANA_TOP_S2.D2A_IDAC_DIN_CH2[11:0]  : ((`ANA_TOP_S2.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH2*/) ? -`ANA_TOP_S2.D2A_IDAC_DIN_CH2[11:0] : 0) :
-                           (`ANA_TOP_S1.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH2*/) ? `ANA_TOP_S1.D2A_IDAC_DIN_CH2[11:0]  : ((`ANA_TOP_S1.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH2*/) ? -`ANA_TOP_S1.D2A_IDAC_DIN_CH2[11:0] : 0);
-
+//assign master_chip_wave1  = (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH1*/)  ? `ANA_TOP.D2A_IDAC_DIN_CH1[11:0]  :
+//                           ((`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH1*/)  ? -`ANA_TOP.D2A_IDAC_DIN_CH1[11:0] : 0);
+//assign master_chip_wave2  = (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH2*/)  ? `ANA_TOP.D2A_IDAC_DIN_CH2[11:0]  :
+//                           ((`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP.D2A_DRIVERA_AMP_EN_CH2*/)  ? -`ANA_TOP.D2A_IDAC_DIN_CH2[11:0] : 0);
+//
+//assign slave_chip_wave1   = (dut_vif.swap_sdf_en === 1'b1) ? 
+//                           (`ANA_TOP_S2.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH1*/) ? `ANA_TOP_S2.D2A_IDAC_DIN_CH1[11:0]  : ((`ANA_TOP_S2.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH1*/) ? -`ANA_TOP_S2.D2A_IDAC_DIN_CH1[11:0] : 0) : 
+//                           (`ANA_TOP_S1.D2A_DRIVERA_SOURCEA_CH1/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH1*/) ? `ANA_TOP_S1.D2A_IDAC_DIN_CH1[11:0]  : ((`ANA_TOP_S1.D2A_DRIVERA_SOURCEB_CH1/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH1*/) ? -`ANA_TOP_S1.D2A_IDAC_DIN_CH1[11:0] : 0);
+//assign slave_chip_wave2   = (dut_vif.swap_sdf_en === 1'b1) ? 
+//                           (`ANA_TOP_S2.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH2*/) ? `ANA_TOP_S2.D2A_IDAC_DIN_CH2[11:0]  : ((`ANA_TOP_S2.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP_S2.D2A_DRIVERA_AMP_EN_CH2*/) ? -`ANA_TOP_S2.D2A_IDAC_DIN_CH2[11:0] : 0) :
+//                           (`ANA_TOP_S1.D2A_DRIVERA_SOURCEA_CH2/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH2*/) ? `ANA_TOP_S1.D2A_IDAC_DIN_CH2[11:0]  : ((`ANA_TOP_S1.D2A_DRIVERA_SOURCEB_CH2/* & `ANA_TOP_S1.D2A_DRIVERA_AMP_EN_CH2*/) ? -`ANA_TOP_S1.D2A_IDAC_DIN_CH2[11:0] : 0);
+//
 assign chip_wave1_overlay = master_chip_wave1 + slave_chip_wave1;
 assign chip_wave2_overlay = master_chip_wave2 + slave_chip_wave2;
 
@@ -574,7 +607,7 @@ initial begin
    force `ANA_TOP.PMU_SW.CHIP_EN = 1'b0;
    force `ANA_TOP_S1.PMU_SW.CHIP_EN = 1'b0;
    force `ANA_TOP_S2.PMU_SW.CHIP_EN = 1'b0;
-   #1000ns;
+   #`POWER_ON_TIME;
    force `ANA_TOP.PMU_SW.CHIP_EN = 1'b1;
    force `ANA_TOP_S1.PMU_SW.CHIP_EN = (dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'b0;
    force `ANA_TOP_S2.PMU_SW.CHIP_EN = (dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'b0;

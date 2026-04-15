@@ -206,7 +206,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
       `nnc_fatal("SOC_TEST", $sformatf("ERROR:: hpf_coeff_index_1_select:%0d for sample_rate= %0d ",`DUT_IF.hpf_coeff_index_1_select,`DUT_IF.imeas_samp_rate))
 
     if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-        top_test_cfg.wr_data[0] = 'h23;
+        top_test_cfg.wr_data[0] = 'h1E; // 'h1E
         `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
         assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
 	`nnc_info("SOC_TEST", $sformatf("hpf_coeffs[%0d][%0d]:%0h",`DUT_IF.hpf_coeff_index_1_select,`DUT_IF.hpf_coeff_index_0_select,`SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select]),UVM_LOW)

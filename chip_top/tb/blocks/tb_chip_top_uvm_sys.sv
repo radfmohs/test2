@@ -41,7 +41,7 @@ initial
     forever #1 begin
       if (dut_vif.soc_resetn === 0) sys_rst_n = 1'b0;
       else if (dut_vif.soc_resetn === 1) #10 sys_rst_n = 1'b1;
-      else if (dut_vif.testmode_sel === 2'b00 && `ANA_TOP.A2D_POR_DVDD && VDD_DIG)
+      else if (dut_vif.testmode_sel === 2'b00 && `ANA_TOP.A2D_POR && VDD_DIG)
         `nnc_error("SOC", $sformatf("dut_vif.soc_resetn reset is: %h as unexpected", dut_vif.soc_resetn));
     end
     `endif
@@ -61,7 +61,7 @@ assign clk_if.wavegen_clk     =    `WG_DRIVER_TOP.i_pclk;
 assign clk_if.anac_clk        =    `ANAC_TOP.sysclk;       
 assign clk_if.otp_clk         =    `EPROM_TOP.clk;       
 assign clk_if.adc_dig_clk     =    `CLK_CTRL_TOP.imeas_dig_adc_clk[0];
-assign clk_if.adc_ana_clk     =    `ANA_TOP.D2A_SDM_CLK;
+assign clk_if.adc_ana_clk     =    `ANA_TOP.D2A_SDMCLK;
 
 assign clk_if.adc_dig_clk_en  =    `CLK_CTRL_TOP.u_cmsdk_clock_gate_iadc_clk[0].enable;
 assign clk_if.adc_ana_clk_en  =    `CLK_CTRL_TOP.u_cmsdk_clock_gate_analog_adcclk.enable;

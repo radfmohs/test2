@@ -111,7 +111,14 @@ class `TESTNAME extends soc_base_test;
         #1000ns;
 
 `ifndef BEHAVIORAL 
-            temp_data = {`SOC_TOP.u_iopad_gpio_14_.CS,
+            temp_data = {`SOC_TOP.u_iopad_gpio_21_.CS,
+	        `SOC_TOP.u_iopad_gpio_20_.CS,
+		`SOC_TOP.u_iopad_gpio_19_.CS,
+		`SOC_TOP.u_iopad_gpio_18_.CS,
+		`SOC_TOP.u_iopad_gpio_17_.CS,
+		`SOC_TOP.u_iopad_gpio_16_.CS,
+		`SOC_TOP.u_iopad_gpio_15_.CS,
+		`SOC_TOP.u_iopad_gpio_14_.CS,
 		`SOC_TOP.u_iopad_gpio_13_.CS,
 	    	`SOC_TOP.u_iopad_gpio_12_.CS,
 		`SOC_TOP.u_iopad_gpio_11_.CS,
@@ -127,7 +134,14 @@ class `TESTNAME extends soc_base_test;
                 `SOC_TOP.u_iopad_gpio_1_.CS,
                 `SOC_TOP.u_iopad_gpio_0_.CS};
 `else
-            temp_data = {`SOC_TOP.u_iopad_gpio[14].CS,
+            temp_data = {`SOC_TOP.u_iopad_gpio[21].CS,
+		`SOC_TOP.u_iopad_gpio[20].CS,
+		`SOC_TOP.u_iopad_gpio[19].CS,
+		`SOC_TOP.u_iopad_gpio[18].CS,
+		`SOC_TOP.u_iopad_gpio[17].CS,
+		`SOC_TOP.u_iopad_gpio[16].CS,
+		`SOC_TOP.u_iopad_gpio[15].CS,
+		`SOC_TOP.u_iopad_gpio[14].CS,
 		`SOC_TOP.u_iopad_gpio[13].CS,
 	    	`SOC_TOP.u_iopad_gpio[12].CS,
 		`SOC_TOP.u_iopad_gpio[11].CS,

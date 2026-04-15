@@ -48,7 +48,18 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 1000; }//sine frequency precision 1000: imeas_sin_expected_freq in Hz/1000
 
-  constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
+  //constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
+
+  // making sure atlist 1 channel keeps enable
+  constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFE]}; // atlist 1 channel enabled
+                                 (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
+                                 (no_of_adc_dev1 == 2) -> imeas_en_dis_ch inside {[0:'hFFE]};
+                                 (no_of_adc_dev1 == 3) -> imeas_en_dis_ch inside {[0:'h3FE]};
+                                 (no_of_adc_dev1 == 4) -> imeas_en_dis_ch inside {[0:'hFE]};
+                                 (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
+                                 (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
+                                 (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; }
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -67,7 +78,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(2s);
+    uvm_top.set_timeout(20ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -119,6 +131,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.imeas_sin_expected_freq = top_test_cfg.imeas_sin_expected_freq;
     `DUT_IF.imeas_sin_no_clk_per_period = top_test_cfg.imeas_sin_no_clk_per_period;
     `DUT_IF.imeas_en_dis_ch = top_test_cfg.imeas_en_dis_ch;
+    `DUT_IF.no_of_adc_dev1 = top_test_cfg.no_of_adc_dev1;
+    `DUT_IF.no_of_adc_dev2 = top_test_cfg.no_of_adc_dev2;
 
     top_test_cfg.sine_input_freq = real'(`DUT_IF.imeas_sin_expected_freq)/real'(`DUT_IF.imeas_sin_freq_unit);
     `nnc_info("SOC_TEST", $sformatf("input sine frequency: (%0f)",top_test_cfg.sine_input_freq),UVM_LOW)

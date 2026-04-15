@@ -41,10 +41,10 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic        clear_intr_manual_or_auto;
   rand logic        intr_length_slct_level_or_pulse;
   rand logic [`FILTER_NUM - 1 :0] imeas_en_dis_ch; // 0: enable, 1 :disbale
-       logic [31:0] act_chdata;
-       logic [31:0] act_chdata_combined [256];
-       logic [31:0] act_chdata_combined_rdatac [3000][`FILTER_NUM];
-       logic [31:0] exp_chdata_combined_rdatac [3000][`FILTER_NUM];
+       logic [`FILTER_DATA_WIDTH:0] act_chdata;
+       logic [`FILTER_DATA_WIDTH:0] act_chdata_combined [256];
+       logic [`FILTER_DATA_WIDTH:0] act_chdata_combined_rdatac [3000][`FILTER_NUM];
+       logic [`FILTER_DATA_WIDTH:0] exp_chdata_combined_rdatac [3000][`FILTER_NUM];
        logic        eeg_int_sts;
   rand logic        eeg_int_sts_en;
   rand logic        eeg_int_en;
@@ -100,6 +100,9 @@ class `TESTCFG extends soc_base_test_cfg;
 //  // Set SPI timing protocol for percent : tCH >= 20ns, tCL >= 20ns
 //
 //  constraint c_tch                    {tch == `SPI_MIN_TCH;}        // percent : tch >= 25ns, tCL >= 25ns
+
+  constraint c_hfosc_sel              { soft hfosc_sel inside {[0:0]}; }
+
   //jitter
   constraint c_hfosc_jitter        { hfosc_jitter inside {[0:0]}; }        // 0%
   constraint c_hfosc_variation     { hfosc_variation inside {[100:100]}; } // 100%
@@ -144,7 +147,7 @@ class `TESTCFG extends soc_base_test_cfg;
   constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 100; }//sine frequency precision 100: imeas_sin_expected_freq in Hz/100
 
   constraint c_imeas_status_en { imeas_status_en == 0; }// default no Imeas status 
-  constraint c_imeas_24bitdata_en { imeas_24bitdata_en == 0; }// default 32 bit data
+  constraint c_imeas_24bitdata_en { imeas_24bitdata_en == 1; }// latest - only 24 bit supported
 
   constraint c_no_of_samples   {  no_of_samples  inside {[5:5]}; }  
 
@@ -203,7 +206,7 @@ class `TESTNAME extends soc_base_test;
   int data_bytes_per_sample;
   bit [39:0] act_status_bits;
   bit [39:0] exp_status_bits;
-  logic [31:0] exp_chdata[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH:0] exp_chdata[`FILTER_NUM-1:0] ;
 
   function new(string name, nnc_component parent);
     super.new(name, parent);
@@ -235,6 +238,8 @@ class `TESTNAME extends soc_base_test;
 
     // Set Jitter for SCK
     `DUT_IF.spi_sclk_jitter  = top_test_cfg.spi_sclk_jitter;
+
+    `DUT_IF.hfosc_sel = top_test_cfg.hfosc_sel;
 
     `DUT_IF.hfosc_jitter = top_test_cfg.hfosc_jitter;
 
@@ -652,8 +657,8 @@ class `TESTNAME extends soc_base_test;
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_IMEAS_DATA_0; no_of_bytes == 4;});
     `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
   
-    for (int j = 0;j < 4 ;j++)begin  //32 bits
-      top_test_cfg.act_chdata[31 - j*8 -: 8] = top_test_cfg.rd_data[j];
+    for (int j = 0;j < 4 ;j++)begin  //latest - 24 bits . older - 32 bits
+      top_test_cfg.act_chdata[`FILTER_DATA_WIDTH - j*8 -: 8] = top_test_cfg.rd_data[j];
     end
     
     if (reset_check === 1)begin
@@ -966,7 +971,8 @@ class `TESTNAME extends soc_base_test;
       for(int j = 0; j < `DUT_IF.no_of_samples;j++)begin
         for(int k = 0; k < `DUT_IF.max_ch_dev1;k++)begin
           if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k]))
-             || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k][31:8])))begin
+             //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k][31:8])))begin
+             || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k])))begin
              `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for exp_chdata[sample_%0d][ch_%0d] = %h, act_chdata_combined[sample_%0d][ch_%0d]=%0h",j,k,top_test_cfg.exp_chdata_combined_rdatac[j][k],j,k,top_test_cfg.act_chdata_combined_rdatac[j][k]))
           end
           else begin
@@ -1045,7 +1051,8 @@ class `TESTNAME extends soc_base_test;
       for(int k = 0; k < `DUT_IF.max_ch_dev1;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])) 
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k][31:8])))begin
+           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k][31:8])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k]))
         end
         else begin
@@ -1057,7 +1064,8 @@ class `TESTNAME extends soc_base_test;
       for(int k = 0; k < `DUT_IF.max_ch_dev2;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1] !== exp_chdata[k])) 
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k][31:8])))begin
+           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k][31:8])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1]!== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1]))
         end
         else begin
@@ -1069,7 +1077,8 @@ class `TESTNAME extends soc_base_test;
       for(int k = 0; k < `DUT_IF.max_ch_dev2;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])) 
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k][31:8])))begin
+           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k][31:8])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2]))
         end
         else begin

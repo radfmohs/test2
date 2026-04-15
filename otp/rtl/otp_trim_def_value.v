@@ -16,12 +16,17 @@
 `define DFAULT_TRIM0    8'h00
 `define DFAULT_TRIM1    8'h00
 `define DFAULT_TRIM2    8'h00
-`define DFAULT_TRIM3    8'h40
+`define DFAULT_TRIM3    8'h00
 `define DFAULT_TRIM4    8'h00
 `define DFAULT_TRIM5    8'h00
 `define DFAULT_TRIM6    8'h00
 `define DFAULT_TRIM7    8'h00
 `define DFAULT_TRIM8    8'h00
-//`define DFAULT_TRIM9    8'h00
-//`define DFAULT_TRIM10   8'h00
+`define DFAULT_TRIM9    8'h00
+`define DFAULT_TRIM10   8'h00
+`define DFAULT_TRIM11   8'h00
+`define DFAULT_TRIM12   8'h00
+`define DFAULT_TRIM13   8'h00
+`define DFAULT_TRIM14   8'h00
+`define DFAULT_TRIM15   8'h00
 

@@ -267,7 +267,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     $display("##         WAITING FOR SIMULATION TO COMPLETE WAVEFORM GENERATION              ##");      
     $display("## --------------------------------------------------------------------------- ##");
 
-    wait((top_env.wavegen_vif[0].wave_addr[0] === 8'h7F) && (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1 === 1));
+    wait((top_env.wavegen_vif[0].wave_addr[0] === 8'h7F) && (`ANA_WRAPPER_TOP.i_source_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1));
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h00;});
     `nnc_info("SOC_TEST", "Disable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -277,7 +277,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
-    wait((top_env.wavegen_vif[0].wave_addr[0] === 8'h7F) && (`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1 === 1));
+    wait((top_env.wavegen_vif[0].wave_addr[0] === 8'h7F) && (`ANA_WRAPPER_TOP.i_source_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1));
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h00;});
     `nnc_info("SOC_TEST", "Disable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -300,7 +300,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
-    wait((`ANA_TOP.D2A_DRIVERA_PULLDA_CH1 === 1) && (`ANA_TOP.D2A_DRIVERA_PULLDB_CH1 === 1));
+    wait((`ANA_WRAPPER_TOP.i_pulldn_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1) && (`ANA_WRAPPER_TOP.i_pulldn_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1));
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h00;});
     `nnc_info("SOC_TEST", "Disable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -311,7 +311,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     wait(top_env.wavegen_vif[0].wave_addr[0] === 8'h7F);
-    wait((`ANA_TOP.D2A_DRIVERA_PULLDA_CH1 === 1) && (`ANA_TOP.D2A_DRIVERA_PULLDB_CH1 === 1));
+    wait((`ANA_WRAPPER_TOP.i_pulldn_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1) && (`ANA_WRAPPER_TOP.i_pulldn_driver[`DUT_IF.DRIVE_SLCT*4+0] === 1));
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h00;});
     `nnc_info("SOC_TEST", "Disable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);

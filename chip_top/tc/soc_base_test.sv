@@ -24,6 +24,14 @@
     `ACCESS_``REG \
   };
 
+`define SET_CFG_NIRS_REG(REG) \
+  top_test_cfg.reg_nirs[`REG] = { \
+    `REG, \
+    `INIT_``REG, \
+    `MASK_``REG, \
+    `ACCESS_``REG \
+  };
+
 `define SET_CFG_WG_REG(REG) \
   top_test_cfg.reg_wavegen[`REG + `WAVEGEN_1_ADDR_BASE * i] = { \
     `REG + `WAVEGEN_1_ADDR_BASE * i, \
@@ -147,61 +155,117 @@
 `define ACCESS_SOC_OTP_TRIM_8_REG                    16'h07
 `define REG16 SOC_OTP_TRIM_8_REG
 
-`define SOC_OTP_UNLOCK_REG                           8'h15
+`define SOC_OTP_TRIM_9_REG                           8'h15
+`define INIT_SOC_OTP_TRIM_9_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_9_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_9_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_9_REG                    16'h07
+`define REG17 SOC_OTP_TRIM_9_REG
+
+`define SOC_OTP_TRIM_10_REG                           8'h16
+`define INIT_SOC_OTP_TRIM_10_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_10_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_10_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_10_REG                    16'h07
+`define REG18 SOC_OTP_TRIM_10_REG
+
+`define SOC_OTP_TRIM_11_REG                           8'h17
+`define INIT_SOC_OTP_TRIM_11_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_11_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_11_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_11_REG                    16'h07
+`define REG19 SOC_OTP_TRIM_11_REG
+
+`define SOC_OTP_TRIM_12_REG                           8'h18
+`define INIT_SOC_OTP_TRIM_12_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_12_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_12_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_12_REG                    16'h07
+`define REG20 SOC_OTP_TRIM_12_REG
+
+`define SOC_OTP_TRIM_13_REG                           8'h19
+`define INIT_SOC_OTP_TRIM_13_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_13_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_13_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_13_REG                    16'h07
+`define REG21 SOC_OTP_TRIM_13_REG
+
+`define SOC_OTP_TRIM_14_REG                           8'h1A
+`define INIT_SOC_OTP_TRIM_14_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_14_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_14_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_14_REG                    16'h07
+`define REG22 SOC_OTP_TRIM_14_REG
+
+`define SOC_OTP_TRIM_15_REG                           8'h1B
+`define INIT_SOC_OTP_TRIM_15_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_15_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_15_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_15_REG                    16'h07
+`define REG23 SOC_OTP_TRIM_15_REG
+
+`define SOC_OTP_TRIM_16_REG                           8'h1C
+`define INIT_SOC_OTP_TRIM_16_REG                      8'h00 // RW
+`define INIT_RELOAD_SOC_OTP_TRIM_16_REG               8'h00 // RW
+`define MASK_SOC_OTP_TRIM_16_REG                      8'hFF
+`define ACCESS_SOC_OTP_TRIM_16_REG                    16'h02
+`define REG24 SOC_OTP_TRIM_16_REG
+
+`define SOC_OTP_UNLOCK_REG                           8'h1D
 `define INIT_SOC_OTP_UNLOCK_REG                      8'h00 // RW
 `define MASK_SOC_OTP_UNLOCK_REG                      8'hFF
 `define ACCESS_SOC_OTP_UNLOCK_REG                    16'h03
-`define REG17 SOC_OTP_UNLOCK_REG
+`define REG25 SOC_OTP_UNLOCK_REG
 
-`define SOC_OTP_DATA_REG                             8'h16
+`define SOC_OTP_DATA_REG                             8'h1E
 `define INIT_SOC_OTP_DATA_REG                        8'h00 // RW
 `define MASK_SOC_OTP_DATA_REG                        8'hFF
 `define ACCESS_SOC_OTP_DATA_REG                      16'h07
-`define REG18 SOC_OTP_DATA_REG
+`define REG26 SOC_OTP_DATA_REG
 
-`define SOC_OTP_ADDR_REG                             8'h17
+`define SOC_OTP_ADDR_REG                             8'h1F
 `define INIT_SOC_OTP_ADDR_REG                        8'h00 // RW
 `define MASK_SOC_OTP_ADDR_REG                        8'hFF
 `define ACCESS_SOC_OTP_ADDR_REG                      16'h07
-`define REG19 SOC_OTP_ADDR_REG
+`define REG27 SOC_OTP_ADDR_REG
 
-`define SOC_OTP_MEM_DATA_REG                         8'h18
+`define SOC_OTP_MEM_DATA_REG                         8'h20
 `define INIT_SOC_OTP_MEM_DATA_REG                    8'h00 // RW
 `define MASK_SOC_OTP_MEM_DATA_REG                    8'hFF 
 `define ACCESS_SOC_OTP_MEM_DATA_REG                  16'h02
-`define REG20 SOC_OTP_MEM_DATA_REG
+`define REG28 SOC_OTP_MEM_DATA_REG
 
-`define SOC_OTP_WAVEGEN_NUM_REG                         8'h1A
-`define INIT_SOC_OTP_WAVEGEN_NUM_REG                    8'h00 // RW
-`define MASK_SOC_OTP_WAVEGEN_NUM_REG                    8'h07 
-`define ACCESS_SOC_OTP_WAVEGEN_NUM_REG                  16'h07
-`define REG21 SOC_OTP_WAVEGEN_NUM_REG
+`define SOC_OTP_WAVEGEN_NUM_REG                      8'h21
+`define INIT_SOC_OTP_WAVEGEN_NUM_REG                 8'h00 // RW
+`define MASK_SOC_OTP_WAVEGEN_NUM_REG                 8'h07 
+`define ACCESS_SOC_OTP_WAVEGEN_NUM_REG               16'h07
+`define REG29 SOC_OTP_WAVEGEN_NUM_REG
 
-`define SOC_GPIO_PU_CTRL_REG                       8'h20
-`define INIT_SOC_GPIO_PU_CTRL_REG                  8'h00 // RW
-`define MASK_SOC_GPIO_PU_CTRL_REG                  8'hFF
-`define ACCESS_SOC_GPIO_PU_CTRL_REG                16'h07
-`define REG22 SOC_GPIO_PU_CTRL_REG
+`define SOC_GPIO_PU_CTRL_REG                         8'h30
+`define INIT_SOC_GPIO_PU_CTRL_REG                    8'h00 // RW
+`define MASK_SOC_GPIO_PU_CTRL_REG                    8'hFF
+`define ACCESS_SOC_GPIO_PU_CTRL_REG                  16'h07
+`define REG30 SOC_GPIO_PU_CTRL_REG
 
-`define SOC_GPIO_PD_CTRL_REG                         8'h21
+`define SOC_GPIO_PD_CTRL_REG                         8'h31
 `define INIT_SOC_GPIO_PD_CTRL_REG                    8'h1F // RW
 `define MASK_SOC_GPIO_PD_CTRL_REG                    8'h1F
 `define ACCESS_SOC_GPIO_PD_CTRL_REG                  16'h07
-`define REG23 SOC_GPIO_PD_CTRL_REG
+`define REG31 SOC_GPIO_PD_CTRL_REG
 
-`define SOC_GPIO_SR_PDRV0_1_CTRL_REG                 8'h22
+`define SOC_GPIO_SR_PDRV0_1_CTRL_REG                 8'h32
 `define INIT_SOC_GPIO_SR_PDRV0_1_CTRL_REG            8'h00 // RW
 `define MASK_SOC_GPIO_SR_PDRV0_1_CTRL_REG            8'h07
 `define ACCESS_SOC_GPIO_SR_PDRV0_1_CTRL_REG          16'h07 
-`define REG24 SOC_GPIO_SR_PDRV0_1_CTRL_REG
+`define REG32 SOC_GPIO_SR_PDRV0_1_CTRL_REG
 
-`define SOC_GPIO_COM_OUT_CTRL_REG                    8'h23
+/*
+`define SOC_GPIO_COM_OUT_CTRL_REG                    8'h33
 `define INIT_SOC_GPIO_COM_OUT_CTRL_REG               8'h00 // RW
 `define MASK_SOC_GPIO_COM_OUT_CTRL_REG               8'h07
 `define ACCESS_SOC_GPIO_COM_OUT_CTRL_REG             16'h07
 `define REG25 SOC_GPIO_COM_OUT_CTRL_REG
 
-/*
 `define SOC_LEAD_OFF_CTRL_REG                        8'h26
 `define INIT_SOC_LEAD_OFF_CTRL_REG                   8'h00 // RW
 `define MASK_SOC_LEAD_OFF_CTRL_REG                   8'h7F
@@ -312,13 +376,13 @@
 */
 
 `define SOC_ANA_ENABLE_REG_0                         8'h40
-`define INIT_SOC_ANA_ENABLE_REG_0                    8'h02 // RW
+`define INIT_SOC_ANA_ENABLE_REG_0                    8'h00 // RW
 `define MASK_SOC_ANA_ENABLE_REG_0                    8'hFF  
 `define ACCESS_SOC_ANA_ENABLE_REG_0                  16'h07  
 `define REG44 SOC_ANA_ENABLE_REG_0
 
 `define SOC_ANA_ENABLE_REG_1                         8'h41
-`define INIT_SOC_ANA_ENABLE_REG_1                    8'h00 // RW
+`define INIT_SOC_ANA_ENABLE_REG_1                    8'h02 // RW
 `define MASK_SOC_ANA_ENABLE_REG_1                    8'hFF     
 `define ACCESS_SOC_ANA_ENABLE_REG_1                  16'h07
 `define REG45 SOC_ANA_ENABLE_REG_1
@@ -827,155 +891,270 @@
 `define ACCESS_SOC_FILTER_LPF_COEFF_DATA3_REG        16'h03
 `define REG127 SOC_FILTER_LPF_COEFF_DATA3_REG
 
-`define SOC_NIRS_CTRL_ADDRESS_REG                    8'hC0
+// NIRS Address Map
+`define SOC_NIRS_CTRL_ADDRESS_REG                    8'h00
 `define INIT_SOC_NIRS_CTRL_ADDRESS_REG               8'h00
 `define MASK_SOC_NIRS_CTRL_ADDRESS_REG               8'h07
 `define ACCESS_SOC_NIRS_CTRL_ADDRESS_REG             16'h07
-`define REG151 SOC_NIRS_CTRL_ADDRESS_REG
+`define REG_NIRS0 SOC_NIRS_CTRL_ADDRESS_REG
 
-`define SOC_NIRS_CTRL_0_REG                           8'hC1
+`define SOC_NIRS_CTRL_0_REG                           8'h02
 `define INIT_SOC_NIRS_CTRL_0_REG                      8'h00
-`define MASK_SOC_NIRS_CTRL_0_REG                      8'hFF
+`define MASK_SOC_NIRS_CTRL_0_REG                      8'h7F
 `define ACCESS_SOC_NIRS_CTRL_0_REG                    16'h07
-`define REG128 SOC_NIRS_CTRL_0_REG
+`define REG_NIRS1 SOC_NIRS_CTRL_0_REG
 
-`define SOC_NIRS_CTRL_1_REG                           8'hC2 
+`define SOC_NIRS_CTRL_1_REG                           8'h03 
 `define INIT_SOC_NIRS_CTRL_1_REG                      8'h00
 `define MASK_SOC_NIRS_CTRL_1_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_1_REG                    16'h07
-`define REG129 SOC_NIRS_CTRL_1_REG
+`define REG_NIRS2 SOC_NIRS_CTRL_1_REG
 
-`define SOC_NIRS_CTRL_2_REG                           8'hC3
+`define SOC_NIRS_CTRL_2_REG                           8'h04
 `define INIT_SOC_NIRS_CTRL_2_REG                      8'h00
 `define MASK_SOC_NIRS_CTRL_2_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_2_REG                    16'h07
-`define REG130 SOC_NIRS_CTRL_2_REG
+`define REG_NIRS3 SOC_NIRS_CTRL_2_REG
 
-`define SOC_NIRS_CTRL_3_REG                           8'hC4 
+`define SOC_NIRS_CTRL_3_REG                           8'h05 
 `define INIT_SOC_NIRS_CTRL_3_REG                      8'h00
 `define MASK_SOC_NIRS_CTRL_3_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_3_REG                    16'h07
-`define REG131 SOC_NIRS_CTRL_3_REG
+`define REG_NIRS4 SOC_NIRS_CTRL_3_REG
 
-`define SOC_NIRS_CTRL_4_REG                           8'hC5 
+`define SOC_NIRS_CTRL_4_REG                           8'h06 
 `define INIT_SOC_NIRS_CTRL_4_REG                      8'h00
-`define MASK_SOC_NIRS_CTRL_4_REG                      8'h1F
+`define MASK_SOC_NIRS_CTRL_4_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_4_REG                    16'h07
-`define REG132 SOC_NIRS_CTRL_4_REG
+`define REG_NIRS5 SOC_NIRS_CTRL_4_REG
 
-`define SOC_NIRS_CTRL_5_REG                           8'hC6
+`define SOC_NIRS_CTRL_5_REG                           8'h07
 `define INIT_SOC_NIRS_CTRL_5_REG                      8'h00
 `define MASK_SOC_NIRS_CTRL_5_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_5_REG                    16'h07
-`define REG133 SOC_NIRS_CTRL_5_REG
+`define REG_NIRS6 SOC_NIRS_CTRL_5_REG
 
-`define SOC_NIRS_CTRL_6_REG                           8'hC7
-`define INIT_SOC_NIRS_CTRL_6_REG                      8'h00
+`define SOC_NIRS_CTRL_6_REG                           8'h08
+`define INIT_SOC_NIRS_CTRL_6_REG                      8'hFF
 `define MASK_SOC_NIRS_CTRL_6_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_6_REG                    16'h07 
-`define REG134 SOC_NIRS_CTRL_6_REG
+`define REG_NIRS7 SOC_NIRS_CTRL_6_REG
 
-`define SOC_NIRS_CTRL_7_REG                           8'hC8 
-`define INIT_SOC_NIRS_CTRL_7_REG                      8'h00
+`define SOC_NIRS_CTRL_7_REG                           8'h09 
+`define INIT_SOC_NIRS_CTRL_7_REG                      8'hFF
 `define MASK_SOC_NIRS_CTRL_7_REG                      8'h00
 `define ACCESS_SOC_NIRS_CTRL_7_REG                    16'h07
-`define REG135 SOC_NIRS_CTRL_7_REG
+`define REG_NIRS8 SOC_NIRS_CTRL_7_REG
 
-`define SOC_NIRS_CTRL_8_REG                           8'hC9
-`define INIT_SOC_NIRS_CTRL_8_REG                      8'h00
+`define SOC_NIRS_CTRL_8_REG                           8'h0A
+`define INIT_SOC_NIRS_CTRL_8_REG                      8'h7F
 `define MASK_SOC_NIRS_CTRL_8_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_8_REG                    16'h07
-`define REG136 SOC_NIRS_CTRL_8_REG
+`define REG_NIRS9 SOC_NIRS_CTRL_8_REG
 
-`define SOC_NIRS_CTRL_9_REG                           8'hCA
-`define INIT_SOC_NIRS_CTRL_9_REG                      8'h00
+`define SOC_NIRS_CTRL_9_REG                           8'h0B
+`define INIT_SOC_NIRS_CTRL_9_REG                      8'h60
 `define MASK_SOC_NIRS_CTRL_9_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_9_REG                    16'h07
-`define REG137 SOC_NIRS_CTRL_9_REG
+`define REG_NIRS10 SOC_NIRS_CTRL_9_REG
 
-`define SOC_NIRS_CTRL_10_REG 			      8'hCB 
+`define SOC_NIRS_CTRL_10_REG 			      8'h0C 
 `define INIT_SOC_NIRS_CTRL_10_REG 		      8'h00
 `define MASK_SOC_NIRS_CTRL_10_REG        	      8'h03
 `define ACCESS_SOC_NIRS_CTRL_10_REG 		      16'h07
-`define REG138 SOC_NIRS_CTRL_10_REG
+`define REG_NIRS11 SOC_NIRS_CTRL_10_REG
 
-`define SOC_NIRS_CTRL_11_REG 			      8'hCC
-`define INIT_SOC_NIRS_CTRL_11_REG 		      8'h00
-`define MASK_SOC_NIRS_CTRL_11_REG        	      8'hFF
-`define ACCESS_SOC_NIRS_CTRL_11_REG 		      16'h07
-`define REG139 SOC_NIRS_CTRL_11_REG
-
-`define SOC_NIRS_CTRL_CLK_REG 			      8'hCD
+`define SOC_NIRS_CTRL_CLK_REG 			      8'h0D
 `define INIT_SOC_NIRS_CTRL_CLK_REG 		      8'h02
 `define MASK_SOC_NIRS_CTRL_CLK_REG        	      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_CLK_REG 		      16'h07
-`define REG140 SOC_NIRS_CTRL_CLK_REG
+`define REG_NIRS12 SOC_NIRS_CTRL_CLK_REG
 
-`define SOC_NIRS_CTRL_EN_REG 			      8'hCE
+`define SOC_NIRS_CTRL_EN_REG 			      8'h0E
 `define INIT_SOC_NIRS_CTRL_EN_REG 		      8'h00
 `define MASK_SOC_NIRS_CTRL_EN_REG        	      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_EN_REG 		      16'h07
-`define REG141 SOC_NIRS_CTRL_EN_REG
+`define REG_NIRS13 SOC_NIRS_CTRL_EN_REG
 
-`define SOC_NIRS_CTRL_MEAS_REG 			      8'hCF
+`define SOC_NIRS_CTRL_MEAS_REG 			      8'h0F
 `define INIT_SOC_NIRS_CTRL_MEAS_REG 		      8'h00
 `define MASK_SOC_NIRS_CTRL_MEAS_REG        	      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_MEAS_REG 		      16'h07
-`define REG142 SOC_NIRS_CTRL_MEAS_REG
+`define REG_NIRS14 SOC_NIRS_CTRL_MEAS_REG
 
-`define SOC_NIRS_DOUT_0_REG                           8'hCE
-`define INIT_SOC_NIRS_DOUT_0_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_0_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_0_REG                    16'h02
-`define REG143 SOC_NIRS_DOUT_0_REG
+//`define SOC_NIRS_DOUT_0_REG                           8'hCE
+//`define INIT_SOC_NIRS_DOUT_0_REG                      8'h00
+//`define MASK_SOC_NIRS_DOUT_0_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_0_REG                    16'h02
+//`define REG143 SOC_NIRS_DOUT_0_REG
+//
+//`define SOC_NIRS_DOUT_1_REG                           8'hCF
+//`define INIT_SOC_NIRS_DOUT_1_REG                      8'h00
+//`define MASK_SOC_NIRS_DOUT_1_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_1_REG                    16'h02
+//`define REG144 SOC_NIRS_DOUT_1_REG
 
-`define SOC_NIRS_DOUT_1_REG                           8'hCF
-`define INIT_SOC_NIRS_DOUT_1_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_1_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_1_REG                    16'h02
-`define REG144 SOC_NIRS_DOUT_1_REG
+`define SOC_NIRS_DEBUG_0_REG                           8'h10
+`define INIT_SOC_NIRS_DEBUG_0_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_0_REG                      8'h1F
+`define ACCESS_SOC_NIRS_DEBUG_0_REG                    16'h02
+`define REG_NIRS15 SOC_NIRS_DEBUG_0_REG
 
-`define SOC_NIRS_DOUT_2_REG                           8'hD0
-`define INIT_SOC_NIRS_DOUT_2_REG                      8'h02
-`define MASK_SOC_NIRS_DOUT_2_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_2_REG                    16'h07
-`define REG145 SOC_NIRS_DOUT_2_REG
+`define SOC_NIRS_DEBUG_1_REG                           8'h11
+`define INIT_SOC_NIRS_DEBUG_1_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_1_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DEBUG_1_REG                    16'h02
+`define REG_NIRS16 SOC_NIRS_DEBUG_1_REG
 
-`define SOC_NIRS_DOUT_3_REG                           8'hD1
-`define INIT_SOC_NIRS_DOUT_3_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_3_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_3_REG                    8'h02
-`define REG146 SOC_NIRS_DOUT_3_REG
+`define SOC_NIRS_DEBUG_2_REG                           8'h12
+`define INIT_SOC_NIRS_DEBUG_2_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_2_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DEBUG_2_REG                    16'h02
+`define REG_NIRS17 SOC_NIRS_DEBUG_2_REG
 
-`define SOC_NIRS_DOUT_4_REG                           8'hD2
-`define INIT_SOC_NIRS_DOUT_4_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_4_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_4_REG                    8'h02
-`define REG147 SOC_NIRS_DOUT_4_REG
+`define SOC_NIRS_DEBUG_3_REG                           8'h13
+`define INIT_SOC_NIRS_DEBUG_3_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_3_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DEBUG_3_REG                    16'h02
+`define REG_NIRS18 SOC_NIRS_DEBUG_3_REG
 
-`define SOC_NIRS_DOUT_5_REG                           8'hD3
-`define INIT_SOC_NIRS_DOUT_5_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_5_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_5_REG                    8'h02
-`define REG148 SOC_NIRS_DOUT_5_REG
+`define SOC_NIRS_DEBUG_4_REG                           8'h14
+`define INIT_SOC_NIRS_DEBUG_4_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_4_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DEBUG_4_REG                    16'h02
+`define REG_NIRS19 SOC_NIRS_DEBUG_4_REG
 
-`define SOC_NIRS_DOUT_6_REG                           8'hD4
-`define INIT_SOC_NIRS_DOUT_6_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_6_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_6_REG                    8'h02
-`define REG149 SOC_NIRS_DOUT_6_REG
+`define SOC_NIRS_DEBUG_5_REG                           8'h15
+`define INIT_SOC_NIRS_DEBUG_5_REG                      8'h00
+`define MASK_SOC_NIRS_DEBUG_5_REG                      8'hFF
+`define ACCESS_SOC_NIRS_DEBUG_5_REG                    16'h02
+`define REG_NIRS20 SOC_NIRS_DEBUG_5_REG
 
-`define SOC_NIRS_DOUT_7_REG                           8'hD5
-`define INIT_SOC_NIRS_DOUT_7_REG                      8'h00
-`define MASK_SOC_NIRS_DOUT_7_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DOUT_7_REG                    8'h02
-`define REG150 SOC_NIRS_DOUT_7_REG
+`define SOC_NIRS_DEBUG_6_REG                            8'h16
+`define INIT_SOC_NIRS_DEBUG_6_REG                       8'h00
+`define MASK_SOC_NIRS_DEBUG_6_REG                       8'h00
+`define ACCESS_SOC_NIRS_DEBUG_6_REG                     16'h02
+`define REG_NIRS21 SOC_NIRS_DEBUG_6_REG
 
-`define SOC_NIRS_FLAGS_REG                            8'hD7
-`define INIT_SOC_NIRS_FLAGS_REG                       8'h00
-`define MASK_SOC_NIRS_FLAGS_REG                       8'hFF
-`define ACCESS_SOC_NIRS_FLAGS_REG                     8'h01
-`define REG151 SOC_NIRS_FLAGS_REG
+`define SOC_NIRS_INT_STATUS_REG                         8'h17
+`define INIT_SOC_NIRS_INT_STATUS_REG                    8'h00
+`define MASK_SOC_NIRS_INT_STATUS_REG                    8'hFF
+`define ACCESS_SOC_NIRS_INT_STATUS_REG                  16'h00
+`define REG_NIRS22 SOC_NIRS_INT_STATUS_REG
+
+`define SOC_NIRS_DOUT_0_REG                             8'hD38
+`define INIT_SOC_NIRS_DOUT_0_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_0_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_0_REG                      16'h02
+`define REG_NIRS23 SOC_NIRS_DOUT_0_REG
+
+`define SOC_NIRS_DOUT_1_REG                             8'h39
+`define INIT_SOC_NIRS_DOUT_1_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_1_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_1_REG                      16'h02
+`define REG_NIRS24 SOC_NIRS_DOUT_1_REG
+
+`define SOC_NIRS_DOUT_2_REG                             8'h3A
+`define INIT_SOC_NIRS_DOUT_2_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_2_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_2_REG                      16'h02
+`define REG_NIRS24 SOC_NIRS_DOUT_2_REG
+
+`define SOC_NIRS_DOUT_3_REG                             8'h3B
+`define INIT_SOC_NIRS_DOUT_3_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_3_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_3_REG                      16'h02
+`define REG_NIRS25 SOC_NIRS_DOUT_3_REG
+
+`define SOC_NIRS_DOUT_4_REG                             8'h3C
+`define INIT_SOC_NIRS_DOUT_4_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_4_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_4_REG                      16'h02
+`define REG_NIRS26 SOC_NIRS_DOUT_4_REG
+
+`define SOC_NIRS_DOUT_5_REG                             8'h3D
+`define INIT_SOC_NIRS_DOUT_5_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_5_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_5_REG                      16'h02
+`define REG_NIRS27 SOC_NIRS_DOUT_5_REG
+
+`define SOC_NIRS_DOUT_6_REG                             8'h3E
+`define INIT_SOC_NIRS_DOUT_6_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_6_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_6_REG                      16'h02
+`define REG_NIRS28 SOC_NIRS_DOUT_6_REG
+
+`define SOC_NIRS_DOUT_7_REG                             8'h3F
+`define INIT_SOC_NIRS_DOUT_7_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_7_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_7_REG                      16'h02
+`define REG_NIRS29 SOC_NIRS_DOUT_7_REG
+
+`define SOC_NIRS_DOUT_8_REG                             8'h40
+`define INIT_SOC_NIRS_DOUT_8_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_8_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_8_REG                      16'h02
+`define REG_NIRS30 SOC_NIRS_DOUT_8_REG
+
+`define SOC_NIRS_DOUT_9_REG                             8'h41
+`define INIT_SOC_NIRS_DOUT_9_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_9_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_9_REG                      16'h02
+`define REG_NIRS31 SOC_NIRS_DOUT_9_REG
+
+`define SOC_NIRS_DOUT_10_REG                             8'h42
+`define INIT_SOC_NIRS_DOUT_10_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_10_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_10_REG                      16'h02
+`define REG_NIRS32 SOC_NIRS_DOUT_10_REG
+
+`define SOC_NIRS_DOUT_11_REG                             8'h43
+`define INIT_SOC_NIRS_DOUT_11_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_11_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_11_REG                      16'h02
+`define REG_NIRS33 SOC_NIRS_DOUT_11_REG
+
+`define SOC_NIRS_DOUT_12_REG                             8'h44
+`define INIT_SOC_NIRS_DOUT_12_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_12_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_12_REG                      16'h02
+`define REG_NIRS34 SOC_NIRS_DOUT_12_REG
+
+`define SOC_NIRS_DOUT_13_REG                             8'h45
+`define INIT_SOC_NIRS_DOUT_13_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_13_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_13_REG                      16'h02
+`define REG_NIRS35 SOC_NIRS_DOUT_13_REG
+
+`define SOC_NIRS_DOUT_14_REG                             8'h46
+`define INIT_SOC_NIRS_DOUT_14_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_14_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_14_REG                      16'h02
+`define REG_NIRS36 SOC_NIRS_DOUT_14_REG
+
+`define SOC_NIRS_DOUT_15_REG                             8'h47
+`define INIT_SOC_NIRS_DOUT_15_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_15_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_15_REG                      16'h02
+`define REG_NIRS37 SOC_NIRS_DOUT_15_REG
+
+`define SOC_NIRS_DOUT_16_REG                             8'h48
+`define INIT_SOC_NIRS_DOUT_16_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_16_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_16_REG                      16'h02
+`define REG_NIRS38 SOC_NIRS_DOUT_16_REG
+
+`define SOC_NIRS_DOUT_17_REG                             8'h49
+`define INIT_SOC_NIRS_DOUT_17_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_17_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_17_REG                      16'h02
+`define REG_NIRS39 SOC_NIRS_DOUT_17_REG
+
+`define SOC_NIRS_DOUT_18_REG                             8'h4A
+`define INIT_SOC_NIRS_DOUT_18_REG                        8'h00
+`define MASK_SOC_NIRS_DOUT_18_REG                        8'hFF
+`define ACCESS_SOC_NIRS_DOUT_18_REG                      16'h02
+`define REG_NIRS40 SOC_NIRS_DOUT_18_REG
 
 //`define SOC_NIRS_CTRL_13_REG                          8'hD6
 //`define INIT_SOC_NIRS_CTRL_7_REG                      8'h02
@@ -1462,7 +1641,8 @@ class `TESTCFG extends nnc_object;
 
     rand  logic  [6:0]   hfosc_jitter;
     rand  logic  [6:0]   hfosc_variation;
-
+    rand  logic  [2:0]   hfosc_sel;            // 3'h0: 8.192Mhz, 3'h1: 8Mhz, 3'h2: 95% of 8M, 3'h3: 105% of 8M, 3'h4: 95% of 8.192M, 3'h5: 105% of 8.192M,
+  
     rand  bit            hfosc_fixed_gnd_en; 
     rand  bit            ext_hfosc_fixed_gnd_en;
 
@@ -1564,9 +1744,9 @@ class `TESTCFG extends nnc_object;
     rand bit            imeas_noise_gen_en;
     rand bit            imeas_overlap_en;
    
-    rand bit [31:0] nirs_irefcoarse_length;         // High pulse length of SW2  - Unit: ns
-    rand bit [31:0] nirs_irefcoarse_iref_delay;     // Delay between SW2 and SW3 - Unit: ns 
-    rand bit [31:0] nirs_ireffine_length;           // High pulse length of SW3  - Unit: ns
+    rand bit [31:0] nirs_irefcoarse_length[7:0];         // High pulse length of SW2  - Unit: ns
+    rand bit [31:0] nirs_irefcoarse_iref_delay[7:0];     // Delay between SW2 and SW3 - Unit: ns 
+    rand bit [31:0] nirs_ireffine_length[7:0];           // High pulse length of SW3  - Unit: ns
 
     // ======================================================================================
     // reg_normal[i] struture 
@@ -1578,6 +1758,8 @@ class `TESTCFG extends nnc_object;
     // [1:0]: Type of access: 0: RW1C, 1: Write Only, 2: Read Only, 3: RW, 2'bxx: reserved 
     // ======================================================================================
     logic [39:0]         reg_normal[`NORMAL_REG_NUM]; 
+
+    logic [39:0]         reg_nirs[`NIRS_REG_NUM];
 
     // The same for reg_wavegen for Wavegen Registers
     logic [39:0]         reg_wavegen[`WAVEGEN_DRIVER_OFFSET*`WAVEGEN_DRIVER_NUM];
@@ -1644,9 +1826,16 @@ class `TESTCFG extends nnc_object;
 
     constraint c_imeas_osr              { solve imeas_cic_rate before imeas_osr ; imeas_osr == (8 * (2**imeas_cic_rate)); }
 
-    constraint c_imeas_adc_freq         { solve iclk_sel before imeas_adc_freq; 
+    constraint c_imeas_adc_freq         { solve hfosc_sel before imeas_adc_freq;
+                                          solve iclk_sel before imeas_adc_freq; 
+                                          (hfosc_sel == 3'b000) -> imeas_adc_freq == (8192/(2**(iclk_sel))); 
+                                          (hfosc_sel == 3'b001) -> imeas_adc_freq == (8000/(2**(iclk_sel)));
+                                          (hfosc_sel == 3'b010) -> imeas_adc_freq == (7600/(2**(iclk_sel)));
+                                          (hfosc_sel == 3'b011) -> imeas_adc_freq == (8400/(2**(iclk_sel)));
+                                          (hfosc_sel == 3'b100) -> imeas_adc_freq == (7782/(2**(iclk_sel)));
+                                          (hfosc_sel == 3'b101) -> imeas_adc_freq == (8601/(2**(iclk_sel))); }
                                           //imeas_adc_freq == (8192/(2**(iclk_sel))); }
-                                          imeas_adc_freq == (8389/(2**(iclk_sel))); }
+                                          //imeas_adc_freq == (8389/(2**(iclk_sel))); }
 
     constraint c_imeas_samp_rate        { solve imeas_adc_freq before imeas_samp_rate; 
                                           solve imeas_osr before imeas_samp_rate; 
@@ -1725,6 +1914,8 @@ class `TESTCFG extends nnc_object;
 
     // Set the variation of HFOSC (duty cycle)
     constraint c_hfosc_variation        { soft hfosc_variation inside {[97:103]}; } // 97% - 103% - Clock limitation for OOT from 1.89Mhz-2,2Mhz 
+
+    constraint c_hfosc_sel              { soft hfosc_sel inside {[0:0]}; }
 
     // Enable/Disable to fix the output of Internal HFOSC to Ground
     constraint c_hfosc_fixed_gnd_en     { solve ext_clk_en before hfosc_fixed_gnd_en; 
@@ -1896,11 +2087,28 @@ class `TESTCFG extends nnc_object;
     //constraint c_no_of_adc_dev2             { soft no_of_adc_dev2 inside {[0:3]};} //  0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
     constraint c_no_of_adc_dev2             { soft no_of_adc_dev2 == 3'd0;} //  0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
-    constraint c_nirs_irefcoarse_length     { nirs_irefcoarse_length inside {[100:2000]};}
+    constraint c_nirs_irefcoarse_length     {
+                                               foreach (nirs_irefcoarse_length[i]) {
+                                                  nirs_irefcoarse_length[i] inside {[180:5000]}; // >(greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ) PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle 
+                                               }
+                                            }
 
-    constraint c_nirs_irefcoarse_iref_delay { nirs_irefcoarse_iref_delay inside {[0:0]};}
+    constraint c_nirs_ireffine_length     {
+                                               foreach (nirs_ireffine_length[i]) {
+                                                  nirs_ireffine_length[i] inside {[180:5000]}; // (greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ), PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle
+                                               }
+                                          }
 
-    constraint c_nirs_ireffine_length       { nirs_ireffine_length inside {[100:1000]};}
+    constraint c_nirs_irefcoarse_iref_delay {
+                                               foreach (nirs_irefcoarse_iref_delay[i]) {
+                                                  nirs_irefcoarse_iref_delay[i] inside {[180:1250]}; // minimum delay between A2D_NIRS_IREFCOARSE and A2D_NIRSFINE should be one clock,(greater than one clock ==> set as minimum & maximum 10 clock cycles if default is 8MHZ),
+                                               }
+                                            }
+   //constraint c_nirs_irefcoarse_length     { nirs_irefcoarse_length inside {[100:2000]};}
+
+   //constraint c_nirs_irefcoarse_iref_delay { nirs_irefcoarse_iref_delay inside {[0:0]};}
+
+   //constraint c_nirs_ireffine_length       { nirs_ireffine_length inside {[100:1000]};}
 
     constraint c_imeas_overlap_en           { soft imeas_overlap_en == 1'b1; } 
 
@@ -1993,7 +2201,6 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG23);
   `SET_CFG_REG(`REG24);
   `SET_CFG_REG(`REG25);
-/*
   `SET_CFG_REG(`REG26);
   `SET_CFG_REG(`REG27);
   `SET_CFG_REG(`REG28);
@@ -2001,6 +2208,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG30);
   `SET_CFG_REG(`REG31);
   `SET_CFG_REG(`REG32);
+/*
   `SET_CFG_REG(`REG33);
   `SET_CFG_REG(`REG34);
   `SET_CFG_REG(`REG35);
@@ -2101,29 +2309,49 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG125);
   `SET_CFG_REG(`REG126);
   `SET_CFG_REG(`REG127);
-  `SET_CFG_REG(`REG128);
-  `SET_CFG_REG(`REG129);
-  `SET_CFG_REG(`REG130);
-  `SET_CFG_REG(`REG131);
-  `SET_CFG_REG(`REG132);
-  `SET_CFG_REG(`REG133);
-  `SET_CFG_REG(`REG134);
-  `SET_CFG_REG(`REG135);
-  `SET_CFG_REG(`REG136);
-  `SET_CFG_REG(`REG137);
-  `SET_CFG_REG(`REG138);
-  `SET_CFG_REG(`REG139);
-  `SET_CFG_REG(`REG140);
-  `SET_CFG_REG(`REG141);
-  `SET_CFG_REG(`REG142);
-  `SET_CFG_REG(`REG143);
-  `SET_CFG_REG(`REG144);
-  `SET_CFG_REG(`REG145);
-  `SET_CFG_REG(`REG146);
-  `SET_CFG_REG(`REG147);
-  `SET_CFG_REG(`REG148);
-  `SET_CFG_REG(`REG149);
-  `SET_CFG_REG(`REG150);
+  
+// Setting for NIRS
+  `SET_CFG_NIRS_REG(`REG_NIRS0);
+  `SET_CFG_NIRS_REG(`REG_NIRS1);
+  `SET_CFG_NIRS_REG(`REG_NIRS2);
+  `SET_CFG_NIRS_REG(`REG_NIRS3);
+  `SET_CFG_NIRS_REG(`REG_NIRS4);
+  `SET_CFG_NIRS_REG(`REG_NIRS5);
+  `SET_CFG_NIRS_REG(`REG_NIRS6);
+  `SET_CFG_NIRS_REG(`REG_NIRS7);
+  `SET_CFG_NIRS_REG(`REG_NIRS8);
+  `SET_CFG_NIRS_REG(`REG_NIRS9);
+  `SET_CFG_NIRS_REG(`REG_NIRS10);
+  `SET_CFG_NIRS_REG(`REG_NIRS11);
+  `SET_CFG_NIRS_REG(`REG_NIRS12);
+  `SET_CFG_NIRS_REG(`REG_NIRS13);
+  `SET_CFG_NIRS_REG(`REG_NIRS14);
+  `SET_CFG_NIRS_REG(`REG_NIRS15);
+  `SET_CFG_NIRS_REG(`REG_NIRS16);
+  `SET_CFG_NIRS_REG(`REG_NIRS17);
+  `SET_CFG_NIRS_REG(`REG_NIRS18);
+  `SET_CFG_NIRS_REG(`REG_NIRS19);
+  `SET_CFG_NIRS_REG(`REG_NIRS20);
+  `SET_CFG_NIRS_REG(`REG_NIRS21);
+  `SET_CFG_NIRS_REG(`REG_NIRS22);
+  `SET_CFG_NIRS_REG(`REG_NIRS23);
+  `SET_CFG_NIRS_REG(`REG_NIRS24);
+  `SET_CFG_NIRS_REG(`REG_NIRS25);
+  `SET_CFG_NIRS_REG(`REG_NIRS26);
+  `SET_CFG_NIRS_REG(`REG_NIRS27);
+  `SET_CFG_NIRS_REG(`REG_NIRS28);
+  `SET_CFG_NIRS_REG(`REG_NIRS29);
+  `SET_CFG_NIRS_REG(`REG_NIRS30);
+  `SET_CFG_NIRS_REG(`REG_NIRS31);
+  `SET_CFG_NIRS_REG(`REG_NIRS32);
+  `SET_CFG_NIRS_REG(`REG_NIRS33);
+  `SET_CFG_NIRS_REG(`REG_NIRS34);
+  `SET_CFG_NIRS_REG(`REG_NIRS35);
+  `SET_CFG_NIRS_REG(`REG_NIRS36);
+  `SET_CFG_NIRS_REG(`REG_NIRS37);
+  `SET_CFG_NIRS_REG(`REG_NIRS38);
+  `SET_CFG_NIRS_REG(`REG_NIRS39);
+  `SET_CFG_NIRS_REG(`REG_NIRS40);
 
 // For Wavegen registers
   for (int i=0; i < `WAVEGEN_DRIVER_NUM/4; i++) begin
@@ -2317,6 +2545,8 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
     // Clock variation of HFOSC
     `DUT_IF.hfosc_variation = top_test_cfg.hfosc_variation;
 
+    `DUT_IF.hfosc_sel = top_test_cfg.hfosc_sel;
+
     // enable to fix 1'b0 to internal clk
     `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;
 
@@ -2379,6 +2609,9 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
 
     for (int j=0;j < `NORMAL_REG_NUM; j++) 
       `DUT_IF.reg_normal[j] = top_test_cfg.reg_normal[j];
+
+    for (int j=0;j < `NIRS_REG_NUM; j++)
+      `DUT_IF.reg_nirs[j] = top_test_cfg.reg_nirs[j];
 
     for (int k=0;k < `WAVEGEN_DRIVER_OFFSET*`WAVEGEN_DRIVER_NUM; k++) 
       `DUT_IF.reg_wavegen[k] = top_test_cfg.reg_wavegen[k];
@@ -2463,16 +2696,16 @@ task `TESTNAME::reset_phase(nnc_phase phase);
 `endif
 
 `ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0C,{5'h0,`DUT_IF.no_of_adc_dev1}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h13,{5'h0,`DUT_IF.no_of_adc_dev1}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
 `else
        `BISTM_SINGLE_PROGRAM(8'h0C, {5'h0,`DUT_IF.no_of_adc_dev1});
 `endif
 
-`ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
-`else
-       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
-`endif
+//`ifdef ENS2_PRODUCT
+//       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+//`else
+//       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
+//`endif
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
        `BISTM_RESET;
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
@@ -2530,16 +2763,16 @@ task `TESTNAME::reset_phase(nnc_phase phase);
 `endif
 
 `ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0C,{5'h0,`DUT_IF.no_of_adc_dev2}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h13,{5'h0,`DUT_IF.no_of_adc_dev2}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
 `else
        `BISTM_SINGLE_PROGRAM(8'h0C, {5'h0,`DUT_IF.no_of_adc_dev2});
 `endif
 
-`ifdef ENS2_PRODUCT
-       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
-`else
-       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
-`endif
+//`ifdef ENS2_PRODUCT
+//       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 8'h0D, {6'h0, `DUT_IF.altf_sel}, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
+//`else
+//       `BISTM_SINGLE_PROGRAM(8'h0D, {6'h0, `DUT_IF.altf_sel});
+//`endif
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
        `BISTM_RESET;
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", NNC_LOW);
@@ -2797,14 +3030,16 @@ class nnc_register;
   logic [7:0] access;
   logic [7:0] pads;
   logic wavegen_reg;
+  logic nirs_reg;
 
-  function new(string name, logic[7:0] address, logic[7:0] default_value, logic[7:0] mask_value, logic[7:0] access, logic wavegen_reg);
+  function new(string name, logic[7:0] address, logic[7:0] default_value, logic[7:0] mask_value, logic[7:0] access, logic wavegen_reg, logic nirs_reg);
     this.name = name;
     this.address = address;
     this.default_value = default_value;
     this.mask_value = mask_value;
     this.access = access;
     this.wavegen_reg = wavegen_reg;
+    this.nirs_reg = nirs_reg;
     this.pads = 'h0;
     `nnc_info("SOC_TEST", $sformatf("create nnc_register for addr %0h", address),NNC_MEDIUM);
   endfunction
@@ -2816,6 +3051,10 @@ class nnc_register;
       if(wavegen_reg)begin
 	`nnc_info("SOC_TEST", $sformatf("read_init :: wavegen reg address %0h", address),NNC_MEDIUM);
         `RD_RESET_CHK_WAVEGEN_REG(address, default_value, pads);
+      end
+      else if(nirs_reg)begin
+        `nnc_info("SOC_TEST", $sformatf("read_init :: nirs reg address %0h", address),NNC_MEDIUM);
+        `RD_RESET_CHK_NIRS_REG(address, default_value, pads);
       end
       else begin
 	`nnc_info("SOC_TEST", $sformatf("read_init :: normal reg address %0h, default_value %h", address, default_value),NNC_MEDIUM);
@@ -2836,6 +3075,10 @@ class nnc_register;
 	  `nnc_info("SOC_TEST", $sformatf("write_read WO :: wavegen reg address %0h", address),NNC_MEDIUM);
           `WR_WAVEGEN_REG(address, wr_data, pads);
         end
+        else if (nirs_reg) begin
+          `nnc_info("SOC_TEST", $sformatf("write_read WO :: nirs reg address %0h", address),NNC_MEDIUM);
+          `WR_NIRS_REG(address, wr_data, pads);
+        end
         else begin
 	  `nnc_info("SOC_TEST", $sformatf("write_read WO :: normal reg address %0h", address),NNC_MEDIUM);
           `WR_NORMAL_REG(address, wr_data, pads);
@@ -2845,6 +3088,10 @@ class nnc_register;
         if(wavegen_reg)begin
 	  `nnc_info("SOC_TEST", $sformatf("write_read WR :: wavegen reg address %0h", address),NNC_MEDIUM);
           `WR_RD_CHK_WAVEGEN_REG(address, wr_data, pads, mask_value);
+        end
+        else if(nirs_reg)begin
+          `nnc_info("SOC_TEST", $sformatf("write_read WR :: nirs reg address %0h", address),NNC_MEDIUM);
+          `WR_RD_CHK_NIRS_REG(address, wr_data, pads, mask_value);
         end
         else begin
 	  `nnc_info("SOC_TEST", $sformatf("write_read WR :: normal reg address %0h", address),NNC_MEDIUM);
@@ -2868,6 +3115,12 @@ class nnc_register;
       `RD_WAVEGEN_REG(reserved_addr, pads, rd_data);
       if(rd_data !== 8'h0)`nnc_error("TEST", $sformatf("check_reserved_regs WR :: for wavegen reg reserved addr =%0h , read_data=%0h exp=8'h0",reserved_addr,rd_data))
     end
+    else if(nirs_reg)begin
+      `nnc_info("SOC_TEST", $sformatf("check_reserved_regs WR :: wavegen reg address %0h", reserved_addr),NNC_MEDIUM);
+      `WR_NIRS_REG(reserved_addr, wr_data, pads);
+      `RD_NIRS_REG(reserved_addr, pads, rd_data);
+      if(rd_data !== 8'h0)`nnc_error("TEST", $sformatf("check_reserved_regs WR :: for wavegen reg reserved addr =%0h , read_data=%0h exp=8'h0",reserved_addr,rd_data))
+    end
     else begin
       `nnc_info("SOC_TEST", $sformatf("check_reserved_regs WR :: normal reg address %0h", reserved_addr),NNC_MEDIUM);
       `WR_NORMAL_REG(reserved_addr, wr_data, pads);
@@ -2875,6 +3128,7 @@ class nnc_register;
       if(rd_data !== 8'h0)`nnc_error("TEST", $sformatf("check_reserved_regs WR :: for normal reg reserved addr =%0h , read_data=%0h exp=8'h0",reserved_addr,rd_data))
     end
   endtask
+
 endclass
 `endif
 

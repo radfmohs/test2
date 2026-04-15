@@ -15,17 +15,20 @@
 
 `timescale 1ns/1ps
 
-module imeas_ctrl(
+module imeas_ctrl  #(
+  parameter DATA_WIDTH =24
+)
+(
 //input               adc_clk,
 //input               cic_rst_n,
 input  wire           pclk,
 input  wire           preset_n,
 input  wire           sd16eoc_sync,
 //input  wire  [15:0] sd16cic_data,
-input  wire  [31:0]   sd16cic_data,
+input  wire  [DATA_WIDTH-1:0]   sd16cic_data,
 //input  wire         sd16rst,
 //output wire  [15:0] ch0data,
-output wire  [31:0]   ch0data,
+output wire  [DATA_WIDTH-1:0]   ch0data,
 output wire           ch0data_en,
 //output wire  [3:0]  chnum_out,
 //output wire         cic_rst,
@@ -41,7 +44,7 @@ wire          sd16eoc_pos;
 wire          grp_mod;
 reg           sd16eoc_sync_d1;
 //reg  [15:0] ch0data_reg;
-reg  [31:0]   ch0data_reg;
+reg  [DATA_WIDTH-1:0]   ch0data_reg;
 reg           ch0data_en_reg;
 reg  [7:0]    rst_cnt;
 //reg         cic_rst_reg;
@@ -82,7 +85,7 @@ assign int_alarm_set =  sd16eoc_pos & (bigger_than_threshold_hi
 always @ (posedge pclk or negedge preset_n) begin
   if (~preset_n)
     //ch0data_reg <= 16'h0;
-    ch0data_reg <= 32'h0;
+    ch0data_reg <= 24'h0;
   else if (sd16eoc_pos)
     ch0data_reg <= sd16cic_data;
   else

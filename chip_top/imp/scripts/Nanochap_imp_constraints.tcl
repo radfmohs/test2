@@ -20,10 +20,9 @@
  #                 to the flop clock pin; at this point it is an estimate.
  
  #set hfosc_period       [expr {15.625}]      	; # 64 MHz     
- set hfosc_period       [expr {250}]      	; # 4 MHz 
- set extclk_period      [expr {250}] 	    	; # 4 MHz
+ set hfosc_period       [expr {250}]      	; # 10 MHz 
+ set extclk_period      [expr {250}] 	    	; # 10 MHz
  set spiclk_period      [expr {50}]       	; # 20 MHz SPI
- set adcclk_period      [expr {1000}]       ; # Max ADC clk is 1 MHz
  set mbistclk_period    [expr {120}]       	; # 10 Mhz BIST cannot be achieved in max corner. eprom is slow
 
  set cycle90    [expr {0.90 * ${hfosc_period}}]
@@ -41,7 +40,7 @@ if {[string match S11?_m?? $i]} {
   # ================================================================================================================================
   # ===== sys_clk  
   # ================================================================================================================================
-  create_clock -name sys_clk {u_top_ana_wrapper/u_top_ana/A2D_CLK2MHZ} -period $hfosc_period  -add
+  create_clock -name sys_clk {u_top_ana_wrapper/u_top_ana/A2D_CLK8MHZ} -period $hfosc_period  -add
   set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks sys_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks sys_clk]
   #set_case_analysis 0 [get_pins u_top_ana/A2D_EXTERNAL_EN_I]
@@ -146,7 +145,7 @@ if {[string match S3_m?? $i] == 0} {
   set input_ports    [list u_iopad_testmode0 u_iopad_testmode1 u_iopad_exresetn]
   set input_clock_ports     [list IOBUF_PAD[0] IOBUF_PAD[4] RESETn]
   # set output_clock_ports    [list CLK IOBUF_PAD[18]];#IOBUF_PAD[18] : SDM CLK OUT via GPIO for testing
-  set a2d_clock_pins [list u_top_ana_wrapper/u_top_ana/A2D_CLK2MHZ]
+  set a2d_clock_pins [list u_top_ana_wrapper/u_top_ana/A2D_CLK8MHZ]
   set d2a_clock_pins [list ]
 
   # ================================================================================================================================
@@ -165,7 +164,7 @@ if {[string match S3_m?? $i] == 0} {
   set_output_delay   -clock vclk  -max $cycle20 [get_pins [remove_from_collection [get_pins u_top_ana_wrapper/u_top_ana/D2A_*] $d2a_clock_pins]]   -add_delay
   set_output_delay   -clock vclk  -min 0.0      [get_pins [remove_from_collection [get_pins u_top_ana_wrapper/u_top_ana/D2A_*] $d2a_clock_pins]]   -add_delay
   
-  set_false_path -hold -rise -through u_top_ana_wrapper/u_top_ana/A2D_POR_DVDD -through u_top_dig/u_otp_ctrl_top/por_resetn 
+  set_false_path -hold -rise -through u_top_ana_wrapper/u_top_ana/A2D_POR -through u_top_dig/u_otp_ctrl_top/por_resetn 
   set_false_path -hold -from CLKSEL
 }
 

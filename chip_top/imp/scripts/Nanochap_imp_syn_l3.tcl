@@ -60,22 +60,21 @@ foreach libraryname [array names dont_use] {
 }
 
 set hdlin_infer_multibit default_all
-set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
-#set_mw_lib_reference -mw_reference_library [concat $stdcell_mw_library]
+#set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
 
 # ------------------------------------------------------------------------------
 # Create MW design library
 # ------------------------------------------------------------------------------
 
-set_app_var mw_design_library $rm_project_top
+#set_app_var mw_design_library $rm_project_top
 
-sh rm -rf ./$mw_design_library
+#sh rm -rf ./$mw_design_library
 
-create_mw_lib -technology $tech_file \
-	      -mw_reference_library $mw_reference_library \
+#create_mw_lib -technology $tech_file \
+#	      -mw_reference_library $mw_reference_library \
 	                            $mw_design_library
 
-open_mw_lib $mw_design_library
+#open_mw_lib $mw_design_library
 
 # Default to read Verilog as standard version 2001 (not 2005)
 set_app_var hdlin_vrlg_std 2001
@@ -158,29 +157,85 @@ set_auto_disable_drc_nets -constant false
 # Prevent assignment statements in the Verilog netlist.
 set_fix_multiple_port_nets -all -buffer_constants [get_designs]
 # Target 6 routing layers
-set_ignored_layers -min_routing_layer METAL1
-set_ignored_layers -max_routing_layer METAL5
-report_ignored_layers
+#set_ignored_layers -min_routing_layer METAL1
+#set_ignored_layers -max_routing_layer METAL5
+#report_ignored_layers
 
-lappend scenarios S111_min S112_min S121_min S122_min S22_min S3_min S111_max S112_max S121_max S122_max S22_max S3_max;#SXYZ => X: 1=Normal Mode, 2=CP test Mode, 3=Bist Mode. Y: 1=Internal Clock, 2=External Clock. Z: 1=CPHA 0, 2=CPHA 1.
+#lappend scenarios S111_min S112_min S121_min S122_min S22_min S3_min S111_max S112_max S121_max S122_max S22_max S3_max;#SXYZ => X: 1=Normal Mode, 2=CP test Mode, 3=Bist Mode. Y: 1=Internal Clock, 2=External Clock. Z: 1=CPHA 0, 2=CPHA 1.
 set rm_project_top filter_wrapper
-foreach i $scenarios { 
-    create_scenario $i 
-    set_scenario_options -setup true -hold true -cts_mode true -leakage_power true -dynamic_power true -cts_corner min_max
+#foreach i $scenarios { 
+#    create_scenario $i 
+#    set_scenario_options -setup true -hold true -cts_mode true -leakage_power true -dynamic_power true -cts_corner min_max
+    set i DC
     source -echo -verbose ../scripts/Nanochap_imp_filters_constraints.tcl
     source -echo -verbose ../scripts/Nanochap_imp_scenario_specific.tcl
+#}
+
+#set_active_scenarios [all_scenarios]
+#current_scenario S111_max
+
+#compile_ultra -check
+compile_ultra -scan -gate
+
+file mkdir ../data/synthesis_l3
+file mkdir ../report/synthesis_l3
+
+# create canonical scan boundary ports
+create_port -direction in  {b_scan_clk b_scan_en b_testmode b_scan_in}
+create_port -direction out {b_scan_out}
+
+set_dft_signal -view spec         -type ScanClock   -port b_scan_clk
+set_dft_signal -view existing_dft -type ScanClock   -port b_scan_clk -timing {35 65}
+
+set_dft_signal -view spec -type ScanEnable  -port b_scan_en   -active_state 1
+set_dft_signal -view spec -type ScanDataIn  -port b_scan_in
+set_dft_signal -view spec -type ScanDataOut -port b_scan_out
+set_dft_signal -view spec -type TestMode    -port atpg_en     ;# block test mode
+
+# Resets stay resets only (do NOT use as scan ports)
+foreach r {presetn cic_rst_n} {
+  set_dft_signal -view spec         -type Reset -port $r -active_state 0
+  set_dft_signal -view existing_dft -type Reset -port $r -active_state 0
 }
 
-set_active_scenarios [all_scenarios]
-current_scenario S111_max
+# Functional test clocks for DRC/control
+set func_clks {clk notch_clk lpf_clk hpf_clk pclk adc_clk}
+foreach c $func_clks {
+  set_dft_signal -view spec         -type TestClock -port $c
+  set_dft_signal -view existing_dft -type TestClock -port $c -timing {45 55}
+}
 
+# Scan config
+set_scan_configuration -style multiplexed_flip_flop \
+                       -clock_mixing mix_clocks \
+                       -add_lockup true -lockup_type latch \
+                       -chain_count 1 -replace true
+set_dft_configuration  -scan_compression disable
+set_dft_insertion_configuration -preserve_design_name true -synthesis_optimization none
 
-compile_ultra -check
-compile_ultra -scan -gate_clock
+# Test timing
+set test_default_period 100.0
+set test_default_delay  5.0
+set test_default_strobe 90.0
 
-write_milkyway -output [get_object_name [current_design]] -overwrite
+create_test_protocol -capture_procedure multi_clock
+
+dft_drc -verbose > ../report/synthesis_l3/dft_drc_l3.log
+insert_dft
+compile_ultra -incremental
+
+change_names -rules verilog -hierarchy
+
+write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.scan.v
+
+#write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output single_channel.ddc
-set_dont_touch [current_design] true
+
+#foreach i $scenarios {
+#  current_scenario $i
+  set i DC
+  write_sdc -version 2.1 -nosplit ../data/synthesis_l3/filter_wrapper.${i}.sdc
+#}
 
 print_message_info
 

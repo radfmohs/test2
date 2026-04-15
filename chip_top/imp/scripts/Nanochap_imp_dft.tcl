@@ -2,7 +2,7 @@
 # Purpose : Synthesis Script - Design Compiler DFT insertion script
 #
 # ------------------------------------------------------------------------------
-
+#set generate_sdf no_sdf;set bottom_up yes;
 # ------------------------------------------------------------------------------
 # Job Diagnostics
 # ------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ set_app_var report_default_significant_digits 3
 # Read pre-scan insertion synthesis DDC
 # -----------------------------------------------------------------------------
 
-read_ddc ../data/synthesis_prescan_dct_${generate_sdf}/${rm_project_top}.prescan_dct.BUD=${bottom_up}.ddc
+read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.BUD=${bottom_up}.ddc
 
 # ------------------------------------------------------------------------------
 # Function clock and constraints AND Power Intent
@@ -163,6 +163,24 @@ set test_default_strobe 90.0    ;# Measure all outputs at 90 ns
 set_dft_drc_configuration -internal_pins enable
 set num_scan_chains           4        ;# Number of scan chains to be inserted
 
+# ==============================================================================
+# 0. Bottom-Up Sub-Block: Protect imeas_wrapper FIRST (before any DFT setup)
+# ==============================================================================
+
+if {$bottom_up == "yes"} {
+
+  set imeas_inst "u_top_dig/u_imeas_wrapper"
+
+  # Freeze the sub-block prevent any optimization inside it
+  set_dont_touch [get_cells ${imeas_inst}]
+  set_boundary_optimization [get_cells ${imeas_inst}] false
+  set_ungroup [get_cells ${imeas_inst}] false
+
+  # Exclude ALL registers inside imeas_wrapper from top-level scan stitching
+  set_scan_element false [get_cells ${imeas_inst}/* -hierarchical \
+    -filter "is_sequential == true"]
+}
+
 # ------------------------------------------------------------------------------
 # 1. Scan In/Out Define
 # ------------------------------------------------------------------------------
@@ -184,10 +202,6 @@ set_dft_signal -view existing_dft -type Constant -port [get_ports iopad_testmode
 set_dft_signal -view spec         -type Constant -port [get_ports iopad_testmode1] -active_state 0
 set_dft_signal -view existing_dft -type Constant -port [get_ports CLKSEL] -active_state 0
 set_dft_signal -view spec         -type Constant -port [get_ports CLKSEL] -active_state 0
-#set_dft_signal -view existing_dft -type Constant -hookup_pin [get_pins u_top_ana/A2D_EXTERNAL_RESET] -active_state 1
-#set_dft_signal -view spec         -type Constant -hookup_pin [get_pins u_top_ana/A2D_EXTERNAL_RESET] -active_state 1
-#set_dft_signal -view existing_dft -type Constant -hookup_pin [get_pins u_top_ana/A2D_VDDI_POR] -active_state 1
-#set_dft_signal -view spec         -type Constant -hookup_pin [get_pins u_top_ana/A2D_VDDI_POR] -active_state 1
 
 # Test Modes (Drive the define_test_mode encodings)
 set_dft_signal -view spec         -type TestMode -port [get_ports iopad_testmode0] -hookup_pin [get_pins u_top_dig/u_pinmux/atpg_en]
@@ -196,10 +210,11 @@ set_dft_signal -view spec         -type TestMode -port [get_ports IOBUF_PAD[2]] 
 set_dft_signal -view existing_dft -type TestMode -port [get_ports IOBUF_PAD[2]] -hookup_pin [get_pins u_top_dig/u_pinmux/u_gpio2_pinmux/test0_y]
 
 # Reset
-set_dft_signal -view existing_dft -type Reset -port [get_ports RESETn] -hookup_pin [get_pins u_iopad_exresetn/Y] -active_state 0 
+set_dft_signal -view existing_dft -type Reset -port [get_ports RESETn] -hookup_pin [get_pins u_iopad_exresetn/Y] -active_state 0
 
 # Scan Clock & Scan Enable
 set_dft_signal -view existing_dft -type ScanClock -timing {35 65} -port [get_ports IOBUF_PAD[0]] -hookup_pin [get_pins u_top_dig/u_pinmux/u_gpio0_pinmux/test0_y]
+set_dft_signal -view spec         -type ScanClock                 -port [get_ports IOBUF_PAD[0]] -hookup_pin [get_pins u_top_dig/u_pinmux/u_gpio0_pinmux/test0_y]
 
 set_dft_signal -view spec         -type ScanEnable -port [get_ports IOBUF_PAD[1]] -hookup_pin [get_pins u_top_dig/u_pinmux/scan_en] -active_state 1
 set_dft_signal -view existing_dft -type ScanEnable -port [get_ports IOBUF_PAD[1]] -hookup_pin [get_pins u_top_dig/u_pinmux/scan_en] -active_state 1
@@ -212,7 +227,7 @@ define_test_mode compress_scan -usage scan_compression -encoding {iopad_testmode
 
 set_dft_configuration -scan_compression enable
 
-set_scan_compression_configuration -base_mode internal_scan -test_mode compress_scan -chain_count 12 -inputs 6 -outputs 6
+set_scan_compression_configuration -base_mode internal_scan -test_mode compress_scan -chain_count 8 -inputs 4 -outputs 4
 
 set_scan_configuration -style multiplexed_flip_flop  \
                        -clock_mixing mix_clocks \
@@ -224,7 +239,7 @@ set_scan_configuration -style multiplexed_flip_flop  \
 set_dft_insertion_configuration -synthesis_optimization none
 
 # ------------------------------------------------------------------------------
-# 4. Scan Path Define (Bypass Mode)
+# 4. Scan Path Define (top-level chains)
 # ------------------------------------------------------------------------------
 
 set_scan_path chain0 -view spec -test_mode internal_scan -scan_data_in IOBUF_PAD[3]  -scan_data_out IOBUF_PAD[7]
@@ -232,8 +247,72 @@ set_scan_path chain1 -view spec -test_mode internal_scan -scan_data_in IOBUF_PAD
 set_scan_path chain2 -view spec -test_mode internal_scan -scan_data_in IOBUF_PAD[5]  -scan_data_out IOBUF_PAD[9]
 set_scan_path chain3 -view spec -test_mode internal_scan -scan_data_in IOBUF_PAD[6]  -scan_data_out IOBUF_PAD[10]
 
+# ==============================================================================
+# 5. Bottom-Up Sub-Block: Declare existing scan chains in imeas_wrapper
+# ==============================================================================
+
+if {$bottom_up == "yes"} {
+
+  # --- Existing scan clock (already accepted for all_dft, no change needed) ---
+  set_dft_signal -view existing_dft -type ScanClock \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_clk] -timing {35 65}
+
+  # --- Existing scan enable for ALL test modes ---
+  set_dft_signal -view existing_dft -type ScanEnable \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_en] -active_state 1 \
+    -test_mode all
+
+  # --- Existing scan data in for ALL test modes ---
+  set_dft_signal -view existing_dft -type ScanDataIn \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_in0] -test_mode all
+  set_dft_signal -view existing_dft -type ScanDataIn \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_in1] -test_mode all
+  set_dft_signal -view existing_dft -type ScanDataIn \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_in2] -test_mode all
+
+  # --- Existing scan data out for ALL test modes ---
+  set_dft_signal -view existing_dft -type ScanDataOut \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_out0] -test_mode all
+  set_dft_signal -view existing_dft -type ScanDataOut \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_out1] -test_mode all
+  set_dft_signal -view existing_dft -type ScanDataOut \
+    -hookup_pin [get_pins ${imeas_inst}/b_scan_out2] -test_mode all
+
+  # --- Declare 3 existing chains for internal_scan mode ---
+  set_scan_path imeas_chain0 -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in0 \
+    -scan_data_out ${imeas_inst}/b_scan_out0 \
+    -test_mode internal_scan
+
+  set_scan_path imeas_chain1 -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in1 \
+    -scan_data_out ${imeas_inst}/b_scan_out1 \
+    -test_mode internal_scan
+
+  set_scan_path imeas_chain2 -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in2 \
+    -scan_data_out ${imeas_inst}/b_scan_out2 \
+    -test_mode internal_scan
+
+  # --- Declare 3 existing chains for compress_scan mode ---
+  set_scan_path imeas_chain0_comp -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in0 \
+    -scan_data_out ${imeas_inst}/b_scan_out0 \
+    -test_mode compress_scan
+
+  set_scan_path imeas_chain1_comp -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in1 \
+    -scan_data_out ${imeas_inst}/b_scan_out1 \
+    -test_mode compress_scan
+
+  set_scan_path imeas_chain2_comp -view existing_dft \
+    -scan_data_in  ${imeas_inst}/b_scan_in2 \
+    -scan_data_out ${imeas_inst}/b_scan_out2 \
+    -test_mode compress_scan
+}
+
 # -----------------------------------------------------------------------------
-# DFT: Configuration
+# 6. DFT Final Configuration
 # -----------------------------------------------------------------------------
 # Design already has test-ready scan flops in place
 set_scan_state test_ready
@@ -242,30 +321,21 @@ set_dft_insertion_configuration -preserve_design_name true
 
 # Do not run incremental compile as a part of insert_dft
 set_dft_insertion_configuration -synthesis_optimization none
-# -----------------------------------------------------------------------------
-# DFT: Configuration
-# -----------------------------------------------------------------------------
 
 # exclude clock switch module icg
-#set_dft_clock_gating_configuration -exclude_elements [get_cells -h *clk_gate*]
 set_app_var power_cg_auto_identify true
 
 # Prevent assignment statements resulting from insert_dft
 set_fix_multiple_port_nets -all -buffer_constants [get_designs]
 
-# Specify that all constant flops are to be scan stitched (TEST-504 for constant 0 and TEST-505 for constant 1)
+# Specify that all constant flops are to be scan stitched
 set_dft_drc_rules -ignore {TEST-504}
 set_dft_drc_rules -ignore {TEST-505}
-#report_dft_drc_rules -all
 
-#set_dft_drc_configuration -allow_se_set_reset_fix true
-
-create_test_protocol 
+create_test_protocol
 # -----------------------------------------------------------------------------
 # DFT: Scan chain insertion
 # -----------------------------------------------------------------------------
-set_dont_touch [get_designs "Nanochap_ENS2_imeas_wrapper*"] false
-
 # Use the -verbose option of dft_drc to assist in debugging if necessary
 dft_drc -verbose > $out_rep/${rm_project_top}.initial_dft_drc
 
@@ -399,6 +469,22 @@ saif_map -type ptpx -write_map $out_rep/${rm_project_top}_SAIF.namemap
 write_def -components -output $out_data/${rm_project_top}.${stage}.def
 write_environment -consistency -output $out_data/${rm_project_top}.${stage}.env
 analyze_rtl_congestion > $out_rep/${rm_project_top}.congestion
+
+write_milkyway -output ${rm_project_top} -overwrite
+if {$bottom_up == "yes"} {
+  # Write postscan imeas_wrapper DDC for L2 PnR
+  current_design imeas_wrapper
+  write -format ddc -hierarchy -output $out_data/imeas_wrapper.postscan.ddc
+  write -f verilog -hierarchy -output $out_data/imeas_wrapper.postscan.v
+  
+  # Write postscan filter_wrapper DDC for L3 PnR
+  current_design filter_wrapper
+  write -format ddc -hierarchy -output $out_data/filter_wrapper.postscan.ddc
+  write -f verilog -hierarchy -output $out_data/filter_wrapper.postscan.v
+  
+  # Return to top
+  current_design $rm_project_top
+}
 
 # ------------------------------------------------------------------------------
 # Insert scan chains and report estimated scan coverage

@@ -30,7 +30,7 @@ input wire    hpf_clk,
 input wire    pclk,     
 //input wire    reset,
 input wire    sign_en,
-input wire    scan_mode,
+//input wire    scan_mode,
 
 ///imeas
 //clock and reset
@@ -55,8 +55,8 @@ input  wire         imeas_adc_din,
 input  wire         cic_data_ok,
 
 input wire [23:0]  hpf_coeff_data, 
-input wire [17:0]  lpf_coeff_data [31:0],
-input wire [19:0]  notch_coeff_data[41:0],
+input wire [17:0]  lpf_coeff_data [27:0],
+input wire [19:0]  notch_coeff_data[35:0],
 
 output wire    notch_clk_gtg_en,
 output wire    lpf_clk_gtg_en,
@@ -179,11 +179,11 @@ always @ (posedge clk or negedge cic_rst_n)begin
     if (cic_rst_n == 1'b0) begin
         lpf_filter_enable <= 1'b0;
     end
-    else if (chdata_en_pulse & !lpf_filter_bypass_temp) begin        
+    else if (hpf_chdata_en & !lpf_filter_bypass_temp) begin        
         lpf_filter_enable <= 1'b1;   
     end
     else if (lpf_filter_enable) begin 
-      if (lpf_filter_enable_cnt == 5'b11110) begin        
+      if (lpf_filter_enable_cnt == 5'b11011) begin        
               lpf_filter_enable <= 1'b0;   
             end
             else begin
@@ -196,7 +196,7 @@ always @ (posedge clk or negedge cic_rst_n)begin
 end
 
 //notch
-assign lpf_filter_out_en = lpf_filter_bypass_temp? chdata_en_pulse : lpf_filter_out_en_temp;
+assign lpf_filter_out_en = lpf_filter_bypass_temp? hpf_chdata_en : lpf_filter_out_en_temp;
 always @ (posedge clk or negedge cic_rst_n)begin
     if (cic_rst_n == 1'b0) begin
         notch_filter_enable <= 1'b0;
@@ -207,7 +207,7 @@ always @ (posedge clk or negedge cic_rst_n)begin
         notch_chdata_en_temp        <= 1'b0; 
     end
     else if (notch_filter_enable) begin 
-      if (notch_filter_enable_cnt == 6'b10_1001) begin        
+      if (notch_filter_enable_cnt == 6'b10_0011) begin        
               notch_filter_enable <= 1'b0;  
               notch_chdata_en_temp        <= 1'b1; 
             end
@@ -226,14 +226,14 @@ end
 always @ (posedge clk or negedge cic_rst_n)begin
     if (cic_rst_n == 1'b0) begin
         hpf_chdata_en_temp <= 1'b0;
-    end else if (notch_chdata_en & !hpf_filter_bypass_temp) begin        
+    end else if (chdata_en_pulse & !hpf_filter_bypass_temp) begin        
         hpf_chdata_en_temp <= 1'b1; 
     end else begin
         hpf_chdata_en_temp <= 1'b0;
     end 
 end
 
-assign lpf_clk_gtg_en      = !lpf_filter_bypass_temp & (chdata_en_pulse | lpf_filter_enable);
+assign lpf_clk_gtg_en      = !lpf_filter_bypass_temp & lpf_filter_enable;
 
 assign notch_clk_gtg_en    = !notch_filter_bypass_temp & notch_filter_enable;
 
@@ -241,23 +241,23 @@ assign notch_chdata_en     = notch_filter_bypass_temp? lpf_filter_out_en : notch
 
 assign hpf_clk_gtg_en      = !hpf_filter_bypass_temp & (hpf_chdata_en);
 
-assign hpf_chdata_en       = hpf_filter_bypass_temp? notch_chdata_en : hpf_chdata_en_temp;
+assign hpf_chdata_en       = hpf_filter_bypass_temp? chdata_en_pulse : hpf_chdata_en_temp;
 
 common_pulse_sync u_chdata_en_sync(
 .i_a_clk(clk),
 .i_b_clk(pclk),  
 .i_a_rst_n(cic_rst_n),
 .i_b_rst_n(cic_rst_n),
-.i_test_mode(scan_mode), 
-.i_a_pulse(hpf_chdata_en),  
+.i_test_mode(atpg_en), 
+.i_a_pulse(notch_chdata_en),  
 .o_a_ready(),   
 .o_b_pulse(filter_chdata_en)    
 ); 
 
-assign    filter5           = imeas_chdata_adcclk;
-assign    filter3           = filter6;
-assign    filter1           = filter4;
-assign    imeas_chdata_out_temp  = filter2;
+assign    filter1                = imeas_chdata_adcclk;
+assign    filter5                = filter2;
+assign    imeas_chdata_out_temp  = filter4;
+assign    filter3  = filter6;
 
 
 

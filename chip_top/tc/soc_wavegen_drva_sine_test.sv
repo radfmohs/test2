@@ -46,12 +46,12 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   logic [31:0]     neg_hlf_wave_lim; // number of clocks for negative half wave
   logic [15:0]     rest_lim; // number of clocks for each rest period
   logic [31:0]     silent_lim; // number of clocks for each silent period
-  rand logic [1:0] preload_sel;
+  rand logic [1:0] preload_sel;     // preload selection : 11 or 00
   rand logic       neg_ena;
   rand logic       pos_dis;
-  rand logic [2:0] points_sel;
-  rand logic [2:0] waveform_sel;
-  rand logic       load_points_sel;
+  rand logic [2:0] points_sel;      // Point Selection - 0/1/2/3/4/5/6/7: 64/32/16/8/4/2/1/128 points (load_points_sel = 1) if it is 0, not used
+  rand logic [2:0] waveform_sel;    // Waveform selection: 001, 010, 000 - rest values are reserved 
+  rand logic       load_points_sel; // waveform_sel: 001 or 010 and preload_sel: 11 -> load_points_sel = 1 
   rand logic       pos_neg_diff_sel;
   rand logic       dac_bit_len_sel;//1'b0:8-bits; 1'b1:12-bits (only 8 bits supported for sine)
   rand logic       auto_man;//1'b0:auto; 1'b1:manual
@@ -64,7 +64,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   rand logic       PULLAB_pos_en;
   rand logic       PULLAB_neg_en;
   rand logic [5:0] PULLAB_lim;
-       logic [1:0] PRELOAD;
+       logic [1:0] PRELOAD; // 00: 01: 10: 11:
        logic       LOAD_POINTS;
        logic [7:0] NO_OF_POINTS;
        logic [7:0] NO_OF_LOAD_POINTS;
@@ -148,13 +148,13 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
                                  (python_check_en == 1'b0) -> waveform_sel inside {[0:2]};}
 
   //load_points_sel
-  constraint c_load_points_sel { (((waveform_sel == 3'b001) || (waveform_sel == 3'b010)) && (preload_sel == 2'b11)) -> load_points_sel == 1'b1; (preload_sel == 2'b00) -> load_points_sel == 1'b0;}
+  constraint c_load_points_sel { (((waveform_sel == 3'b001) || (waveform_sel == 3'b010)) && (preload_sel == 2'b11)) -> load_points_sel == 1'b1; (preload_sel == 2'b00) -> load_points_sel == 1'b0; }
 
   //pos_neg_diff_sel
-  constraint c_pos_neg_diff_sel { ((load_points_sel == 1'b1) && (python_check_en == 1'b1)) -> pos_neg_diff_sel == 1'b0;}
+  constraint c_pos_neg_diff_sel { ((load_points_sel == 1'b1) && (python_check_en == 1'b1)) -> pos_neg_diff_sel == 1'b0; }
 
   //auto_man
-  constraint c_auto_man        { auto_man == 1'b0;}
+  constraint c_auto_man        { auto_man == 1'b0; }
 
   //dac_bit_len_sel
   constraint c_dac_bit_len_sel { dac_bit_len_sel == 1'b0;}
@@ -252,16 +252,24 @@ class `TESTNAME extends soc_wavegen_base_test;
     // ==================================================================================
     // Please add your code of your test here
     // ----------------------------------------------------------------------------------
+
+    // Step 1: Do the common set up for Wavegen
     wavegen_setup(0);//chip 0
 
+    // Step 2: Do the configuration for Wavegen 0
     wavegen_drv_config(`WAVEGEN_0_ADDR_BASE);
+
+    // Step 3: Do the configuration for Wavegen 1
     wavegen_drv_config(`WAVEGEN_1_ADDR_BASE);
 
+    // Step 4: Enable all wavegen at the time
     //wavegen_drv_enable;
 
+    // Step 5: Waiting for Wave generated successfully
     $display("## --------------------------------------------------------------------------- ##");
     $display("##         WAITING FOR SIMULATION TO COMPLETE WAVEFORM GENERATION              ##");      
     $display("## --------------------------------------------------------------------------- ##");
+
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
@@ -280,6 +288,14 @@ class `TESTNAME extends soc_wavegen_base_test;
     phase.drop_objection(this);
   endtask: main_phase
 
+
+  // *************************************************************
+  // This task is used for calculating periods beasing on clocks 
+  // 1- Positive phase period (positive half of cycle)
+  // 2- Negative phase period (negative half of cycle)
+  // 3- Rest period
+  // 4- Silent period  
+  // ************************************************************* 
   task wavegen_calc_clock_num;
   input [13:0] clk_freq;
   input [15:0] rest_t;
@@ -294,6 +310,23 @@ class `TESTNAME extends soc_wavegen_base_test;
   end
   endtask
 
+  // **********************************************************************************************************************************
+  // This task is used for calculating 
+  // 1- all parametters of all Drivers for setting VIPs, and HW in next Configuration Phase for Drivers
+  // 2- At the end, we enable drivers for Analog side only
+  // -----------------------------------------------------------------------------------------------
+  // Inputs: 
+  // - preload selection : 11 or 00
+  // - waveform_sel - Waveform selection: 001, 010, 000 - rest values are reserved
+  // - load_points_sel : when waveform_sel is 001 or 010 and preload_sel: 11 -> load_points_sel = 1 else this bit is 0
+  // - neg_ena : negative phase enable
+  // - pos_dis : positive phase disable
+  // - pos_neg_diff_sel: 
+  // - PULLAB_pos_en: 
+  // - PULLAB_neg_en: 
+  // - PULLAB_lim:     
+  // - points_sel : Point Selection - 0/1/2/3/4/5/6/7: 64/32/16/8/4/2/1/128 points (load_points_sel = 1) if it is 0, not used
+  // **********************************************************************************************************************************
   task wavegen_setup(input int chip_num);
   begin
     top_test_cfg.LOAD_POINTS = top_test_cfg.load_points_sel;
@@ -304,6 +337,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.POS_NEG_DIFF = top_test_cfg.pos_neg_diff_sel;
     top_test_cfg.PULLAB_CTRL  = {top_test_cfg.PULLAB_pos_en, top_test_cfg.PULLAB_neg_en, top_test_cfg.PULLAB_lim};
     
+    // From constraint of points_sel, decode and save NO_OF_POINTS and load correct hex file of sine wave
     case(top_test_cfg.points_sel)
          3'b000:begin
 		    top_test_cfg.NO_OF_POINTS = 64;
@@ -357,6 +391,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 		end
     endcase
     
+    // 
     if(top_test_cfg.LOAD_POINTS === 0)
 	top_test_cfg.NO_OF_LOAD_POINTS = top_test_cfg.NO_OF_POINTS;
     else begin
@@ -378,6 +413,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 	top_test_cfg.NO_OF_WAVES = 1;
     else
 	top_test_cfg.NO_OF_WAVES = 4;
+
     // Interface
     if(chip_num === 0) begin
     	`DUT_IF.wavegen_sample_num_per_period = top_test_cfg.NO_OF_LOAD_POINTS * 2;//no: of samples in 1 sine wave
@@ -387,16 +423,20 @@ class `TESTNAME extends soc_wavegen_base_test;
     	`DUT_IF.wavegen_sample_num_per_period_chip1 = top_test_cfg.NO_OF_LOAD_POINTS * 2;//no: of samples in 1 sine wave
     	`DUT_IF.python_length_chip1 = `DUT_IF.wavegen_sample_num_per_period_chip1 * top_test_cfg.NO_OF_WAVES;//send N sine waves to python
     end
+
     top_env.wavegen_vif[chip_num].no_of_point_a = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
     top_env.wavegen_vif[chip_num].no_of_point_b = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
+
     for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
       top_env.wavegen_vif[chip_num].hex_data_a[i] = top_test_cfg.sine_data[i]; // expected hex values
       top_env.wavegen_vif[chip_num].hex_data_b[i] = top_test_cfg.sine_data[i]; // expected hex values
     end
+
     top_env.wavegen_vif[chip_num].pos_neg_from_same_addr = top_test_cfg.POS_NEG_DIFF; 
     top_env.wavegen_vif[chip_num].load_wave_data_till_points = top_test_cfg.LOAD_POINTS; 
     top_env.wavegen_vif[chip_num].no_of_waveforms = top_test_cfg.NO_OF_WAVEFORMS; 
     top_env.wavegen_vif[chip_num].preload_sel = top_test_cfg.PRELOAD;
+
     for (int i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
       top_env.wavegen_vif[chip_num].PULLAB_pos_en[i] = top_test_cfg.PULLAB_CTRL[7];
       top_env.wavegen_vif[chip_num].PULLAB_neg_en[i] = top_test_cfg.PULLAB_CTRL[6];
@@ -408,75 +448,133 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.clk_freq = 8192 / (2**`DUT_IF.pclk_sel);
     top_test_cfg.half_period_limit = (top_test_cfg.NO_OF_POINTS * 1000) / top_test_cfg.clk_freq;
 
- `nnc_info("SOC_TEST", $sformatf("NO_OF_POINTS: %d, clk_freq: %d, half_period_limit:%d", top_test_cfg.NO_OF_POINTS, top_test_cfg.clk_freq, top_test_cfg.half_period_limit), NNC_LOW)
+    `nnc_info("SOC_TEST", $sformatf("NO_OF_POINTS: %d, clk_freq: %d, half_period_limit:%d", top_test_cfg.NO_OF_POINTS, top_test_cfg.clk_freq, top_test_cfg.half_period_limit), NNC_LOW)
  
-    for(int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
-    assert(top_test_cfg.randomize() with {half_period0[0] > top_test_cfg.half_period_limit; half_period1[0] > top_test_cfg.half_period_limit; half_period2[0] > top_test_cfg.half_period_limit;
-                                          half_period0[1] > top_test_cfg.half_period_limit; half_period1[1] > top_test_cfg.half_period_limit; half_period2[1] > top_test_cfg.half_period_limit;
-                                          (`DUT_IF.python_check_en == 1) -> same_pos_neg_period == 1;
-                                          (same_pos_neg_period == 1) -> half_period0[0] == half_period0[1];
-                                          (same_pos_neg_period == 1) -> half_period1[0] == half_period1[1];
-                                          (same_pos_neg_period == 1) -> half_period2[0] == half_period2[1];});
-    `nnc_info("SOC_TEST", $sformatf("same_pos_neg_period:%d", top_test_cfg.same_pos_neg_period), NNC_LOW)
-    //wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
-    wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period0[0], top_test_cfg.half_period0[1]);
-    `DUT_IF.wg_hlf_wave0_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_neg_hlf_wave0_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_rest_wave0_lim[i] = top_test_cfg.rest_lim;
-    `DUT_IF.wg_silent_wave0_lim[i] = top_test_cfg.silent_lim;
-    `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 0 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period0[0], top_test_cfg.half_period0[1], `DUT_IF.wg_hlf_wave0_lim[i], `DUT_IF.wg_neg_hlf_wave0_lim[i]), NNC_LOW)
 
-    //wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
-    wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1]);
-    `DUT_IF.wg_hlf_wave1_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_neg_hlf_wave1_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim;
-    `DUT_IF.wg_silent_wave1_lim[i] = top_test_cfg.silent_lim;
-    `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 1 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1], `DUT_IF.wg_hlf_wave1_lim[i], `DUT_IF.wg_neg_hlf_wave1_lim[i]), NNC_LOW)
+    // ==================================
+    // Set configurations for VIPs
+    // ==================================
+    for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
+      assert(top_test_cfg.randomize() with {half_period0[0] > top_test_cfg.half_period_limit; half_period1[0] > top_test_cfg.half_period_limit; half_period2[0] > top_test_cfg.half_period_limit;
+                                            half_period0[1] > top_test_cfg.half_period_limit; half_period1[1] > top_test_cfg.half_period_limit; half_period2[1] > top_test_cfg.half_period_limit;
+                                           (`DUT_IF.python_check_en == 1) -> same_pos_neg_period == 1;
+                                           (same_pos_neg_period == 1) -> half_period0[0] == half_period0[1];
+                                           (same_pos_neg_period == 1) -> half_period1[0] == half_period1[1];
+                                           (same_pos_neg_period == 1) -> half_period2[0] == half_period2[1];});
 
-    //wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
-    wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1]);
-    `DUT_IF.wg_hlf_wave2_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_neg_hlf_wave2_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-    `DUT_IF.wg_rest_wave2_lim[i] = top_test_cfg.rest_lim;
-    `DUT_IF.wg_silent_wave2_lim[i] = top_test_cfg.silent_lim;
-    `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 2 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1], `DUT_IF.wg_hlf_wave2_lim[i], `DUT_IF.wg_neg_hlf_wave2_lim[i]), NNC_LOW)
+      `nnc_info("SOC_TEST", $sformatf("same_pos_neg_period:%d", top_test_cfg.same_pos_neg_period), NNC_LOW)
+      // ======================================================================================================================
 
-    top_env.wavegen_vif[chip_num].wg_hlf_wave0_lim[i] = `DUT_IF.wg_hlf_wave0_lim[i];
-    top_env.wavegen_vif[chip_num].wg_neg_hlf_wave0_lim[i] = `DUT_IF.wg_neg_hlf_wave0_lim[i];
-    top_env.wavegen_vif[chip_num].wg_rest_wave0_lim[i] = `DUT_IF.wg_rest_wave0_lim[i];
-    top_env.wavegen_vif[chip_num].wg_silent_wave0_lim[i] = `DUT_IF.wg_silent_wave0_lim[i];
-    top_env.wavegen_vif[chip_num].wg_hlf_wave1_lim[i] = `DUT_IF.wg_hlf_wave1_lim[i];
-    top_env.wavegen_vif[chip_num].wg_neg_hlf_wave1_lim[i] = `DUT_IF.wg_neg_hlf_wave1_lim[i];
-    top_env.wavegen_vif[chip_num].wg_rest_wave1_lim[i] = `DUT_IF.wg_rest_wave1_lim[i];
-    top_env.wavegen_vif[chip_num].wg_silent_wave1_lim[i] = `DUT_IF.wg_silent_wave1_lim[i];
-    top_env.wavegen_vif[chip_num].wg_hlf_wave2_lim[i] = `DUT_IF.wg_hlf_wave2_lim[i];
-    top_env.wavegen_vif[chip_num].wg_neg_hlf_wave2_lim[i] = `DUT_IF.wg_neg_hlf_wave2_lim[i];
-    top_env.wavegen_vif[chip_num].wg_rest_wave2_lim[i] = `DUT_IF.wg_rest_wave2_lim[i];
-    top_env.wavegen_vif[chip_num].wg_silent_wave2_lim[i] = `DUT_IF.wg_silent_wave2_lim[i];
-    //set clk_per_point_short
-    if((chip_num === 0) && (i === 0)) begin
-      if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac0 = 1'b1;
-      else
-	`DUT_IF.clk_per_point_short_dac0 = 1'b0;
-    end
-    else if((chip_num === 0) && (i === 1)) begin
-      if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac1 = 1'b1;
-      else
-	`DUT_IF.clk_per_point_short_dac1 = 1'b0;
-    end
-    end
+      // ----------------------------------
+      // Calculating for Driver 0
+      // ----------------------------------
+      wavegen_calc_clock_num(
+      .clk_freq(top_test_cfg.clk_freq), 
+      .rest_t(0), 
+      .silent_t(0), 
+      .hlf_wave_per(top_test_cfg.half_period0[0]), 
+      .neg_hlf_wave_per(top_test_cfg.half_period0[1])
+      );
+
+      // Updating for DUT Interface for Driver 0
+      `DUT_IF.wg_hlf_wave0_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_neg_hlf_wave0_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_rest_wave0_lim[i] = top_test_cfg.rest_lim;
+      `DUT_IF.wg_silent_wave0_lim[i] = top_test_cfg.silent_lim;
+      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 0 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period0[0], top_test_cfg.half_period0[1], `DUT_IF.wg_hlf_wave0_lim[i], `DUT_IF.wg_neg_hlf_wave0_lim[i]), NNC_LOW)
+      // ======================================================================================================================
+
+      // ----------------------------------
+      // Calculating for Driver 1
+      // ----------------------------------
+      // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1]);
+      wavegen_calc_clock_num(
+      .clk_freq(top_test_cfg.clk_freq), 
+      .rest_t(0), 
+      .silent_t(0), 
+      .hlf_wave_per(top_test_cfg.half_period1[0]), 
+      .neg_hlf_wave_per(top_test_cfg.half_period1[1])
+      );
+
+      // Updating for DUT Interface for Driver 1
+      `DUT_IF.wg_hlf_wave1_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_neg_hlf_wave1_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim;
+      `DUT_IF.wg_silent_wave1_lim[i] = top_test_cfg.silent_lim;
+      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 1 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1], `DUT_IF.wg_hlf_wave1_lim[i], `DUT_IF.wg_neg_hlf_wave1_lim[i]), NNC_LOW)
+      // ======================================================================================================================
+
+      // wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
+      // ----------------------------------
+      // Calculating for Driver 2
+      // ----------------------------------
+      // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1]);
+      wavegen_calc_clock_num(
+      .clk_freq(top_test_cfg.clk_freq), 
+      .rest_t(0), 
+      .silent_t(0), 
+      .hlf_wave_per(top_test_cfg.half_period2[0]), 
+      .neg_hlf_wave_per(top_test_cfg.half_period2[1])
+      );
+
+      // Updating for DUT Interface for Driver 2
+      `DUT_IF.wg_hlf_wave2_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_neg_hlf_wave2_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_rest_wave2_lim[i] = top_test_cfg.rest_lim;
+      `DUT_IF.wg_silent_wave2_lim[i] = top_test_cfg.silent_lim;
+      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 2 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1], `DUT_IF.wg_hlf_wave2_lim[i], `DUT_IF.wg_neg_hlf_wave2_lim[i]), NNC_LOW)
+      // ======================================================================================================================
+
+      // ----------------------------------
+      // Updating configuration of Driver 0/1/2 from DUT to Wavegen VIPs
+      // ----------------------------------    
+      // VIP 0
+      top_env.wavegen_vif[chip_num].wg_hlf_wave0_lim[i] = `DUT_IF.wg_hlf_wave0_lim[i];
+      top_env.wavegen_vif[chip_num].wg_neg_hlf_wave0_lim[i] = `DUT_IF.wg_neg_hlf_wave0_lim[i];
+      top_env.wavegen_vif[chip_num].wg_rest_wave0_lim[i] = `DUT_IF.wg_rest_wave0_lim[i];
+      top_env.wavegen_vif[chip_num].wg_silent_wave0_lim[i] = `DUT_IF.wg_silent_wave0_lim[i];
+
+      // VIP 1
+      top_env.wavegen_vif[chip_num].wg_hlf_wave1_lim[i] = `DUT_IF.wg_hlf_wave1_lim[i];
+      top_env.wavegen_vif[chip_num].wg_neg_hlf_wave1_lim[i] = `DUT_IF.wg_neg_hlf_wave1_lim[i];
+      top_env.wavegen_vif[chip_num].wg_rest_wave1_lim[i] = `DUT_IF.wg_rest_wave1_lim[i];
+      top_env.wavegen_vif[chip_num].wg_silent_wave1_lim[i] = `DUT_IF.wg_silent_wave1_lim[i];
+
+      // VIP 2
+      top_env.wavegen_vif[chip_num].wg_hlf_wave2_lim[i] = `DUT_IF.wg_hlf_wave2_lim[i];
+      top_env.wavegen_vif[chip_num].wg_neg_hlf_wave2_lim[i] = `DUT_IF.wg_neg_hlf_wave2_lim[i];
+      top_env.wavegen_vif[chip_num].wg_rest_wave2_lim[i] = `DUT_IF.wg_rest_wave2_lim[i];
+      top_env.wavegen_vif[chip_num].wg_silent_wave2_lim[i] = `DUT_IF.wg_silent_wave2_lim[i];
+
+      // -----------------------------------------------
+      // set clk_per_point_short
+      // -----------------------------------------------
+      // For Diver 0
+      if((chip_num === 0) && (i === 0)) begin
+        if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
+	  `DUT_IF.clk_per_point_short_dac0 = 1'b1;
+        else
+	  `DUT_IF.clk_per_point_short_dac0 = 1'b0;
+      end
+      // For Diver 1      
+      else if((chip_num === 0) && (i === 1)) begin
+        if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
+	  `DUT_IF.clk_per_point_short_dac1 = 1'b1;
+        else
+	  `DUT_IF.clk_per_point_short_dac1 = 1'b0;
+      end
+      // For Diver 2 ?????????? -> Daniel
+
+    end // end of for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
 
     // ------------------------------------------------------------------------------
-    // Write to SOC_ANA_ENABLE_REG_1 (This driver  enable is for analog purpose only)
+    // Write to SOC_ANA_ENABLE_REG_1 (This driver enable is for analog purpose only)
     // ------------------------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_1; wr_data[0] == 8'h08;});//IDAC_EN
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // ------------------------------------------------------------------------------
-    // Write to SOC_ANA_ENABLE_REG_2 (This driver  enable is for analog purpose only)
+    // Write to SOC_ANA_ENABLE_REG_2 (This driver enable is for analog purpose only)
     // ------------------------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_2; wr_data[0] == 8'h08;});//IDAC_EN
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);

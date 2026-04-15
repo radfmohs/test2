@@ -46,7 +46,8 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_imeas_status_en     { imeas_status_en inside {0,1}; } // default no Imeas status
  
-  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,1}; }// default 32 bit data
+  //constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,1}; }// default 32 bit data
+  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {1,1}; }// latest - only 24 bit supported
 
   // -----------------------------------------------
   // End of adding constraints of randomization

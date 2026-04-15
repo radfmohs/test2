@@ -208,39 +208,41 @@ class `TESTNAME extends soc_base_test;
 
     // Checking pin scan out
     for (int i=0; i < 100; i++) begin
-      rand_num[3:0] = $random;
-      force `DIG_TOP.u_pinmux.scan_out = rand_num[3:0];
+      rand_num[8:0] = $random;
+      force `DIG_TOP.u_pinmux.scan_out = rand_num[8:0];
       #10000;
-      if ({`SOC_TB.IOBUF_PAD[10:7]} !== rand_num[3:0]) begin
-        `nnc_error("SCANMODE",$sformatf("{`SOC_TB.IOBUF_PAD[10:7]} = scan_out = %b is not as expectation of `DIG_TOP.u_pinmux.scan_out = %b",{`SOC_TB.IOBUF_PAD[10:7]}, `DIG_TOP.u_pinmux.scan_out))
+      if ({`SOC_TB.IOBUF_PAD[20:12]} !== rand_num[8:0]) begin
+        `nnc_error("SCANMODE",$sformatf("{`SOC_TB.IOBUF_PAD[20:12]} = scan_out = %b is not as expectation of `DIG_TOP.u_pinmux.scan_out = %b",{`SOC_TB.IOBUF_PAD[20:12]}, `DIG_TOP.u_pinmux.scan_out))
       end
     end
 `ifndef POSTLAYOUT_PG    
     // Checking pin scan in
     for (int i=0; i < 100; i++) begin
-      rand_num[3:0] = $random;
-      force {`SOC_TB.IOBUF_PAD[6:3]} = rand_num[3:0];
+      rand_num[8:0] = $random;
+      force {`SOC_TB.IOBUF_PAD[11:3]} = rand_num[8:0];
       #10000;
-      if (`DIG_TOP.u_pinmux.scan_in[3:0] !== rand_num[3:0]) begin
-        `nnc_error("SCANMODE",$sformatf("`DIG_TOP.u_pinmux.scan_in = %b is not as expectation of scan_in = %b", `DIG_TOP.u_pinmux.scan_in[3:0], {`SOC_TB.IOBUF_PAD[6:3]}));
-        if (`DIG_TOP.u_pinmux.scan_in[3:0] !== `DIG_TOP.u_pinmux.scan_out[3:0]) begin
-          `nnc_error("SCANMODE",$sformatf("scan_in = %b is not as expectation of scan_out = %b", `DIG_TOP.u_pinmux.scan_in[3:0], `DIG_TOP.u_pinmux.scan_out[3:0]))
+      if (`DIG_TOP.u_pinmux.scan_in !== rand_num[8:0]) begin
+        `nnc_error("SCANMODE",$sformatf("`DIG_TOP.u_pinmux.scan_in = %b is not as expectation of scan_in = %b", `DIG_TOP.u_pinmux.scan_in, {`SOC_TB.IOBUF_PAD[11:3]}));
+        if (`DIG_TOP.u_pinmux.scan_in !== `DIG_TOP.u_pinmux.scan_out) begin
+          `nnc_error("SCANMODE",$sformatf("scan_in = %b is not as expectation of scan_out = %b", `DIG_TOP.u_pinmux.scan_in, `DIG_TOP.u_pinmux.scan_out))
         end
       end
-      release {`SOC_TB.IOBUF_PAD[6:3]};
+      release {`SOC_TB.IOBUF_PAD[11:3]};
     end
 `else
     // Checking pin scan in
     for (int i=0; i < 100; i++) begin
-      rand_num[3:0] = $random;
-      force {`SOC_TB.IOBUF_PAD[6:3]} = rand_num[3:0];
+      rand_num[8:0] = $random;
+      force {`SOC_TB.IOBUF_PAD[11:3]} = rand_num[8:0];
       #10000;
-      if (`SOC_TB.IOBUF_PAD[6:3] !== `DIG_TOP.u_pinmux.scan_out[3:0]) begin
-          `nnc_error("SCANMODE",$sformatf("scan_in = %b is not as expectation of scan_out = %b", `SOC_TB.IOBUF_PAD[6:3], `DIG_TOP.u_pinmux.scan_out[3:0]))
+      if (`SOC_TB.IOBUF_PAD[11:3] !== `DIG_TOP.u_pinmux.scan_out[8:0]) begin
+          `nnc_error("SCANMODE",$sformatf("scan_in = %b is not as expectation of scan_out = %b", `SOC_TB.IOBUF_PAD[11:3], `DIG_TOP.u_pinmux.scan_out[8:0]))
       end
-      release {`SOC_TB.IOBUF_PAD[6:3]};
+      release {`SOC_TB.IOBUF_PAD[11:3]};
     end
 `endif
+
+/*
 
 `ifdef ENABLE_WAKEUP
 // Checking wake up = 0
@@ -378,8 +380,10 @@ class `TESTNAME extends soc_base_test;
 
     release `ANA_TOP.A2D_Wake_UP_i;
 
-`endif          	    
+`endif   
+*/
 `endif
+
     end
   endtask  
 

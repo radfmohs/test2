@@ -61,13 +61,13 @@ class `TESTCFG extends soc_nirs_ppg_base_test_cfg;
   constraint c_mask        { soft mask == 8'hff; }
   
   //
-  constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel ==1;}
+  constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel inside {1,3,5,7,9,11,13,15};}
 
   //
-  constraint c_nirs_ppg_meas     { nirs_ppg_meas ==1;}
+  //constraint c_nirs_ppg_meas     { nirs_ppg_meas ==1;}
 
   //
-  constraint c_nirs_ppg_en       { nirs_ppg_en == 1;}
+  //constraint c_nirs_ppg_en       { nirs_ppg_en == 1;}
 
  // set FF
  //NIRS_CTRL_6
@@ -204,53 +204,74 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
     //// --------------------------------------------------------
     //// ########################################################
     //// ########################################################
+    //In order to configure for 8 channels with all configuration
+    for(int i=0; i<8; i++)begin
 
-/*    //At OFFSET 0XC5[5:0], 0XC6[7:0], 0XC7[[7:3]: High Threshold for the IDAC auto cancellation
-    //0XC5[5:0] == [18:13], 0XC6[7:0] == [12:5], 0XC7[[7:3] == [4:0] (Total 19bits)
-    `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_6_REG", NNC_LOW)
-    //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_6_REG; mask == 8'hff; data[0] == {2'b0,top_test_cfg.threshold_h_18_13};});
-    `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_6_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);        
+       `nnc_info("SOC_TEST", $sformatf("Configure for NIRS_CH[%0d]", i),NNC_LOW)
+       configure_nirs_ctrl_regs(i);  //nirs from base test,nirs_addr_channel_en
+   
+       /* //At OFFSET 0XC5[5:0], 0XC6[7:0], 0XC7[[7:3]: High Threshold for the IDAC auto cancellation
+       //0XC5[5:0] == [18:13], 0XC6[7:0] == [12:5], 0XC7[[7:3] == [4:0] (Total 19bits)
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_6_REG", NNC_LOW)
+       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_6_REG; mask == 8'hff; data[0] == {2'b0,top_test_cfg.threshold_h_18_13};});
+       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_6_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);        
 
-    `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_7_REG", NNC_LOW)
-    //top_test_cfg.data[0] = top_test_cfg.threshold_h_12_5;
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_7_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_12_5;});
-    `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_7_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);  
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_7_REG", NNC_LOW)
+       //top_test_cfg.data[0] = top_test_cfg.threshold_h_12_5;
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_7_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_12_5;});
+       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_7_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);  
 
-    //0XC7[[7:3] == [4:0] High Threshold for the IDAC auto cancellation
-    //At OFFSET /0XC7[2:0] == [18:16] Low threshold for the IDAC auto cancellation
-    `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_8_REG", NNC_LOW)
-    //top_test_cfg.data[0] = {top_test_cfg.threshold_h_4_0, top_test_cfg.threshold_l_18_16};
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_8_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_h_4_0, top_test_cfg.threshold_l_18_16};});
-    `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_8_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);*/
-
-
-    //1) MCU sets MODE_SEL to 2'b01(MCU MASTER SINGLE MODE)
-    //At OFSET 0xC0(SOC_NIRS_CTRL_0_REG), bit[5:2]= 4'bxxx1 : MCU MASTER MODE (MODE_SEL)
-
-    //2) MCU enables the NIRS receiver (by a register/command)
-    //At OFSET 0xC0(SOC_NIRS_CTRL_0_REG),   bit[1]=1 : Start the measurement operation(only for master mode),
-
-    //3) NIRS_ctrl turns ON analog receiver (D2A_NIRS_EN)
-    //At OFSET 0xC0(SOC_NIRS_CTRL_0_REG),   bit[0]=1: Enable NIRS  (D2A_NIRS_EN)
-    //top_test_cfg.data[0] = {2'b00, top_test_cfg.nirs_ppg_mode_sel, top_test_cfg.nirs_ppg_meas, top_test_cfg.nirs_ppg_en};
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_0_REG; mask == 8'hff; data[0] == {2'b00, top_test_cfg.nirs_ppg_mode_sel, top_test_cfg.nirs_ppg_meas, top_test_cfg.nirs_ppg_en};});
-    `nnc_info("SOC_TEST", $sformatf("top_test_cfg.data[0]: %h nirs_ppg_mode_sel: %h nirs_ppg_meas: %h nirs_ppg_en: %h",top_test_cfg.data[0], top_test_cfg.nirs_ppg_mode_sel, top_test_cfg.nirs_ppg_meas, top_test_cfg.nirs_ppg_en), NNC_LOW)
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-      
-    //4) Delay a programmable time to wait for analog receiver to be stable 
-
-    //5) Start the state machine (D2A_NIRS_RESET_SW)  
-
-    //6) MCU waits for reset to be low (self-calculation?) then starts the MEAS (by a register/command) 
-    //7) NIRS_ctrl starts the sampling process (D2A_NIRS_IPD_SW) 
-    //8) NIRS_ctrl waits falling edge of A2D_IREFFINE to latch data then generates interrupt and turns off analog receiver.
+       //0XC7[[7:3] == [4:0] High Threshold for the IDAC auto cancellation
+       //At OFFSET /0XC7[2:0] == [18:16] Low threshold for the IDAC auto cancellation
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_8_REG", NNC_LOW)
+       //top_test_cfg.data[0] = {top_test_cfg.threshold_h_4_0, top_test_cfg.threshold_l_18_16};
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_8_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_h_4_0, top_test_cfg.threshold_l_18_16};});
+       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_8_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);*/
 
 
-    #5ms;
+       //1) MCU sets MODE_SEL to 2'b01(MCU MASTER SINGLE MODE)
+       //At OFSET 0xC0(SOC_NIRS_CTRL_0_REG), bit[5:2]= 4'bxxx1 : MCU MASTER MODE (MODE_SEL)
+
+       //2) MCU enables the NIRS receiver (by a register/command)
+       //At OFSET 0xC0(SOC_NIRS_CTRL_0_REG),   bit[1]=1 : Start the measurement operation(only for master mode),
+
+       //3) NIRS_ctrl turns ON analog receiver (D2A_NIRS_EN)
+       //At OFSET 0xC1(SOC_NIRS_CTRL_0_REG), 
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_0_REG", NNC_LOW)  
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_0_REG; mask == 8'hff; data[0] == {1'b0, top_test_cfg.ratio_ctrl, top_test_cfg.ratio_mode,top_test_cfg.nirs_ppg_mode_sel};});
+       `nnc_info("SOC_TEST", $sformatf("top_test_cfg.data[0]: %h nirs_ppg_mode_sel: %h ratio_mode: %h ration_ctrl: %h",top_test_cfg.data[0], top_test_cfg.nirs_ppg_mode_sel, top_test_cfg.ratio_mode, top_test_cfg.ratio_ctrl), NNC_LOW)
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+
+       //At OFFSET 0XCE[7:0]
+       top_test_cfg.ch_en_mask |= (8'b1 << i);
+       `nnc_info("SOC_TEST", $sformatf("Configure SOC_NIRS_CTRL_EN_REG top_test_cfg.ch_en_mask =8'b%b",top_test_cfg.ch_en_mask), NNC_LOW)
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_EN_REG", NNC_LOW)
+       //top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_EN_REG; mask == 8'hff; data[0] == (({top_test_cfg.nirs_ppg_en7,top_test_cfg.nirs_ppg_en6,top_test_cfg.nirs_ppg_en5,top_test_cfg.nirs_ppg_en4,top_test_cfg.nirs_ppg_en3,top_test_cfg.nirs_ppg_en2,top_test_cfg.nirs_ppg_en1,top_test_cfg.nirs_ppg_en0}) & top_test_cfg.ch_en_mask);}); 
+       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_EN_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                         
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+
+       //At OFFSET 0XCF[7:0]
+       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_MEAS_REG", NNC_LOW)
+       //top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
+       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_MEAS_REG; mask == 8'hff; data[0] == (top_test_cfg.ch_en_mask & ({top_test_cfg.nirs_ctrl_meas7,top_test_cfg.nirs_ctrl_meas6,top_test_cfg.nirs_ctrl_meas5,top_test_cfg.nirs_ctrl_meas4,top_test_cfg.nirs_ctrl_meas3,top_test_cfg.nirs_ctrl_meas2,top_test_cfg.nirs_ctrl_meas1,top_test_cfg.nirs_ctrl_meas0}));}); 
+       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_MEAS_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                         
+       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);  
+         
+       //4) Delay a programmable time to wait for analog receiver to be stable 
+
+       //5) Start the state machine (D2A_NIRS_RESET_SW)  
+
+       //6) MCU waits for reset to be low (self-calculation?) then starts the MEAS (by a register/command) 
+       //7) NIRS_ctrl starts the sampling process (D2A_NIRS_IPD_SW) 
+       //8) NIRS_ctrl waits falling edge of A2D_IREFFINE to latch data then generates interrupt and turns off analog receiver.
+    end
+
+    #15ms;
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
