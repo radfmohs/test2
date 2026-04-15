@@ -26,7 +26,7 @@
   `define         COUNTER_SIZE 16
 `endif
 
-module ADCDec1(RST, ADCEN, CLK4M, Din, OSR, FORMAT, TRIG, Dout);
+module ADCDec1(RST, ADCEN, CLK4M, Din, OSR, FORMAT, FORMAT_SEL, TRIG, Dout);
   
   input	                    RST;
   input	                    ADCEN;
@@ -34,6 +34,7 @@ module ADCDec1(RST, ADCEN, CLK4M, Din, OSR, FORMAT, TRIG, Dout);
   input                     Din;
   input	 [`OSR_SIZE-1:0]    OSR;
   input	 [1:0]	            FORMAT;
+  input                     FORMAT_SEL; // Match imeas_cic.sv format_sel: adds 0x800000 DC offset
   input                     TRIG;
   output [`FILTER_DATA_WIDTH-1:0] Dout;   // Often 24-bit or 32-bit
 
@@ -101,9 +102,17 @@ module ADCDec1(RST, ADCEN, CLK4M, Din, OSR, FORMAT, TRIG, Dout);
 `endif
 
 // Overflow management of filter output data
-assign  #`DLY Dout[`FILTER_DATA_WIDTH-1:0] = (FORMAT == 2'b00) ? Dout_tmp[`FILTER_DATA_WIDTH-1:0] :
+wire [`FILTER_DATA_WIDTH-1:0] Dout_clipped;
+assign  #`DLY Dout_clipped[`FILTER_DATA_WIDTH-1:0] = (FORMAT == 2'b00) ? Dout_tmp[`FILTER_DATA_WIDTH-1:0] :
 				                                (Dout_tmp[`FILTER_DATA_WIDTH:`FILTER_DATA_WIDTH-1] == 2'b10) ? (1 << (`FILTER_DATA_WIDTH-1)) :
 				                                (Dout_tmp[`FILTER_DATA_WIDTH:`FILTER_DATA_WIDTH-1] == 2'b01) ? (1 << (`FILTER_DATA_WIDTH-1)) - 1 : Dout_tmp[`FILTER_DATA_WIDTH-1:0];
+
+// Change 3: format_sel DC offset – match imeas_cic.sv line 208:
+//   assign cic_out_sel = format_sel ? (cic_out_1 + 24'h800000) : cic_out_1;
+// Converts signed two's complement output to offset binary when FORMAT_SEL=1.
+assign  #`DLY Dout[`FILTER_DATA_WIDTH-1:0] = FORMAT_SEL ?
+    (Dout_clipped + {{1'b1},{(`FILTER_DATA_WIDTH-1){1'b0}}}) :
+    Dout_clipped;
 
 //************************************************* CIC filter Logic of integrators & combs *********************************************/
 always @(negedge RST or posedge CLK4M )//change posedge RST
@@ -189,7 +198,7 @@ always @(CN5 or DN6)
 endmodule
 
 
-module ADCDec_3(IAin, RST, ADCEN, ADC_CLK, OSR, FORMAT, TRIG, IA);	  
+module ADCDec_3(IAin, RST, ADCEN, ADC_CLK, OSR, FORMAT, FORMAT_SEL, TRIG, IA);	  
   input		IAin;
   input		RST;
   input		ADCEN;
@@ -197,6 +206,7 @@ module ADCDec_3(IAin, RST, ADCEN, ADC_CLK, OSR, FORMAT, TRIG, IA);
 //input           offset;
   input	[`OSR_SIZE-1:0]	OSR;
   input   [1:0]   FORMAT;
+  input           FORMAT_SEL; // Match imeas_cic.sv format_sel DC offset
   output		TRIG;
   output	[`FILTER_DATA_WIDTH-1:0]  IA;   // 31:0
 
@@ -223,6 +233,7 @@ ADCDec1 decIA(
   .Din(IAin),
   .OSR(OSR),
   .FORMAT(FORMAT),
+  .FORMAT_SEL(FORMAT_SEL),
   .TRIG(TRIG),
   .Dout(IA)
 );
@@ -247,7 +258,10 @@ always @(negedge RST or posedge ADC_CLK)//change posedge RST
 	  count	<= #`DLY {(`COUNTER_SIZE){1'b0}};;
       end
       else begin
-	count	<= #`DLY {(`COUNTER_SIZE){1'b1}};
+	// Change 4: match imeas_cic.sv where imeas_en is commented out –
+	// counter runs unconditionally; resetting to all-1s when ADCEN=0
+	// caused an unintended period-reset every time ADCEN was deasserted.
+	count	<= #`DLY count;
       end
     end
   end
@@ -276,6 +290,7 @@ module test_SINC_4_24B #(
   input  [`OSR_SIZE-1:0]  OSR,
   input         OFFSET,
   input  [1:0]  FORMAT,
+  input         FORMAT_SEL, // Match imeas_cic.sv format_sel: 0x800000 DC offset when high
   output [`FILTER_DATA_WIDTH-1:0] IA,
   output        IA_valid
 );	
