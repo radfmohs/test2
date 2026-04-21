@@ -892,89 +892,131 @@
 `define REG127 SOC_FILTER_LPF_COEFF_DATA3_REG
 
 // NIRS Address Map
-`define SOC_NIRS_CTRL_ADDRESS_REG                    8'h00
-`define INIT_SOC_NIRS_CTRL_ADDRESS_REG               8'h00
-`define MASK_SOC_NIRS_CTRL_ADDRESS_REG               8'h07
-`define ACCESS_SOC_NIRS_CTRL_ADDRESS_REG             16'h07
-`define REG_NIRS0 SOC_NIRS_CTRL_ADDRESS_REG
+`define SOC_NIRS_CTRL_CHANNEL_REG                    8'h00
+`define INIT_SOC_NIRS_CTRL_CHANNEL_REG               8'h00
+`define MASK_SOC_NIRS_CTRL_CHANNEL_REG               8'hFF
+`define ACCESS_SOC_NIRS_CTRL_CHANNEL_REG             16'h07
+`define REG_NIRS0 SOC_NIRS_CTRL_CHANNEL_REG
+
+//`define SOC_NIRS_CTRL_ADDRESS_REG                    8'h00
+//`define INIT_SOC_NIRS_CTRL_ADDRESS_REG               8'h00
+//`define MASK_SOC_NIRS_CTRL_ADDRESS_REG               8'h07
+//`define ACCESS_SOC_NIRS_CTRL_ADDRESS_REG             16'h07
+//`define REG_NIRS0 SOC_NIRS_CTRL_ADDRESS_REG
+
+`define SOC_NIRS_CTRL_LED_REG                        8'h01
+`define INIT_SOC_NIRS_CTRL_LED_REG                   8'h00
+`define MASK_SOC_NIRS_CTRL_LED_REG                   8'h03
+`define ACCESS_SOC_NIRS_CTRL_LED_REG                 16'h07
+`define REG_NIRS1 SOC_NIRS_CTRL_LED_REG
 
 `define SOC_NIRS_CTRL_0_REG                           8'h02
 `define INIT_SOC_NIRS_CTRL_0_REG                      8'h00
-`define MASK_SOC_NIRS_CTRL_0_REG                      8'h7F
+`define MASK_SOC_NIRS_CTRL_0_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_0_REG                    16'h07
-`define REG_NIRS1 SOC_NIRS_CTRL_0_REG
+`define REG_NIRS2 SOC_NIRS_CTRL_0_REG
 
 `define SOC_NIRS_CTRL_1_REG                           8'h03 
 `define INIT_SOC_NIRS_CTRL_1_REG                      8'h00
 `define MASK_SOC_NIRS_CTRL_1_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_1_REG                    16'h07
-`define REG_NIRS2 SOC_NIRS_CTRL_1_REG
+`define REG_NIRS3 SOC_NIRS_CTRL_1_REG
 
 `define SOC_NIRS_CTRL_2_REG                           8'h04
 `define INIT_SOC_NIRS_CTRL_2_REG                      8'h00
-`define MASK_SOC_NIRS_CTRL_2_REG                      8'hFF
+`define MASK_SOC_NIRS_CTRL_2_REG                      8'h3F
 `define ACCESS_SOC_NIRS_CTRL_2_REG                    16'h07
-`define REG_NIRS3 SOC_NIRS_CTRL_2_REG
+`define REG_NIRS4 SOC_NIRS_CTRL_2_REG
 
 `define SOC_NIRS_CTRL_3_REG                           8'h05 
-`define INIT_SOC_NIRS_CTRL_3_REG                      8'h00
+`define INIT_SOC_NIRS_CTRL_3_REG                      8'h03
 `define MASK_SOC_NIRS_CTRL_3_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_3_REG                    16'h07
-`define REG_NIRS4 SOC_NIRS_CTRL_3_REG
+`define REG_NIRS5 SOC_NIRS_CTRL_3_REG
 
 `define SOC_NIRS_CTRL_4_REG                           8'h06 
-`define INIT_SOC_NIRS_CTRL_4_REG                      8'h00
+`define INIT_SOC_NIRS_CTRL_4_REG                      8'hFF 
 `define MASK_SOC_NIRS_CTRL_4_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_4_REG                    16'h07
-`define REG_NIRS5 SOC_NIRS_CTRL_4_REG
+`define REG_NIRS6 SOC_NIRS_CTRL_4_REG
 
 `define SOC_NIRS_CTRL_5_REG                           8'h07
-`define INIT_SOC_NIRS_CTRL_5_REG                      8'h00
+`define INIT_SOC_NIRS_CTRL_5_REG                      8'hFF
 `define MASK_SOC_NIRS_CTRL_5_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_5_REG                    16'h07
-`define REG_NIRS6 SOC_NIRS_CTRL_5_REG
+`define REG_NIRS7 SOC_NIRS_CTRL_5_REG
 
 `define SOC_NIRS_CTRL_6_REG                           8'h08
 `define INIT_SOC_NIRS_CTRL_6_REG                      8'hFF
 `define MASK_SOC_NIRS_CTRL_6_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_6_REG                    16'h07 
-`define REG_NIRS7 SOC_NIRS_CTRL_6_REG
+`define REG_NIRS8 SOC_NIRS_CTRL_6_REG
 
 `define SOC_NIRS_CTRL_7_REG                           8'h09 
-`define INIT_SOC_NIRS_CTRL_7_REG                      8'hFF
-`define MASK_SOC_NIRS_CTRL_7_REG                      8'h00
+`define INIT_SOC_NIRS_CTRL_7_REG                      8'h00
+`define MASK_SOC_NIRS_CTRL_7_REG                      8'hFF
 `define ACCESS_SOC_NIRS_CTRL_7_REG                    16'h07
-`define REG_NIRS8 SOC_NIRS_CTRL_7_REG
+`define REG_NIRS9 SOC_NIRS_CTRL_7_REG
 
-`define SOC_NIRS_CTRL_8_REG                           8'h0A
-`define INIT_SOC_NIRS_CTRL_8_REG                      8'h7F
-`define MASK_SOC_NIRS_CTRL_8_REG                      8'hFF
-`define ACCESS_SOC_NIRS_CTRL_8_REG                    16'h07
-`define REG_NIRS9 SOC_NIRS_CTRL_8_REG
+//`define SOC_NIRS_CTRL_8_REG                           8'h0A
+//`define INIT_SOC_NIRS_CTRL_8_REG                      8'h7F
+//`define MASK_SOC_NIRS_CTRL_8_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_CTRL_8_REG                    16'h07
+//`define REG_NIRS9 SOC_NIRS_CTRL_8_REG
+//
+//`define SOC_NIRS_CTRL_9_REG                           8'h0B
+//`define INIT_SOC_NIRS_CTRL_9_REG                      8'h60
+//`define MASK_SOC_NIRS_CTRL_9_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_CTRL_9_REG                    16'h07
+//`define REG_NIRS10 SOC_NIRS_CTRL_9_REG
+//
+//`define SOC_NIRS_CTRL_10_REG 			      8'h0C 
+//`define INIT_SOC_NIRS_CTRL_10_REG 		      8'h00
+//`define MASK_SOC_NIRS_CTRL_10_REG        	      8'h03
+//`define ACCESS_SOC_NIRS_CTRL_10_REG 		      16'h07
+//`define REG_NIRS11 SOC_NIRS_CTRL_10_REG
 
-`define SOC_NIRS_CTRL_9_REG                           8'h0B
-`define INIT_SOC_NIRS_CTRL_9_REG                      8'h60
-`define MASK_SOC_NIRS_CTRL_9_REG                      8'hFF
-`define ACCESS_SOC_NIRS_CTRL_9_REG                    16'h07
-`define REG_NIRS10 SOC_NIRS_CTRL_9_REG
+`define SOC_NIRS_CTRL_MODE_REG                        8'h0A
+`define INIT_SOC_NIRS_CTRL_MODE_REG                   8'h00
+`define MASK_SOC_NIRS_CTRL_MODE_REG                   8'h1F
+`define ACCESS_SOC_NIRS_CTRL_MODE_REG                 16'h07
+`define REG_NIRS10 SOC_NIRS_CTRL_MODE_REG
 
-`define SOC_NIRS_CTRL_10_REG 			      8'h0C 
-`define INIT_SOC_NIRS_CTRL_10_REG 		      8'h00
-`define MASK_SOC_NIRS_CTRL_10_REG        	      8'h03
-`define ACCESS_SOC_NIRS_CTRL_10_REG 		      16'h07
-`define REG_NIRS11 SOC_NIRS_CTRL_10_REG
+`define SOC_NIRS_CTRL_ADJ0_REG                        8'h0B
+`define INIT_SOC_NIRS_CTRL_ADJ0_REG                   8'h00
+`define MASK_SOC_NIRS_CTRL_ADJ0_REG                   8'h7F
+`define ACCESS_SOC_NIRS_CTRL_ADJ0_REG                 16'h07
+`define REG_NIRS11 SOC_NIRS_CTRL_ADJ0_REG
 
-`define SOC_NIRS_CTRL_CLK_REG 			      8'h0D
+`define SOC_NIRS_CTRL_ADJ1_REG                        8'h0C
+`define INIT_SOC_NIRS_CTRL_ADJ1_REG                   8'h00
+`define MASK_SOC_NIRS_CTRL_ADJ1_REG                   8'h7F
+`define ACCESS_SOC_NIRS_CTRL_ADJ1_REG                 16'h07
+`define REG_NIRS12 SOC_NIRS_CTRL_ADJ1_REG
+
+`define SOC_NIRS_CTRL_ADJ2_REG                        8'h0D
+`define INIT_SOC_NIRS_CTRL_ADJ2_REG                   8'h00
+`define MASK_SOC_NIRS_CTRL_ADJ2_REG                   8'hFF
+`define ACCESS_SOC_NIRS_CTRL_ADJ2_REG                 16'h07
+`define REG_NIRS13 SOC_NIRS_CTRL_ADJ2_REG
+
+`define SOC_NIRS_CTRL_CLK_REG 			      8'h0E
 `define INIT_SOC_NIRS_CTRL_CLK_REG 		      8'h02
-`define MASK_SOC_NIRS_CTRL_CLK_REG        	      8'hFF
+`define MASK_SOC_NIRS_CTRL_CLK_REG        	      8'h3F
 `define ACCESS_SOC_NIRS_CTRL_CLK_REG 		      16'h07
-`define REG_NIRS12 SOC_NIRS_CTRL_CLK_REG
+`define REG_NIRS14 SOC_NIRS_CTRL_CLK_REG
 
-`define SOC_NIRS_CTRL_EN_REG 			      8'h0E
-`define INIT_SOC_NIRS_CTRL_EN_REG 		      8'h00
-`define MASK_SOC_NIRS_CTRL_EN_REG        	      8'hFF
-`define ACCESS_SOC_NIRS_CTRL_EN_REG 		      16'h07
-`define REG_NIRS13 SOC_NIRS_CTRL_EN_REG
+`define SOC_NIRS_CTRL_CMD_REG 			      8'h0F
+`define INIT_SOC_NIRS_CTRL_CMD_REG 		      8'h00
+`define MASK_SOC_NIRS_CTRL_CMD_REG        	      8'h03
+`define ACCESS_SOC_NIRS_CTRL_CMD_REG 		      16'h07
+`define REG_NIRS15 SOC_NIRS_CTRL_CMD_REG
+
+//`define SOC_NIRS_CTRL_EN_REG 			      8'h0E
+//`define INIT_SOC_NIRS_CTRL_EN_REG 		      8'h00
+//`define MASK_SOC_NIRS_CTRL_EN_REG        	      8'hFF
+//`define ACCESS_SOC_NIRS_CTRL_EN_REG 		      16'h07
+//`define REG_NIRS13 SOC_NIRS_CTRL_EN_REG
 
 `define SOC_NIRS_CTRL_MEAS_REG 			      8'h0F
 `define INIT_SOC_NIRS_CTRL_MEAS_REG 		      8'h00
@@ -994,167 +1036,341 @@
 //`define ACCESS_SOC_NIRS_DOUT_1_REG                    16'h02
 //`define REG144 SOC_NIRS_DOUT_1_REG
 
-`define SOC_NIRS_DEBUG_0_REG                           8'h10
+`define SOC_NIRS_DEBUG_SEL_REG                         8'h10
+`define INIT_SOC_NIRS_DEBUG_SEL_REG                    8'h00
+`define MASK_SOC_NIRS_DEBUG_SEL_REG                    8'h1F
+`define ACCESS_SOC_NIRS_DEBUG_SEL_REG                  16'h07
+`define REG_NIRS16 SOC_NIRS_DEBUG_SEL_REG
+
+`define SOC_NIRS_DEBUG_0_REG                           8'h11
 `define INIT_SOC_NIRS_DEBUG_0_REG                      8'h00
 `define MASK_SOC_NIRS_DEBUG_0_REG                      8'h1F
 `define ACCESS_SOC_NIRS_DEBUG_0_REG                    16'h02
-`define REG_NIRS15 SOC_NIRS_DEBUG_0_REG
+`define REG_NIRS17 SOC_NIRS_DEBUG_0_REG
 
-`define SOC_NIRS_DEBUG_1_REG                           8'h11
+`define SOC_NIRS_DEBUG_1_REG                           8'h12
 `define INIT_SOC_NIRS_DEBUG_1_REG                      8'h00
 `define MASK_SOC_NIRS_DEBUG_1_REG                      8'hFF
 `define ACCESS_SOC_NIRS_DEBUG_1_REG                    16'h02
-`define REG_NIRS16 SOC_NIRS_DEBUG_1_REG
+`define REG_NIRS18 SOC_NIRS_DEBUG_1_REG
 
-`define SOC_NIRS_DEBUG_2_REG                           8'h12
+`define SOC_NIRS_DEBUG_2_REG                           8'h13
 `define INIT_SOC_NIRS_DEBUG_2_REG                      8'h00
-`define MASK_SOC_NIRS_DEBUG_2_REG                      8'hFF
+`define MASK_SOC_NIRS_DEBUG_2_REG                      8'h1F
 `define ACCESS_SOC_NIRS_DEBUG_2_REG                    16'h02
-`define REG_NIRS17 SOC_NIRS_DEBUG_2_REG
+`define REG_NIRS19 SOC_NIRS_DEBUG_2_REG
 
-`define SOC_NIRS_DEBUG_3_REG                           8'h13
+`define SOC_NIRS_DEBUG_3_REG                           8'h14
 `define INIT_SOC_NIRS_DEBUG_3_REG                      8'h00
 `define MASK_SOC_NIRS_DEBUG_3_REG                      8'hFF
 `define ACCESS_SOC_NIRS_DEBUG_3_REG                    16'h02
-`define REG_NIRS18 SOC_NIRS_DEBUG_3_REG
+`define REG_NIRS20 SOC_NIRS_DEBUG_3_REG
 
-`define SOC_NIRS_DEBUG_4_REG                           8'h14
+`define SOC_NIRS_DEBUG_4_REG                           8'h15
 `define INIT_SOC_NIRS_DEBUG_4_REG                      8'h00
-`define MASK_SOC_NIRS_DEBUG_4_REG                      8'hFF
+`define MASK_SOC_NIRS_DEBUG_4_REG                      8'h3F
 `define ACCESS_SOC_NIRS_DEBUG_4_REG                    16'h02
-`define REG_NIRS19 SOC_NIRS_DEBUG_4_REG
+`define REG_NIRS21 SOC_NIRS_DEBUG_4_REG
 
-`define SOC_NIRS_DEBUG_5_REG                           8'h15
-`define INIT_SOC_NIRS_DEBUG_5_REG                      8'h00
-`define MASK_SOC_NIRS_DEBUG_5_REG                      8'hFF
-`define ACCESS_SOC_NIRS_DEBUG_5_REG                    16'h02
-`define REG_NIRS20 SOC_NIRS_DEBUG_5_REG
+//`define SOC_NIRS_DEBUG_5_REG                           8'h15
+//`define INIT_SOC_NIRS_DEBUG_5_REG                      8'h00
+//`define MASK_SOC_NIRS_DEBUG_5_REG                      8'hFF
+//`define ACCESS_SOC_NIRS_DEBUG_5_REG                    16'h02
+//`define REG_NIRS20 SOC_NIRS_DEBUG_5_REG
+//
+//`define SOC_NIRS_DEBUG_6_REG                            8'h16
+//`define INIT_SOC_NIRS_DEBUG_6_REG                       8'h00
+//`define MASK_SOC_NIRS_DEBUG_6_REG                       8'h00
+//`define ACCESS_SOC_NIRS_DEBUG_6_REG                     16'h02
+//`define REG_NIRS21 SOC_NIRS_DEBUG_6_REG
 
-`define SOC_NIRS_DEBUG_6_REG                            8'h16
-`define INIT_SOC_NIRS_DEBUG_6_REG                       8'h00
-`define MASK_SOC_NIRS_DEBUG_6_REG                       8'h00
-`define ACCESS_SOC_NIRS_DEBUG_6_REG                     16'h02
-`define REG_NIRS21 SOC_NIRS_DEBUG_6_REG
-
-`define SOC_NIRS_INT_STATUS_REG                         8'h17
+`define SOC_NIRS_INT_STATUS_REG                         8'h20
 `define INIT_SOC_NIRS_INT_STATUS_REG                    8'h00
 `define MASK_SOC_NIRS_INT_STATUS_REG                    8'hFF
 `define ACCESS_SOC_NIRS_INT_STATUS_REG                  16'h00
 `define REG_NIRS22 SOC_NIRS_INT_STATUS_REG
 
-`define SOC_NIRS_DOUT_0_REG                             8'hD38
-`define INIT_SOC_NIRS_DOUT_0_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_0_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_0_REG                      16'h02
-`define REG_NIRS23 SOC_NIRS_DOUT_0_REG
+`define SOC_NIRS_DOUT0_0_REG                            8'h21
+`define INIT_SOC_NIRS_DOUT0_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT0_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT0_0_REG                     16'h02
+`define REG_NIRS23 SOC_NIRS_DOUT0_0_REG
 
-`define SOC_NIRS_DOUT_1_REG                             8'h39
-`define INIT_SOC_NIRS_DOUT_1_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_1_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_1_REG                      16'h02
-`define REG_NIRS24 SOC_NIRS_DOUT_1_REG
+`define SOC_NIRS_DOUT0_1_REG                            8'h22
+`define INIT_SOC_NIRS_DOUT0_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT0_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT0_1_REG                     16'h02
+`define REG_NIRS24 SOC_NIRS_DOUT0_1_REG
 
-`define SOC_NIRS_DOUT_2_REG                             8'h3A
-`define INIT_SOC_NIRS_DOUT_2_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_2_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_2_REG                      16'h02
-`define REG_NIRS24 SOC_NIRS_DOUT_2_REG
+`define SOC_NIRS_DOUT0_2_REG                            8'h23
+`define INIT_SOC_NIRS_DOUT0_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT0_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT0_2_REG                     16'h02
+`define REG_NIRS25 SOC_NIRS_DOUT0_2_REG
 
-`define SOC_NIRS_DOUT_3_REG                             8'h3B
-`define INIT_SOC_NIRS_DOUT_3_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_3_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_3_REG                      16'h02
-`define REG_NIRS25 SOC_NIRS_DOUT_3_REG
+`define SOC_NIRS_DOUT0_3_REG                            8'h24
+`define INIT_SOC_NIRS_DOUT0_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT0_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT0_3_REG                     16'h02
+`define REG_NIRS26 SOC_NIRS_DOUT0_3_REG
 
-`define SOC_NIRS_DOUT_4_REG                             8'h3C
-`define INIT_SOC_NIRS_DOUT_4_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_4_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_4_REG                      16'h02
-`define REG_NIRS26 SOC_NIRS_DOUT_4_REG
+`define SOC_NIRS_DOUT1_0_REG                            8'h25
+`define INIT_SOC_NIRS_DOUT1_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT1_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT1_0_REG                     16'h02
+`define REG_NIRS27 SOC_NIRS_DOUT1_0_REG
 
-`define SOC_NIRS_DOUT_5_REG                             8'h3D
-`define INIT_SOC_NIRS_DOUT_5_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_5_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_5_REG                      16'h02
-`define REG_NIRS27 SOC_NIRS_DOUT_5_REG
+`define SOC_NIRS_DOUT1_1_REG                            8'h26
+`define INIT_SOC_NIRS_DOUT1_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT1_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT1_1_REG                     16'h02
+`define REG_NIRS28 SOC_NIRS_DOUT1_1_REG
 
-`define SOC_NIRS_DOUT_6_REG                             8'h3E
-`define INIT_SOC_NIRS_DOUT_6_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_6_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_6_REG                      16'h02
-`define REG_NIRS28 SOC_NIRS_DOUT_6_REG
+`define SOC_NIRS_DOUT1_2_REG                            8'h27
+`define INIT_SOC_NIRS_DOUT1_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT1_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT1_2_REG                     16'h02
+`define REG_NIRS29 SOC_NIRS_DOUT1_2_REG
 
-`define SOC_NIRS_DOUT_7_REG                             8'h3F
-`define INIT_SOC_NIRS_DOUT_7_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_7_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_7_REG                      16'h02
-`define REG_NIRS29 SOC_NIRS_DOUT_7_REG
+`define SOC_NIRS_DOUT1_3_REG                            8'h28
+`define INIT_SOC_NIRS_DOUT1_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT1_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT1_3_REG                     16'h02
+`define REG_NIRS30 SOC_NIRS_DOUT1_3_REG
 
-`define SOC_NIRS_DOUT_8_REG                             8'h40
-`define INIT_SOC_NIRS_DOUT_8_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_8_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_8_REG                      16'h02
-`define REG_NIRS30 SOC_NIRS_DOUT_8_REG
+`define SOC_NIRS_DOUT2_0_REG                            8'h29
+`define INIT_SOC_NIRS_DOUT2_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT2_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT2_0_REG                     16'h02
+`define REG_NIRS31 SOC_NIRS_DOUT2_0_REG
 
-`define SOC_NIRS_DOUT_9_REG                             8'h41
-`define INIT_SOC_NIRS_DOUT_9_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_9_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_9_REG                      16'h02
-`define REG_NIRS31 SOC_NIRS_DOUT_9_REG
+`define SOC_NIRS_DOUT2_1_REG                            8'h2A
+`define INIT_SOC_NIRS_DOUT2_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT2_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT2_1_REG                     16'h02
+`define REG_NIRS32 SOC_NIRS_DOUT2_1_REG
 
-`define SOC_NIRS_DOUT_10_REG                             8'h42
-`define INIT_SOC_NIRS_DOUT_10_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_10_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_10_REG                      16'h02
-`define REG_NIRS32 SOC_NIRS_DOUT_10_REG
+`define SOC_NIRS_DOUT2_2_REG                            8'h2B
+`define INIT_SOC_NIRS_DOUT2_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT2_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT2_2_REG                     16'h02
+`define REG_NIRS33 SOC_NIRS_DOUT2_2_REG
 
-`define SOC_NIRS_DOUT_11_REG                             8'h43
-`define INIT_SOC_NIRS_DOUT_11_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_11_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_11_REG                      16'h02
-`define REG_NIRS33 SOC_NIRS_DOUT_11_REG
+`define SOC_NIRS_DOUT2_3_REG                            8'h2C
+`define INIT_SOC_NIRS_DOUT2_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT2_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT2_3_REG                     16'h02
+`define REG_NIRS34 SOC_NIRS_DOUT2_3_REG
 
-`define SOC_NIRS_DOUT_12_REG                             8'h44
-`define INIT_SOC_NIRS_DOUT_12_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_12_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_12_REG                      16'h02
-`define REG_NIRS34 SOC_NIRS_DOUT_12_REG
+`define SOC_NIRS_DOUT3_0_REG                            8'h2D
+`define INIT_SOC_NIRS_DOUT3_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT3_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT3_0_REG                     16'h02
+`define REG_NIRS35 SOC_NIRS_DOUT3_0_REG
 
-`define SOC_NIRS_DOUT_13_REG                             8'h45
-`define INIT_SOC_NIRS_DOUT_13_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_13_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_13_REG                      16'h02
-`define REG_NIRS35 SOC_NIRS_DOUT_13_REG
+`define SOC_NIRS_DOUT3_1_REG                            8'h2E
+`define INIT_SOC_NIRS_DOUT3_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT3_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT3_1_REG                     16'h02
+`define REG_NIRS36 SOC_NIRS_DOUT3_1_REG
 
-`define SOC_NIRS_DOUT_14_REG                             8'h46
-`define INIT_SOC_NIRS_DOUT_14_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_14_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_14_REG                      16'h02
-`define REG_NIRS36 SOC_NIRS_DOUT_14_REG
+`define SOC_NIRS_DOUT3_2_REG                            8'h2F
+`define INIT_SOC_NIRS_DOUT3_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT3_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT3_2_REG                     16'h02
+`define REG_NIRS37 SOC_NIRS_DOUT3_2_REG
 
-`define SOC_NIRS_DOUT_15_REG                             8'h47
-`define INIT_SOC_NIRS_DOUT_15_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_15_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_15_REG                      16'h02
-`define REG_NIRS37 SOC_NIRS_DOUT_15_REG
+`define SOC_NIRS_DOUT3_3_REG                            8'h30
+`define INIT_SOC_NIRS_DOUT3_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT3_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT3_3_REG                     16'h02
+`define REG_NIRS38 SOC_NIRS_DOUT3_3_REG
 
-`define SOC_NIRS_DOUT_16_REG                             8'h48
-`define INIT_SOC_NIRS_DOUT_16_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_16_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_16_REG                      16'h02
-`define REG_NIRS38 SOC_NIRS_DOUT_16_REG
+`define SOC_NIRS_DOUT4_0_REG                            8'h31
+`define INIT_SOC_NIRS_DOUT4_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT4_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT4_0_REG                     16'h02
+`define REG_NIRS39 SOC_NIRS_DOUT4_0_REG
 
-`define SOC_NIRS_DOUT_17_REG                             8'h49
-`define INIT_SOC_NIRS_DOUT_17_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_17_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_17_REG                      16'h02
-`define REG_NIRS39 SOC_NIRS_DOUT_17_REG
+`define SOC_NIRS_DOUT4_1_REG                            8'h32
+`define INIT_SOC_NIRS_DOUT4_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT4_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT4_1_REG                     16'h02
+`define REG_NIRS40 SOC_NIRS_DOUT4_1_REG
 
-`define SOC_NIRS_DOUT_18_REG                             8'h4A
-`define INIT_SOC_NIRS_DOUT_18_REG                        8'h00
-`define MASK_SOC_NIRS_DOUT_18_REG                        8'hFF
-`define ACCESS_SOC_NIRS_DOUT_18_REG                      16'h02
-`define REG_NIRS40 SOC_NIRS_DOUT_18_REG
+`define SOC_NIRS_DOUT4_2_REG                            8'h33
+`define INIT_SOC_NIRS_DOUT4_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT4_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT4_2_REG                     16'h02
+`define REG_NIRS41 SOC_NIRS_DOUT4_2_REG
+
+`define SOC_NIRS_DOUT4_3_REG                            8'h34
+`define INIT_SOC_NIRS_DOUT4_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT4_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT4_3_REG                     16'h02
+`define REG_NIRS42 SOC_NIRS_DOUT4_3_REG
+
+`define SOC_NIRS_DOUT5_0_REG                            8'h35
+`define INIT_SOC_NIRS_DOUT5_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT5_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT5_0_REG                     16'h02
+`define REG_NIRS43 SOC_NIRS_DOUT5_0_REG
+
+`define SOC_NIRS_DOUT5_1_REG                            8'h36
+`define INIT_SOC_NIRS_DOUT5_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT5_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT5_1_REG                     16'h02
+`define REG_NIRS44 SOC_NIRS_DOUT5_1_REG
+
+`define SOC_NIRS_DOUT5_2_REG                            8'h37
+`define INIT_SOC_NIRS_DOUT5_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT5_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT5_2_REG                     16'h02
+`define REG_NIRS45 SOC_NIRS_DOUT5_2_REG
+
+`define SOC_NIRS_DOUT5_3_REG                            8'h38
+`define INIT_SOC_NIRS_DOUT5_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT5_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT5_3_REG                     16'h02
+`define REG_NIRS46 SOC_NIRS_DOUT5_3_REG
+
+`define SOC_NIRS_DOUT6_0_REG                            8'h39
+`define INIT_SOC_NIRS_DOUT6_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT6_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT6_0_REG                     16'h02
+`define REG_NIRS51 SOC_NIRS_DOUT6_0_REG
+
+`define SOC_NIRS_DOUT6_1_REG                            8'h3A
+`define INIT_SOC_NIRS_DOUT6_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT6_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT6_1_REG                     16'h02
+`define REG_NIRS52 SOC_NIRS_DOUT6_1_REG
+
+`define SOC_NIRS_DOUT6_2_REG                            8'h3B
+`define INIT_SOC_NIRS_DOUT6_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT6_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT6_2_REG                     16'h02
+`define REG_NIRS53 SOC_NIRS_DOUT6_2_REG
+
+`define SOC_NIRS_DOUT6_3_REG                            8'h3C
+`define INIT_SOC_NIRS_DOUT6_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT6_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT6_3_REG                     16'h02
+`define REG_NIRS54 SOC_NIRS_DOUT6_3_REG
+
+`define SOC_NIRS_DOUT7_0_REG                            8'h3D
+`define INIT_SOC_NIRS_DOUT7_0_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT7_0_REG                       8'h0F
+`define ACCESS_SOC_NIRS_DOUT7_0_REG                     16'h02
+`define REG_NIRS55 SOC_NIRS_DOUT7_0_REG
+
+`define SOC_NIRS_DOUT7_1_REG                            8'h3E
+`define INIT_SOC_NIRS_DOUT7_1_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT7_1_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT7_1_REG                     16'h02
+`define REG_NIRS56 SOC_NIRS_DOUT7_1_REG
+
+`define SOC_NIRS_DOUT7_2_REG                            8'h3F
+`define INIT_SOC_NIRS_DOUT7_2_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT7_2_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT7_2_REG                     16'h02
+`define REG_NIRS57 SOC_NIRS_DOUT7_2_REG
+
+`define SOC_NIRS_DOUT7_3_REG                            8'h40
+`define INIT_SOC_NIRS_DOUT7_3_REG                       8'h00
+`define MASK_SOC_NIRS_DOUT7_3_REG                       8'hFF
+`define ACCESS_SOC_NIRS_DOUT7_3_REG                     16'h02
+`define REG_NIRS58 SOC_NIRS_DOUT7_3_REG
+
+//`define SOC_NIRS_DOUT_4_REG                             8'h3C
+//`define INIT_SOC_NIRS_DOUT_4_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_4_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_4_REG                      16'h02
+//`define REG_NIRS26 SOC_NIRS_DOUT_4_REG
+//
+//`define SOC_NIRS_DOUT_5_REG                             8'h3D
+//`define INIT_SOC_NIRS_DOUT_5_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_5_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_5_REG                      16'h02
+//`define REG_NIRS27 SOC_NIRS_DOUT_5_REG
+//
+//`define SOC_NIRS_DOUT_6_REG                             8'h3E
+//`define INIT_SOC_NIRS_DOUT_6_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_6_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_6_REG                      16'h02
+//`define REG_NIRS28 SOC_NIRS_DOUT_6_REG
+//
+//`define SOC_NIRS_DOUT_7_REG                             8'h3F
+//`define INIT_SOC_NIRS_DOUT_7_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_7_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_7_REG                      16'h02
+//`define REG_NIRS29 SOC_NIRS_DOUT_7_REG
+//
+//`define SOC_NIRS_DOUT_8_REG                             8'h40
+//`define INIT_SOC_NIRS_DOUT_8_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_8_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_8_REG                      16'h02
+//`define REG_NIRS30 SOC_NIRS_DOUT_8_REG
+//
+//`define SOC_NIRS_DOUT_9_REG                             8'h41
+//`define INIT_SOC_NIRS_DOUT_9_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_9_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_9_REG                      16'h02
+//`define REG_NIRS31 SOC_NIRS_DOUT_9_REG
+//
+//`define SOC_NIRS_DOUT_10_REG                             8'h42
+//`define INIT_SOC_NIRS_DOUT_10_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_10_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_10_REG                      16'h02
+//`define REG_NIRS32 SOC_NIRS_DOUT_10_REG
+//
+//`define SOC_NIRS_DOUT_11_REG                             8'h43
+//`define INIT_SOC_NIRS_DOUT_11_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_11_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_11_REG                      16'h02
+//`define REG_NIRS33 SOC_NIRS_DOUT_11_REG
+//
+//`define SOC_NIRS_DOUT_12_REG                             8'h44
+//`define INIT_SOC_NIRS_DOUT_12_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_12_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_12_REG                      16'h02
+//`define REG_NIRS34 SOC_NIRS_DOUT_12_REG
+//
+//`define SOC_NIRS_DOUT_13_REG                             8'h45
+//`define INIT_SOC_NIRS_DOUT_13_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_13_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_13_REG                      16'h02
+//`define REG_NIRS35 SOC_NIRS_DOUT_13_REG
+//
+//`define SOC_NIRS_DOUT_14_REG                             8'h46
+//`define INIT_SOC_NIRS_DOUT_14_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_14_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_14_REG                      16'h02
+//`define REG_NIRS36 SOC_NIRS_DOUT_14_REG
+//
+//`define SOC_NIRS_DOUT_15_REG                             8'h47
+//`define INIT_SOC_NIRS_DOUT_15_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_15_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_15_REG                      16'h02
+//`define REG_NIRS37 SOC_NIRS_DOUT_15_REG
+//
+//`define SOC_NIRS_DOUT_16_REG                             8'h48
+//`define INIT_SOC_NIRS_DOUT_16_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_16_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_16_REG                      16'h02
+//`define REG_NIRS38 SOC_NIRS_DOUT_16_REG
+//
+//`define SOC_NIRS_DOUT_17_REG                             8'h49
+//`define INIT_SOC_NIRS_DOUT_17_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_17_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_17_REG                      16'h02
+//`define REG_NIRS39 SOC_NIRS_DOUT_17_REG
+//
+//`define SOC_NIRS_DOUT_18_REG                             8'h4A
+//`define INIT_SOC_NIRS_DOUT_18_REG                        8'h00
+//`define MASK_SOC_NIRS_DOUT_18_REG                        8'hFF
+//`define ACCESS_SOC_NIRS_DOUT_18_REG                      16'h02
+//`define REG_NIRS40 SOC_NIRS_DOUT_18_REG
 
 //`define SOC_NIRS_CTRL_13_REG                          8'hD6
 //`define INIT_SOC_NIRS_CTRL_7_REG                      8'h02

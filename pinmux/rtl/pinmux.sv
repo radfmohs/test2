@@ -116,6 +116,7 @@ module pinmux (
   input  wire		  NIRS_IIN_SW0,
   input  wire		  A2D_IREFCOARSE0,
   input  wire		  A2D_IREFFINE0,
+  input  wire             i_gpio_nirs_out_ctrl,
 
   pinmux_if.D2A         pinmux_if,
   spi_pinmux_if.pinmux  spi_pinmux_if,
@@ -209,7 +210,23 @@ module pinmux (
   wire [7:0]  CONFIG_ROM0 [28:0];
   wire [7:0]  CONFIG_ROM1 [28:0];
   wire [7:0]  CONFIG_ROM2 [28:0];
-//wire [7:0]  CONFIG_ROM3 [7:0];
+  wire [7:0]  CONFIG_ROM3 [28:0]; 
+  wire [7:0]  CONFIG_ROM4 [28:0]; 
+  wire [7:0]  CONFIG_ROM5 [28:0]; 
+  wire [7:0]  CONFIG_ROM6 [28:0]; 
+  wire [7:0]  CONFIG_ROM7 [28:0]; 
+  wire [7:0]  CONFIG_ROM8 [28:0]; 
+  wire [7:0]  CONFIG_ROM9 [28:0]; 
+  wire [7:0]  CONFIG_ROM10[28:0]; 
+  wire [7:0]  CONFIG_ROM11[28:0]; 
+  wire [7:0]  CONFIG_ROM12[28:0]; 
+  wire [7:0]  CONFIG_ROM13[28:0]; 
+  wire [7:0]  CONFIG_ROM14[28:0]; 
+  wire [7:0]  CONFIG_ROM15[28:0]; 
+  wire [7:0]  CONFIG_ROM16[28:0]; 
+  wire [7:0]  CONFIG_ROM17[28:0]; 
+  wire [7:0]  CONFIG_ROM18[28:0]; 
+  wire [7:0]  CONFIG_ROM19[28:0]; 
 
 //ENABLE_REG
   wire        ATM_HC_SEL;
@@ -344,15 +361,37 @@ module pinmux (
 //assign GPIO8_NORMAL_OUT = ~test_en ?  (NORMAL_OUT_SEL ? ((~COMP_OUT_EN ? i_otp_vpp_en : COMP_OUT_SEL_STIM ? 
 //                                        (~COMP_OUT_SEL ? A2D_STIMU0_1 : A2D_STIMU2_3) :
 //                                        (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2))) : INTB) : 1'b0;
-  assign GPIO14_NORMAL_OUT = ~ test_en ?  (~NIRS_LED_ON0 ? NIRS_RESET_SW0 : (~NIRS_IPD_SW0 ? NIRS_IIN_SW0 : (~A2D_IREFCOARSE0 ? A2D_IREFFINE0 : 1'b0))) : 1'b0;
+//assign GPIO14_NORMAL_OUT = ~ test_en ?  (~NIRS_LED_ON0 ? NIRS_RESET_SW0 : (~NIRS_IPD_SW0 ? NIRS_IIN_SW0 : (~A2D_IREFCOARSE0 ? A2D_IREFFINE0 : 1'b0))) : 1'b0;
+  assign GPIO15_NORMAL_OUT = i_gpio_nirs_out_ctrl ?  NIRS_RESET_SW0 : NIRS_LED_ON1;
+  assign GPIO16_NORMAL_OUT = i_gpio_nirs_out_ctrl ?  NIRS_IPD_SW0   : NIRS_LED_ON2;
+  assign GPIO17_NORMAL_OUT = i_gpio_nirs_out_ctrl ?  NIRS_IIN_SW0   : NIRS_LED_ON3;
+  assign GPIO18_NORMAL_OUT = i_gpio_nirs_out_ctrl ?  A2D_IREFCOARSE0 : NIRS_LED_ON4;
+  assign GPIO19_NORMAL_OUT = i_gpio_nirs_out_ctrl ?  A2D_IREFFINE0   : NIRS_LED_ON5;
+
                            
   assign o_int_clk_out_gpio = ~test_en ? int_clk_out_gpio : 1'b0;
 
   pinmux_rom  u_pinmux_rom (
-    .CONFIG_ROM0  (CONFIG_ROM0),
-    .CONFIG_ROM1  (CONFIG_ROM1),
-    .CONFIG_ROM2  (CONFIG_ROM2)
- // .CONFIG_ROM3  (CONFIG_ROM3)
+    .CONFIG_ROM0   (CONFIG_ROM0),
+    .CONFIG_ROM1   (CONFIG_ROM1),
+    .CONFIG_ROM2   (CONFIG_ROM2),
+    .CONFIG_ROM3   (CONFIG_ROM3),
+    .CONFIG_ROM4   (CONFIG_ROM4),
+    .CONFIG_ROM5   (CONFIG_ROM5),
+    .CONFIG_ROM6   (CONFIG_ROM6),
+    .CONFIG_ROM7   (CONFIG_ROM7),
+    .CONFIG_ROM8   (CONFIG_ROM8),
+    .CONFIG_ROM9   (CONFIG_ROM9),
+    .CONFIG_ROM10  (CONFIG_ROM10),
+    .CONFIG_ROM11  (CONFIG_ROM11),
+    .CONFIG_ROM12  (CONFIG_ROM12),
+    .CONFIG_ROM13  (CONFIG_ROM13),
+    .CONFIG_ROM14  (CONFIG_ROM14),
+    .CONFIG_ROM15  (CONFIG_ROM15),
+    .CONFIG_ROM16  (CONFIG_ROM16),
+    .CONFIG_ROM17  (CONFIG_ROM17),
+    .CONFIG_ROM18  (CONFIG_ROM18),
+    .CONFIG_ROM19  (CONFIG_ROM19)
 );
 
   assign ATM_HC_SEL       = spi_pinmux_if.ATM_HC_SEL;
@@ -365,10 +404,27 @@ module pinmux (
 //assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & (ATM6 || ATM1)) ?  1'b1  : d2a_tsc_en_ch1;
   assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ( ATM5 || ATM11 || ATM15)) ?  1'b1  : d2a_tsc_en_ch1;
 
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][0]  = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][0];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][1]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][1];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][2]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][2];
-//assign pinmux_if.D2A_ANA_ENABLE_REG[3]  = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM3[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[3];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][0]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][0];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][1];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][2];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM3[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][2];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM4[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][3];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM5[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][4];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM6[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][5];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][7]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM7[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][6];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][8]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM8[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][7];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][9]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM9[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][8];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][10]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM10[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][9];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][11]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM11[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][10];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][12]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM12[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][11];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][13]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM13[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][12];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][14]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM14[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][13];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][0]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM15[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][0];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM16[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][1];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM17[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][2];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM18[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][3];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM19[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][4];
+
 
 //debug_signal_mode0(ATM0)
   assign pinmux_if.D2A_TRIM_SIG[0] =  ATM0 ? pad_d2a_trim0_sig : sys_d2a_trim_reg[0];
@@ -5180,7 +5236,7 @@ u_gpio13_pinmux (
 ); 
 
 // GPIO14 pad
-// normal: NIRS_LED_ON0/NIRS_RESET_SW0/NIRS_IPD_SW0/NIRS_IIN_SW0/A2D_IREFCOARSE0/A2D_IREFFINE0
+// normal: NIRS_LED_ON0
 // test0 : scan_out[2]
 // test1 : wire_ens2_IOBUF_Y[4]
 // test2 : None 
@@ -5314,7 +5370,7 @@ u_gpio14_pinmux (
 */
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (GPIO14_NORMAL_OUT),
+.altf_a    (NIRS_LED_ON0),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -5514,7 +5570,7 @@ u_gpio14_pinmux (
 
 
 // GPIO15 pad
-// normal: NIRS_LED_ON1 
+// normal: NIRS_LED_ON1/NIRS_RESET_SW0 
 // test0 : scan_out[3]
 // test1 : None
 // test2 : None 
@@ -5622,7 +5678,7 @@ u_gpio15_pinmux (
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (NIRS_LED_ON1),
+.altf_a    (GPIO15_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -5821,7 +5877,7 @@ u_gpio15_pinmux (
 
 
 // GPIO16 pad
-// normal: NIRS_LED_ON2 
+// normal: NIRS_LED_ON2/NIRS_IPD_SW0 
 // test0 : scan_out[4]
 // test1 : None
 // test2 : None 
@@ -5930,7 +5986,7 @@ u_gpio16_pinmux (
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (NIRS_LED_ON2),
+.altf_a    (GPIO16_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -6128,7 +6184,7 @@ u_gpio16_pinmux (
 ); 
 
 // GPIO17 pad
-// normal: NIRS_LED_ON3
+// normal: NIRS_LED_ON3/NIRS_IIN_SW0/
 // test0 : scan_out[5]
 // test1 : None
 // test2 : None 
@@ -6237,7 +6293,7 @@ u_gpio17_pinmux (
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (NIRS_LED_ON3),
+.altf_a    (GPIO17_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -6434,7 +6490,7 @@ u_gpio17_pinmux (
 .iopad_gpio_a    (o_ens2_IOBUF_A[17])                                     
 ); 
 // GPIO18 pad
-// normal: NIRS_LED_ON4 
+// normal: NIRS_LED_ON4/A2D_IREFCOARSE0 
 // test0 : scan_out[6]
 // test1 : None
 // test2 : None 
@@ -6543,7 +6599,7 @@ u_gpio18_pinmux (
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (NIRS_LED_ON4),
+.altf_a    (GPIO18_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -6740,7 +6796,7 @@ u_gpio18_pinmux (
 .iopad_gpio_a    (o_ens2_IOBUF_A[18])                                     
 ); 
 // GPIO19 pad
-// normal: NIRS_LED_ON5 
+// normal: NIRS_LED_ON5/A2D_IREFFINE0 
 // test0 : scan_out[7]
 // test1 : None
 // test2 : None 
@@ -6849,7 +6905,7 @@ u_gpio19_pinmux (
 // alternate function
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (NIRS_LED_ON5),
+.altf_a    (GPIO19_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function

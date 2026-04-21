@@ -14,11 +14,13 @@
 //slave samples at posedge of sclk and changes data at posedge of sclk. master has to place the data at posdeg of master clk and samples on posedge of master clk)
 //supported mode  general cpol=0,cpha=0, data latch and sample at same as master posdeg of sclk and master clk
 //master equavalent is cpol=0,cpha=1(master won't work, it can't latch the data)
+//`define 24B_IMEAS_DATA_EN
 
 `timescale 1ns/1ps
 
 module spi_slave_controller#(
   parameter EEG_CHN_NUM = 16,
+  parameter EEG_DATA_SIZE = 24,
   parameter DATA_WIDTH = 8,
   parameter ADDR_WIDTH = 8
 ) (
@@ -50,9 +52,6 @@ mode             ,
 imeas_chdata
 );
 
-//parameter DATA_WIDTH = 8;
-//parameter ADDR_WIDTH = 8;
-
 //Port declarations
 input                   i_rst_n;
 input                   i_sclk;
@@ -61,7 +60,7 @@ input                   i_sclk_neg;
 input                   i_cs_n;
 input                   i_mosi;
 input [DATA_WIDTH-1:0]  i_rd_data;
-input   wire [31:0]     imeas_chdata[EEG_CHN_NUM-1:0];
+input   wire [23:0]     imeas_chdata[EEG_CHN_NUM-1:0];
 input   wire [4:0]      i_channel_max;
 input   wire            daisy_in;
 input   wire            daisy_en;
@@ -112,10 +111,11 @@ wire                    comb_miso;
 reg                     detect_first_bit_sync;
 wire                    detect_flag;
 reg [7:0]               imeas_temp;
-reg [1:0]               byte_cnt_tmp;
+reg [5:0]               byte_cnt_tmp;
 reg [6:0]               byte_cnt; // max is 63
 reg [7:0]               status_temp;
-reg [7:0]               buffer [68:0];
+
+reg [7:0]               buffer [52:0];
 reg                     next_dev_valid; // max is 15
 
 wire [7:0]              status_5th_byte;
@@ -124,30 +124,10 @@ wire [7:0]              status_3rd_byte;
 wire [7:0]              status_2nd_byte;
 wire [7:0]              status_1st_byte;
 
-wire [7:0]              imeas_4th_byte;
+//wire [7:0]              imeas_4th_byte;
 wire [7:0]              imeas_3rd_byte;
 wire [7:0]              imeas_2nd_byte;
 wire [7:0]              imeas_1st_byte;
-
-//wire [2:0] mul_val;
-
-// chip select latch
-//assign i_status_words = 40'hAABBCCDDEE;
-
-//always@(posedge i_sclk, negedge i_rst_n) begin
-/*always@(posedge i_sclk_neg, negedge i_rst_n) begin
-  if (!i_rst_n) begin
-    tx_buf_tmp <= 0;
-  end else if (cs_n_d == 1'b1) begin
-    tx_buf_tmp <= 0;
-  end else if(bit_cnt ==6'h02) begin
-    tx_buf_tmp <= 0;
-  end else if (bit_cnt > 6'h8 && byte_bit_count==3'h0 && cov_done==1'b1) begin
-    tx_buf_tmp <= (!mode[1] && !status_done) ? {status_temp[DATA_WIDTH-2:0],1'b0} : {imeas_temp[DATA_WIDTH-2:0],1'b0};
-  end else begin
-    tx_buf_tmp <= tx_buf_tmp;
-  end 
-end */
 
 //always@(posedge i_sclk or negedge i_rst_n)           //include reset
 always@(posedge i_sclk_neg, negedge i_rst_n) 
@@ -477,21 +457,6 @@ end
 
 //-----------------------------mosi output------------------//
 
-/*always@(posedge i_sclk, negedge i_rst_n) begin
-  if (!i_rst_n) begin
-      o_miso <= 1'b0;
-  end else if (cs_n_d == 1'b1) begin
-      o_miso <= 1'b0;
-  end else if (cov_done == 1'b1) begin
-      o_miso <= !mode[1] ? status_temp[7] : imeas_temp[7]; 
-  end else if ((byte_cnt[6:0] == 6'h01) && (rd_data_rdy == 1) && (rdatac_cmd == 1'b1) && (bit_cnt == 6'h18) && (byte_done == 1'b0)) begin
-      o_miso <= tx_buf_tmp[byte_bit_count]; 
-  end else begin
-    o_miso <= tx_d;
-  end 
-end */
-
-
 always@(posedge i_sclk, negedge i_rst_n) begin
   if (!i_rst_n) begin
       dff_miso <= 1'b0;
@@ -500,7 +465,7 @@ always@(posedge i_sclk, negedge i_rst_n) begin
   end else if ((cov_done == 1'b1) && (cpha != 1'b0)) begin
       dff_miso <= (!mode[1] && !next_dev_valid) ? status_temp[7] : imeas_temp[7]; 
   end else if ((byte_cnt[6:0] == 7'h01) && (rd_data_rdy == 1'b1) && (rdatac_cmd == 1'b1) && (bit_cnt == 6'h18) && (byte_done == 1'b0)) begin
-      dff_miso <= !mode[1] ? status_5th_byte[byte_bit_count - 1] : imeas_4th_byte[byte_bit_count - 1]; 
+      dff_miso <= !mode[1] ? status_5th_byte[byte_bit_count - 1] : imeas_3rd_byte[byte_bit_count - 1]; 
   end else begin
       dff_miso <= tx_d;
   end 
@@ -571,7 +536,11 @@ end
 // ------------------------------CONTROL SIGNAL---------------------------------//
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
+`ifndef 24B_IMEAS_DATA_EN
 assign adc_inc_val = mode[0] ? 2'b10 : 2'b11;
+`else
+assign adc_inc_val = 2'b11;
+`endif
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
 assign chdata_size = mode[0] ? 3'h3 : 3'h4;
@@ -596,7 +565,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     byte_cnt <= 7'h0;
   end else if ( bit_cnt < 6'h10 ) begin
     byte_cnt <= byte_cnt;
-  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1)) begin
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
     byte_cnt <= byte_cnt + 1;
   end else begin 
     byte_cnt <= byte_cnt;
@@ -610,15 +579,17 @@ and byte_cnt <= 7'h5
 *********************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    byte_cnt_tmp <= 2'h0;
+    byte_cnt_tmp <= 6'h0;
   end else if (cs_n_d == 1'b1) begin
-    byte_cnt_tmp <= 2'h0;
+    byte_cnt_tmp <= 6'h0;
   end else if (bit_cnt == 6'h0) begin
-    byte_cnt_tmp <= 2'h0;
+    byte_cnt_tmp <= 6'h0;
   end else if (!mode[1] && (byte_cnt < 7'h5 || ( byte_cnt == 7'h5 && !byte_done )) && !next_dev_valid) begin
-    byte_cnt_tmp <= 2'h0;
-  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == adc_inc_val)) begin  
-    byte_cnt_tmp <= 2'h0;
+    byte_cnt_tmp <= 6'h0;
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == adc_inc_val) && !next_dev_valid) begin  
+    byte_cnt_tmp <= 6'h0;
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == 6'd52) && next_dev_valid) begin
+    byte_cnt_tmp <= 6'h0;
   end else if ( bit_cnt < 6'h10 ) begin
     byte_cnt_tmp <= byte_cnt_tmp;
   end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1)) begin
@@ -652,7 +623,7 @@ end
 
 assign cov_int_clr = !cov_done && cov_done_d1;
 
-reg [4:0] adc_cnt; 
+reg [5:0] adc_cnt; 
 /******************************************************
 Count the number of channels froom 0 to i_channel_max when !next_dev_valid
 When next_dev_valid, if 4 bytes data per channel then adc_cnt reset when reach 5'd16
@@ -670,31 +641,32 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     adc_cnt <= 5'h0;
   end else if (bit_cnt == 6'h0) begin
     adc_cnt <= 5'h0;
-  end else if(next_dev_valid && (byte_cnt_tmp[1:0] == adc_inc_val) && byte_done && ((adc_cnt == 5'd16 && chdata_size== 3'd4) || (adc_cnt == 5'd22 && chdata_size== 3'd3))) begin
-    adc_cnt <= 5'h0;
   end else if ((adc_cnt == i_channel_max - 1) && (byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
     adc_cnt <= 5'h0; 
   end else if ((byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && (adc_cnt < i_channel_max - 1) && !next_dev_valid) begin
-    adc_cnt <= adc_cnt + 1;
-  end else if ((byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1)) begin
     adc_cnt <= adc_cnt + 1;
   end else begin
     adc_cnt <= adc_cnt;
   end
 end
 
+
 always @(*)
   begin
-    case (byte_cnt_tmp[1:0])
-      2'b00: imeas_temp = imeas_4th_byte;
-      2'b01: imeas_temp = imeas_3rd_byte;
-      2'b10: imeas_temp = imeas_2nd_byte;
-      2'b11: imeas_temp = imeas_1st_byte;
-      default: imeas_temp = 8'h0;
-    endcase 
+    if(!next_dev_valid) begin
+      case (byte_cnt_tmp[1:0])
+        2'b00: imeas_temp = imeas_3rd_byte;
+        2'b01: imeas_temp = imeas_2nd_byte;
+        2'b10: imeas_temp = imeas_1st_byte;
+        default: imeas_temp = 8'h0;
+      endcase 
+    end
+    else begin
+      imeas_temp = buffer[byte_cnt_tmp];
+    end
   end
 
-wire [31:0]  imeas_chdata_reg;
+wire [23:0]  imeas_chdata_reg;
 
 wire next_dev_en;
 assign next_dev_en = (adc_cnt == i_channel_max - 1) && daisy_en && byte_done && (byte_cnt_tmp == adc_inc_val);
@@ -718,24 +690,18 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
   end 
 end
 
+assign imeas_chdata_reg = imeas_chdata[adc_cnt];
 
-//assign mul_val = (mode[0] == 1'b1) ? 3'd3 : 3'd4;
-wire [7:0] x;
-assign x = adc_cnt * chdata_size;
-
-assign imeas_chdata_reg = next_dev_valid ? {buffer[x], buffer[x + 7'd1], buffer[x + 7'd2], buffer[x + 7'd3]} : imeas_chdata[adc_cnt];
-
-assign imeas_4th_byte = imeas_chdata_reg[31:24];
 assign imeas_3rd_byte = imeas_chdata_reg[23:16];
 assign imeas_2nd_byte = imeas_chdata_reg[15:8];
 assign imeas_1st_byte = imeas_chdata_reg[7:0];
 
-assign o_imeas_intr_clr = (rdata_cmd & (byte_cnt == 7'h01) && (bit_cnt < 6'h18)) || cov_int_clr;
+assign o_imeas_intr_clr = (rdata_cmd & (byte_cnt == 7'h01) && (bit_cnt < 6'h18)) || cov_int_clr; // affected by byte_cnt = 1 -> should check
 
 //------------------------------STATUS HANDLE------------------------------//
 assign num_status_byte = !mode[1] ? 3'h5 : 3'h0;
 
-assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd && bit_cnt == 6'h18;
+assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd && bit_cnt == 6'h18; // affected by byte_cnt = 1 -> should check
 
 assign status_5th_byte = !mode[1] ? i_status_words[39:32] : 8'h00;
 assign status_4th_byte = !mode[1] ? i_status_words[31:24] : 8'h00;
@@ -776,7 +742,7 @@ So buffer size is 16 * 4 + 3 = 67 instead of 68
 *******************************************************/
 always @(posedge i_sclk_neg or negedge i_rst_n) begin
   if(!i_rst_n) begin
-    for(i=0; i<=67; i=i+1) begin
+    for(i=0; i<=52; i=i+1) begin
       buffer[i] <= 8'h0;
     end
     shift_reg <= 8'h0;
@@ -793,11 +759,11 @@ always @(posedge i_sclk_neg or negedge i_rst_n) begin
       index_cnt <= index_cnt + 1'b1;
       if(index_cnt == 3'd7) begin
         buffer[byte_ptr] <= {shift_reg[6:0], daisy_in};
-        if(byte_ptr == 7'd67)
+        if(byte_ptr == 7'd52)
           byte_ptr <= 7'd0;
         else
           byte_ptr <= byte_ptr + 1'b1;
-       end
+      end
   end
 end
 // End of Thanh Huu added

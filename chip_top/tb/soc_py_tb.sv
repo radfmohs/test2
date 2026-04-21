@@ -677,39 +677,24 @@ always @(negedge `CLK_CTRL_TOP.pclk) begin
         (imeas_data_num < `SOC_TB.dut_vif.python_imeas_length) &&
         (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
 
-        `nnc_info("IMEAS INFO",
-            $sformatf("[IMEAS_VIF CHDATA_EN] IMEAS_DATA_NUM=%0d, chdata_en=%h reduction=%0d",
-                imeas_data_num,
-                `SOC_TB.imeas_vif.chdata_en,
-                (|`SOC_TB.imeas_vif.chdata_en)),
-            UVM_LOW
-        );
+        `nnc_info("IMEAS INFO",$sformatf("[IMEAS_VIF CHDATA_EN] IMEAS_DATA_NUM=%0d, chdata_en=%h reduction=%0d",imeas_data_num,`SOC_TB.imeas_vif.chdata_en,(|`SOC_TB.imeas_vif.chdata_en)),UVM_DEBUG);
 
         // ------------------------------------------------------------
-        // PREPARE ALL 16 CHANNELS (each 32-bit shifted sample)
+        // PREPARE ALL 16 CHANNELS (each 24-bit shifted sample)
         // ------------------------------------------------------------
         for (int i = 0; i < 16; i++) begin
-            `SOC_TB.dut_vif.imeas_data[i] =
-                `SOC_TB.imeas_vif.chdata[i] << (imeas_data_num * 32);
-
-            `nnc_info("IMEAS_VIF CHDATA_EN",
-                $sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),
-                UVM_LOW
-            );
+            `SOC_TB.dut_vif.imeas_data[i] =`SOC_TB.imeas_vif.chdata[i] << (imeas_data_num * 32/*`IMEAS_DATA_SIZE*/);
+            `nnc_info("IMEAS_VIF CHDATA_EN",$sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),UVM_DEBUG);
         end
-
 
         // ------------------------------------------------------------
         // SELECT ONE ACTIVE CHANNEL (LOWEST INDEX PRIORITY)
         // ------------------------------------------------------------
 
-
         for (int i = 0; i < 16; i++) begin
             if (`SOC_TB.imeas_vif.chdata_en[i]) begin
                 selected_ch = i;
-                `nnc_info("IMEAS_VIF CHDATA_EN",
-                $sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),UVM_LOW );
-
+                `nnc_info("IMEAS_VIF CHDATA_EN", $sformatf("[LOOP_PY_TB] i=%0d, imeas_vif.chdata=%0h", i, `SOC_TB.imeas_vif.chdata[i]),UVM_DEBUG);
                 break;  // pick first active channel
             end
         end
@@ -718,15 +703,11 @@ always @(negedge `CLK_CTRL_TOP.pclk) begin
         // PACK SELECTED CHANNEL INTO local_data_imeas
         // ------------------------------------------------------------
         if (selected_ch != -1) begin
-            local_data_imeas |= `SOC_TB.dut_vif.imeas_data[selected_ch];
+            local_data_imeas |= {8'h00,`SOC_TB.dut_vif.imeas_data[selected_ch]};
             imeas_chnum = selected_ch;
 
-            `nnc_info("IMEAS_VIF CHDATA_EN",
-                $sformatf("SELECTED CH=%0d, DATA=%h",
-                           selected_ch,           `SOC_TB.dut_vif.imeas_data[selected_ch]),UVM_DEBUG);
-             `nnc_info("IMEAS_VIF CHDATA_EN",
-                      $sformatf("SELECTED CH=%0d, imeas_chnum=%0d",
-                                 selected_ch,      imeas_chnum), UVM_LOW);
+            `nnc_info("IMEAS_VIF CHDATA_EN",$sformatf("SELECTED CH=%0d, DATA=%h",selected_ch,`SOC_TB.dut_vif.imeas_data[selected_ch]),UVM_DEBUG);
+            `nnc_info("IMEAS_VIF CHDATA_EN",$sformatf("SELECTED CH=%0d, imeas_chnum=%0d",selected_ch,      imeas_chnum), UVM_DEBUG);
         end
 
         // ------------------------------------------------------------
@@ -742,7 +723,7 @@ always @(negedge `FILTER_WRAPPER_TOP.pclk/*clk[filter_chnum]*/) // 16 clocks -> 
   if ((`IMEAS_WRAPPER_TOP.meas_done == 1'b1) && (filter_data_num < `SOC_TB.dut_vif.python_filter_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
 
     for (int i=0; i < 16; i++) begin
-      `SOC_TB.dut_vif.filter_data[i] = `IMEAS_WRAPPER_TOP.imeas_chdata_out[i][31:0] << filter_data_num*32;
+      `SOC_TB.dut_vif.filter_data[i] = `IMEAS_WRAPPER_TOP.imeas_chdata_out[i][`FILTER_DATA_WIDTH-1:0] << filter_data_num*`FILTER_DATA_WIDTH;
       if (`SOC_TB.dut_vif.testmode_sel === 2'b00)
         `nnc_info("FILTER INFO", $sformatf("FILTER IS OUTPUTTING DATA[%d]: %h", filter_data_num, `SOC_TB.dut_vif.filter_data[i]), UVM_DEBUG);
     end

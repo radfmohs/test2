@@ -11,6 +11,13 @@
 /*--------------------------------------------------------------------------------------*/
 wire IOBUF_CPOLn, IOBUF_CPHA;
 
+nnc_spi_interface   spi_vif();
+
+initial begin
+    nnc_config_db#(virtual nnc_spi_interface)::set(uvm_root::get(), "uvm_test_top.top_env", "spi_vif", spi_vif);
+    nnc_config_db#(virtual nnc_spi_interface)::set(uvm_root::get(), "uvm_test_top.top_env.*", "spi_vif", spi_vif);
+end
+
 spi_master_vip spim_vip 
 (
 .spi_rst_n(sys_rst_n),
@@ -93,8 +100,6 @@ initial begin
 end
 `endif
 
-nnc_spi_interface   spi_vif();
-
 assign    spi_vif.i_scanclk  = `SPI_TOP.i_scanclk;
 assign    spi_vif.i_rst_n    = `SPI_TOP.spi_reg_u.i_rst_n;
 
@@ -106,14 +111,14 @@ assign    spi_vif.i_mosi     = `SOC_TB.spi_mosi;
 assign    spi_vif.o_miso     = `SOC_TB.spi_miso;
 
 
-assign    spi_vif.i_pclk              =       `CLK_CTRL_TOP.pclk        ;
-assign    spi_vif.i_clk               =       `SPI_TOP.spi_reg_u.i_clk  ;
+assign    spi_vif.i_pclk     = `CLK_CTRL_TOP.pclk;
+assign    spi_vif.i_clk      = `SPI_TOP.spi_reg_u.i_clk;
 `ifdef POSTLAYOUT
-assign    spi_vif.resetn              =       `SPI_TOP.spi_reg_u.i_rst_n; //`SPI_TOP.IN8          ;
+  assign    spi_vif.resetn   = `SPI_TOP.spi_reg_u.i_rst_n; //`SPI_TOP.IN8          ;
 `else
-assign    spi_vif.resetn              =       `SPI_TOP.i_rst_n          ;
+  assign    spi_vif.resetn   = `SPI_TOP.i_rst_n;
 `endif
-assign    spi_vif.i_fclk              =       `CLK_CTRL_TOP.hfosc_atpg  ;
+assign    spi_vif.i_fclk     = `CLK_CTRL_TOP.hfosc_atpg;
 
 /*
 `ifdef BEHAVIORAL
@@ -958,9 +963,3 @@ endgenerate
     assign   spi_vif.REG_BACKDOOR[2][8'h30+8'h40]  =  {`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_7_.Q, `u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_6_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_5_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_4_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_3_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_2_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_1_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg1_reg_0_.Q}       ;
     assign   spi_vif.REG_BACKDOOR[2][8'h31+8'h40]  =  {`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_7_.Q, `u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_6_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_5_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_4_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_3_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_2_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_1_.Q,`u_spi_reg_wavegen1_path.drive_ctrl_reg2_reg_0_.Q}       ;
 */
-
-
-initial begin
-    nnc_config_db#(virtual nnc_spi_interface)::set(uvm_root::get(), "uvm_test_top.top_env", "spi_vif", spi_vif);
-    nnc_config_db#(virtual nnc_spi_interface)::set(uvm_root::get(), "uvm_test_top.top_env.*", "spi_vif", spi_vif);
-end

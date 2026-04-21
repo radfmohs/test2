@@ -55,6 +55,13 @@ module nirs_ppg_ctrl_top #(
   output wire             IIN_SW,
   output wire             LED_ON,
 
+// Interrupts
+  input  wire       [7:0] NIRS_PPG_INT_SEL_spi,
+  input  wire             int_length_slct_spi,
+  input  wire             INT_CLR,
+  output wire             INT,
+  output wire             INT_IO,
+
 // Counters to Analog
   output wire             IDAC_EN,
   output wire       [8:0] IDAC,
@@ -101,6 +108,9 @@ module nirs_ppg_ctrl_top #(
   wire   [2:0]  RESET_ctrl_1;
   wire   [3:0]  OTS_ctrl_1;
 
+  wire   [7:0]  NIRS_PPG_INT_SEL;
+  wire          int_length_slct_spi;
+
   assign NIRS_PGG_MODE_SEL  = NIRS_PGG_MODE_SEL_spi;
   assign NIRS_PPG_EN        = NIRS_PPG_EN_spi;
   assign NIRS_PGG_MEAS      = NIRS_PPG_MEAS_spi;
@@ -127,6 +137,9 @@ module nirs_ppg_ctrl_top #(
   assign PERIOD_ctrl_1     = PERIOD_CTRL_spi_1;
   assign RESET_ctrl_1      = RESET_CTRL_spi_1;
   assign OTS_ctrl_1        = OTS_CTRL_spi_1;
+
+  assign NIRS_PPG_INT_SEL  = NIRS_PPG_INT_SEL_spi;
+  assign int_length_slct   = int_length_slct_spi;
 
 
   wire IDAC_UPDATE_EN, IDAC_INCREASE;
@@ -269,6 +282,9 @@ module nirs_ppg_ctrl_top #(
     .sync_out (IREF_FINE_ppg)
   );
 
+/* Flags */
+  wire DATA_READY;
+
   nirs_ppg_ctrl u_nirs_ctrl (
     .rst_n          (rst_n),
     .clk            (clk_ppg),
@@ -281,6 +297,7 @@ module nirs_ppg_ctrl_top #(
     .IREF_COARSE_NOT_ON     (IREF_COARSE_NOT_ON),
     .IREF_FINE_ON_NOT_OFF   (IREF_FINE_ON_NOT_OFF),
     .IREF_FINE_NOT_ON       (IREF_FINE_NOT_ON),
+    .DATA_READY             (DATA_READY),
 
     .EN_OFF         (EN_OFF_ppg),
     .IDAC_INCREASE  (IDAC_INCREASE),
@@ -325,5 +342,24 @@ module nirs_ppg_ctrl_top #(
     .IIN_SW           (IIN_SW),
     .LED_ON           (LED_ON)
   );
+
+  nirs_ppg_int  u_nirs_ppg_int (
+    .scan_mode              (scan_mode),
+    .rst_n                  (rst_n),
+    .clk_sys                (clk_sys),
+    .INT_CONFIG             (NIRS_PPG_INT_SEL),
+    .int_length_slct        (int_length_slct),
+    .IREF_COARSE_ON_NOT_OFF (IREF_COARSE_ON_NOT_OFF),
+    .IREF_COARSE_NOT_ON     (IREF_COARSE_NOT_ON),
+    .IREF_FINE_ON_NOT_OFF   (IREF_FINE_ON_NOT_OFF),
+    .IREF_FINE_NOT_ON       (IREF_FINE_NOT_ON),
+    .IDAC_MAX               (IDAC_MAX),
+    .IDAC_MIN               (IDAC_MIN),
+    .DATA_READY             (DATA_READY),
+    .INT_CLR                (INT_CLR),
+    .INT                    (INT),
+    .INT_IO                 (INT_IO)
+  );
+
 
 endmodule

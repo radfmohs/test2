@@ -103,8 +103,30 @@ init:
 
 synthesis:
 ifeq ($(BUD),yes)
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn_l3.tcl | tee ../logs/synthesis_l3_${SDF_OP}_${BUD_OPT}${WORK}.log) 
-	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn_l2.tcl | tee ../logs/synthesis_l2_${SDF_OP}_${BUD_OPT}${WORK}.log) 
+	trap 'kill 0' INT TERM EXIT; \
+	cd work${WORK} && \
+	(time dc_shell -64bit -x "${SDF_STR}" -f ../scripts/Nanochap_imp_syn_l3.tcl | tee ../logs/synthesis_l3_${SDF_OP}_${BUD_OPT}${WORK}.log) && \
+	( \
+	  #mkdir -p ../work${WORK}_ptlc_l3 && \
+	  #cp -r . ../work${WORK}_ptlc_l3/ && \
+	  #cd ../work${WORK}_ptlc_l3 && \
+	  #(time pt_shell -x "set corner min" -f ../scripts/Nanochap_imp_lib_l3.tcl | tee ../logs/lib_l3_${SDF_OP}_min_${BUD_OPT}${WORK}.log) & \
+	  #(time pt_shell -x "set corner max" -f ../scripts/Nanochap_imp_lib_l3.tcl | tee ../logs/lib_l3_${SDF_OP}_max_${BUD_OPT}${WORK}.log) & \
+	  #wait && \
+	  #(time lc_shell -f ../scripts/Nanochap_imp_lc_l3.tcl | tee ../logs/lc_l3_${SDF_OP}_${BUD_OPT}${WORK}.log) \
+	) & \
+	cd work${WORK} && \
+	(time dc_shell -64bit -x "${SDF_STR}" -f ../scripts/Nanochap_imp_syn_l2.tcl | tee ../logs/synthesis_l2_${SDF_OP}_${BUD_OPT}${WORK}.log) && \
+	(time dc_shell -64bit -x "${SDF_STR}" -f ../scripts/Nanochap_imp_dft_l2.tcl | tee ../logs/dft_l2_${SDF_OP}_${BUD_OPT}${WORK}.log) && \
+	( \
+	  #mkdir -p ../work${WORK}_ptlc_l2 && \
+	  #cp -r . ../work${WORK}_ptlc_l2/ && \
+	  #cd ../work${WORK}_ptlc_l2 && \
+	  #(time pt_shell -x "set corner min" -f ../scripts/Nanochap_imp_lib_l2.tcl | tee ../logs/lib_l2_${SDF_OP}_min_${BUD_OPT}${WORK}.log) & \
+	  #(time pt_shell -x "set corner max" -f ../scripts/Nanochap_imp_lib_l2.tcl | tee ../logs/lib_l2_${SDF_OP}_max_${BUD_OPT}${WORK}.log) & \
+	  #wait \
+	) & \
+	wait
 endif
 	cd work${WORK}; (time dc_shell -topo -64bit -x "${SDF_STR}; ${BUD_STR};" -f ../scripts/Nanochap_imp_syn.tcl | tee ../logs/synthesis_${SDF_OP}_${BUD_OPT}${WORK}.log) 
 

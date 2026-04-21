@@ -10,10 +10,96 @@
 // Revision     : 0.1
 /*--------------------------------------------------------------------------------------*/
 
-// Design a logic to capture DATAs for Driver A
-`define SPI_REG soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_spi_top.spi_reg_u
-
 nnc_wavegen_interface     wavegen_vif[`WAVEGEN_NUM_OF_MULT_CHIPS]();
+
+nnc_wavegen_if            dut_wg_vif[`WAVEGEN_DRIVER_NUM]();
+
+logic [0:15] wg_drive_sw_tmp;
+
+`ifdef BEHAVIORAL
+  assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[0];
+  assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[1];
+`else
+  assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.spi_wg_i_wg_driver_in_wave_addr[7:0];
+  assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.spi_wg_i_wg_driver_in_wave_addr[15:8];
+`endif
+
+generate 
+for (genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin    
+  assign dut_wg_vif[i].clk         =  `WG_DRIVER_TOP.i_pclk;  
+  assign dut_wg_vif[i].resetn      =  `WG_DRIVER_TOP.i_presetn;
+  assign dut_wg_vif[i].fclk        =  `WG_DRIVER_TOP.i_fclk;
+  assign dut_wg_vif[i].sclk        =   spi_vif.i_sclk;
+
+  // Each of driver; get 64-bytes from 0x00 - 0x3F and assign to wave_reg
+  // {>>{ array }}
+  // flattens the array into a bitstream (LSB ? MSB) and then re-packs it into the destination array.
+  assign dut_wg_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[2][8'h00+8'h40*i:8'h3F+8'h40*i]}};
+  // for (int k = 0; k < 64; k++) dut_wg_vif[i].wave_reg[k] = spi_vif.REG_DATA[2][64*i + k]; (like this)
+
+  assign dut_wg_vif[i].wg_drive_sw =   wg_drive_sw_tmp;
+
+  always @(dut_wg_vif[i].wave_reg[8'h01][0]) begin
+    if (dut_wg_vif[i].wave_reg[8'h01][0])  
+      wg_drive_sw_tmp |= dut_wg_vif[i].wave_reg[8'h3E:8'h3F]; 
+  end
+
+  // int clear type -> r1c
+  always@(spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5:4])begin
+    dut_wg_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[1][8'h2B+8'h40*i][4];
+    dut_wg_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5];
+    #20000ns;
+    dut_wg_vif[i].r1c_clr = '{default:0}; 
+    spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5:4] = 0;
+  end
+
+  always@(spi_vif.REG_RDATA[0][8'h7A + i/2])begin
+    dut_wg_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+0];
+    dut_wg_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+1];
+    #20000ns;
+    dut_wg_vif[i].r1c_clr = '{default:0}; 
+    spi_vif.REG_RDATA[0][8'h7A + i/2] = 0;
+  end
+
+  assign dut_wg_vif[i].source     = `ANA_TOP.D2A_SOURCE[i];  //`WG_DRIVER_TOP.o_source_driver[i];  
+  assign dut_wg_vif[i].pulldn     = `ANA_TOP.D2A_PULLD[i];      //`WG_DRIVER_TOP.o_pulldn_driver[i];   
+
+end
+endgenerate
+
+assign dut_wg_vif[0].dac_din     = `ANA_TOP.D2A_DATA_0; // `WG_DRIVER_TOP.o_out_wave_driver_idac[0];
+assign dut_wg_vif[1].dac_din     = `ANA_TOP.D2A_DATA_1; // `WG_DRIVER_TOP.o_out_wave_driver_idac[1];
+assign dut_wg_vif[2].dac_din     = `ANA_TOP.D2A_DATA_2; // `WG_DRIVER_TOP.o_out_wave_driver_idac[2];
+assign dut_wg_vif[3].dac_din     = `ANA_TOP.D2A_DATA_3; // `WG_DRIVER_TOP.o_out_wave_driver_idac[3];
+assign dut_wg_vif[4].dac_din     = `ANA_TOP.D2A_DATA_4; // `WG_DRIVER_TOP.o_out_wave_driver_idac[4];
+assign dut_wg_vif[5].dac_din     = `ANA_TOP.D2A_DATA_5; // `WG_DRIVER_TOP.o_out_wave_driver_idac[5];
+assign dut_wg_vif[6].dac_din     = `ANA_TOP.D2A_DATA_6; // `WG_DRIVER_TOP.o_out_wave_driver_idac[6];
+assign dut_wg_vif[7].dac_din     = `ANA_TOP.D2A_DATA_7; // `WG_DRIVER_TOP.o_out_wave_driver_idac[7];
+assign dut_wg_vif[8].dac_din     = `ANA_TOP.D2A_DATA_8; // `WG_DRIVER_TOP.o_out_wave_driver_idac[8];
+assign dut_wg_vif[9].dac_din     = `ANA_TOP.D2A_DATA_9; // `WG_DRIVER_TOP.o_out_wave_driver_idac[9];
+assign dut_wg_vif[10].dac_din    = `ANA_TOP.D2A_DATA_10; // `WG_DRIVER_TOP.o_out_wave_driver_idac[10];
+assign dut_wg_vif[11].dac_din    = `ANA_TOP.D2A_DATA_11; // `WG_DRIVER_TOP.o_out_wave_driver_idac[11];
+assign dut_wg_vif[12].dac_din    = `ANA_TOP.D2A_DATA_12; // `WG_DRIVER_TOP.o_out_wave_driver_idac[12];
+assign dut_wg_vif[13].dac_din    = `ANA_TOP.D2A_DATA_13; // `WG_DRIVER_TOP.o_out_wave_driver_idac[13];
+assign dut_wg_vif[14].dac_din    = `ANA_TOP.D2A_DATA_14; // `WG_DRIVER_TOP.o_out_wave_driver_idac[14];
+assign dut_wg_vif[15].dac_din    = `ANA_TOP.D2A_DATA_15; // `WG_DRIVER_TOP.o_out_wave_driver_idac[15];
+
+generate
+  for (genvar i=0; i < `WAVEGEN_NUM_OF_MULT_CHIPS; i++) begin
+    initial begin
+      nnc_config_db#(virtual nnc_wavegen_interface)::set(uvm_root::get(), "uvm_test_top.*", $sformatf("wavegen_vif[%0d]", i), wavegen_vif[i]);
+    end
+  end
+endgenerate
+
+generate
+  for(genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
+    initial begin
+        nnc_config_db#(virtual nnc_wavegen_if)::set(uvm_root::get(), "uvm_test_top.top_env.wavegen_env.wg_drvs_agt*", $sformatf("wg_vif[%0d]", i), dut_wg_vif[i]);
+    end
+  end
+endgenerate
+
 
 //`ifdef BEHAVIORAL
 //  `define SPI_WAVEGEN_REG_10 `SPI_REG.genblk1[0].u_spi_reg_wavegen
@@ -344,14 +430,6 @@ nnc_wavegen_interface     wavegen_vif[`WAVEGEN_NUM_OF_MULT_CHIPS]();
 //assign wavegen_vif[0].spi_reg[1] = {drive_ctrl_reg2_11[3:0], drive_ctrl_reg1_11};
 //assign wavegen_vif[0].ana_data[1] = `ANA_WRAPPER_TOP.i_out_wave_drivera_dac1;
 //
-`ifdef BEHAVIORAL
-  assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[0];
-  assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[1];
-`else
-  assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.spi_wg_i_wg_driver_in_wave_addr[7:0];
-  assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.spi_wg_i_wg_driver_in_wave_addr[15:8];
-`endif
-//
 //  //drv 0
 //  assign wavegen_vif[0].pulla[0] = `ANA_WRAPPER_TOP.i_pullda_driver_a[0];
 //  assign wavegen_vif[0].pullb[0] = `ANA_WRAPPER_TOP.i_pulldb_driver_a[0];
@@ -496,12 +574,15 @@ nnc_wavegen_interface     wavegen_vif[`WAVEGEN_NUM_OF_MULT_CHIPS]();
 //assign wavegen_vif[0].source1 = 0;//Ophina commented `DIG_TOP.u_anac.sourcea_driver_a;
 //assign wavegen_vif[0].source2 = 0;//Ophina commented `DIG_TOP.u_anac.sourceb_driver_a;
 //
+/*
 initial begin
     nnc_config_db#(virtual nnc_wavegen_interface)::set(uvm_root::get(), "uvm_test_top.*", "wavegen_vif[0]", wavegen_vif[0]);
 end
+
 initial begin
     nnc_config_db#(virtual nnc_wavegen_interface)::set(uvm_root::get(), "uvm_test_top.*", "wavegen_vif[1]", wavegen_vif[1]);
 end
+*/
 //
 //always_ff @(posedge wavegen_vif[0].sysclk  or negedge wavegen_vif[0].presetn)begin
 //  if(!wavegen_vif[0].presetn)
@@ -625,75 +706,14 @@ end
 //assign wavegen_vif[0].pclk = `WG_DRIVER_TOP.i_pclk;
 //assign wavegen_vif[0].fclk = `WG_DRIVER_TOP.i_fclk;
 
-nnc_wavegen_if     wavegen_agt_vif[`WAVEGEN_DRIVER_NUM]();
 
-
-logic [0:15] wg_drive_sw_tmp;
-
-generate 
-for(genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin    
-    assign wavegen_agt_vif[i].clk         =  `WG_DRIVER_TOP.i_pclk;  
-    assign wavegen_agt_vif[i].resetn      =  `WG_DRIVER_TOP.i_presetn;
-    assign wavegen_agt_vif[i].fclk        =  `WG_DRIVER_TOP.i_fclk;
-    assign wavegen_agt_vif[i].sclk        =   spi_vif.i_sclk;
-
-    assign wavegen_agt_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[2][8'h00+8'h40*i:8'h3F+8'h40*i]}};
-
-    assign wavegen_agt_vif[i].wg_drive_sw =   wg_drive_sw_tmp;
-
-
-always@(wavegen_agt_vif[i].wave_reg[8'h01][0])begin
-    if(wavegen_agt_vif[i].wave_reg[8'h01][0])  wg_drive_sw_tmp |= wavegen_agt_vif[i].wave_reg[8'h3E:8'h3F]; 
-end
-
-//int clear type -> r1c
-always@(spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5:4])begin
-    wavegen_agt_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[1][8'h2B+8'h40*i][4];
-    wavegen_agt_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5];
-    #20000ns;
-    wavegen_agt_vif[i].r1c_clr = '{default:0}; 
-    spi_vif.REG_RDATA[1][8'h2B+8'h40*i][5:4] = 0;
-end
-
-always@(spi_vif.REG_RDATA[0][8'h7A + i/2])begin
-    wavegen_agt_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+0];
-    wavegen_agt_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+1];
-    #20000ns;
-    wavegen_agt_vif[i].r1c_clr = '{default:0}; 
-    spi_vif.REG_RDATA[0][8'h7A + i/2] = 0;
-end
-
-assign wavegen_agt_vif[i].source     = `WG_DRIVER_TOP.o_source_driver[i];  
-//assign wavegen_agt_vif[i].source     = `WG_DRIVER_TOP.o_source_driver[i];  
-assign wavegen_agt_vif[i].pulldn       = `WG_DRIVER_TOP.o_pulldn_driver[i];   
-//assign wavegen_agt_vif[i].pulldn       = `WG_DRIVER_TOP.o_pulldn_driver[i];   
-
-end
-endgenerate
-
-assign wavegen_agt_vif[0].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[0];
-assign wavegen_agt_vif[1].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[1];
-assign wavegen_agt_vif[2].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[2];
-assign wavegen_agt_vif[3].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[3];
-assign wavegen_agt_vif[4].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[4];
-assign wavegen_agt_vif[5].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[5];
-assign wavegen_agt_vif[6].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[6];
-assign wavegen_agt_vif[7].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[7];
-assign wavegen_agt_vif[8].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[8];
-assign wavegen_agt_vif[9].dac_din     = `WG_DRIVER_TOP.o_out_wave_driver_idac[9];
-assign wavegen_agt_vif[10].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[10];
-assign wavegen_agt_vif[11].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[11];
-assign wavegen_agt_vif[12].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[12];
-assign wavegen_agt_vif[13].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[13];
-assign wavegen_agt_vif[14].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[14];
-assign wavegen_agt_vif[15].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[15];
 
 //int clear type -> r1c 
 //always@(spi_vif.REG_RDATA[0][8'h7A + i/2])begin
-//    wavegen_agt_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+0];
-//    wavegen_agt_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+1];
+//    dut_wg_vif[i].r1c_clr[0] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+0];
+//    dut_wg_vif[i].r1c_clr[1] = spi_vif.REG_RDATA[0][8'h7A + i/4][(i%4)*2+1];
 //    #20000ns;
-//    wavegen_agt_vif[i].r1c_clr = '{default:0}; 
+//    dut_wg_vif[i].r1c_clr = '{default:0}; 
 //    spi_vif.REG_RDATA[0][8'h7A + i/2] = 0;
 //end
 
@@ -701,38 +721,31 @@ assign wavegen_agt_vif[15].dac_din    = `WG_DRIVER_TOP.o_out_wave_driver_idac[15
 //`ifdef BEHAVIORAL
 //// in rtl sim, drive_en and glb_en from wavegen_ref
 //`else 
-//assign wavegen_agt_vif[0].wave_glb_en =  {`WG_DRIVER_TOP.spi_wg_global_en, `WG_DRIVER_TOP.spi_wg_global_en};
+//assign dut_wg_vif[0].wave_glb_en =  {`WG_DRIVER_TOP.spi_wg_global_en, `WG_DRIVER_TOP.spi_wg_global_en};
 //`ifdef SDFANNOTATE_MAX
-//assign #1.412  wavegen_agt_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
-//assign #2.523 wavegen_agt_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  // some delay in sync_module of drive_en[1]  max corner path: soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_wg_driver.genblk1_1__u_driver_en_sync
+//assign #1.412  dut_wg_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
+//assign #2.523 dut_wg_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  // some delay in sync_module of drive_en[1]  max corner path: soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_wg_driver.genblk1_1__u_driver_en_sync
 //`elsif SDFANNOTATE_MIN
-//assign #0.415  wavegen_agt_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
-//assign #1.113 wavegen_agt_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  //some delay in sync_module of drive_en[1]  min corner
+//assign #0.415  dut_wg_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
+//assign #1.113 dut_wg_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  //some delay in sync_module of drive_en[1]  min corner
 //`else
-//assign #1  wavegen_agt_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
-//assign #2.523 wavegen_agt_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  //some delay in sync_module of drive_en[1]  typ corner
+//assign #1  dut_wg_vif.driver_en[0]   =  `WG_DRIVER_TOP.drive_en[0]; //there is a buffer from driver_en to input of sync.
+//assign #2.523 dut_wg_vif.driver_en[1]   =  `WG_DRIVER_TOP.drive_en[1];  //some delay in sync_module of drive_en[1]  typ corner
 //`endif
 //`endif
 
-//assign wavegen_agt_vif[0].dac_din     = `WG_DRIVER_TOP.o_out_wave_drivera_dac0;//`ANA_TOP.D2A_IDAC_DIN_CH1        ;//, `ANA_TOP.D2A_IDAC_DIN_CH2       };// WG_DRIVER_TOP.o_out_wave_drivera_dac0;
-//assign wavegen_agt_vif[i].sourcea     = `WG_DRIVER_TOP.o_sourcea_driver_a[i];  //`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1 ;//, `ANA_TOP.D2A_DRIVERA_SOURCEA_CH2};//`WG_DRIVER_TOP.o_sourcea_driver_a[i];  
-//assign wavegen_agt_vif[i].sourceb     = `WG_DRIVER_TOP.o_sourceb_driver_a[i];  //`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1 ;//, `ANA_TOP.D2A_DRIVERA_SOURCEB_CH2};//`WG_DRIVER_TOP.o_sourceb_driver_a[i]; 
-//assign wavegen_agt_vif[i].pulla       = `WG_DRIVER_TOP.o_pullda_driver_a[i];   //`ANA_TOP.D2A_DRIVERA_PULLDA_CH1  ;//, `ANA_TOP.D2A_DRIVERA_PULLDA_CH2 };//`WG_DRIVER_TOP.o_pullda_driver_a[i]; /
-//assign wavegen_agt_vif[i].pullb       = `WG_DRIVER_TOP.o_pulldb_driver_a[i];   //`ANA_TOP.D2A_DRIVERA_PULLDB_CH1  ;//, `ANA_TOP.D2A_DRIVERA_PULLDB_CH2 };//`WG_DRIVER_TOP.o_pulldb_driver_a[i]; /
+//assign dut_wg_vif[0].dac_din     = `WG_DRIVER_TOP.o_out_wave_drivera_dac0;//`ANA_TOP.D2A_IDAC_DIN_CH1        ;//, `ANA_TOP.D2A_IDAC_DIN_CH2       };// WG_DRIVER_TOP.o_out_wave_drivera_dac0;
+//assign dut_wg_vif[i].sourcea     = `WG_DRIVER_TOP.o_sourcea_driver_a[i];  //`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1 ;//, `ANA_TOP.D2A_DRIVERA_SOURCEA_CH2};//`WG_DRIVER_TOP.o_sourcea_driver_a[i];  
+//assign dut_wg_vif[i].sourceb     = `WG_DRIVER_TOP.o_sourceb_driver_a[i];  //`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1 ;//, `ANA_TOP.D2A_DRIVERA_SOURCEB_CH2};//`WG_DRIVER_TOP.o_sourceb_driver_a[i]; 
+//assign dut_wg_vif[i].pulla       = `WG_DRIVER_TOP.o_pullda_driver_a[i];   //`ANA_TOP.D2A_DRIVERA_PULLDA_CH1  ;//, `ANA_TOP.D2A_DRIVERA_PULLDA_CH2 };//`WG_DRIVER_TOP.o_pullda_driver_a[i]; /
+//assign dut_wg_vif[i].pullb       = `WG_DRIVER_TOP.o_pulldb_driver_a[i];   //`ANA_TOP.D2A_DRIVERA_PULLDB_CH1  ;//, `ANA_TOP.D2A_DRIVERA_PULLDB_CH2 };//`WG_DRIVER_TOP.o_pulldb_driver_a[i]; /
 
-//assign wavegen_agt_vif[1].dac_din     = `ANA_TOP.D2A_IDAC_DIN_CH2       ;
-//assign wavegen_agt_vif[1].sourcea     = `ANA_TOP.D2A_DRIVERA_SOURCEA_CH2;
-//assign wavegen_agt_vif[1].sourceb     = `ANA_TOP.D2A_DRIVERA_SOURCEB_CH2;
-//assign wavegen_agt_vif[1].pulla       = `ANA_TOP.D2A_DRIVERA_PULLDA_CH2 ;
-//assign wavegen_agt_vif[1].pullb       = `ANA_TOP.D2A_DRIVERA_PULLDB_CH2 ;
+//assign dut_wg_vif[1].dac_din     = `ANA_TOP.D2A_IDAC_DIN_CH2       ;
+//assign dut_wg_vif[1].sourcea     = `ANA_TOP.D2A_DRIVERA_SOURCEA_CH2;
+//assign dut_wg_vif[1].sourceb     = `ANA_TOP.D2A_DRIVERA_SOURCEB_CH2;
+//assign dut_wg_vif[1].pulla       = `ANA_TOP.D2A_DRIVERA_PULLDA_CH2 ;
+//assign dut_wg_vif[1].pullb       = `ANA_TOP.D2A_DRIVERA_PULLDB_CH2 ;
 
-generate
-for(genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin
-    initial begin
-        nnc_config_db#(virtual nnc_wavegen_if)::set(uvm_root::get(), "uvm_test_top.top_env.wavegen_env.wg_drvs_agt*", $sformatf("wg_vif[%0d]", i), wavegen_agt_vif[i]);
-    end
-end
-endgenerate
 //initial begin
 //    nnc_config_db#(virtual nnc_wavegen_interface)::set(uvm_root::get(), "uvm_test_top.*", "wavegen_vif[0]", wavegen_vif[0]);
 //end

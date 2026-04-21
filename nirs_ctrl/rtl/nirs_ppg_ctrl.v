@@ -12,6 +12,7 @@ module nirs_ppg_ctrl (
   output wire   IREF_COARSE_NOT_ON,
   output wire   IREF_FINE_ON_NOT_OFF,
   output wire   IREF_FINE_NOT_ON,
+  output wire   DATA_READY,
 
   output wire   EN_OFF, // Turn off NIRS
   output wire   IDAC_INCREASE,
@@ -160,6 +161,7 @@ module nirs_ppg_ctrl (
   reg IREF_COARSE_NOT_ON_d;
   reg IREF_FINE_ON_NOT_OFF_d;
   reg IREF_FINE_NOT_ON_d;
+  reg DATA_READY_d;
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
@@ -206,9 +208,20 @@ module nirs_ppg_ctrl (
       IREF_FINE_ON_NOT_OFF_d <= IREF_FINE_ON_NOT_OFF_d;
   end
 
+    always @(posedge clk or negedge rst_n) begin
+      if (!rst_n)
+        DATA_READY_d <= 1'b0;
+      else if (IDAC_UPDATE_EN && !(IREF_COARSE_ON_NOT_OFF || IREF_COARSE_NOT_ON || IREF_FINE_ON_NOT_OFF || IREF_FINE_NOT_ON))
+        DATA_READY_d <= 1'b1;
+      else 
+        DATA_READY_d <= 1'b0;
+  end
+
+
   assign IREF_COARSE_ON_NOT_OFF = IREF_COARSE_ON_NOT_OFF_d;
   assign IREF_COARSE_NOT_ON     = IREF_COARSE_NOT_ON_d;
   assign IREF_FINE_ON_NOT_OFF   = IREF_FINE_ON_NOT_OFF_d;
   assign IREF_FINE_NOT_ON       = IREF_FINE_NOT_ON_d || IREF_COARSE_NOT_ON || IREF_COARSE_ON_NOT_OFF;
+  assign DATA_READY             = DATA_READY_d;
 
 endmodule  

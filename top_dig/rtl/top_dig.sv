@@ -16,7 +16,7 @@
 `timescale 1 ns /  1ps
 
 module top_dig #( 
-  parameter EEG_DATA_WIDTH = 32, 
+  parameter EEG_DATA_WIDTH = 24, 
   parameter EEG_CHN_NUM = 16, 
   parameter HLF_WV_NO_PTS = 7, 
   parameter OUT_NO_BITS = 12,
@@ -69,10 +69,10 @@ output D2A_SDM_CLK,
   output wire           scan_clk,
   output wire           scan_rst_n,
   output wire           atpg_en,
-  //output wire           poresetn_hf,      //from switchable digital POR time out //global reset after sync by hfclk
+//output wire           poresetn_hf,      //from switchable digital POR time out //global reset after sync by hfclk
 //output wire           spi_write,        //from spi
 //output wire [2:0]     o_dc_clk_div_spi, 
-  //input wire  [2:0]   dc_clk_div_always_on, 
+//input wire  [2:0]   dc_clk_div_always_on, 
 //input wire  [2:0]     D2A_CPCLK, 
 
   //io_buf_config
@@ -110,14 +110,14 @@ output D2A_SDM_CLK,
 //output wire [1:0]     otp_to_ana_ldo1v5_trim,
 //output wire [1:0]     otp_to_ana_dacbuf_trim,
 //output wire [5:0]     otp_to_ana_osc_trim,
-  //input   wire        CHIP_otp_VREF,
+//input   wire        CHIP_otp_VREF,
 //input  wire           VREF0P8,
 
   // power ground
 //inout  wire           vdd_switchable, //switchable digital power
 //inout  wire           vssi,
   inout  wire           VPP_OTP,                // VPP
-  //input  wire           AVDD_OTP,               // AVDD
+//input  wire           AVDD_OTP,               // AVDD
   inout  wire           VDD_OTP,                // VDD_DIG
   inout  wire           VSUB_OTP,               // FROM ANALOG (MISSING)
   inout  wire           VSS_OTP,                // VSS_DIG
@@ -182,21 +182,20 @@ output D2A_SDM_CLK,
   output wire 				o_stimu_en,            
 
   output wire              [NO_OF_WAVEGEN-1:0]    o_source_driver,
-//  output wire              [NO_OF_WAVEGEN-1:0]    o_sourceb_driver_a,
+//output wire              [NO_OF_WAVEGEN-1:0]    o_sourceb_driver_a,
   output wire              [NO_OF_WAVEGEN-1:0]    o_pulldn_driver
-//  output wire              [NO_OF_WAVEGEN-1:0]    o_pulldb_driver_a
+//output wire              [NO_OF_WAVEGEN-1:0]    o_pulldb_driver_a
 //output wire              [1:0]    o_driver_driver_a_en
 //output wire              [2:0]    o_drivera_isel0,
 //output wire              [2:0]    o_drivera_isel1
-
 );
 
 //  spi_leadoff      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_leadoff();
-  spi_anac      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_anac();
-  spi_otp       #(.TRIM_NUMBER(17))               spi_otp();
-  spi_wg        #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_wg();
-  spi_pinmux_if #(.EN_REG_NUMBER(4))              spi_pinmux_if(); 
-  spi_nirs_if                                     spi_nirs_if();
+spi_anac      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_anac();
+spi_otp       #(.TRIM_NUMBER(17))               spi_otp();
+spi_wg        #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_wg();
+spi_pinmux_if #(.EN_REG_NUMBER(4))              spi_pinmux_if(); 
+spi_nirs_if                                     spi_nirs_if();
 
 //bps imeas
 wire [EEG_DATA_WIDTH-1:0]  imeas_chdata_adcclk[EEG_CHN_NUM-1:0];
@@ -220,20 +219,20 @@ wire [17:0]             lpf_coeff_data [27:0];
 wire [19:0]             notch_coeff_data[35:0];
 
 //============
-  wire    hfosc_out;
-  wire    analog_test_mode;
-  wire    ext_clk_sel;                                                //from analog IO cells
+wire    hfosc_out;
+wire    analog_test_mode;
+wire    ext_clk_sel;                                                //from analog IO cells
 //wire    ext_clk;                                                    // 08/04/2023 supriya: pending to cross check with Xin
-  wire    ext_hfclk;                                                  //external clock from analog IO cells
+wire    ext_hfclk;                                                  //external clock from analog IO cells
 //assign  ext_clk_sel = analog_test_mode ? 1'b1     : ~CLKSEL_Y;      //from analog IO cells
 //assign  ext_hfclk   = external_clock;                               //external clock from analog IO cells
 //assign  ext_hfclk   = analog_test_mode ? CLKSEL_Y : ext_clk ;       // FROM GPIO0
 
-  wire    hfosc;                            // osc base clock input
-  assign  hfosc = A2D_OSC_OUT;              // osc base clock input
+wire    hfosc;                            // osc base clock input
+assign  hfosc = A2D_OSC_OUT;              // osc base clock input
 
-  wire    por_resetn;                       // power on reset, low active
-  assign  por_resetn = A2D_SW_POWER_POR;    // power on reset, low active
+wire    por_resetn;                       // power on reset, low active
+assign  por_resetn = A2D_SW_POWER_POR;    // power on reset, low active
 
 //wire    CHIP_otp_VREF;
 //assign  CHIP_otp_VREF = VREF0P8;
@@ -244,8 +243,6 @@ wire [19:0]             notch_coeff_data[35:0];
 //assign D2A_PGA_EN       = o_PGA_EN;
 //assign D2A_PGA_VIN_SEL  = o_PGA_VIN_SEL;
 //assign D2A_PGA_GSEL     = o_PGA_GSEL;
-
-
 
 //wire        o_TSC_EN;
 //wire        o_TSC_AMP_EN;
@@ -324,7 +321,9 @@ wire [19:0]             notch_coeff_data[35:0];
 
   wire  [14:0] atm_mode;
   wire  [7:0] atm_data;
+  wire  [7:0] atm_adj_data;
   wire        unlock_gpio;
+  wire [13:0] atm_adj_mode;
 
 //  wire         atpg_en;
 //wire         atpg_en_sw;      //16/04/2024 commented by supriya
@@ -550,7 +549,8 @@ wire         ppg_clk50duty;
   
   wire  [7:0] gpio_pu_ctrl_reg;                  
   wire  [7:0] gpio_pd_ctrl_reg;            
-  wire  [2:0] gpio_sr_pdrv0_1_ctrl_reg;     
+  wire  [2:0] gpio_sr_pdrv0_1_ctrl_reg;    
+  wire        gpio_nirs_out_ctrl_reg;      
 
 /*
  wire		w_D2A_LVD_EN;
@@ -602,12 +602,9 @@ wire         ppg_clk50duty;
   wire [7:0] w_D2A_ANA_GEN_REG_11;
   wire [7:0] w_D2A_ANA_GEN_REG_12;
 
-
   wire 	     ana_lvd_sts;
 
-
   wire       anac_int;
-
 
   wire       imeas_intr_clr;
 
@@ -761,9 +758,9 @@ pinmux u_pinmux (
   .o_OTP_ATM_MODE_SEL   (atm_mode),
   .o_OTP_ANA_TESTMODE   (analog_test_mode),
   .o_OTP_ATM_TRIM_DATA  (atm_data), 
-//.o_SPI_ATM_MODE_SEL   (atm_adj_mode),
-//.o_SPI_ANA_TESTMODE   (analog_test_mode),
-//.o_SPI_ATM_ADJ_DATA   (atm_data), 
+  .o_SPI_ATM_MODE_SEL   (atm_adj_mode),
+  .o_SPI_ANA_TESTMODE   (atm_adj),
+  .o_SPI_ATM_ADJ_DATA   (atm_adj_data), 
 
 //.NORMAL_OUT_SEL       (),
 //.COMP_OUT_EN          (),
@@ -778,7 +775,7 @@ pinmux u_pinmux (
   .spi_pinmux_if        (spi_pinmux_if),
           
   .sys_d2a_trim_reg     (spi_otp.trim_read[15:1]),
-
+  .i_gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl_reg),  
 // TSC
   .d2a_tsc_vdac8b_din_ch1 (d2a_tsc_vdac8b_din_ch1),
 //.d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
@@ -839,76 +836,74 @@ assign hpf_clk_imeas = hpf_clk[EEG_CHN_NUM-1:0];
 assign imeas_dig_filter_clk_post_imeas = imeas_dig_filter_clk_post[EEG_CHN_NUM-1:0];
 
 wire        adc_clk_running;
-wire   imeas_adc_clk;
-wire   imeas_adc_inv;
-wire [7:0] imeas_reg_0;
+wire        imeas_adc_clk;
+wire        imeas_adc_inv;
+wire [7:0]  imeas_reg_0;
 wire [15:0] imeas_en_chn;
 //wire [3:0] DR = 3;
-wire [3:0] DR ;
-wire start_sample;
-wire stop_sample;
-wire start_sample_pclk;
-wire stop_sample_pclk;
-//wire single_shot_true;
+wire [3:0]  DR ;
+wire        start_sample;
+wire        stop_sample;
+wire        start_sample_pclk;
+wire        stop_sample_pclk;
+//wire      single_shot_true;
 wire [15:0] stable_time;
-wire  adc_resetn;
-wire  adc_ctrl_resetn;
-wire            imeas_en;
-wire [3:0] iclk_div ;
-//wire 	   D2A_POWER_EN;
-wire 	   enable_cic;
-  wire imeas_working_sync;
-  wire imeas_working;
+wire        adc_resetn;
+wire        adc_ctrl_resetn;
+wire        imeas_en;
+wire [3:0]  iclk_div ;
+//wire 	    D2A_POWER_EN;
+wire 	    enable_cic;
+wire        imeas_working_sync;
+wire        imeas_working;
 //====================
-wire [4:0] i_channel_max;
-wire [2:0] PROD_ID;
+wire [4:0]  i_channel_max;
+wire [2:0]  PROD_ID;
+
 clk_ctrl u_clk_ctrl
 (
-//bps imeas
-.PROD_ID(PROD_ID),
+  //bps imeas
+  .PROD_ID(PROD_ID),
 
   .i_channel_max(i_channel_max),
 
-  .enable_cic	(enable_cic),
+  .enable_cic(enable_cic),
   .imeas_working_sync(imeas_working_sync),
   .imeas_working(imeas_working),
   .en_channels(imeas_en_chn),
-        .iclk_div(iclk_div),
-        .imeas_adc_inv(imeas_adc_inv),
-        .imeas_pclk(imeas_pclk),
-        .imeas_dig_adc_clk(imeas_dig_adc_clk),
-        .imeas_adc_clk(imeas_adc_clk),
-        .adc_clk_running(adc_clk_running),
-        .adc_resetn  (adc_resetn),
-        .adc_ctrl_resetn  (adc_ctrl_resetn),
-        .notch_clk(notch_clk),
-        .lpf_clk(lpf_clk),
-        .hpf_clk(hpf_clk),
-        .imeas_dig_filter_clk_post(imeas_dig_filter_clk_post),
-        .notch_clk_gtg_en(notch_clk_gtg_en),
-        .notch_filter_valid(notch_filter_valid),
-        .lpf_clk_gtg_en(lpf_clk_gtg_en),
-        .hpf_clk_gtg_en(hpf_clk_gtg_en),
-        .osr_sel(DR),          
-//=============
-//=============
+  .iclk_div(iclk_div),
+  .imeas_adc_inv(imeas_adc_inv),
+  .imeas_pclk(imeas_pclk),
+  .imeas_dig_adc_clk(imeas_dig_adc_clk),
+  .imeas_adc_clk(imeas_adc_clk),
+  .adc_clk_running(adc_clk_running),
+  .adc_resetn  (adc_resetn),
+  .adc_ctrl_resetn  (adc_ctrl_resetn),
+  .notch_clk(notch_clk),
+  .lpf_clk(lpf_clk),
+  .hpf_clk(hpf_clk),
+  .imeas_dig_filter_clk_post(imeas_dig_filter_clk_post),
+  .notch_clk_gtg_en(notch_clk_gtg_en),
+  .notch_filter_valid(notch_filter_valid),
+  .lpf_clk_gtg_en(lpf_clk_gtg_en),
+  .hpf_clk_gtg_en(hpf_clk_gtg_en),
+  .osr_sel(DR),          
 
-  .ppg_dis	(ppg_dis),           //ppg disble 
-  .ppg_clk_div	(ppg_clk_div),       // ppg clock divider
-  .ana_ppgclk_inv	(ana_ppgclk_inv),   // ana ppg clock 
-  .ppg_clk50duty	(ppg_clk50duty),            
+  .ppg_dis(ppg_dis),           //ppg disble 
+  .ppg_clk_div(ppg_clk_div),       // ppg clock divider
+  .ana_ppgclk_inv(ana_ppgclk_inv),   // ana ppg clock 
+  .ppg_clk50duty(ppg_clk50duty),            
 
 /*
-  .ppg_dis	(1),           //ppg disble 
-  .ppg_clk_div	(0),       // ppg clock divider
-  .ana_ppgclk_inv	(1),   // ana ppg clock 
-  .ppg_clk50duty	(1),            
+  .ppg_dis(1),           //ppg disble 
+  .ppg_clk_div(0),       // ppg clock divider
+  .ana_ppgclk_inv(1),   // ana ppg clock 
+  .ppg_clk50duty(1),            
 */
-  .ppg_clk_running	(ppg_clk_running),
-  .clk_ppg	(clk_ppg),           //ppg  
-  .clk_sys_ppg	(clk_sys_ppg),           //ppg  
-  .ana_clk_ppg	(ana_clk_ppg),           //ppg  
-//===================
+  .ppg_clk_running      (ppg_clk_running),
+  .clk_ppg	        (clk_ppg),           //ppg  
+  .clk_sys_ppg	        (clk_sys_ppg),           //ppg  
+  .ana_clk_ppg	        (ana_clk_ppg),           //ppg  
 
   .presetn              (presetn),
   .poresetn             (poresetn),
@@ -928,15 +923,15 @@ clk_ctrl u_clk_ctrl
   .otp_bist_tck_atpg    (otp_bist_tck_atpg),  //to otp
   //.fclk                 (fclk),
 
-  .o_clk_sel         (o_clk_sel),
+  .o_clk_sel            (o_clk_sel),
 
   .pclk                 (pclk),
   .anac_pclk            (anac_pclk),
   .otp_pclk             (otp_pclk),
   .otp_dpstb_en         (otp_dpstb_en),   //from SPI
   .anac_clock_en        (anac_clock_en),
-  .temp_sar_clock_dis        (temp_sar_clock_dis),
-  .temp_sar_pclk            (temp_sar_pclk),
+  .temp_sar_clock_dis   (temp_sar_clock_dis),
+  .temp_sar_pclk        (temp_sar_pclk),
   .lead_off_en          (lead_off_en),
   .lead_off_pclk        (lead_off_pclk),
   .wave_gen_dis         (wave_gen_dis),
@@ -946,36 +941,35 @@ clk_ctrl u_clk_ctrl
 );
 
 //bps imeas
-//wire filter_re_rstn;
-wire filter_rstn;
-wire cic_rst;
-wire cic_rst_n;
-          wire      reset_cmd;
-          wire      start_cmd;
-          wire      stop_cmd;
-          //wire      wakeup_cmd;
-          //wire      standby_cmd;
-         wire       single_shot;
+//wire      filter_re_rstn;
+wire      filter_rstn;
+wire      cic_rst;
+wire      cic_rst_n;
+wire      reset_cmd;
+wire      start_cmd;
+wire      stop_cmd;
+//wire      wakeup_cmd;
+//wire      standby_cmd;
+wire       single_shot;
+
 //===============
-  wire           poresetn_hf;      //from switchable digital POR time out //global reset after sync by hfclk
+wire       poresetn_hf;      //from switchable digital POR time out //global reset after sync by hfclk
+
 reset_ctrl u_reset_ctrl
 (
 //bps function
-.reset_cmd(reset_cmd),
+  .reset_cmd(reset_cmd),
 //.start_meas(start_meas),
-.filter_rstn(filter_rstn),
-.cic_rst_n(cic_rst_n),//
-.adc_resetn  (adc_resetn),
-        .adc_ctrl_resetn  (adc_ctrl_resetn),
-.cic_rst(cic_rst),//
-.adc_clk(adc_clk_running),//
-        .start_sample(start_sample),
-        //.stop_sample(stop_sample),
-        .start_sample_pclk(start_sample_pclk),
-        //.stop_sample_pclk(stop_sample_pclk),
-//=============
-
- 
+  .filter_rstn(filter_rstn),
+  .cic_rst_n(cic_rst_n),//
+  .adc_resetn  (adc_resetn),
+  .adc_ctrl_resetn  (adc_ctrl_resetn),
+  .cic_rst(cic_rst),//
+  .adc_clk(adc_clk_running),//
+  .start_sample(start_sample),
+//.stop_sample(stop_sample),
+  .start_sample_pclk(start_sample_pclk),
+//.stop_sample_pclk(stop_sample_pclk),
 
   .por_resetn           (por_resetn),
   .ext_resetn           (ext_resetn),
@@ -988,9 +982,9 @@ reset_ctrl u_reset_ctrl
   .pclk                 (pclk),
 
 //ppg
-    .ppg_clk_running	(ppg_clk_running),
-    .ppg_resetn		(ppg_resetn),
-    .ppg_rst_reg	(ppg_rst_reg),
+  .ppg_clk_running	(ppg_clk_running),
+  .ppg_resetn		(ppg_resetn),
+  .ppg_rst_reg          (ppg_rst_reg),
 
   .wave_gen_rst         (wave_gen_rst),
   .wave_gen_presetn     (wave_gen_presetn),
@@ -1003,11 +997,11 @@ reset_ctrl u_reset_ctrl
   .otp_rst_reg          (otp_rst_reg),
   .dig_rst_reg          (dig_rst_reg),
   .lead_off_rst         (lead_off_rst),
-  .anac_reset         (anac_reset),
-  .temp_sar_reset         (temp_sar_reset),
+  .anac_reset           (anac_reset),
+  .temp_sar_reset       (temp_sar_reset),
   .lead_off_presetn     (lead_off_presetn),
   .anac_presetn         (anac_presetn),
-  .temp_sar_presetn         (temp_sar_presetn),
+  .temp_sar_presetn     (temp_sar_presetn),
 
   // EEPROM
 /*
@@ -1017,7 +1011,7 @@ reset_ctrl u_reset_ctrl
   .prep_to_slp_delay2clk    (prep_to_slp_delay2clk),
   .prep_to_slp_sync         (prep_to_slp_sync),
 */
-  .otp_rstn                 (otp_rstn) 
+  .otp_rstn              (otp_rstn) 
 );
 
 // instantiate pmu
@@ -1064,7 +1058,6 @@ otp_ctrl_top u_otp_ctrl_top(
   .atm_data             (atm_data[7:0]),
   .unlock_gpio          (unlock_gpio),
                                                                  //(later adjust the tck cycles according to the actual situation) 
-      
   .otp_vpp_en           (otp_vpp_en),   //output ,0 to 1 : vpp needs to go from vdd  to 7.5v within 8us
                                         //1 to 0 : vpp needs to go from 7.5v to vdd  within 8us
 
@@ -1122,7 +1115,6 @@ assign imeas_adc_din = { A2D_SDM_OUT15,
                          A2D_SDM_OUT0
                         };
 
-
 wire [EEG_CHN_NUM-1:0] imeas_adc_din_imeas;
 assign imeas_adc_din_imeas = imeas_adc_din[EEG_CHN_NUM-1:0];
 
@@ -1135,13 +1127,13 @@ imeas_wrapper  #(
 //from old clk_ctrl
 .stable_time	(stable_time),
 .adc_resetn	(adc_resetn),
-.adc_ctrl_resetn	(adc_ctrl_resetn),
-.adc_clk_running	(adc_clk_running),
-        .imeas_pclk(imeas_pclk_imeas),
-        .imeas_dig_adc_clk(imeas_dig_adc_clk_imeas),
+.adc_ctrl_resetn(adc_ctrl_resetn),
+.adc_clk_running(adc_clk_running),
+.imeas_pclk(imeas_pclk_imeas),
+.imeas_dig_adc_clk(imeas_dig_adc_clk_imeas),
 
-  .imeas_working_sync(imeas_working_sync),
-  .imeas_working(imeas_working),
+.imeas_working_sync(imeas_working_sync),
+.imeas_working(imeas_working),
 
 //.D2A_POWER_EN	(D2A_POWER_EN),
 .imeas_en	(imeas_en),
@@ -1180,8 +1172,6 @@ imeas_wrapper  #(
 //with analog
 .imeas_adc_din  (imeas_adc_din_imeas),  // adc serial data input
 
-
-
 .clk(imeas_dig_filter_clk_post_imeas),   
 .notch_clk(notch_clk_imeas),
 .lpf_clk(lpf_clk_imeas),
@@ -1214,8 +1204,6 @@ imeas_wrapper  #(
 .meas_done_d1(meas_done_filter),
 .imeas_chdata_out(imeas_chdata_filter),
 .i_imeas_intr_clr(imeas_intr_clr)
-
-
 );                                                            
 
 //=========================
@@ -1263,9 +1251,7 @@ imeas_wrapper  #(
 //
 //);
 
-
 wire sel_stim;
-
 
 //SPI to be modified to connect to i and z meas blocks
 spi_top  #(
@@ -1310,11 +1296,11 @@ u_spi_top (
   .imeas_chdata(imeas_chdata_filter),
   .reset_cmd            (reset_cmd),
   .stable_time (stable_time),
-      .start_cmd          (start_cmd),
-      .stop_cmd           (stop_cmd),
-      //.wakeup_cmd         (wakeup_cmd),
-      //.standby_cmd        (standby_cmd),
-      .single_shot        (single_shot),
+  .start_cmd          (start_cmd),
+  .stop_cmd           (stop_cmd),
+//.wakeup_cmd         (wakeup_cmd),
+//.standby_cmd        (standby_cmd),
+  .single_shot        (single_shot),
   .iclk_div             (iclk_div),
   .imeas_en             (imeas_en),
   .imeas_reg_0          (imeas_reg_0),
@@ -1324,7 +1310,7 @@ u_spi_top (
   .cic_rst              (cic_rst),//
 //=========================
 
- // .filter_seq(filter_seq),
+// .filter_seq(filter_seq),
   .notch_filter_bypass(notch_filter_bypass),
   .lpf_filter_bypass(lpf_filter_bypass),
   .hpf_filter_bypass(hpf_filter_bypass),
@@ -1332,13 +1318,12 @@ u_spi_top (
   .eeg_int_clr(eeg_int_clr),
   .eeg_int_sts(eeg_int_sts),
 
-//ppg
+  //ppg
   .ppg_dis	(ppg_dis),           //ppg disble 
   .ppg_clk_div	(ppg_clk_div),       // ppg clock divider
   .ana_ppgclk_inv	(ana_ppgclk_inv),   // ana ppg clock 
   .ppg_clk50duty	(ppg_clk50duty),            
-    .ppg_rst_reg	(ppg_rst_reg),
-
+  .ppg_rst_reg	(ppg_rst_reg),
 
   //tsc int
  .tsc_intr_en(tsc_intr_en),
@@ -1376,10 +1361,7 @@ u_spi_top (
   .VDAC_NOR             (VDAC_NOR),
 
   .int_length_slct      (int_length_slct),
-
   .ana_lvd_sts          (ana_lvd_sts),	//to ANAC
-
-
 
   .o_clk_sel          (o_clk_sel),
   .otp_rst_reg        (otp_rst_reg),
@@ -1420,7 +1402,8 @@ u_spi_top (
 
  //--gpio
   .gpio_pu_ctrl                 (gpio_pu_ctrl_reg),         
-  .gpio_pd_ctrl                 (gpio_pd_ctrl_reg),         
+  .gpio_pd_ctrl                 (gpio_pd_ctrl_reg),        
+  .gpio_nirs_out_ctrl           (gpio_nirs_out_ctrl_reg), 
   .gpio_sr_pdrv0_1_ctrl         (gpio_sr_pdrv0_1_ctrl_reg)
 
 //output to always on
@@ -1480,14 +1463,14 @@ u_spi_top (
    .o_D2A_ANA_BIST		(w_D2A_ANA_BIST)
         */
 
-  ); 
+  );
+ 
 wire [NO_OF_WAVEGEN-1:0] drive_en;
 wg_driver_top_wrapper #(
 .HLF_WV_NO_PTS                  (HLF_WV_NO_PTS),
 .OUT_NO_BITS                    (OUT_NO_BITS),
 .ELEC_NO_C                      (NO_OF_WAVEGEN)
-
-)u_wg_driver
+) u_wg_driver
 (
 /*AUTOINST*/
  // Outputs
@@ -1616,14 +1599,12 @@ wg_driver_top_wrapper #(
 //  .i_presetn                (lead_off_presetn)
 //);
 
-
 temp_sar_ctrl
 #(
   .WIDTH_VDAC(8)
 )
 u_temp_sar_ctrl
 (
-
   .sysclk           (temp_sar_pclk),
   .presetn          (temp_sar_presetn),
   .scan_enable      (scan_en),
@@ -1643,13 +1624,13 @@ u_temp_sar_ctrl
   .d2a_tsc_comp_en_ch1_in (tsc_comp_en_ch1),    //from spi_reg`
   .d2a_tsc_en_ch1_in      (tsc_en_ch1),         //from spi turn on tsc module
 
- .int_length_slct(int_length_slct),
- .tsc_intr_en(tsc_intr_en),
- .tsc_intr_trans_sel(tsc_intr_trans_sel),
- .tsc_intr_sts_clr(tsc_intr_sts_clr_pulse),
+  .int_length_slct(int_length_slct),
+  .tsc_intr_en(tsc_intr_en),
+  .tsc_intr_trans_sel(tsc_intr_trans_sel),
+  .tsc_intr_sts_clr(tsc_intr_sts_clr_pulse),
 
- .o_tsc_intb    (o_tsc_intb),
- .o_tsc_intr_sts(tsc_intr_sts),  
+  .o_tsc_intb    (o_tsc_intb),
+  .o_tsc_intr_sts(tsc_intr_sts),  
 
   .VDAC_NOR               (VDAC_NOR),  //to spi_reg
 
@@ -1659,7 +1640,6 @@ u_temp_sar_ctrl
   .d2a_tsc_en_ch1_out     (d2a_tsc_en_ch1)  //to pinmux
   
 );
-
 
 apb_anac #(
 .NO_OF_WAVEGEN        (NO_OF_WAVEGEN)
@@ -1681,19 +1661,21 @@ u_anac(
 
 //  .drive_en          (drive_en),            //bit0=1 is dac0, , bit1=1 is dac1 
   .o_anac_int        (anac_int)
-
 );
 
 nirs_ppg_wrapper u_nirs_wrapper (
-  .scan_mode      (atpg_en),
-  .rst_n          (ppg_resetn),  // Temporary - Xin will provide the alternative later
-  .clk_ana        (ana_ppgclk_inv),
-  .clk_ppg        (clk_ppg),     // Temporary - Xin will provide the alternative later
-  .clk_sys        (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
-  .LED_ON_IO      (NIRS_LED_ON),
-  .ana_nirs_if    (ana_nirs_if),
-  .spi_nirs_if    (spi_nirs_if)
-);
+  .scan_mode        (atpg_en),
+  .rst_n            (ppg_resetn),  // Temporary - Xin will provide the alternative later
+  .clk_ana          (ana_ppgclk_inv),
+  .clk_ppg          (clk_ppg),     // Temporary - Xin will provide the alternative later
+  .clk_sys          (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
 
+  .LED_ON_IO        (NIRS_LED_ON),
+  .int_length_slct  (int_length_slct),
+  .INT_IO           (),
+
+  .ana_nirs_if      (ana_nirs_if),
+  .spi_nirs_if      (spi_nirs_if)
+);
 
 endmodule

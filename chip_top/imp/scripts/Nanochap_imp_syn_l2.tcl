@@ -45,7 +45,7 @@ set_app_var symbol_library $stdcell_sdb
 
 set_app_var target_library [concat $stdcell_library(db,$slow_corner_pvt) $stdcell_library(db,$fast_corner_pvt)]
 
-set_app_var link_library "* $target_library single_channel.ddc"
+set_app_var link_library "* $target_library ../data/synthesis_l3/single_channel.ddc"
 #set_app_var mw_reference_library [concat . $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
 #set_app_var mw_reference_library [concat $mw_reference_library filter_wrapper]
 
@@ -136,8 +136,11 @@ set_clock_gating_style -sequential_cell latch \
 #set_app_var mw_design_library $rm_project_top
 #open_mw_lib $mw_design_library
 
-analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../../common/common_bit_sync.v ../../../common/common_pulse_async_clr.v ../../../common/common_rst_sync.v ../../../common/common_sync_bit.v}
+read_ddc ../data/synthesis_l3/single_channel.ddc
+
+analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../../common/common_bit_sync.v ../../../common/common_pulse_rising.v ../../../common/common_pulse_async_clr.v ../../../common/common_rst_sync.v ../../../common/common_sync_bit.v}
 elaborate imeas_wrapper
+
 link
 
 #current_design filter_wrapper
@@ -192,7 +195,7 @@ change_names -rules verilog -hierarchy
 write -f verilog -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
-write -format ddc -hierarchy -output imeas_wrapper.prescan.ddc
+write -format ddc -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.ddc
 
 #foreach i $scenarios {
 #  current_scenario $i

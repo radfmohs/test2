@@ -512,7 +512,7 @@ wire        D2A_NIRS_RESET_SW   [NO_OF_NIRS-1:0];
 wire        D2A_NIRS_IPD_SW     [NO_OF_NIRS-1:0];
 wire        D2A_NIRS_IIN_SW     [NO_OF_NIRS-1:0];
 wire  [1:0] D2A_IPDMIRROR_ADJ   [NO_OF_NIRS-1:0]; //
-wire  [7:0] D2A_IREFC_ADJ       [NO_OF_NIRS-1:0]; //
+wire  [1:0] D2A_IREFC_ADJ       [NO_OF_NIRS-1:0]; //
 wire  [8:0] D2A_NIRS_IDAC       [NO_OF_NIRS-1:0];
 wire  [1:0] D2A_NIRS_RATIO      [NO_OF_NIRS-1:0];
 wire        A2D_NIRS_IREFCOARSE [NO_OF_NIRS-1:0];
@@ -569,26 +569,36 @@ interface spi_nirs_if #(
 
   wire              [4:0] NIRS_CTRL_MODE      [NO_OF_NIRS-1:0];
   wire              [1:0] NIRS_CTRL_CMD       [NO_OF_NIRS-1:0];
-  wire              [7:0] NIRS_CTRL           [NO_OF_NIRS-1:0][1:0][7:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
+  wire              [7:0] NIRS_CTRL_INT       [NO_OF_NIRS-1:0];
+  wire   [NO_OF_NIRS-1:0] NIRS_INT_CLR;
+  wire              [7:0] NIRS_CTRL           [NO_OF_NIRS-1:0][1:0][6:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
   wire              [7:0] NIRS_CTRL_ADJ       [2:0];
   wire              [7:0] NIRS_DOUT           [NO_OF_NIRS-1:0][3:0];
   wire              [7:0] NIRS_DEBUG          [NO_OF_NIRS-1:0][4:0];
+  wire   [NO_OF_NIRS-1:0] NIRS_INT;
+
 
 modport nirs (
   input   NIRS_CTRL_MODE,
   input   NIRS_CTRL_CMD,
+  input   NIRS_CTRL_INT,
+  input   NIRS_INT_CLR,
   input   NIRS_CTRL,
   input   NIRS_CTRL_ADJ,
   output  NIRS_DOUT,
-  output  NIRS_DEBUG
+  output  NIRS_DEBUG,
+  output  NIRS_INT
 );
 
 modport spi (
   output  NIRS_CTRL_MODE,
   output  NIRS_CTRL_CMD,
+  output  NIRS_CTRL_INT,
+  output  NIRS_INT_CLR,
   output  NIRS_CTRL,
   output  NIRS_CTRL_ADJ,
   input   NIRS_DOUT,
-  input   NIRS_DEBUG
+  input   NIRS_DEBUG,
+  input   NIRS_INT
 );
 endinterface

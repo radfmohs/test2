@@ -211,7 +211,7 @@ assign down_rate = (cic_rate == 4'b000) ? 17'h7:
   //eco out ?
   reg [2:0]cont_dely;
   wire cont_dely_en;
-  assign cont_dely_en = (cont_dely < 3'h4) & sample;
+  assign cont_dely_en = (cont_dely < 3'h3) & sample;
 
   always @(posedge clk or negedge resetn)
     if(!resetn)
@@ -225,7 +225,7 @@ assign down_rate = (cic_rate == 4'b000) ? 17'h7:
   always @(posedge clk or negedge resetn)
     if(!resetn)
       eoc_out_reg <= 1'b0;
-    else if(cont_dely == 3'h4)
+    else if(cont_dely == 3'h3)
       eoc_out_reg <= sample;
     else
       eoc_out_reg <= eoc_out_reg;

@@ -73,6 +73,10 @@ module filter_iir_hpf
                 sign_en,
                 bypass,
                 coeff,
+		cur_count,
+		prod,
+                inputmux_section_1,
+                coeffmux_section_1,		
                 filter_in,
                 filter_out
                 );
@@ -83,8 +87,13 @@ module filter_iir_hpf
   input                 sign_en;
   input                 bypass;
   input          [23:0] coeff;
-  input   signed [31:0] filter_in; //sfix33
-  output  signed [31:0] filter_out; //sfix33
+  input   signed [23:0] filter_in; //sfix33
+  output  signed [23:0] filter_out; //sfix33
+  input  wire   [2:0]  cur_count;
+  input wire  signed [69:0]   prod;
+  output wire signed [45:0] inputmux_section_1;
+  output wire signed [23:0] coeffmux_section_1;
+  
 
 ////////////////////////////////////////////////////////////////
 //Module Architecture: filter
@@ -92,89 +101,207 @@ module filter_iir_hpf
   // Local Functions
   // Type Definitions
   // Constants
+
+
+
   wire      signed [23:0] scaleconst1 = coeff; // sfix24_En23
   parameter signed [23:0] coeff_b1_section1 = 24'b010000000000000000000000; //sfix24_En22
   parameter signed [23:0] coeff_b2_section1 = 24'b110000000000000000000000; //sfix24_En22
   parameter signed [23:0] coeff_b3_section1 = 24'b000000000000000000000000; //sfix24_En22
-  wire      signed [23:0] coeff_a2_section1 = coeff_b1_section1 - coeff; // sfix24_En22
+  wire      signed [23:0] coeff_a2_section1 = coeff_b1_section1 - (coeff<<1); // sfix24_En22
   parameter signed [23:0] coeff_a3_section1 = 24'b000000000000000000000000; //sfix24_En22
+
+
+
+
   // Signals
-  wire signed [32:0] input_typeconvert; // sfix33_En32
-  wire signed [56:0] scale1; // sfix57_En55
-  wire signed [32:0] scaletypeconvert1; // sfix33_En32
-  //   -- Section 1 Signals 
-  wire signed [75:0] a1sum1; // sfix76_En39
-  wire signed [75:0] b1sum1; // sfix76_En39
-  wire signed [49:0] a1sumtypeconvert1; // sfix50_En17
-  reg  signed [49:0] delay_section1; // sfix50_En17
-  wire signed [75:0] inputconv1; // sfix76_En39
-  wire signed [73:0] a2mul1; // sfix74_En39
-  wire signed [73:0] b2mul1; // sfix74_En39
-  wire signed [50:0] unaryminus_temp; // sfix51_En17
-  wire signed [75:0] sub_cast; // sfix76_En39
-  wire signed [75:0] sub_cast_1; // sfix76_En39
-  wire signed [76:0] sub_temp; // sfix77_En39
-  wire signed [75:0] b1multypeconvert1; // sfix76_En39
-  wire signed [75:0] add_cast; // sfix76_En39
-  wire signed [75:0] add_cast_1; // sfix76_En39
-  wire signed [76:0] add_temp; // sfix77_En39
-  wire signed [32:0] output_typeconvert; // sfix33_En32
-  reg  signed [32:0] output_register; // sfix33_En32
+  reg  signed [24:0] input_register; // sfix25_En24
+//  reg  [2:0] cur_count; // ufix3
+  wire phase_0; // boolean
+  wire phase_2; // boolean
+  wire phase_3; // boolean
+  wire phase_5; // boolean
+  wire signed [24:0] sectionipconvert; // sfix25_En24
+  wire signed [45:0] storagetypeconvert; // sfix46_En24
+  reg  signed [45:0] storage_state_in1; // sfix46_En24
+  reg  signed [45:0] delay_section1 [0:1] ; // sfix46_En24
+  wire signed [45:0] input_section1_cast; // sfix46_En24
+  wire signed [45:0] storage_in_section1_cast; // sfix46_En24
+  wire signed [45:0] delay_section11_cast; // sfix46_En24
+  wire signed [45:0] delay_section12_cast; // sfix46_En24
+//  wire signed [45:0] inputmux_section_1; // sfix46_En24
+//  wire signed [23:0] coeffmux_section_1; // sfix24_En22
+//  wire signed [69:0] prod; // sfix70_En46
+  wire signed [69:0] prod_den; // sfix70_En46
+  wire signed [71:0] prod_den_cast_temp; // sfix72_En46
+  wire signed [71:0] prod_den_cast; // sfix72_En46
+  wire signed [71:0] prod_den_cast_neg; // sfix72_En46
+  wire signed [72:0] unaryminus_temp; // sfix73_En46
+  wire signed [69:0] prod_num; // sfix70_En46
+  wire signed [71:0] prod_num_cast_temp; // sfix72_En46
+  wire signed [71:0] prod_num_cast; // sfix72_En46
+  wire signed [71:0] accum_mux_in1; // sfix72_En46
+  wire signed [71:0] accum_mux_in2; // sfix72_En46
+  wire signed [71:0] accum_mux_out; // sfix72_En46
+  wire signed [71:0] accum_mux_in1_temp; // sfix72_En46
+  wire signed [71:0] sectionipconvert_cast; // sfix72_En46
+  wire final_phase; // boolean
+  wire section_phase; // boolean
+  reg  signed [71:0] accum_reg; // sfix72_En46
+  wire signed [71:0] add_cast; // sfix72_En46
+  wire signed [71:0] add_cast_1; // sfix72_En46
+  wire signed [72:0] add_temp; // sfix73_En46
+  wire signed [71:0] acc_out_cast_numacc; // sfix72_En46
+  wire signed [24:0] output_typeconvert; // sfix25_En24
+  reg  signed [24:0] output_register; // sfix25_En24
 
   // Block Statements
-//  assign input_typeconvert = ~sign_en ? (filter_in==32'hffff_ffff)? 33'h8000_0000 :  (filter_in==32'h7fff_ffff)? 33'h0 : $signed({{2{~filter_in[31]}},filter_in[30:0]+1'b1}) : {{2{filter_in[31]}},filter_in[30:0]};
-    assign input_typeconvert = ~sign_en?  $signed({1'b0,filter_in})-33'sh0_8000_0000 : {{2{filter_in[31]}},filter_in[30:0]};
+  always @ (posedge clk or negedge reset_n)
+    begin: input_reg_process
+      if (reset_n == 1'b0) begin
+        input_register <= 0;
+      end
+      else begin
+        if (clk_enable == 1'b1) begin
+          input_register <=  ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
+        end
+      end
+    end // input_reg_process
 
-  assign scale1 = input_typeconvert * scaleconst1;
+//  always @ (posedge clk or negedge reset_n)
+//    begin: Counter_process
+//      if (reset_n == 1'b0) begin
+//        cur_count <= 3'b000;
+//      end
+//      else begin
+//        if (clk_enable == 1'b1) begin
+//          if (cur_count >= 3'b101) begin
+//            cur_count <= 3'b000;
+//          end
+//          else begin
+//            cur_count <= cur_count + 3'b001;
+//          end
+//        end
+//      end
+//    end // Counter_process
 
-  assign scaletypeconvert1 = ((scale1[56] == 1'b0 & scale1[55] != 1'b0) || (scale1[56] == 1'b0 && scale1[55:23] == 33'b011111111111111111111111111111111) // special case0
-) ? 33'b011111111111111111111111111111111 : 
-      (scale1[56] == 1'b1 && scale1[55] != 1'b1) ? 33'b100000000000000000000000000000000 : (scale1[55:0] + {scale1[23], {22{~scale1[23]}}})>>>23;
+  assign  phase_0 = (cur_count == 3'b000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  //   ------------------ Section 1 (First Order) ------------------
+  assign  phase_2 = (cur_count == 3'b010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign a1sumtypeconvert1 = ((a1sum1[75] == 1'b0 & a1sum1[74:71] != 4'b0000) || (a1sum1[75] == 1'b0 && a1sum1[71:22] == 50'b01111111111111111111111111111111111111111111111111) // special case0
-) ? 50'b01111111111111111111111111111111111111111111111111 : 
-      (a1sum1[75] == 1'b1 && a1sum1[74:71] != 4'b1111) ? 50'b10000000000000000000000000000000000000000000000000 : (a1sum1[71:0] + {a1sum1[22], {21{~a1sum1[22]}}})>>>22;
+  assign  phase_3 = (cur_count == 3'b011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+
+  assign  phase_5 = (cur_count == 3'b101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
   always @ (posedge clk or negedge reset_n)
     begin: delay_process_section1
       if (reset_n == 1'b0) begin
-        delay_section1 <= 0;
+        delay_section1[0] <= 46'h000000000000;
+        delay_section1[1] <= 46'h000000000000;
       end
       else begin
-        if (clk_enable == 1'b1) begin
-          delay_section1 <= a1sumtypeconvert1;
+        if (phase_0 == 1'b1) begin
+          delay_section1[1] <= delay_section1[0];
+          delay_section1[0] <= storage_state_in1;
         end
       end
     end // delay_process_section1
 
-  assign inputconv1 = $signed({scaletypeconvert1, 7'b0000000});
+  // Making common precision for input and state 
+  assign input_section1_cast = $signed({{21{input_register[24]}}, input_register});
 
-  assign a2mul1 = delay_section1 * coeff_a2_section1;
+  assign delay_section11_cast = delay_section1[0];
 
-  assign unaryminus_temp = (delay_section1==50'b10000000000000000000000000000000000000000000000000) ? $signed({1'b0, delay_section1}) : -delay_section1;
-  assign b2mul1 = $signed({unaryminus_temp, 22'b0000000000000000000000});
+  assign delay_section12_cast = delay_section1[1];
 
-  assign sub_cast = inputconv1;
-  assign sub_cast_1 = $signed({{2{a2mul1[73]}}, a2mul1});
-  assign sub_temp = sub_cast - sub_cast_1;
-  assign a1sum1 = ((sub_temp[76] == 1'b0 & sub_temp[75] != 1'b0) || (sub_temp[76] == 1'b0 && sub_temp[75:0] == 76'b0111111111111111111111111111111111111111111111111111111111111111111111111111) // special case0
-) ? 76'b0111111111111111111111111111111111111111111111111111111111111111111111111111 : 
-      (sub_temp[76] == 1'b1 && sub_temp[75] != 1'b1) ? 76'b1000000000000000000000000000000000000000000000000000000000000000000000000000 : sub_temp[75:0];
+  assign storage_in_section1_cast = storage_state_in1;
 
-  assign b1multypeconvert1 = $signed({a1sumtypeconvert1, 22'b0000000000000000000000});
+  assign inputmux_section_1 = (cur_count == 3'b000) ? input_section1_cast :
+                             (cur_count == 3'b001) ? delay_section11_cast :
+                             (cur_count == 3'b010) ? delay_section12_cast :
+                             (cur_count == 3'b011) ? storage_in_section1_cast :
+                             (cur_count == 3'b100) ? delay_section11_cast :
+                             delay_section12_cast;
 
-  assign add_cast = b1multypeconvert1;
-  assign add_cast_1 = $signed({{2{b2mul1[73]}}, b2mul1});
+  assign coeffmux_section_1 = (cur_count == 3'b000) ? scaleconst1 :
+                             (cur_count == 3'b001) ? coeff_a2_section1 :
+                             (cur_count == 3'b010) ? coeff_a3_section1 :
+                             (cur_count == 3'b011) ? coeff_b1_section1 :
+                             (cur_count == 3'b100) ? coeff_b2_section1 :
+                             coeff_b3_section1;
+
+//  assign prod = inputmux_section_1 * coeffmux_section_1;
+
+  assign prod_den = prod;
+
+  assign prod_den_cast_temp = $signed({{2{prod_den[69]}}, prod_den});
+
+  assign prod_den_cast = prod_den_cast_temp;
+
+  assign unaryminus_temp = (prod_den_cast==72'b100000000000000000000000000000000000000000000000000000000000000000000000) ? $signed({1'b0, prod_den_cast}) : -prod_den_cast;
+  assign prod_den_cast_neg = unaryminus_temp[71:0];
+
+  assign prod_num = prod;
+
+  assign prod_num_cast_temp = $signed({{2{prod_num[69]}}, prod_num});
+
+  assign prod_num_cast = prod_num_cast_temp;
+
+  assign accum_mux_in1 = (cur_count == 3'b000) ? prod_num_cast :
+                        (cur_count == 3'b001) ? prod_den_cast_neg :
+                        (cur_count == 3'b010) ? prod_den_cast_neg :
+                        (cur_count == 3'b011) ? prod_num_cast :
+                        (cur_count == 3'b100) ? prod_num_cast :
+                        prod_num_cast;
+
+  assign final_phase =  phase_0 | phase_3;
+
+  assign section_phase =  phase_0;
+
+  assign accum_mux_in1_temp = (section_phase == 1'b1) ? sectionipconvert_cast :
+                             accum_mux_in1;
+
+  assign accum_mux_out = (final_phase == 1'b1) ? accum_mux_in1_temp :
+                        accum_mux_in2;
+
+  always @ (posedge clk or negedge reset_n)
+    begin: accumulator_reg_process
+      if (reset_n == 1'b0) begin
+        accum_reg <= 0;
+      end
+      else begin
+        if (clk_enable == 1'b1) begin
+          accum_reg <= accum_mux_out;
+        end
+      end
+    end // accumulator_reg_process
+
+  assign add_cast = accum_reg;
+  assign add_cast_1 = accum_mux_in1;
   assign add_temp = add_cast + add_cast_1;
-  assign b1sum1 = ((add_temp[76] == 1'b0 & add_temp[75] != 1'b0) || (add_temp[76] == 1'b0 && add_temp[75:0] == 76'b0111111111111111111111111111111111111111111111111111111111111111111111111111) // special case0
-) ? 76'b0111111111111111111111111111111111111111111111111111111111111111111111111111 : 
-      (add_temp[76] == 1'b1 && add_temp[75] != 1'b1) ? 76'b1000000000000000000000000000000000000000000000000000000000000000000000000000 : add_temp[75:0];
+  assign accum_mux_in2 = add_temp[71:0];
 
-  assign output_typeconvert = ((b1sum1[75] == 1'b0 & b1sum1[74:39] != 36'h000000000) || (b1sum1[75] == 1'b0 && b1sum1[39:7] == 33'b011111111111111111111111111111111) // special case0
-) ? 33'b011111111111111111111111111111111 : 
-      (b1sum1[75] == 1'b1 && b1sum1[74:39] != 36'b111111111111111111111111111111111111) ? 33'b100000000000000000000000000000000 : (b1sum1[39:0] + {b1sum1[7], {6{~b1sum1[7]}}})>>>7;
+  assign storagetypeconvert = (accum_mux_out[67:0] + {accum_mux_out[22], {21{~accum_mux_out[22]}}})>>>22;
+
+  assign sectionipconvert = (prod[46:0] + {prod[22], {21{~prod[22]}}})>>>22;
+
+  assign sectionipconvert_cast = $signed({sectionipconvert[24:0], 22'b0000000000000000000000});
+
+  assign acc_out_cast_numacc = accum_mux_out;
+
+  assign output_typeconvert = (acc_out_cast_numacc[46:0] + {acc_out_cast_numacc[22], {21{~acc_out_cast_numacc[22]}}})>>>22;
+
+  always @ (posedge clk or negedge reset_n)
+    begin: storage_reg1_process
+      if (reset_n == 1'b0) begin
+        storage_state_in1 <= 0;
+      end
+      else begin
+        if (phase_2 == 1'b1) begin
+          storage_state_in1 <= storagetypeconvert;
+        end
+      end
+    end // storage_reg1_process
 
   always @ (posedge clk or negedge reset_n)
     begin: Output_Register_process
@@ -182,14 +309,17 @@ module filter_iir_hpf
         output_register <= 0;
       end
       else begin
-        if (clk_enable == 1'b1) begin
+        if (phase_5 == 1'b1) begin
           output_register <= output_typeconvert;
         end
       end
     end // Output_Register_process
 
   // Assignment Statements
-  wire [31:0] output_register_tmp; 
-  assign output_register_tmp = (output_register[32:31]==2'b10)? 32'h8000_0000 : (output_register[32:31]==2'b01)? 32'h7fff_ffff : output_register[31:0];
-  assign filter_out  = bypass? filter_in : ~sign_en ? output_register_tmp[31:0] + 32'h8000_0000 : output_register_tmp[31:0];
+ 
+   wire [23:0] output_register_temp; 
+ assign output_register_temp = (output_register[24:23]==2'b10)? 24'h80_0000 : (output_register[24:23]==2'b01)? 24'h7f_ffff : output_register[23:0];
+ assign filter_out = bypass? filter_in : ~sign_en? output_register_temp[23:0] + 24'h80_0000 : output_register_temp[23:0];
+
+
 endmodule  // filter

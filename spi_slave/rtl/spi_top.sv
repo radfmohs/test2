@@ -45,7 +45,7 @@ module spi_top#(
   output               o_miso,
 
 //bps imeas
-  input  wire[31:0]    imeas_chdata[EEG_CHN_NUM-1:0],
+  input  wire[23:0]    imeas_chdata[EEG_CHN_NUM-1:0],
   input                i_imeas_done,
   output  wire         reset_cmd,
   output  wire         start_cmd,
@@ -210,7 +210,8 @@ module spi_top#(
   //gpio
   output wire [7:0]    gpio_pu_ctrl,
   output wire [7:0]    gpio_pd_ctrl,
-  output wire [2:0]    gpio_sr_pdrv0_1_ctrl
+  output wire [2:0]    gpio_sr_pdrv0_1_ctrl,
+  output wire          gpio_nirs_out_ctrl
 
 //analog register outputs
 
@@ -545,7 +546,8 @@ spi_reg_u (
 //----GPIO-------
   .gpio_pu_ctrl(gpio_pu_ctrl),	
   .gpio_pd_ctrl(gpio_pd_ctrl),
-  .gpio_sr_pdrv0_1_ctrl(gpio_sr_pdrv0_1_ctrl)
+  .gpio_sr_pdrv0_1_ctrl(gpio_sr_pdrv0_1_ctrl),
+  .gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl)
 
 //-------Analog Register Output----------
 //.o_D2A_ANA_GEN_REG_0	(o_D2A_ANA_GEN_REG_0),

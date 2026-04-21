@@ -41,10 +41,10 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic        clear_intr_manual_or_auto;
   rand logic        intr_length_slct_level_or_pulse;
   rand logic [`FILTER_NUM - 1 :0] imeas_en_dis_ch; // 0: enable, 1 :disbale
-       logic [`FILTER_DATA_WIDTH:0] act_chdata;
-       logic [`FILTER_DATA_WIDTH:0] act_chdata_combined [256];
-       logic [`FILTER_DATA_WIDTH:0] act_chdata_combined_rdatac [3000][`FILTER_NUM];
-       logic [`FILTER_DATA_WIDTH:0] exp_chdata_combined_rdatac [3000][`FILTER_NUM];
+       logic [31:0] act_chdata;
+       logic [31:0] act_chdata_combined [256];
+       logic [31:0] act_chdata_combined_rdatac [5000][`FILTER_NUM];
+       logic [31:0] exp_chdata_combined_rdatac [5000][`FILTER_NUM];
        logic        eeg_int_sts;
   rand logic        eeg_int_sts_en;
   rand logic        eeg_int_en;
@@ -206,7 +206,7 @@ class `TESTNAME extends soc_base_test;
   int data_bytes_per_sample;
   bit [39:0] act_status_bits;
   bit [39:0] exp_status_bits;
-  logic [`FILTER_DATA_WIDTH:0] exp_chdata[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH-1:0] exp_chdata[`FILTER_NUM-1:0] ;
 
   function new(string name, nnc_component parent);
     super.new(name, parent);
@@ -657,8 +657,9 @@ class `TESTNAME extends soc_base_test;
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_IMEAS_DATA_0; no_of_bytes == 4;});
     `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
   
-    for (int j = 0;j < 4 ;j++)begin  //latest - 24 bits . older - 32 bits
-      top_test_cfg.act_chdata[`FILTER_DATA_WIDTH - j*8 -: 8] = top_test_cfg.rd_data[j];
+    for (int j = 0;j < 4 ;j++)begin  
+      `nnc_info("SOC_TEST", $sformatf("top_test_cfg.rd_data[%0d] = %0h",j, top_test_cfg.rd_data[j]), NNC_LOW)
+      top_test_cfg.act_chdata[31 - j*8 -: 8] = top_test_cfg.rd_data[j];
     end
     
     if (reset_check === 1)begin
@@ -928,7 +929,7 @@ class `TESTNAME extends soc_base_test;
             end
           end
           else begin
-           data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*3) - 5 - (`DUT_IF.max_ch_dev1*3) - 5; 
+           data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*3) - 5 - (`DUT_IF.max_ch_dev2*3) - 5; 
 	   `nnc_info("SOC_TEST", $sformatf(" DEV3 data_bytes_loc = [%0d]",data_bytes_loc), NNC_LOW)
             for(int i = 0;i < `DUT_IF.max_ch_dev2 ;i++)begin
               for (int j = 0;j < 3 ;j++)begin  //24 bits
@@ -972,7 +973,7 @@ class `TESTNAME extends soc_base_test;
         for(int k = 0; k < `DUT_IF.max_ch_dev1;k++)begin
           if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k]))
              //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k][31:8])))begin
-             || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k])))begin
+             || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k])))begin
              `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for exp_chdata[sample_%0d][ch_%0d] = %h, act_chdata_combined[sample_%0d][ch_%0d]=%0h",j,k,top_test_cfg.exp_chdata_combined_rdatac[j][k],j,k,top_test_cfg.act_chdata_combined_rdatac[j][k]))
           end
           else begin
@@ -1052,7 +1053,7 @@ class `TESTNAME extends soc_base_test;
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])) 
            //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k][31:8])))begin
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k]))
         end
         else begin
@@ -1065,7 +1066,7 @@ class `TESTNAME extends soc_base_test;
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1] !== exp_chdata[k])) 
            //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k][31:8])))begin
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1]!== exp_chdata[k])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1]))
         end
         else begin
@@ -1078,7 +1079,7 @@ class `TESTNAME extends soc_base_test;
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
         if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])) 
            //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k][31:8])))begin
-           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])))begin
+           || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2]))
         end
         else begin
@@ -1182,6 +1183,7 @@ class `TESTNAME extends soc_base_test;
      super.post_main_phase(phase);
 
      if(`DUT_IF.imeas_sin_gen_en === 1)
+        `nnc_info("SOC_TEST", "\n\n\t\t\t\t\t\t\t\t\t\tEnable Python!!!", NNC_LOW) 
      	`SOC_TB.py_tb.do_run_python();
 
      phase.drop_objection(this);

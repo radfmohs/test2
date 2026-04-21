@@ -15,6 +15,7 @@
 // -------------------------------------------------
 `define TESTNAME soc_nirs_ppg_base_test
 `define TESTCFG soc_nirs_ppg_base_test_cfg
+ logic [7:0]     NO_OF_BYTES; 
 
 class `TESTCFG extends soc_base_test_cfg;
 
@@ -31,52 +32,206 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
- 
   ///NIRS_CTRL_ADDRESS
-  rand logic [2:0] nirs_addr_channel_en;
-  //NIRS_CTRL_0  
-  rand logic [3:0] nirs_ppg_mode_sel;
-  //rand bit         nirs_ppg_meas;
-  //rand bit         nirs_ppg_en;
-  rand logic [1:0] ratio_ctrl; 
-  rand logic       ratio_mode;
-  //NIRS_CTRL_1
-  rand logic [7:0] ratio_manual; //ratio for DOUT
-  //NIRS_CTRL_2
+  //rand logic [2:0] nirs_addr_channel_en;
+  //nirs_ctrl_channel
+  rand bit         en_config_ch0;
+  rand bit         en_config_ch1;
+  rand bit         en_config_ch2;
+  rand bit         en_config_ch3;  
+  rand bit         en_config_ch4;
+  rand bit         en_config_ch5;
+  rand bit         en_config_ch6;
+  rand bit         en_config_ch7;
+  //nirs_ctrl_led
+  rand bit         en_config_led0;
+  rand bit         en_config_led1;
+
+  //NIRS_CTRL_0
   rand logic [3:0] on_time_sel;
   rand logic [3:0] period_ctrl;
-  //NIRS_CTRL_3
-  rand logic [2:0] led_off_time_after_ipd_sw; 
-  rand logic [2:0] recv_stable_time_ctrl;
-  rand logic [2:0] reset_on_time_ctrl;
-  //NIRS_CTRL_4
+
+  //NIRS_CTRL_1
+  rand logic [1:0] led_off_time_after_ipd_sw; 
+  //rand logic [2:0] recv_stable_time_ctrl;
   rand logic [2:0] led_stable_time_beforeipd_sw;
-  rand logic       idac_manual_8;                  
-  rand logic       idac_manual_en;
+  rand logic [2:0] reset_on_time_ctrl;            
+  
+  //NIRS_CTRL_2
+  rand logic [8:0] idac_manual_8_0;
+
+  //NIRS_CTRL_3
+  //
+  rand bit         idac_manual_en;
+  rand bit         idac_en;
+  rand logic [2:0] threshold_h_18_16;
+  //NIRS_CTRL_4
+  //NIRS_CTRL_4
+  rand logic [7:0] threshold_h_15_8; 
+
   //NIRS_CTRL_5
-  rand logic [7:0] idac_manual_7_0;
+  rand logic [7:0] threshold_h_7_0; 
+
   //NIRS_CTRL_6
-  rand logic [7:0] threshold_h_18_11;
+  rand logic [7:0] threshold_l_7_0;
+
   //NIRS_CTRL_7
-  rand logic [7:0] threshold_h_10_3;
-  //NIRS_CTRL_8
-  rand logic [2:0] threshold_h_2_0; 
-  rand logic [4:0] threshold_l_7_3;
-  //NIRS_CTRL_9
-  rand logic [2:0] threshold_l_2_0;
-  //NIRS_CTRL_10
-  rand logic       nirs_int_reg_en;
-  rand logic       nirs_int_pin_en;
-  //NIRS_CTRL_11: RESERVED
-  //rand bit         nirs_idac_manual_autmatic;
-  //NIRS_CTRL_12
-  //rand logic [1:0] nirs_manual_value_of_idac;
+  rand bit         idac_min_int_en;
+  rand bit         idac_max_int_en;
+  rand bit         iref_fine_on_not_off_en;
+  rand bit         iref_fine_not_on_en;
+  rand bit         iref_coarse_en;
+  rand bit         data_ready_en;
+  rand bit         nirs_int_pin_en;             
+
+  //nirs_ctrl_mode
+  rand logic [3:0] nirs_ppg_mode_sel;
+  rand bit         nirs_ppg_led_signle_en;
+
+  //nirs_ctrl_adj0
+  rand bit         pdbias_en;
+  rand logic [1:0] pdbias_adj;
+  rand logic [1:0] fchop_adj;
+  rand bit         chopper_en;
+  rand bit         test_en;
+  //nirs_ctrl_adj1
+  rand logic [1:0] ipdmirror_ratio_adj;
+  rand logic [1:0] iref_ratio_adj;  
+  rand logic [1:0] ratio_ctrl; 
+  rand bit         ratio_mode;        
+  //nirs_ctrl_adj2
+  rand logic [7:0] ratio_manual;
+
   //NIRS_CLK_CTRL
   rand bit         ana_ppg_rst_reg;
   rand bit         ana_ppg_clk50duty; 
   rand logic [1:0] ana_ppg_clk_div;
   rand logic       ana_ppg_clk_inv;
   rand logic       ppg_dis;
+
+  //nirs_ctrl_cmd
+  rand logic [1:0] nirs_ppg_cmd;
+ 
+  //nirs_debug_sel
+  rand bit         debug_led;
+  rand logic [3:0] debug_channel;
+
+  //nirs_debug_0
+  logic [7:0]      read_nirs_debug_0;
+  //nirs_debug_1
+  logic [7:0]      read_nirs_debug_1;
+  //nirs_debug_2
+  logic [7:0]      read_nirs_debug_2;
+  //nirs_debug_3
+  logic [7:0]      read_nirs_debug_3;
+  //nirs_debug_3
+  logic [7:0]      read_nirs_debug_4;
+
+  //nirs_int_status
+  logic [7:0]      read_nirs_status;
+
+  //nirs_dout0_0 
+  logic [7:0]      read_nirs_dout0_0;
+  //nirs_dout0_1
+  logic [7:0]      read_nirs_dout0_1;
+  //nirs_dout0_2
+  logic [7:0]      read_nirs_dout0_2;
+  //nirs_dout0_3
+  logic [7:0]      read_nirs_dout0_3;
+
+  //nirs_dout1_0 
+  logic [7:0]      read_nirs_dout1_0;
+  //nirs_dout1_1
+  logic [7:0]      read_nirs_dout1_1;
+  //nirs_dout1_2
+  logic [7:0]      read_nirs_dout1_2;
+  //nirs_dout1_3
+  logic [7:0]      read_nirs_dout1_3;
+
+  //nirs_dout2_0
+  logic [7:0]      read_nirs_dout2_0; 
+  //nirs_dout2_1
+  logic [7:0]      read_nirs_dout2_1;
+  //nirs_dout2_2
+  logic [7:0]      read_nirs_dout2_2;
+  //nirs_dout2_3
+  logic [7:0]      read_nirs_dout2_3;
+
+  //nirs_dout3_0
+  logic [7:0]      read_nirs_dout3_0; 
+  //nirs_dout3_1
+  logic [7:0]      read_nirs_dout3_1;
+  //nirs_dout3_2
+  logic [7:0]      read_nirs_dout3_2;
+  //nirs_dout3_3
+  logic [7:0]      read_nirs_dout3_3;
+
+  //nirs_dout4_0 
+  logic [7:0]      read_nirs_dout4_0;
+  //nirs_dout4_1
+  logic [7:0]      read_nirs_dout4_1;
+  //nirs_dout4_2
+  logic [7:0]      read_nirs_dout4_2;
+  //nirs_dout4_3
+  logic [7:0]      read_nirs_dout4_3;
+
+  //nirs_dout5_0
+  logic [7:0]      read_nirs_dout5_0; 
+  //nirs_dout5_1
+  logic [7:0]      read_nirs_dout5_1;
+  //nirs_dout5_2
+  logic [7:0]      read_nirs_dout5_2;
+  //nirs_dout5_3
+  logic [7:0]      read_nirs_dout5_3;
+
+  //nirs_dout6_0
+  logic [7:0]      read_nirs_dout6_0; 
+  //nirs_dout6_1
+  logic [7:0]      read_nirs_dout6_1;
+  //nirs_dout6_2
+  logic [7:0]      read_nirs_dout6_2;
+  //nirs_dout6_3
+  logic [7:0]      read_nirs_dout6_3;
+
+  //nirs_dout7_0
+  logic [7:0]      read_nirs_dout7_0; 
+  //nirs_dout7_1
+  logic [7:0]      read_nirs_dout7_1;
+  //nirs_dout7_2
+  logic [7:0]      read_nirs_dout7_2;
+  //nirs_dout7_3
+  logic [7:0]      read_nirs_dout7_3;
+
+  ////NIRS_CTRL_0  
+  //rand logic [3:0] nirs_ppg_mode_sel;
+  ////rand bit         nirs_ppg_meas;
+  ////rand bit         nirs_ppg_en;
+  //rand logic [1:0] ratio_ctrl; 
+  //rand logic       ratio_mode;
+  ////NIRS_CTRL_1
+  //rand logic [7:0] ratio_manual; //ratio for DOUT
+  //NIRS_CTRL_4
+  //rand logic [2:0] led_stable_time_beforeipd_sw;
+  //rand logic       idac_manual_8;                  
+  //rand logic       idac_manual_en;
+  //NIRS_CTRL_5
+  //rand logic [7:0] idac_manual_7_0;
+  //NIRS_CTRL_6
+  //rand logic [7:0] threshold_h_18_11;
+  //NIRS_CTRL_7
+  //rand logic [7:0] threshold_h_10_3;
+  //NIRS_CTRL_8
+  //rand logic [2:0] threshold_h_2_0; 
+  //rand logic [4:0] threshold_l_7_3;
+  //NIRS_CTRL_9
+  //rand logic [2:0] threshold_l_2_0;
+  //NIRS_CTRL_10
+  //rand logic       nirs_int_reg_en;
+  //rand logic       nirs_int_pin_en;
+  //NIRS_CTRL_11: RESERVED
+  //rand bit         nirs_idac_manual_autmatic;
+  //NIRS_CTRL_12
+  //rand logic [1:0] nirs_manual_value_of_idac;
   //NIRS_CTRL_EN
   rand logic       nirs_ppg_en0;
   rand logic       nirs_ppg_en1;
@@ -126,68 +281,126 @@ class `TESTCFG extends soc_base_test_cfg;
   constraint c_mask        { soft mask == 8'hff; }
 
  //********************************************************************************************************
- //************************************NIRS_PPG Related constarints****************************************
+ //************************************NIRS_PPG Related constarints starts****************************************
  //********************************************************************************************************
+  //nirs_ctrl_channel
+  constraint c_en_config_ch0  {en_config_ch0 inside {0,1};}
+  constraint c_en_config_ch1  {en_config_ch1 inside {0,1};}
+  constraint c_en_config_ch2  {en_config_ch2 inside {0,1};}
+  constraint c_en_config_ch3  {en_config_ch3 inside {0,1};}
+  constraint c_en_config_ch4  {en_config_ch4 inside {0,1};}
+  constraint c_en_config_ch5  {en_config_ch5 inside {0,1};}
+  constraint c_en_config_ch6  {en_config_ch6 inside {0,1};}
+  constraint c_en_config_ch7  {en_config_ch7 inside {0,1};}
+
+  //nirs_ctrl_led
+  constraint c_en_config_led0 {en_config_led0 inside {0,1};}
+  //make sure atleast one led enabled, if led0 ==0 then enable led1==1 otheriwse led1 can be 0/1
+  constraint c_en_config_led1 {(en_config_led0 == 0) -> (en_config_led1 == 1);}
+
+  //nirs_ctrl_0
+  constraint c_on_time_sel        {on_time_sel inside {[0:15]};}
+  constraint c_period_ctrl        {period_ctrl inside {[0:15]};}
+
+  //NIRS_CTRL_1
+  constraint c_led_off_time_after_ipd_sw      {led_off_time_after_ipd_sw inside {[0:3]};} 
+  constraint c_led_stable_time_beforeipd_sw   {led_stable_time_beforeipd_sw  inside {[0:7]};}
+  constraint c_reset_on_time_ctrl             {reset_on_time_ctrl inside {[0:7]}; }
+
+  //NIRS_CTRL_2, NIRS_CTRL_3
+  constraint c_idac_manual_8_0               {idac_manual_8_0 inside {[0:511]};}
+ 
+  constraint c_idac_manual_en                {idac_manual_en == 0;}
+  constraint c_idac_en                       {idac_en inside {0,1};}  //for analog
+  constraint c_threshold_h_18_16             {threshold_h_18_16  inside {[0:7]};}
+
+  //NIRS_CTRL_4
+  constraint c_threshold_h_15_8              {threshold_h_15_8  inside {[0:127]};}
+
+  //NIRS_CTRL_5
+  constraint c_threshold_h_7_0               {threshold_h_7_0  inside {[0:127]};}
+
+  //NIRS_CTRL_6
+  constraint c_threshold_l_7_0               {threshold_l_7_0  inside {[0:127]};}
+ 
+  //NIRS_CTRL_7
+  constraint c_idac_min_int_en              {idac_min_int_en inside {0,1};}            
+  constraint c_idac_max_int_en              {idac_max_int_en inside {0,1};}
+  constraint c_iref_fine_on_not_off_en      {iref_fine_on_not_off_en inside {0,1};}
+  constraint c_iref_fine_not_on_en          {iref_fine_not_on_en inside {0,1};}
+  constraint c_iref_coarse_en               {iref_coarse_en inside {0,1};}
+  constraint c_data_ready_en                {data_ready_en inside {0,1};}
+  constraint c_nirs_int_pin_en              {nirs_int_pin_en inside {0,1}; }           
+  
+  //NIRS_CTRL_MODE  
+  constraint c_nirs_ppg_mode_sel            {nirs_ppg_mode_sel inside {0,4,2,6,1,9,11,13,15,8,10,12,14};}
+  constraint c_nirs_ppg_led_signle_en       {nirs_ppg_led_signle_en inside {0, 1};}
+
+  //NIRS-CTRL-ADJ0
+
+  //NIRS_CTRL_ADJ1
+  constraint c_ratio_mode         {ratio_mode  inside {[0:1]};}      //ratio_mode=0: automatic, ration_mode=1: manual
+  constraint c_ratio_ctrl          {ratio_ctrl  inside {[0:3]};}     //this for automatic ration if ration_mode=0, 0-128, 1-64, 2-32, 3-16
+
+  //NIRS_CTRL_ADJ2
+  constraint c_ratio_manual        {ratio_manual inside{[0:255]};}   //this ratio manual will be used if ratio_mode has been set to 1
+
+  constraint c_ana_ppg_rst_reg    {ana_ppg_rst_reg ==1'b0;}
+  constraint c_ana_ppg_clk_div    {ana_ppg_clk_div inside {[0:3]};}
+  constraint c_ana_ppg_clk50duty  {solve ana_ppg_clk_div before ana_ppg_clk50duty;
+                                  (ana_ppg_clk_div inside {2,3}) -> ana_ppg_clk50duty == 1'b1;   
+                                  (ana_ppg_clk_div inside {0,1}) -> ana_ppg_clk50duty == 1'b0; 
+                                  (ana_ppg_clk_div inside {0,1}) -> ana_ppg_clk50duty == 1'b0;} 
+  constraint c_ana_ppg_clk_inv    {ana_ppg_clk_inv inside {0,1};}
+  constraint c_ppg_dis            {ppg_dis == 1'b0;}
+
+  //NIRS_CTRL_CMD
+  constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 0;}  //0,1,2,3
+               
+ 
+  //NIRS_DEBUG_SEL                
+  constraint  c_debug_led         {debug_led inside {0,1};}
+  constraint  c_debug_channel     {debug_channel inside {[0:7]};} 
+
   //NIRS_CTRL_0
   //0: Receiver master continuous typical mode (EN follows period counter)
   //4: Receiver master continuous typical mode (EN always on The measurig cycles follows tje period counter)
   //2,6: Receiver master continuous fast mode  (EN always on, counter reset at the falling edge of IREFFINE)
   //1,3,5,7,9,11,13,15: MCU master mode
   //8,10,12,14: Receiver single mdoe 
-  constraint c_nirs_ppg_mode_sel   {nirs_ppg_mode_sel inside{0,4,2,6,1,15,8,14};}
+  //constraint c_nirs_ppg_mode_sel   {nirs_ppg_mode_sel inside{0,4,2,6,1,15,8,14};}
 
   //constraint c_nirs_ppg_meas       {nirs_ppg_meas inside {0,1};}
 
   //constraint c_nirs_ppg_en         {nirs_ppg_en inside {0,1};}
 
   //NIRS_CTRL_1
-  constraint c_ratio_mode         {ratio_mode  inside {[0:1]};} //ratio_mode=0: automatic, ration_mode=1: manual
+  //constraint c_ratio_mode         {ratio_mode  inside {[0:1]};} //ratio_mode=0: automatic, ration_mode=1: manual
 
-  constraint c_ratio_ctrl          {ratio_ctrl  inside {[0:3]};} //this for automatic ration if ration_mode=0, 0-128, 1-64, 2-32, 3-16
+  //constraint c_ratio_ctrl          {ratio_ctrl  inside {[0:3]};} //this for automatic ration if ration_mode=0, 0-128, 1-64, 2-32, 3-16
 
   //NIRS_CTRL_2
-  constraint c_ratio_manual        {ratio_manual inside{[0:255]};} //this ratio manual will be used if ratio_mode has been set to 1
+  //constraint c_ratio_manual        {ratio_manual inside{[0:255]};} //this ratio manual will be used if ratio_mode has been set to 1
 
+  //constraint c_recv_stable_time_ctrl      {recv_stable_time_ctrl inside {[0:7]};}
 
-  constraint c_ana_ppg_rst_reg    {ana_ppg_rst_reg ==1'b0;}
-
-  constraint c_ana_ppg_clk_div    {ana_ppg_clk_div inside {[0:3]};}
-
-  constraint c_ana_ppg_clk50duty  {solve ana_ppg_clk_div before ana_ppg_clk50duty;
-                                  (ana_ppg_clk_div inside {2,3}) -> ana_ppg_clk50duty == 1'b1;
-                                  (ana_ppg_clk_div inside {0,1}) -> ana_ppg_clk50duty == 1'b0;} 
-
-  constraint c_ana_ppg_clk_inv    {ana_ppg_clk_inv inside {0,1};}
-
-  constraint c_ppg_dis            {ppg_dis == 1'b0;}
-
-  //
-  constraint c_on_time_sel        {on_time_sel inside {[0:15]};}
-
-  constraint c_period_ctrl        {period_ctrl inside {[0:15]};}
-
-  //
-  constraint c_led_off_time_after_ipd_sw  {led_off_time_after_ipd_sw inside {[0:3]};} 
-
-  constraint c_recv_stable_time_ctrl      {recv_stable_time_ctrl inside {[0:7]};}
-
-  constraint c_reset_on_time_ctrl         {reset_on_time_ctrl inside {[0:7]}; }
+  //constraint c_reset_on_time_ctrl         {reset_on_time_ctrl inside {[0:7]}; }
 
   //NIRS_CTRL_4
-  constraint c_led_stable_time_beforeipd_sw   {led_stable_time_beforeipd_sw  inside {[0:7]};}
-  constraint c_idac_manual_8                 {idac_manual_8 inside {[0:1]};}
-  constraint c_idac_manual_en                {idac_manual_en == 0;}
+  //constraint c_led_stable_time_beforeipd_sw   {led_stable_time_beforeipd_sw  inside {[0:7]};}
+  //constraint c_idac_manual_8                 {idac_manual_8 inside {[0:1]};}
+  //constraint c_idac_manual_en                {idac_manual_en == 0;}
   //NIRS_CTRL_5
-  constraint c_idac_manual_7_0               {idac_manual_7_0 inside {[0:255]};}
+  //constraint c_idac_manual_7_0               {idac_manual_7_0 inside {[0:255]};}
   //NIRS_CTRL_6
-  constraint c_threshold_h_18_11              {threshold_h_18_11  inside {[0:0/*0:255*/]};}
+  //constraint c_threshold_h_18_11              {threshold_h_18_11  inside {[0:0/*0:255*/]};}
   //NIRS_CTRL_7
-  constraint c_threshold_h_10_3               {threshold_h_10_3  inside {[0:0/*0:255*/]};}
+  //constraint c_threshold_h_10_3               {threshold_h_10_3  inside {[0:0/*0:255*/]};}
   //NIRS_CTRL_8
-  constraint c_threshold_h_2_0                {threshold_h_2_0  inside {[0:0/*0:7*/]};} 
-  constraint c_threshold_l_7_3                {threshold_l_7_3 inside {[0:0/*0:31*/]};}   
+  //constraint c_threshold_h_2_0                {threshold_h_2_0  inside {[0:0/*0:7*/]};} 
+  //constraint c_threshold_l_7_3                {threshold_l_7_3 inside {[0:0/*0:31*/]};}   
   //NIRS_CTRL_9                                                                            
-  constraint c_threshold_l_2_0                {threshold_l_2_0 inside {[0:0/*0:7*/]};}    
+  //constraint c_threshold_l_2_0                {threshold_l_2_0 inside {[0:0/*0:7*/]};}    
 
   //NIRS_CTRL_10
   //constraint c_threshold_l_7_0                {threshold_l_7_0 inside {[0:0/*0:255*/]};}
@@ -199,25 +412,25 @@ class `TESTCFG extends soc_base_test_cfg;
   //
   //constraint c_nirs_irefcoarse_iref_delay { nirs_irefcoarse_iref_delay inside {[0:2000]};}
   //NIRS_CTRL_ADDRESS
-  constraint c_nirs_addr_channel_en           {nirs_addr_channel_en inside {[0:7]};} 
- //NIRS_CTRL_EN
- constraint c_nirs_ppg_en0                    {nirs_ppg_en0 inside {[1:1/*0:1*/]};} 
- constraint c_nirs_ppg_en1                    {nirs_ppg_en1 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en2                    {nirs_ppg_en2 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en3                    {nirs_ppg_en3 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en4                    {nirs_ppg_en4 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en5                    {nirs_ppg_en5 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en6                    {nirs_ppg_en6 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ppg_en7                    {nirs_ppg_en7 inside {[1:1/*0:1*/]};}
- //NIRS_CTRL_MEAS
- constraint c_nirs_ctrl_meas0                 {nirs_ctrl_meas0 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas1                 {nirs_ctrl_meas1 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas2                 {nirs_ctrl_meas2 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas3                 {nirs_ctrl_meas3 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas4                 {nirs_ctrl_meas4 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas5                 {nirs_ctrl_meas5 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas6                 {nirs_ctrl_meas6 inside {[1:1/*0:1*/]};}
- constraint c_nirs_ctrl_meas7                 {nirs_ctrl_meas7 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_addr_channel_en           {nirs_addr_channel_en inside {[0:7]};} 
+  //NIRS_CTRL_EN
+  //constraint c_nirs_ppg_en0                    {nirs_ppg_en0 inside {[1:1/*0:1*/]};} 
+  //constraint c_nirs_ppg_en1                    {nirs_ppg_en1 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en2                    {nirs_ppg_en2 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en3                    {nirs_ppg_en3 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en4                    {nirs_ppg_en4 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en5                    {nirs_ppg_en5 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en6                    {nirs_ppg_en6 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ppg_en7                    {nirs_ppg_en7 inside {[1:1/*0:1*/]};}
+  //NIRS_CTRL_MEAS
+  //constraint c_nirs_ctrl_meas0                 {nirs_ctrl_meas0 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas1                 {nirs_ctrl_meas1 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas2                 {nirs_ctrl_meas2 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas3                 {nirs_ctrl_meas3 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas4                 {nirs_ctrl_meas4 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas5                 {nirs_ctrl_meas5 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas6                 {nirs_ctrl_meas6 inside {[1:1/*0:1*/]};}
+  //constraint c_nirs_ctrl_meas7                 {nirs_ctrl_meas7 inside {[1:1/*0:1*/]};}
 
  //********************************************************************************************************
  //************************************NIRS_PPG Related constarints****************************************
@@ -270,7 +483,56 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
 
     //`DUT_IF.nirs_irefcoarse_iref_delay = top_test_cfg.nirs_irefcoarse_iref_delay;
-
+    `DUT_IF.en_config_ch0                 =                top_test_cfg.en_config_ch0;
+    `DUT_IF.en_config_ch1                 =                top_test_cfg.en_config_ch1;
+    `DUT_IF.en_config_ch2                 =                top_test_cfg.en_config_ch2;
+    `DUT_IF.en_config_ch3                 =                top_test_cfg.en_config_ch3;  
+    `DUT_IF.en_config_ch4                 =                top_test_cfg.en_config_ch4;
+    `DUT_IF.en_config_ch5                 =                top_test_cfg.en_config_ch5;
+    `DUT_IF.en_config_ch6                 =                top_test_cfg.en_config_ch6;
+    `DUT_IF.en_config_ch7                 =                top_test_cfg.en_config_ch7;
+    `DUT_IF.en_config_led0                =                top_test_cfg.en_config_led0;
+    `DUT_IF.en_config_led1                =                top_test_cfg.en_config_led1;                             
+    `DUT_IF.on_time_sel                   =                top_test_cfg.on_time_sel;
+    `DUT_IF.period_ctrl                  =                 top_test_cfg.period_ctrl;                          
+    `DUT_IF.led_off_time_after_ipd_sw     =                top_test_cfg.led_off_time_after_ipd_sw; 
+    //`DUT_IF.recv_stable_time_ctrl         =                top_test_cfg.recv_stable_time_ctrl;
+    `DUT_IF.led_stable_time_beforeipd_sw  =                top_test_cfg.led_stable_time_beforeipd_sw;
+    `DUT_IF.reset_on_time_ctrl            =                top_test_cfg.reset_on_time_ctrl;                                       
+    `DUT_IF.idac_manual_8_0               =                top_test_cfg.idac_manual_8_0;                         
+    `DUT_IF.idac_manual_en                =                top_test_cfg.idac_manual_en;
+    `DUT_IF.idac_en                       =                top_test_cfg.idac_en;
+    `DUT_IF.threshold_h_18_16             =                top_test_cfg.threshold_h_18_16;                          
+    `DUT_IF.threshold_h_15_8              =                top_test_cfg.threshold_h_15_8;                         
+    `DUT_IF.threshold_h_7_0               =                top_test_cfg.threshold_h_7_0;             
+    `DUT_IF.threshold_l_7_0               =                top_test_cfg.threshold_l_7_0;
+    `DUT_IF.idac_min_int_en               =                top_test_cfg.idac_min_int_en;
+    `DUT_IF.idac_max_int_en               =                top_test_cfg.idac_max_int_en;
+    `DUT_IF.iref_fine_on_not_off_en       =                top_test_cfg.iref_fine_on_not_off_en;
+    `DUT_IF.iref_fine_not_on_en           =                top_test_cfg.iref_fine_not_on_en;
+    `DUT_IF.iref_coarse_en                =                top_test_cfg.iref_coarse_en;
+    `DUT_IF.data_ready_en                 =                top_test_cfg.data_ready_en;
+    `DUT_IF.nirs_int_pin_en               =                top_test_cfg.nirs_int_pin_en;              
+    `DUT_IF.nirs_ppg_mode_sel             =                top_test_cfg.nirs_ppg_mode_sel;
+    `DUT_IF.nirs_ppg_led_signle_en        =                top_test_cfg.nirs_ppg_led_signle_en;
+    `DUT_IF.pdbias_en                     =                top_test_cfg.pdbias_en;
+    `DUT_IF.pdbias_adj                    =                top_test_cfg.pdbias_adj;
+    `DUT_IF.fchop_adj                     =                top_test_cfg.fchop_adj;
+    `DUT_IF.chopper_en                    =                top_test_cfg.chopper_en;
+    `DUT_IF.test_en                       =                top_test_cfg.test_en;
+    `DUT_IF.ipdmirror_ratio_adj           =                top_test_cfg.ipdmirror_ratio_adj;
+    `DUT_IF.iref_ratio_adj                =                top_test_cfg.iref_ratio_adj;  
+    `DUT_IF.ratio_ctrl                    =                top_test_cfg.ratio_ctrl; 
+    `DUT_IF.ratio_mode                    =                top_test_cfg.ratio_mode;        
+    `DUT_IF.ratio_manual                  =                top_test_cfg.ratio_manual;
+    `DUT_IF.ana_ppg_rst_reg               =                top_test_cfg.ana_ppg_rst_reg;
+    `DUT_IF.ana_ppg_clk50duty             =                top_test_cfg.ana_ppg_clk50duty; 
+    `DUT_IF.ana_ppg_clk_div               =                top_test_cfg.ana_ppg_clk_div;
+    `DUT_IF.ana_ppg_clk_inv               =                top_test_cfg.ana_ppg_clk_inv;
+    `DUT_IF.ppg_dis                       =                top_test_cfg.ppg_dis;      
+    `DUT_IF.nirs_ppg_cmd                  =                top_test_cfg.nirs_ppg_cmd;                            
+    `DUT_IF.debug_led                     =                top_test_cfg.debug_led;             
+    `DUT_IF.debug_channel                 =                top_test_cfg.debug_channel;
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -350,11 +612,11 @@ class `TESTNAME extends soc_base_test;
     //// --------------------------------------------------------
     //// ########################################################
     //// ########################################################
-   foreach(`DUT_IF.nirs_irefcoarse_length[i])begin
-   `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tHigh pulse length of SW2 nirs_irefcoarse_length[%0d]: %dns",i, `DUT_IF.nirs_irefcoarse_length[i]), NNC_LOW)
-   `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tDelay between SW2 and SW3 nirs_irefcoarse_iref_delay[%0d]: %dns", i, `DUT_IF.nirs_irefcoarse_iref_delay[i]), NNC_LOW)
-   `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tHigh pulse length of SW3 nirs_ireffine_length[%0d]: %dns",i, `DUT_IF.nirs_ireffine_length[i]), NNC_LOW) 
-  end                                                                                        
+    foreach(`DUT_IF.nirs_irefcoarse_length[i])begin
+      `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tHigh pulse length of SW2 nirs_irefcoarse_length[%0d]: %dns",i, `DUT_IF.nirs_irefcoarse_length[i]), NNC_LOW)
+      `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tDelay between SW2 and SW3 nirs_irefcoarse_iref_delay[%0d]: %dns", i, `DUT_IF.nirs_irefcoarse_iref_delay[i]), NNC_LOW)
+      `nnc_info("SOC_TEST", $sformatf("\n\t\t\t\t\t\t\t\t\t\tHigh pulse length of SW3 nirs_ireffine_length[%0d]: %dns",i, `DUT_IF.nirs_ireffine_length[i]), NNC_LOW) 
+    end                                                                                        
    
     //clock control should be same for all channels
     //At OFFSET 0XCD(NIRS_CTRL_*)
@@ -365,7 +627,7 @@ class `TESTNAME extends soc_base_test;
     //bit[0]  =0 Enable NIRS module, 1= Disable NIRS module 
     `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_CLK_REG", NNC_LOW)      
     //top_test_cfg.data[0] = {2'b0, top_test_cfg.ana_ppg_rst_reg, top_test_cfg.ana_ppg_clk50duty, top_test_cfg.ana_ppg_clk_div, top_test_cfg.ana_ppg_clk_inv,top_test_cfg.ppg_dis};
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CLK_REG; mask == 8'hff; data[0] == {2'b0, top_test_cfg.ana_ppg_rst_reg, top_test_cfg.ana_ppg_clk50duty, top_test_cfg.ana_ppg_clk_div, top_test_cfg.ana_ppg_clk_inv,top_test_cfg.ppg_dis};});
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CLK_REG; mask == 8'hff; data[0] == {2'b0, `DUT_IF.ana_ppg_rst_reg, `DUT_IF.ana_ppg_clk50duty, `DUT_IF.ana_ppg_clk_div, `DUT_IF.ana_ppg_clk_inv,`DUT_IF.ppg_dis};});
     `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CLK_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW) 
     //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
     `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);                                                                                                                                                                                                                                                                                                                                              
@@ -387,135 +649,166 @@ class `TESTNAME extends soc_base_test;
    // ------------------------------
    task configure_nirs_ctrl_regs(logic [7:0] sel_chx_addr);
 
-      //At OFFSET 0XC0(SOC_NIRS_CTRL_ADDRESS_REG)
-      //bit[2:0]: set channel to control
-      `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_ADDRESS_REG", NNC_LOW) 
-      assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_ADDRESS_REG; mask == 8'hff; data[0] == sel_chx_addr/*{5'b0, top_test_cfg.nirs_addr_channel_en}*/;});
-      `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_ADDRESS_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-      //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
 
-       //At OFFSET 0XC2(SOC_NIRS_CTRL_1_REG)
-       //bit[7:4]: TOTAL PERIOD in ms, 
-       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
-       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_3_REG", NNC_LOW)
-       //  assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_3_REG; mask == 8'hff; data[0] == {5'b0, top_test_cfg.ratio_ctrl,top_test_cfg.ratio_mode};});
-       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_3_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+      //OFFSET 0x00 to 0x0D (NIRS_CTRL_CHANNEL to NIRS_CTRL_ADJ2
+      NO_OF_BYTES = 8'h0E;
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -0] =  {`DUT_IF.en_config_ch7, `DUT_IF.en_config_ch6, `DUT_IF.en_config_ch5, `DUT_IF.en_config_ch4, `DUT_IF.en_config_ch3, `DUT_IF.en_config_ch2, `DUT_IF.en_config_ch1, `DUT_IF.en_config_ch0};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -1] =  {6'b0, `DUT_IF.en_config_led1, `DUT_IF.en_config_led0};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -2] =  {`DUT_IF.period_ctrl, `DUT_IF.on_time_sel };     
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -3] =  {`DUT_IF.led_off_time_after_ipd_sw, `DUT_IF.reset_on_time_ctrl,  `DUT_IF.led_stable_time_beforeipd_sw};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -5] =  {2'b0, `DUT_IF.idac_manual_8_0[8:3]};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -6] =  {`DUT_IF.idac_manual_8_0[2:0], `DUT_IF.idac_manual_en, `DUT_IF.idac_en,  `DUT_IF.threshold_h_18_16 };  
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -7] =  {`DUT_IF.threshold_h_15_8[7:0]};         
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -8] =  {`DUT_IF.threshold_h_7_0[7:0] };
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -9] =  {`DUT_IF.threshold_l_7_0[7:0] };
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -10] = {1'b0, `DUT_IF.idac_min_int_en, `DUT_IF.idac_max_int_en, `DUT_IF.iref_fine_on_not_off_en, `DUT_IF.iref_fine_not_on_en, `DUT_IF.iref_coarse_en, `DUT_IF.data_ready_en, `DUT_IF.nirs_int_pin_en};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -11] = {3'b0, `DUT_IF.nirs_ppg_led_signle_en, `DUT_IF.nirs_ppg_mode_sel};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -12] = {1'b0,  `DUT_IF.pdbias_en,  `DUT_IF.pdbias_adj,  `DUT_IF.fchop_adj,  `DUT_IF.chopper_en,  `DUT_IF.test_en}; 
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -13] = {1'b0,  `DUT_IF.ipdmirror_ratio_adj,  `DUT_IF.iref_ratio_adj,  `DUT_IF.ratio_ctrl,  `DUT_IF.ratio_mode};                                    
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -14] = {`DUT_IF.ratio_manual};                               
+      for(int i=0; i<14; i++)begin
+        `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_REGS NIRS_REG_ADDR :%0h burst_write_data[%0d] :%0h ",i, (NO_OF_BYTES -1 -i), top_test_cfg.wr_data[NO_OF_BYTES -1 -i]), NNC_LOW)
+      end                              
+      //`WR_BURST_NIRS_REG(addr, number_of_data, data[]);
+       
+      `WR_BURST_NIRS_REG(`SOC_NIRS_CTRL_CHANNEL_REG, NO_OF_BYTES, 8'h00, top_test_cfg.wr_data);  
+        //`WR_NIRS_REG(i, top_test_cfg.wr_data[i], top_test_cfg.pads);                                 
+              
 
-       //At OFFSET 0XC2(SOC_NIRS_CTRL_1_REG)
-       //bit[7:4]: TOTAL PERIOD in ms, 
-       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_1_REG", NNC_LOW)
-        assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_1_REG; mask == 8'hff; data[0] == {top_test_cfg.ratio_manual};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_1_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*,top_test_cfg.mask*/);
+        
 
-
-       //At OFFSET 0XC3(SOC_NIRS_CTRL_2_REG)
-       //bit[7:4]: TOTAL PERIOD in ms, 
-       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_2_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {top_test_cfg.on_time_sel,top_test_cfg.period_ctrl};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_2_REG; mask == 8'hff; data[0] == {top_test_cfg.on_time_sel,top_test_cfg.period_ctrl};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_2_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XC3(SOC_NIRS_CTRL_3_REG)
-       //bit[7:6] LED_OFF after IPD_SW (0-0us, 1-1us, 2-2us, 3-3us)
-       //bit[5:3] time for receiver stable after D2A_NIRS_EN (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)
-       //bit[2:0] RESET D2A_NIRS_RESET_SW ON TIMER (0-10us, 1-20us, 2-30us, 3-40us, 4-50us, 5-60us, 6,-70us, 7-80us)
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_3_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {top_test_cfg.led_off_time_after_ipd_sw, top_test_cfg.recv_stable_time_ctrl,top_test_cfg.reset_on_time_ctrl};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_3_REG; mask == 8'hff; data[0] == {top_test_cfg.led_off_time_after_ipd_sw, top_test_cfg.recv_stable_time_ctrl,top_test_cfg.reset_on_time_ctrl};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_3_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XC5(SOC_NIRS_CTRL_4_REG)
-       //bit[2:0] LEAD_STABLE_CTRL bit, Time for LED stable before D2A_NIRS_IPD_SW (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)
-       //bit[3]: IDAC_MANUAL_EN
-       //bit[4]: IDAC_MANUAL[8]
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_4_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {5'b0,top_test_cfg.led_stable_time_beforeipd_sw};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_4_REG; mask == 8'hff; data[0] == {3'b0,top_test_cfg.idac_manual_8,  top_test_cfg.idac_manual_en, top_test_cfg.led_stable_time_beforeipd_sw};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_4_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XC6(SOC_NIRS_CTRL_5_REG)
-       //bit[7:0]: IDAC_MANUAL[7:0]
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_5_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {5'b0,top_test_cfg.led_stable_time_beforeipd_sw};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_5_REG; mask == 8'hff; data[0] == top_test_cfg.idac_manual_7_0;});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_5_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XC7[7:0], 0XC7[7:0], 0XC9[[2:0]: High Threshold for the IDAC auto cancellation
-       //0XC7[7:0] == [18:11], 0XC8[7:0] == [10:3], 0XC9[[2:0] == [2:0] (Total 19bits)
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_6_REG", NNC_LOW)
-        assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_6_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_18_11;});  
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_6_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);                                                             
-                                                                                                                                                                      
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_7_REG", NNC_LOW)                                                                               
-         assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_7_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_10_3;});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_7_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/); 
-
-       //0XC9[[7:5] == [2:0] High Threshold for the IDAC auto cancellation
-       //At OFFSET /0XC9[2:0] == [18:16] Low threshold for the IDAC auto cancellation
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_8_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {top_test_cfg.threshold_h_2_0, top_test_cfg.threshold_l_7_3};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_8_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_h_2_0, top_test_cfg.threshold_l_7_3};});  
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_8_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                                          //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);                                                                                       
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XCA[2:0], : Low threshold for the IDAC auto cancellation
-       //0xC9[4:0] == [7:3],  0XCA[7:5] == [2:0] (Total 8bits)
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_9_REG", NNC_LOW)
-       //top_test_cfg.data[0] = top_test_cfg.threshold_l_15_18;
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_9_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_l_2_0, 5'b0};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_9_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_10_REG", NNC_LOW)
-       ////top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
-       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_10_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_l_7_0;});
-       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_10_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads, top_test_cfg.mask);
-
-       ////At OFFSET 0XCC[0] = 0 working mode of IDAC is automatic, 1 working mode of IDAC is manual
-       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_11_REG", NNC_LOW)
-       ////top_test_cfg.data[0] = {7'b0, top_test_cfg.nirs_idac_manual_autmatic};
-       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_11_REG; mask == 8'hff; data[0] == {7'b0, top_test_cfg.nirs_idac_manual_autmatic};});
-       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_11_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       // //At OFFSET 0XCD[1:0] = 0 Manual values of IDAC
-       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_12_REG", NNC_LOW)
-       ////top_test_cfg.data[0] = {7'b0, top_test_cfg.nirs_manual_value_of_idac};
-       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_12_REG; mask == 8'hff; data[0] == {7'b0, top_test_cfg.nirs_manual_value_of_idac};});
-       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_12_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
-       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-
-       //At OFFSET 0XCB[1:0] = 0 nirs_int_reg_en,nirs_int_pin_en
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_10_REG", NNC_LOW)
-       //top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_10_REG; mask == 8'hff; data[0] == {6'b0, top_test_cfg.nirs_int_reg_en,top_test_cfg.nirs_int_pin_en};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_10_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+ 
+           
+//      
+//      //At OFFSET 0XC0(SOC_NIRS_CTRL_ADDRESS_REG)
+//      //bit[2:0]: set channel to control
+//      `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_ADDRESS_REG", NNC_LOW) 
+//      assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_ADDRESS_REG; mask == 8'hff; data[0] == sel_chx_addr/*{5'b0, top_test_cfg.nirs_addr_channel_en}*/;});
+//      `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_ADDRESS_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//      //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC2(SOC_NIRS_CTRL_1_REG)
+//       //bit[7:4]: TOTAL PERIOD in ms, 
+//       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
+//       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_3_REG", NNC_LOW)
+//       //  assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_3_REG; mask == 8'hff; data[0] == {5'b0, top_test_cfg.ratio_ctrl,top_test_cfg.ratio_mode};});
+//       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_3_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC2(SOC_NIRS_CTRL_1_REG)
+//       //bit[7:4]: TOTAL PERIOD in ms, 
+//       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_1_REG", NNC_LOW)
+//        assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_1_REG; mask == 8'hff; data[0] == {top_test_cfg.ratio_manual};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_1_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*,top_test_cfg.mask*/);
+//
+//
+//       //At OFFSET 0XC3(SOC_NIRS_CTRL_2_REG)
+//       //bit[7:4]: TOTAL PERIOD in ms, 
+//       //bit[3:0]: ON TIME SEL(OTS CTRL) in us, D2A_NIRS_IPD_SW ON_TIME
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_2_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = {top_test_cfg.on_time_sel,top_test_cfg.period_ctrl};
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_2_REG; mask == 8'hff; data[0] == {top_test_cfg.on_time_sel,top_test_cfg.period_ctrl};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_2_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC3(SOC_NIRS_CTRL_3_REG)
+//       //bit[7:6] LED_OFF after IPD_SW (0-0us, 1-1us, 2-2us, 3-3us)
+//       //bit[5:3] time for receiver stable after D2A_NIRS_EN (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)
+//       //bit[2:0] RESET D2A_NIRS_RESET_SW ON TIMER (0-10us, 1-20us, 2-30us, 3-40us, 4-50us, 5-60us, 6,-70us, 7-80us)
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_3_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = {top_test_cfg.led_off_time_after_ipd_sw, top_test_cfg.recv_stable_time_ctrl,top_test_cfg.reset_on_time_ctrl};
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_3_REG; mask == 8'hff; data[0] == {top_test_cfg.led_off_time_after_ipd_sw, top_test_cfg.recv_stable_time_ctrl,top_test_cfg.reset_on_time_ctrl};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_3_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC5(SOC_NIRS_CTRL_4_REG)
+//       //bit[2:0] LEAD_STABLE_CTRL bit, Time for LED stable before D2A_NIRS_IPD_SW (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)
+//       //bit[3]: IDAC_MANUAL_EN
+//       //bit[4]: IDAC_MANUAL[8]
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_4_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = {5'b0,top_test_cfg.led_stable_time_beforeipd_sw};
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_4_REG; mask == 8'hff; data[0] == {3'b0,top_test_cfg.idac_manual_8,  top_test_cfg.idac_manual_en, top_test_cfg.led_stable_time_beforeipd_sw};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_4_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC6(SOC_NIRS_CTRL_5_REG)
+//       //bit[7:0]: IDAC_MANUAL[7:0]
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_5_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = {5'b0,top_test_cfg.led_stable_time_beforeipd_sw};
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_5_REG; mask == 8'hff; data[0] == top_test_cfg.idac_manual_7_0;});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_5_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//      `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XC7[7:0], 0XC7[7:0], 0XC9[[2:0]: High Threshold for the IDAC auto cancellation
+//       //0XC7[7:0] == [18:11], 0XC8[7:0] == [10:3], 0XC9[[2:0] == [2:0] (Total 19bits)
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_6_REG", NNC_LOW)
+//        assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_6_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_18_11;});  
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_6_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);                                                             
+//                                                                                                                                                                      
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_7_REG", NNC_LOW)                                                                               
+//         assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_7_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_h_10_3;});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_7_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/); 
+//
+//       //0XC9[[7:5] == [2:0] High Threshold for the IDAC auto cancellation
+//       //At OFFSET /0XC9[2:0] == [18:16] Low threshold for the IDAC auto cancellation
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_8_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = {top_test_cfg.threshold_h_2_0, top_test_cfg.threshold_l_7_3};
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_8_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_h_2_0, top_test_cfg.threshold_l_7_3};});  
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_8_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                                          //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);                                                                                       
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XCA[2:0], : Low threshold for the IDAC auto cancellation
+//       //0xC9[4:0] == [7:3],  0XCA[7:5] == [2:0] (Total 8bits)
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_9_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = top_test_cfg.threshold_l_15_18;
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_9_REG; mask == 8'hff; data[0] == {top_test_cfg.threshold_l_2_0, 5'b0};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_9_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_10_REG", NNC_LOW)
+//       ////top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
+//       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_10_REG; mask == 8'hff; data[0] == top_test_cfg.threshold_l_7_0;});
+//       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_10_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads, top_test_cfg.mask);
+//
+//       ////At OFFSET 0XCC[0] = 0 working mode of IDAC is automatic, 1 working mode of IDAC is manual
+//       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_11_REG", NNC_LOW)
+//       ////top_test_cfg.data[0] = {7'b0, top_test_cfg.nirs_idac_manual_autmatic};
+//       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_11_REG; mask == 8'hff; data[0] == {7'b0, top_test_cfg.nirs_idac_manual_autmatic};});
+//       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_11_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       // //At OFFSET 0XCD[1:0] = 0 Manual values of IDAC
+//       //`nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_12_REG", NNC_LOW)
+//       ////top_test_cfg.data[0] = {7'b0, top_test_cfg.nirs_manual_value_of_idac};
+//       //assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_12_REG; mask == 8'hff; data[0] == {7'b0, top_test_cfg.nirs_manual_value_of_idac};});
+//       //`nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_12_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+//       //`WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
+//
+//       //At OFFSET 0XCB[1:0] = 0 nirs_int_reg_en,nirs_int_pin_en
+//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_10_REG", NNC_LOW)
+//       //top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
+//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_10_REG; mask == 8'hff; data[0] == {6'b0, top_test_cfg.nirs_int_reg_en,top_test_cfg.nirs_int_pin_en};});
+//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_10_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+//       ////`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
 
    endtask 
   // ------------------------------

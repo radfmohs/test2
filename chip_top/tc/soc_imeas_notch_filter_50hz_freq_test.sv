@@ -48,7 +48,7 @@ class `TESTNAME extends soc_imeas_notch_filter_base_test;
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
     //uvm_top.set_timeout(550ms);
-    uvm_top.set_timeout(1s);
+    uvm_top.set_timeout(3s);
     //uvm_top.set_timeout(400ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction

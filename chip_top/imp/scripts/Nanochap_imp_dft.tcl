@@ -106,7 +106,7 @@ set_app_var report_default_significant_digits 3
 # Read pre-scan insertion synthesis DDC
 # -----------------------------------------------------------------------------
 
-read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.BUD=${bottom_up}.ddc
+read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
 
 # ------------------------------------------------------------------------------
 # Function clock and constraints AND Power Intent

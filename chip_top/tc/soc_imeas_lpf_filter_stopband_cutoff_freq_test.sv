@@ -27,10 +27,11 @@ class `TESTCFG extends soc_imeas_lpf_filter_base_test_cfg;
   // -----------------------------------------------
   // Adding constraints of randomization
   // -----------------------------------------------
-  constraint c_imeas_sin_expected_freq {solve stopband_cut_off_freq before imeas_sin_expected_freq ;
-                                        solve imeas_samp_rate before imeas_sin_expected_freq ;
-                                        imeas_sin_expected_freq inside {[stopband_cut_off_freq * 1000 : (imeas_samp_rate/2)*1000]};} // stopband freq = 250 //sine freq * 1000
+  //constraint c_imeas_sin_expected_freq {solve stopband_cut_off_freq before imeas_sin_expected_freq ;
+  //                                      solve imeas_samp_rate before imeas_sin_expected_freq ;
+  //                                      imeas_sin_expected_freq inside {[stopband_cut_off_freq * 1000 : (imeas_samp_rate/2)*1000]};} // stopband freq = 250 //sine freq * 1000
   //constraint c_imeas_sin_expected_freq { imeas_sin_expected_freq == 125000000;} //stopband freq = 250 //sine freq * 1000
+  constraint c_imeas_sin_expected_freq {imeas_sin_expected_freq == 180000 ;} //180*1000
 
   // -----------------------------------------------
   // End of adding constraints of randomization

@@ -80,6 +80,7 @@
 `define  GPIO_PU_CTRL                   `GPIO_BASE_ADDR+8'h00//20
 `define  GPIO_PD_CTRL                   `GPIO_BASE_ADDR+8'h01//21
 `define  GPIO_SR_PDRV0_1_CTRL           `GPIO_BASE_ADDR+8'h02//22
+`define  GPIO_NIRS_OUT_CTRL             `GPIO_BASE_ADDR+8'h03//23
  //spare reg `GPIO_BASE_ADDR + 8'h03~`GPIO_BASE_ADDR + 8'h05//23~25
 
 // lead_off
@@ -202,6 +203,7 @@
 `define  GENERAL_INTERUPT_STATUS_REG04   `INT_REG_BASE_ADDR+8'h04//7C
 `define  GENERAL_INTERUPT_STATUS_REG05   `INT_REG_BASE_ADDR+8'h05//7D
  //spare reg `TSC_REG_BASE_ADDR + 8'h04~`TSC_REG_BASE_ADDR+8'h05//7C~7D
+`define  GENERAL_INTERUPT_STATUS_REG06   `INT_REG_BASE_ADDR+8'h06//7D
 
 //pinmux
 `define  PINMUX_REG_BASE_ADDR            8'h7E
@@ -357,6 +359,7 @@ module spi_reg #(
   output wire [7:0]       gpio_pu_ctrl,
   output wire [7:0]       gpio_pd_ctrl,
   output wire [2:0]       gpio_sr_pdrv0_1_ctrl,
+  output wire             gpio_nirs_out_ctrl,
          
   output  wire            tsc_intr_en, 
   output  wire            tsc_intr_trans_sel,
@@ -389,9 +392,9 @@ module spi_reg #(
   output wire [17:0]      lpf_coeff_data_o[27:0],
   output wire [19:0]      notch_coeff_data_o[35:0],
   output wire [23:0]      hpf_coeff_data_o,
-  input  reg  [7:0]       atm_adj_mode,
-  input  reg              atm_mode,
-  input  reg  [7:0]       atm_data,
+  input  reg  [13:0]      atm_adj_mode,
+  input  reg              atm_adj,
+  input  reg  [7:0]       atm_adj_data,
  //wave gen
   output  wire 	          o_wave_gen_dis,
   output  wire 	          o_wave_gen_rst
@@ -721,14 +724,16 @@ end
 
 				ana_gen_reg[ana_gen_sec_reg][14]	<= i_wr_data;
 				
-		else if (atm_mode)
+		else if (atm_adj)
 			if(atm_adj_mode[ana_gen_sec_reg])
-				ana_gen_reg[ana_gen_sec_reg][14]	<= atm_data;
+				ana_gen_reg[ana_gen_sec_reg][14]	<= atm_adj_data;
 				
 	end
 
 //to anac
-assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
+//xin change temporily, pls Truong check
+//assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
+assign ana_lvd_sts	      = 1'b0;      
 
 // pmu register output 
 assign {o_otp_dpstb_en, o_hresetreq, o_sleepdeep, o_pmuenable} = pmu_reg0[3:0];
@@ -754,6 +759,7 @@ assign iclk_div               = clk_ctrl_reg[7:4];
 reg [7:0]   pu_ctrl;
 reg [7:0]   pd_ctrl;
 reg [2:0]   sr_pdrv0_1_ctrl;
+reg         nirs_out_ctrl;
 
 //reg [5:0] gpio_0_ctrl,gpio_1_ctrl,gpio_2_ctrl,gpio_3_ctrl,gpio_4_ctrl; 
 //reg [5:0] gpio_5_ctrl,gpio_6_ctrl,gpio_7_ctrl,gpio_8_ctrl,gpio_9_ctrl;
@@ -763,6 +769,7 @@ reg [2:0]   sr_pdrv0_1_ctrl;
 assign gpio_pu_ctrl           =  pu_ctrl;
 assign gpio_pd_ctrl           =  pd_ctrl;
 assign gpio_sr_pdrv0_1_ctrl   =  sr_pdrv0_1_ctrl;
+assign gpio_nirs_out_ctrl     =  nirs_out_ctrl;
 //assign gpio_3_ctrl_all =  gpio_3_ctrl;
 //assign gpio_4_ctrl_all =  gpio_4_ctrl;
 //assign gpio_5_ctrl_all =  gpio_5_ctrl;
@@ -785,13 +792,15 @@ always @(posedge i_clk or negedge i_rst_n) begin
   //Tried reducing number of spi registers because in normal mode only GPIO0~GPIO7 has been used so only PU/PD required to be configured for each GPIO. CS configuration not required(as per Mohsen), PDRV0/PDRV1/SR common bit used for all 8 GPIO's
      pu_ctrl    		  <= 8'h00; 
      pd_ctrl    		  <= 8'h1F; 
-     sr_pdrv0_1_ctrl  <= 3'b000; 	
+     sr_pdrv0_1_ctrl  <= 3'b000; 
+     nirs_out_ctrl    <= 1'b0;	
   end
   else begin
     case (i_addr[ADDR_WIDTH-1:0])
      `GPIO_PU_CTRL         : pu_ctrl         <= i_wr ? i_wr_data[7:0] : pu_ctrl;	  
      `GPIO_PD_CTRL     	   : pd_ctrl         <= i_wr ? i_wr_data[7:0] : pd_ctrl;
      `GPIO_SR_PDRV0_1_CTRL : sr_pdrv0_1_ctrl <= i_wr ? i_wr_data[2:0] : sr_pdrv0_1_ctrl;   
+     `GPIO_NIRS_OUT_CTRL   : nirs_out_ctrl   <= i_wr ? i_wr_data[0]   : nirs_out_ctrl;
     endcase
   end
 end
@@ -1501,6 +1510,7 @@ wire [7:0] nirs_rd_data;
     .i_addr         (i_addr),
     .i_wr           (i_nirs_wr),
     .i_rd           (i_nirs_rd),
+    .i_rd_normal    (i_rd),
     .i_wr_data      (i_wr_data),
     .o_rd_data      (nirs_rd_data),
 
@@ -1509,6 +1519,7 @@ wire [7:0] nirs_rd_data;
     .ana_ppgclk_inv (ana_ppgclk_inv),
     .ppg_clk50duty  (ppg_clk50duty),
     .ppg_rst_reg    (ppg_rst_reg),
+    .int_clear_type (int_clear_type),
 
     .spi_nirs_if    (spi_nirs_if)
   );
@@ -1591,7 +1602,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
  
       `GPIO_PU_CTRL           :   reg_rd_data <= {pu_ctrl};				  	   
       `GPIO_PD_CTRL           :   reg_rd_data <= {pd_ctrl};                           	 
-      `GPIO_SR_PDRV0_1_CTRL   :   reg_rd_data <= {5'b0, sr_pdrv0_1_ctrl};     
+      `GPIO_SR_PDRV0_1_CTRL   :   reg_rd_data <= {5'b0, sr_pdrv0_1_ctrl};
+       `GPIO_NIRS_OUT_CTRL     :   reg_rd_data <= {7'b0, nirs_out_ctrl};                         
        
     //lead off
 //    `LEAD_OFF_CTRL          :  reg_rd_data  <= lead_off_ctrl 	; 
@@ -1636,7 +1648,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
          `ANA_ENABLE_REG_13     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][13];
          `ANA_ENABLE_REG_14     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][14];
 
-         `ANA_GEN_SEC         :  reg_rd_data  <= {5'b0, ana_en_sec_reg};
+         `ANA_GEN_SEC         :  reg_rd_data  <= {5'b0, ana_gen_sec_reg};
          `ANA_GEN_REG_1       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][0];
          `ANA_GEN_REG_2       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][1];
          `ANA_GEN_REG_3       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][2];
@@ -1700,6 +1712,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `GENERAL_INTERUPT_STATUS_REG03  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[7],spi_wg.i_wg_driver_int_sts[6],spi_wg.i_wg_driver_int_sts[5],spi_wg.i_wg_driver_int_sts[4]};   
       `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[11],spi_wg.i_wg_driver_int_sts[10],spi_wg.i_wg_driver_int_sts[9],spi_wg.i_wg_driver_int_sts[8]};   
       `GENERAL_INTERUPT_STATUS_REG05  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[15],spi_wg.i_wg_driver_int_sts[14],spi_wg.i_wg_driver_int_sts[13],spi_wg.i_wg_driver_int_sts[12]};   
+      `GENERAL_INTERUPT_STATUS_REG06  : reg_rd_data  <= spi_nirs_if.NIRS_INT; 
 
 //    `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= lead_off_result;   
 

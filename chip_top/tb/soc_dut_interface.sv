@@ -383,8 +383,8 @@ interface dut_interface();
   logic [3:0] imeas_data_sel;
   logic       single_shot_en;
 
-  logic [`FILTER_DATA_WIDTH:0] exp_chdata[`FILTER_NUM-1:0] ;
-  logic [`FILTER_DATA_WIDTH:0] exp_chdata_dev2[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH-1:0] exp_chdata[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH-1:0] exp_chdata_dev2[`FILTER_NUM-1:0] ;
 
   logic [31:0] imeas_adc_freq;
   logic [15:0] imeas_osr;
@@ -419,8 +419,8 @@ interface dut_interface();
   logic        imeas_status_en;
   logic        imeas_24bitdata_en;
   logic [31:0] no_of_samples; 
-  logic [`FILTER_DATA_WIDTH:0] filter_data_out[`FILTER_NUM-1:0] ;
-  logic [`FILTER_DATA_WIDTH:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH-1:0] filter_data_out[`FILTER_NUM-1:0] ;
+  logic [`FILTER_DATA_WIDTH-1:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
   logic        filter_case;
 
   logic [4:0]  max_ch_dev1; 
@@ -462,7 +462,78 @@ interface dut_interface();
   logic [1:0]  OTP_SEL;
 
   logic        mult_master_inf_en; 
+  
+  //NIRS_PPG
+  logic         en_config_ch0;
+  logic         en_config_ch1;
+  logic         en_config_ch2;
+  logic         en_config_ch3;  
+  logic         en_config_ch4;
+  logic         en_config_ch5;
+  logic         en_config_ch6;
+  logic         en_config_ch7;
+  //nirs_ctrl_led
+  logic         en_config_led0;
+  logic         en_config_led1;
+  //NIRS_CTRL_0
+  logic [3:0]   on_time_sel;
+  logic [3:0]   period_ctrl;
+  //NIRS_CTRL
+  logic [1:0]   led_off_time_after_ipd_sw; 
+  //rand logic [2:0] recv_stable_time_ctrl;
+  logic [2:0]   led_stable_time_beforeipd_sw;
+  logic [2:0]   reset_on_time_ctrl;              
+  //NIRS_CTRL_2
+  logic [8:0]   idac_manual_8_0;
+  //NIRS_CTRL_3
+  logic         idac_manual_en;
+  logic         idac_en;
+  logic [2:0]   threshold_h_18_16;
+  //NIRS_CTRL_4
+  //NIRS_CTRL_4
+  logic [7:0]   threshold_h_15_8; 
+  //NIRS_CTRL_5
+  logic [7:0]   threshold_h_7_0; 
+  //NIRS_CTRL_6
+  logic [7:0]   threshold_l_7_0;
+  //NIRS_CTRL_7
+  logic         idac_min_int_en;
+  logic         idac_max_int_en;
+  logic         iref_fine_on_not_off_en;
+  logic         iref_fine_not_on_en;
+  logic         iref_coarse_en;
+  logic         data_ready_en;
+  logic         nirs_int_pin_en;  
+  //nirs_ctrl_mode
+  logic [3:0]   nirs_ppg_mode_sel;
+  logic         nirs_ppg_led_signle_en;
+  //nirs_ctrl_adj0
+  logic         pdbias_en;
+  logic  [1:0]  pdbias_adj;
+  logic  [1:0]  fchop_adj;
+  logic         chopper_en;
+  logic         test_en;
+  //nirs_ctrl_adj1
+  logic [1:0]   ipdmirror_ratio_adj;
+  logic [1:0]   iref_ratio_adj;  
+  logic [1:0]   ratio_ctrl; 
+  logic         ratio_mode;        
+  //nirs_ctrl_adj2
+  logic [7:0]   ratio_manual;
+  //NIRS_CLK_CTRL
+  logic         ana_ppg_rst_reg;
+  logic         ana_ppg_clk50duty; 
+  logic [1:0]   ana_ppg_clk_div;
+  logic         ana_ppg_clk_inv;
+  logic         ppg_dis;                       
+  //nirs_ctrl_cmd
+  logic [1:0]   nirs_ppg_cmd; 
+  //nirs_debug_sel
+  logic         debug_led;
+  logic [3:0]   debug_channel;
 
+              
+     
 endinterface: dut_interface
 `endif
 

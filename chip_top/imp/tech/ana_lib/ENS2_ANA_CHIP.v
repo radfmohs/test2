@@ -275,7 +275,7 @@ input           D2A_NIRS0_RESET_SW;
 input           D2A_NIRS0_IPD_SW;
 input           D2A_NIRS0_IIN_SW;
 input    [1:0]  D2A_NIRS0_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS0_IREFC_ADJ;
+input    [1:0]  D2A_NIRS0_IREFC_ADJ;
 input    [1:0]  D2A_NIRS0_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS0_IDAC_ADJ;
 input           D2A_NIRS1_EN;
@@ -284,7 +284,7 @@ input           D2A_NIRS1_RESET_SW;
 input           D2A_NIRS1_IPD_SW;
 input           D2A_NIRS1_IIN_SW;
 input    [1:0]  D2A_NIRS1_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS1_IREFC_ADJ;
+input    [1:0]  D2A_NIRS1_IREFC_ADJ;
 input    [1:0]  D2A_NIRS1_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS1_IDAC_ADJ;
 input           D2A_NIRS2_EN;
@@ -293,7 +293,7 @@ input           D2A_NIRS2_RESET_SW;
 input           D2A_NIRS2_IPD_SW;
 input           D2A_NIRS2_IIN_SW;
 input    [1:0]  D2A_NIRS2_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS2_IREFC_ADJ;
+input    [1:0]  D2A_NIRS2_IREFC_ADJ;
 input    [1:0]  D2A_NIRS2_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS2_IDAC_ADJ;
 input           D2A_NIRS3_EN;
@@ -302,7 +302,7 @@ input           D2A_NIRS3_RESET_SW;
 input           D2A_NIRS3_IPD_SW;
 input           D2A_NIRS3_IIN_SW;
 input    [1:0]  D2A_NIRS3_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS3_IREFC_ADJ;
+input    [1:0]  D2A_NIRS3_IREFC_ADJ;
 input    [1:0]  D2A_NIRS3_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS3_IDAC_ADJ;
 input           D2A_NIRS4_EN;
@@ -311,7 +311,7 @@ input           D2A_NIRS4_RESET_SW;
 input           D2A_NIRS4_IPD_SW;
 input           D2A_NIRS4_IIN_SW;
 input    [1:0]  D2A_NIRS4_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS4_IREFC_ADJ;
+input    [1:0]  D2A_NIRS4_IREFC_ADJ;
 input    [5:0]  D2A_NIRS4_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS4_IDAC_ADJ;
 input           D2A_NIRS5_EN;
@@ -320,7 +320,7 @@ input           D2A_NIRS5_RESET_SW;
 input           D2A_NIRS5_IPD_SW;
 input           D2A_NIRS5_IIN_SW;
 input    [1:0]  D2A_NIRS5_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS5_IREFC_ADJ;
+input    [1:0]  D2A_NIRS5_IREFC_ADJ;
 input    [1:0]  D2A_NIRS5_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS5_IDAC_ADJ;
 input           D2A_NIRS6_EN;
@@ -329,7 +329,7 @@ input           D2A_NIRS6_RESET_SW;
 input           D2A_NIRS6_IPD_SW;
 input           D2A_NIRS6_IIN_SW;
 input    [1:0]  D2A_NIRS6_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS6_IREFC_ADJ;
+input    [1:0]  D2A_NIRS6_IREFC_ADJ;
 input    [1:0]  D2A_NIRS6_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS6_IDAC_ADJ;
 input           D2A_NIRS7_EN;
@@ -338,7 +338,7 @@ input           D2A_NIRS7_RESET_SW;
 input           D2A_NIRS7_IPD_SW;
 input           D2A_NIRS7_IIN_SW;
 input    [1:0]  D2A_NIRS7_IPDMIRROR_ADJ;
-input    [7:0]  D2A_NIRS7_IREFC_ADJ;
+input    [1:0]  D2A_NIRS7_IREFC_ADJ;
 input    [1:0]  D2A_NIRS7_CFRATE_ADJ; 
 input    [8:0]  D2A_NIRS7_IDAC_ADJ;
 output          A2D_NIRS0_IREFCOARSE;
@@ -560,6 +560,15 @@ tsc_monitoring_model tsc_monitoring_ch1 (
 .A2D_TSC_COMP_OUT_CHx()
 );
 
+wire NIRS_IBIAS_65N;
+wire NIRS_IBIAS_1U;
+wire PDSINK0, PDSINK1, PDSINK2, PDSINK3, PDSINK4, PDSINK5, PDSINK6, PDSINK7;
+wire CLK_NIRS_1P8;
+wire CLKCHOP_1P8;
+wire CHIP_IBIAS_NIRS;
+wire VREF_1P2;
+wire CHIP_EN_NIRS;
+
 ppg_nirs_top_model ppg_nirs_top(
 .AVDD5P_NIRS(),
 .AVDD1P8_NIRS(),
@@ -597,8 +606,8 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS0_IPD_SW(D2A_NIRS0_IPD_SW),
 .D2A_NIRS0_IIN_SW(D2A_NIRS0_IIN_SW),
 .D2A_NIRS0_IPDMIRROR_ADJ(D2A_NIRS0_IPDMIRROR_ADJ),
-.D2A_NIRS0_IREFC_ADJ(D2A_NIRS0_IREFC_ADJ),
-.D2A_NIRS0_CFRATE_TRIM(D2A_NIRS0_CFRATE_TRIM),
+.D2A_NIRS0_IREFC_ADJ(D2A_NIRS0_IREFC_ADJ[1:0]),
+.D2A_NIRS0_CFRATE_ADJ(D2A_NIRS0_CFRATE_ADJ),
 .D2A_NIRS0_IDAC(D2A_NIRS0_IDAC_ADJ),
 .D2A_NIRS0_EN(D2A_NIRS0_EN),
 .D2A_NIRS0_IDAC_EN(D2A_NIRS0_IDAC_EN),
@@ -611,7 +620,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS1_IPD_SW(D2A_NIRS1_IPD_SW),
 .D2A_NIRS1_IIN_SW(D2A_NIRS1_IIN_SW),
 .D2A_NIRS1_IPDMIRROR_ADJ(D2A_NIRS1_IPDMIRROR_ADJ),
-.D2A_NIRS1_IREFC_ADJ(D2A_NIRS1_IREFC_ADJ),
+.D2A_NIRS1_IREFC_ADJ(D2A_NIRS1_IREFC_ADJ[1:0]),
 .D2A_NIRS1_CFRATE_ADJ(D2A_NIRS1_CFRATE_ADJ),
 .D2A_NIRS1_IDAC(D2A_NIRS1_IDAC_ADJ),
 .D2A_NIRS1_EN(D2A_NIRS1_EN),
@@ -625,7 +634,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS2_IPD_SW(D2A_NIRS2_IPD_SW),
 .D2A_NIRS2_IIN_SW(D2A_NIRS2_IIN_SW),
 .D2A_NIRS2_IPDMIRROR_ADJ(D2A_NIRS2_IPDMIRROR_ADJ),
-.D2A_NIRS2_IREFC_ADJ(D2A_NIRS2_IREFC_ADJ),
+.D2A_NIRS2_IREFC_ADJ(D2A_NIRS2_IREFC_ADJ[1:0]),
 .D2A_NIRS2_CFRATE_ADJ(D2A_NIRS2_CFRATE_ADJ),
 .D2A_NIRS2_IDAC(D2A_NIRS2_IDAC_ADJ),
 .D2A_NIRS2_EN(D2A_NIRS2_EN),
@@ -639,7 +648,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS3_IPD_SW(D2A_NIRS3_IPD_SW),
 .D2A_NIRS3_IIN_SW(D2A_NIRS3_IIN_SW),
 .D2A_NIRS3_IPDMIRROR_ADJ(D2A_NIRS3_IPDMIRROR_ADJ),
-.D2A_NIRS3_IREFC_ADJ(D2A_NIRS3_IREFC_ADJ),
+.D2A_NIRS3_IREFC_ADJ(D2A_NIRS3_IREFC_ADJ[1:0]),
 .D2A_NIRS3_CFRATE_ADJ(D2A_NIRS3_CFRATE_ADJ),
 .D2A_NIRS3_IDAC(D2A_NIRS3_IDAC_ADJ),
 .D2A_NIRS3_EN(D2A_NIRS3_EN),
@@ -653,7 +662,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS4_IPD_SW(D2A_NIRS4_IPD_SW),
 .D2A_NIRS4_IIN_SW(D2A_NIRS4_IIN_SW),
 .D2A_NIRS4_IPDMIRROR_ADJ(D2A_NIRS4_IPDMIRROR_ADJ),
-.D2A_NIRS4_IREFC_ADJ(D2A_NIRS4_IREFC_ADJ),
+.D2A_NIRS4_IREFC_ADJ(D2A_NIRS4_IREFC_ADJ[1:0]),
 .D2A_NIRS4_CFRATE_ADJ(D2A_NIRS4_CFRATE_ADJ),
 .D2A_NIRS4_IDAC(D2A_NIRS4_IDAC_ADJ),
 .D2A_NIRS4_EN(D2A_NIRS4_EN),
@@ -671,7 +680,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS5_IPD_SW(D2A_NIRS5_IPD_SW),
 .D2A_NIRS5_IIN_SW(D2A_NIRS5_IIN_SW),
 .D2A_NIRS5_IPDMIRROR_ADJ(D2A_NIRS5_IPDMIRROR_ADJ),
-.D2A_NIRS5_IREFC_ADJ(D2A_NIRS5_IREFC_ADJ),
+.D2A_NIRS5_IREFC_ADJ(D2A_NIRS5_IREFC_ADJ[1:0]),
 .D2A_NIRS5_CFRATE_ADJ(D2A_NIRS5_CFRATE_ADJ),
 .D2A_NIRS5_IDAC(D2A_NIRS5_IDAC_ADJ),
 .D2A_NIRS5_EN(D2A_NIRS5_EN),
@@ -685,7 +694,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS6_IPD_SW(D2A_NIRS6_IPD_SW),
 .D2A_NIRS6_IIN_SW(D2A_NIRS6_IIN_SW),
 .D2A_NIRS6_IPDMIRROR_ADJ(D2A_NIRS6_IPDMIRROR_ADJ),
-.D2A_NIRS6_IREFC_ADJ(D2A_NIRS6_IREFC_ADJ),
+.D2A_NIRS6_IREFC_ADJ(D2A_NIRS6_IREFC_ADJ[1:0]),
 .D2A_NIRS6_CFRATE_ADJ(D2A_NIRS6_CFRATE_ADJ),
 .D2A_NIRS6_IDAC(D2A_NIRS6_IDAC_ADJ),
 .D2A_NIRS6_EN(D2A_NIRS6_EN),
@@ -699,7 +708,7 @@ ppg_nirs_top_model ppg_nirs_top(
 .D2A_NIRS7_IPD_SW(D2A_NIRS7_IPD_SW),
 .D2A_NIRS7_IIN_SW(D2A_NIRS7_IIN_SW),
 .D2A_NIRS7_IPDMIRROR_ADJ(D2A_NIRS7_IPDMIRROR_ADJ),
-.D2A_NIRS7_IREFC_ADJ(D2A_NIRS7_IREFC_ADJ),
+.D2A_NIRS7_IREFC_ADJ(D2A_NIRS7_IREFC_ADJ[1:0]),
 .D2A_NIRS7_CFRATE_ADJ(D2A_NIRS7_CFRATE_ADJ),
 .D2A_NIRS7_IDAC(D2A_NIRS7_IDAC_ADJ),
 .D2A_NIRS7_EN(D2A_NIRS7_EN),
@@ -710,121 +719,6 @@ ppg_nirs_top_model ppg_nirs_top(
 
 .PDBIAS_OUT(PDBIAS_OUT)
 );
-/*
-// NIRS VIP Instantiation
-ppg_nirs_model nirs_model_0(
-
-  .DVDD(1'b1),
-  .AVDD(1'b1),
-  .DVSS(1'b0),
-  .AVSS(1'b0),
-
-  .PDIN(PDSINK0),
-  .D2A_NIRS_RESET_SW(D2A_NIRS0_RESET_SW),
-  .D2A_NIRS_IPD_SW(D2A_NIRS0_IPD_SW), // SW1
-  .D2A_NIRS_IIN_SW(D2A_NIRS0_IIN_SW),
-  .D2A_NIRS_IIN_MIRROR(D2A_NIRS0_IPDMIRROR_ADJ),
-  .D2A_NIRS_IREFC_TRIM(D2A_NIRS0_IREFC_ADJ),
-  .D2A_NIRS_CFRATE_TRIM(D2A_NIRS0_CFRATE_ADJ),
-  .D2A_NIRS_IDAC(D2A_NIRS0_IDAC_ADJ),
-  .D2A_NIRS_TEST_EN(D2A_NIRS0_TEST_EN),
-  .D2A_NIRS_EN(D2A_NIRS0_EN),
-  .D2A_NIRS_IDAC_EN(D2A_NIRS0_IDAC_EN),
-
-  .IBIAS_1U(NIRS_IBIAS_1U),
-  .IBIAS_65N(NIRS_IBIAS_65N),
-  .IBIAS_N_1U(),
-  .VREF_1P2(VREF_1P2),
-  .CLK_NIRS_1P8(),
-  .CLKCHOP_1P8(),
-
-  .D2A_NIRS_CHOPPER_EN(D2A_NIRS_CHOPPER_EN),
-
-  .A2D_NIRS_IREFCOARSE(A2D_NIRS0_IREFCOARSE),
-  .A2D_NIRS_IREFFINE(A2D_NIRS0_IREFFINE),
-
-  .IREFCOARSE_TEST(NIRS0_IREFCOARSE_TEST),
-  .IREFFINE_TEST(NIRS0_IREFFINE_TEST),
-  .IDAC_TEST(NIRS0_IDAC_TEST)
-);
-
-ppg_nirs_model nirs_model_1(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS1_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS1_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS1_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS1_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS1_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS1_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS1_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_2(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS2_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS2_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS2_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS2_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS2_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS2_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS2_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_3(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS3_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS3_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS3_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS3_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS3_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS3_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS3_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_4(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS4_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS4_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS4_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS4_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS4_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS4_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS4_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_5(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS5_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS5_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS5_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS5_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS5_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS5_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS5_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_6(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS6_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS6_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS6_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS6_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS6_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS6_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS6_IREFFINE)       // 1-bit SW3 
-);
-
-ppg_nirs_model nirs_model_7(
-  .D2A_NIRS_RESET_SW    (D2A_NIRS7_RESET_SW),      // 1-bit from DIG
-  .D2A_NIRS_ILED_SW     (D2A_NIRS7_IPD_SW),        // 1-bit SW1  from DIG
-  .D2A_NIRS_IIN_SW      (D2A_NIRS7_IIN_SW),        // 1-bit from DIG 
-  .D2A_NIRS_IDAC        (D2A_NIRS7_IDAC_ADJ),          // 9-bit from DIG
-  .D2A_NIRS_IREFCOARSE  (),                        // 2-bit from DIG 
-  .D2A_NIRS_RATIO       (D2A_NIRS7_RATIO),         // 2-bit from DIG  
-  .A2D_NIRS_IREFCOARSE  (A2D_NIRS7_IREFCOARSE),    // 1-bit SW2
-  .A2D_NIRS_IREFFINE    (A2D_NIRS7_IREFFINE)       // 1-bit SW3 
-);
-*/
 // End of this
 
  // --------------------------------------------------------------------------------

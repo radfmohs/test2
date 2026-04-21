@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 
 module imeas_wrapper  #(
-parameter DATA_WIDTH = 32,
+parameter DATA_WIDTH = 24,
           CHN_NUM    = 16
 ) (
 //from old clk_ctrl
@@ -473,7 +473,7 @@ assign data_rate_by_pass = ~((data_rate_add>=5'h4) & (data_rate_add<=5'hd));
 
 //LPF
 //
-assign data_rate_by_pass_lpf = ~((data_rate_add>=5'h2) & (data_rate_add<=5'hf));
+assign data_rate_by_pass_lpf = ~((data_rate_add>=5'h2) & (data_rate_add<=5'hf) & (DR[2] | DR[3] | DR[1]));
 
 //HPF//
 
@@ -522,8 +522,12 @@ end
 assign cic_data_ok = cic_data_counter==cic_data_counter_tar_temp;
 
 //int
-assign meas_done = |filter_chdata_en;
+assign meas_done = !(&notch_filter_bypass_temp)? |(filter_chdata_en & ~notch_filter_bypass_temp) :
+                   !(&lpf_filter_bypass_temp)  ? |(filter_chdata_en & ~lpf_filter_bypass_temp) :
+                   !(&hpf_filter_bypass_temp)  ? |(filter_chdata_en & ~hpf_filter_bypass_temp) : |filter_chdata_en;
+                  
 assign o_eeg_int = ((eeg_int_sts & !int_length_slct) | (eeg_int_sts_pulse & int_length_slct)) & eeg_int_en[0];
+
 
 common_pulse_rising u_eeg_int_sts_pulse(
 .d_in(eeg_int_sts),
@@ -558,19 +562,25 @@ common_pulse_async_clr u_eeg_imeas_clr_sync(
 .d_out(eeg_imeas_sts_clr_sync_pulse)
 );
 
+
+wire eeg_int_en_flag;
+
+assign eeg_int_en_flag = meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp))));
+
+
 always @(posedge pclk or negedge cic_rst_n) begin
   if(~cic_rst_n) begin
     eeg_int_sts <= 1'b0;
   end
-        else if(eeg_sts_clr_sync_pulse | !eeg_int_en_sync | eeg_imeas_sts_clr_sync_pulse)begin
+  else if(eeg_sts_clr_sync_pulse | !eeg_int_en_sync | eeg_imeas_sts_clr_sync_pulse)begin
     eeg_int_sts <= 1'b0;
-        end
-        else if(meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp)))))begin
+  end
+  else if(eeg_int_en_flag)begin
     eeg_int_sts <= 1'b1;
-        end
-        else begin
+  end
+  else begin
     eeg_int_sts <= eeg_int_sts;
-        end
+  end
 end
 
 always @(posedge pclk or negedge cic_rst_n) begin
@@ -579,7 +589,7 @@ always @(posedge pclk or negedge cic_rst_n) begin
   end
         //else if(cic_data_ok | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp)))) begin
     //meas_done_d1 <= meas_done;
-        else if(meas_done & ((cic_data_ok) | ((&(notch_filter_bypass_temp)) && (&(lpf_filter_bypass_temp))))) begin
+        else if(eeg_int_en_flag) begin
     meas_done_d1 <= 1'b1;
 	end
 	else
@@ -587,16 +597,14 @@ always @(posedge pclk or negedge cic_rst_n) begin
 end
 
 //notch with the osr that it doesn't support
-wire   notch_filter_osr_valid;
-assign notch_filter_osr_valid   =   ~((data_rate_notch >= 4'h2) & (data_rate_notch <= 4'hb));
-assign notch_filter_bypass_temp = notch_filter_bypass | {CHN_NUM{notch_filter_osr_valid}} | {CHN_NUM{data_rate_by_pass}};
+assign notch_filter_bypass_temp = notch_filter_bypass | {CHN_NUM{data_rate_by_pass}};
 
 
 //lpf with the osr that it doesn't support
 assign lpf_filter_bypass_temp = lpf_filter_bypass | {CHN_NUM{data_rate_by_pass_lpf}};
 
 //lpf with the osr that it doesn't support
-assign hpf_filter_bypass_temp = hpf_filter_bypass;
+assign hpf_filter_bypass_temp = hpf_filter_bypass | {CHN_NUM{data_rate_by_pass_lpf}};
 
 
 

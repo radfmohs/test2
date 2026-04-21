@@ -145,7 +145,7 @@ set_clock_gating_style -sequential_cell latch \
 
 ###################################################### LEVEL 3 individual channel filter compile
 
-analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../logical/imeas/rtl/filter_fir_lpf.sv ../../../../logical/imeas/rtl/filter_iir_hpf.v ../../../../logical/imeas/rtl/notch_filter.sv ../../../../logical/imeas/rtl/imeas.sv ../../../../logical/imeas/rtl/imeas_cdc.sv ../../../../logical/imeas/rtl/imeas_cic.sv ../../../../logical/imeas/rtl/imeas_ctrl.sv ../../../../logical/imeas/rtl/imeas_reg.sv ../../../common/common_pulse_rising.v ../../../common/common_pulse_sync.v ../../../common/common_bit_sync.v}
+analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../logical/imeas/rtl/filter_ctrl.sv ../../../../logical/imeas/rtl/filter_fir_lpf.sv ../../../../logical/imeas/rtl/filter_iir_hpf.v ../../../../logical/imeas/rtl/notch_filter.sv ../../../../logical/imeas/rtl/imeas.sv ../../../../logical/imeas/rtl/imeas_cdc.sv ../../../../logical/imeas/rtl/imeas_cic.sv ../../../../logical/imeas/rtl/imeas_ctrl.sv ../../../../logical/imeas/rtl/imeas_reg.sv ../../../common/common_pulse_rising.v ../../../common/common_pulse_sync.v ../../../common/common_bit_sync.v}
 elaborate filter_wrapper
 link
 
@@ -229,7 +229,7 @@ change_names -rules verilog -hierarchy
 write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.scan.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
-write -format ddc -hierarchy -output single_channel.ddc
+write -format ddc -hierarchy -output ../data/synthesis_l3/single_channel.ddc
 
 #foreach i $scenarios {
 #  current_scenario $i

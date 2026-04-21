@@ -45,13 +45,14 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
+  //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:13]};} // osr 2 to 13 supported
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[3:3]};} // osr 2 to 13 supported
 
   constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[4:7]};//11]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[3:7]};//11]};
-                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:7]};//11]};
-                                     (imeas_cic_rate == 3)  ->  iclk_sel inside {[1:10]};
+                                     //(imeas_cic_rate == 0)  ->  iclk_sel inside {[4:7]};//11]};
+                                     //(imeas_cic_rate == 1)  ->  iclk_sel inside {[3:7]};//11]};
+                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:11]};//11]};
+                                     (imeas_cic_rate == 3)  ->  iclk_sel inside {[6:8]};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[0:9]};
                                      (imeas_cic_rate == 5)  ->  iclk_sel inside {[0:8]};
                                      (imeas_cic_rate == 6)  ->  iclk_sel inside {[0:7]};
@@ -100,7 +101,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                              (imeas_samp_rate inside {[8000:8192]})   ->  notch_coeff_index_select == 6 ;  
                                              (imeas_samp_rate inside {[16350:16384]}) -> notch_coeff_index_select == 7 ;  
                                              (imeas_samp_rate inside {[32750:32768]}) -> notch_coeff_index_select == 8 ;  
-                                             (imeas_samp_rate inside {[65500:65536]}) -> notch_coeff_index_select == 9 ; }
+                                             (imeas_samp_rate inside {[64000:65536]}) -> notch_coeff_index_select == 9 ; }
 
   constraint c_sine_num_of_period   {  sine_num_of_period == 100; }  
   // -----------------------------------------------

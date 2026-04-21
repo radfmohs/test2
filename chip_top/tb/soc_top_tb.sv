@@ -21,6 +21,7 @@
 `define LEADOFF_TOP_1 `LEADOFF_WRAPPER_TOP.lead_off_block[1].u_lead_off_detector
 `define WG_DRIVER_TOP `DIG_TOP.u_wg_driver
 `define SPI_TOP `DIG_TOP.u_spi_top
+`define SPI_REG `SPI_TOP.spi_reg_u
 `define RESETN `DIG_TOP.u_reset_ctrl.presetn
 `define HF_RESETN `DIG_TOP.u_reset_ctrl.poresetn_hf
 `define PMU_CTRL_TOP `DIG_TOP.u_pmu
@@ -164,7 +165,7 @@
 // `RD_NORMAL_REG(addr, number_of_data, data[]);  
 
 `define WR_BURST_NORMAL_REG `SPIM_VIP.spi_wr_burst_normal_reg
-// `WR_BURST_NORMAL_REG(addr, number_of_data, data[]); 
+// `WR_BURST_NORMAL_REG(addr, number_of_data, pads, data[]); // data[0] will be to Address addr
 
 `define RD_BURST_NORMAL_REG `SPIM_VIP.spi_rd_burst_normal_reg
 // `RD_BURST_NORMAL_REG(addr, number_of_data, data[]); 
@@ -203,7 +204,7 @@
 // `RD_WAVEGEN_REG(addr, number_of_data, data[]);  
 
 `define WR_BURST_WAVEGEN_REG `SPIM_VIP.spi_wr_burst_wavegen_reg
-// `WR_BURST_WAVEGEN_REG(addr, number_of_data, data[]); 
+// `WR_BURST_WAVEGEN_REG(addr, number_of_data, pads, data[]); // data[0] will be to Address addr
 
 `define RD_BURST_WAVEGEN_REG `SPIM_VIP.spi_rd_burst_wavegen_reg
 // `RD_BURST_WAVEGEN_REG(addr, number_of_data, data[]); 
@@ -222,9 +223,9 @@
 
 `define RD_NIRS_REG `SPIM_VIP.spi_rd_single_nirs_reg
 // `RD_NIRS_REG(addr, number_of_data, data[]);  
-//
+
 `define WR_BURST_NIRS_REG `SPIM_VIP.spi_wr_burst_nirs_reg
-// `WR_BURST_NIRS_REG(addr, number_of_data, data[]); 
+// `WR_BURST_NIRS_REG(addr, number_of_data, pads, data[]); // data[0] will be store to Addres: addr
 
 `define RD_BURST_NIRS_REG `SPIM_VIP.spi_rd_burst_nirs_reg
 // `RD_BURST_NIRS_REG(addr, number_of_data, data[]); 

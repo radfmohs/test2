@@ -43,9 +43,12 @@ module filter_fir_lpf
                 filter_in,
 //                sinc_osr_sel,	                
 		bypass,
-		o_cur_count,		
+		cur_count,		
+                mul_temp,
+                inputmux_1,
+                product_1_mux,
 		lpf_coeff_data,
-		filter_out_en,		
+		lpf_cnt_flag,		
                 filter_out
                 );
 
@@ -54,13 +57,17 @@ module filter_fir_lpf
   input   reset; 
   input   sign_en;   
   input   bypass; 
-  output   wire  [4:0]  o_cur_count;  
+  input   wire  [4:0]  cur_count;  
 //  input [3:0] sinc_osr_sel;
   
   input wire signed [17:0]  lpf_coeff_data [27:0];
-  output                filter_out_en;  
-  input   signed [31:0] filter_in; //sfix33
-  output  signed [31:0] filter_out; //sfix33
+  input                lpf_cnt_flag;  
+  input   signed [23:0] filter_in; //sfix33
+  output  signed [23:0] filter_out; //sfix33
+  input wire  signed [42:0] mul_temp;
+  output wire signed [24:0] inputmux_1;
+  output wire signed [17:0] product_1_mux;
+
 
 wire signed [17:0] coeff1 ;
 wire signed [17:0] coeff2 ;
@@ -122,49 +129,49 @@ assign coeff27 = lpf_coeff_data[26];
 assign coeff28 = lpf_coeff_data[27];
 
 
-  // Signals
-  reg  [4:0] cur_count; // ufix5
 
-  assign o_cur_count = cur_count;
-  
+  // Signals
+//  reg  [4:0] cur_count; // ufix5
   wire phase_27; // boolean
   wire phase_0; // boolean
-  reg  signed [32:0] delay_pipeline [0:27] ; // sfix33_En32
-  wire signed [32:0] inputmux_1; // sfix33_En32
-  reg  signed [52:0] acc_final; // sfix53_En50
-  reg  signed [52:0] acc_out_1; // sfix53_En50
-  wire signed [51:0] product_1; // sfix52_En50
-  wire signed [17:0] product_1_mux; // sfix18_En18
-  wire signed [50:0] mul_temp; // sfix51_En50
-  wire signed [52:0] prod_typeconvert_1; // sfix53_En50
-  wire signed [52:0] acc_sum_1; // sfix53_En50
-  wire signed [52:0] acc_in_1; // sfix53_En50
-  wire signed [52:0] add_signext; // sfix53_En50
-  wire signed [52:0] add_signext_1; // sfix53_En50
-  wire signed [53:0] add_temp; // sfix54_En50
-  wire signed [32:0] output_typeconvert; // sfix33_En32
-  reg  signed [32:0] output_register; // sfix33_En32
+  wire phase_28; // boolean
+
+  reg  signed [24:0] delay_pipeline [0:27] ; // sfix25_En24
+//  wire signed [24:0] inputmux_1; // sfix25_En24
+  reg  signed [44:0] acc_final; // sfix45_En42
+  reg  signed [44:0] acc_out_1; // sfix45_En42
+  wire signed [43:0] product_1; // sfix44_En42
+//  wire signed [17:0] product_1_mux; // sfix18_En18
+//  wire signed [42:0] mul_temp; // sfix43_En42
+  wire signed [44:0] prod_typeconvert_1; // sfix45_En42
+  wire signed [44:0] acc_sum_1; // sfix45_En42
+  wire signed [44:0] acc_in_1; // sfix45_En42
+  wire signed [44:0] add_signext; // sfix45_En42
+  wire signed [44:0] add_signext_1; // sfix45_En42
+  wire signed [45:0] add_temp; // sfix46_En42
+  wire signed [24:0] output_typeconvert; // sfix25_En24
+  reg  signed [24:0] output_register; // sfix25_En24
 
   // Block Statements
-  always @ (posedge clk or negedge reset)
-    begin: Counter_process
-      if (reset == 1'b0) begin
-        cur_count <= 5'b11011;
-      end
-      else begin
-        if (clk_enable == 1'b1) begin
-          if (cur_count >= 5'b11011) begin
-            cur_count <= 5'b00000;
-          end
-          else begin
-            cur_count <= cur_count + 5'b00001;
-          end
-        end
-      end
-    end // Counter_process
+//  always @ (posedge clk or negedge reset)
+//    begin: Counter_process
+//      if (reset == 1'b0) begin
+//        cur_count <= 5'b11011;
+//      end
+//      else begin
+//        if (clk_enable == 1'b1) begin
+//          if (cur_count >= 5'b11011) begin
+//            cur_count <= 5'b00000;
+//          end
+//          else begin
+//            cur_count <= cur_count + 5'b00001;
+//          end
+//        end
+//      end
+//    end // Counter_process
 
   assign  phase_27 = (cur_count == 5'b11011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
+  assign  phase_28 = (cur_count == 5'b11100 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
   assign  phase_0 = (cur_count == 5'b00000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
   always @( posedge clk or negedge reset)
@@ -200,8 +207,8 @@ assign coeff28 = lpf_coeff_data[27];
         delay_pipeline[27] <= 0;
       end
       else begin
-        if (phase_27 == 1'b1) begin
-          delay_pipeline[0] <= ~sign_en?  $signed({1'b0,filter_in})-33'sh0_8000_0000 : {{2{filter_in[31]}},filter_in[30:0]};
+        if (phase_27 & lpf_cnt_flag) begin
+          delay_pipeline[0] <= ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
           delay_pipeline[1] <= delay_pipeline[0];
           delay_pipeline[2] <= delay_pipeline[1];
           delay_pipeline[3] <= delay_pipeline[2];
@@ -293,15 +300,15 @@ assign coeff28 = lpf_coeff_data[27];
                         (cur_count == 5'b11001) ? coeff26 :
                         (cur_count == 5'b11010) ? coeff27 :
                         coeff28;
-  assign mul_temp = inputmux_1 * product_1_mux;
-  assign product_1 = $signed({{1{mul_temp[50]}}, mul_temp});
+//  assign mul_temp = inputmux_1 * product_1_mux;
+  assign product_1 = $signed({{1{mul_temp[42]}}, mul_temp});
 
-  assign prod_typeconvert_1 = $signed({{1{product_1[51]}}, product_1});
+  assign prod_typeconvert_1 = $signed({{1{product_1[43]}}, product_1});
 
   assign add_signext = prod_typeconvert_1;
   assign add_signext_1 = acc_out_1;
   assign add_temp = add_signext + add_signext_1;
-  assign acc_sum_1 = add_temp[52:0];
+  assign acc_sum_1 = add_temp[44:0];
 
   assign acc_in_1 = (phase_0 == 1'b1) ? prod_typeconvert_1 :
                    acc_sum_1;
@@ -312,7 +319,7 @@ assign coeff28 = lpf_coeff_data[27];
         acc_out_1 <= 0;
       end
       else begin
-        if (clk_enable == 1'b1) begin
+        if ((clk_enable == 1'b1) & (cur_count != 5'b11100)) begin
           acc_out_1 <= acc_in_1;
         end
       end
@@ -324,40 +331,33 @@ assign coeff28 = lpf_coeff_data[27];
         acc_final <= 0;
       end
       else begin
-        if (phase_0 == 1'b1) begin
+        if (phase_28 == 1'b1) begin
           acc_final <= acc_out_1;
         end
       end
     end // Finalsum_reg_process
 
-  assign output_typeconvert = ((acc_final[52] == 1'b0 & acc_final[51:50] != 2'b00) || (acc_final[52] == 1'b0 && acc_final[50:18] == 33'b011111111111111111111111111111111) // special case0
-) ? 33'b011111111111111111111111111111111 : 
-      (acc_final[52] == 1'b1 && acc_final[51:50] != 2'b11) ? 33'b100000000000000000000000000000000 : (acc_final[50:0] + {acc_final[18], {17{~acc_final[18]}}})>>>18;
+  assign output_typeconvert = ((acc_final[44] == 1'b0 & acc_final[43:42] != 2'b00) || (acc_final[44] == 1'b0 && acc_final[42:18] == 25'b0111111111111111111111111) // special case0
+) ? 25'b0111111111111111111111111 : 
+      (acc_final[44] == 1'b1 && acc_final[43:42] != 2'b11) ? 25'b1000000000000000000000000 : (acc_final[42:0] + {acc_final[18], {17{~acc_final[18]}}})>>>18;
 
-//  reg   phase_27_dly1; 
-//  always @ (posedge clk or negedge reset) begin: Output_Register_process
+//  always @ (posedge clk or negedge reset)
+//    begin: Output_Register_process
 //      if (reset == 1'b0) begin
 //        output_register <= 0;
-//	phase_27_dly1   <= 0;
 //      end
 //      else begin
 //        if (phase_27 == 1'b1) begin
-assign    output_register = output_typeconvert;
-assign 	  phase_27_dly1   = phase_27;	  
+assign          output_register = output_typeconvert;
 //        end
-//        else begin          
-//	  phase_27_dly1   <= 0;	  
-//        end	
 //      end
-//end // Output_Register_process
+//    end // Output_Register_process
 
   // Assignment Statements
-     wire [31:0] output_register_temp; 
- assign output_register_temp = (output_register[32:31]==2'b10)? 32'h8000_0000 : (output_register[32:31]==2'b01)? 32'h7fff_ffff : output_register[31:0];
- assign filter_out  =bypass? filter_in : ~sign_en? output_register_temp[31:0] + 32'h8000_0000 : output_register_temp[31:0];
 
- assign filter_out_en = phase_27;
-
+   wire [23:0] output_register_temp; 
+ assign output_register_temp = (output_register[24:23]==2'b10)? 24'h80_0000 : (output_register[24:23]==2'b01)? 24'h7f_ffff : output_register[23:0];
+ assign filter_out = bypass? filter_in : ~sign_en? output_register_temp[23:0] + 24'h80_0000 : output_register_temp[23:0];
 
 
 endmodule  // filter_comp

@@ -21,7 +21,7 @@
 //======================================================================================== 
 
 module filter_wrapper#(
-parameter DATA_WIDTH = 32
+parameter DATA_WIDTH = 24
 )(
 input wire    clk,   
 input wire    notch_clk,
@@ -68,12 +68,7 @@ input  wire  hpf_filter_bypass_temp,
 output wire  filter_chdata_en,
 output wire [DATA_WIDTH-1:0] imeas_chdata_out
 
-
-
-
-
 );
-
 
 wire [DATA_WIDTH-1:0] filter1;
 wire [DATA_WIDTH-1:0] filter2;
@@ -86,20 +81,82 @@ wire [DATA_WIDTH-1:0] imeas_chdata_out_temp;
 wire  [DATA_WIDTH-1:0] imeas_chdata_adcclk;
 wire                   chdata_en_adcclk;
 
-reg lpf_filter_enable;
-wire [4:0] lpf_filter_enable_cnt;
+wire lpf_filter_enable;
+wire hpf_filter_enable;
 
+wire [4:0] lpf_filter_enable_cnt;
 wire [5:0] notch_filter_enable_cnt;
+wire [2:0] hpf_filter_enable_cnt;
 
 wire lpf_filter_out_en;
 wire lpf_filter_out_en_temp;
 wire chdata_en_pulse;
 
-reg notch_filter_enable;
-reg notch_chdata_en_temp;
-reg hpf_chdata_en_temp;
+wire notch_filter_enable;
+wire notch_chdata_en_temp;
+wire hpf_chdata_en_temp;
 wire notch_chdata_en;
 wire hpf_chdata_en;
+wire lpf_cnt_flag;
+wire nf_sw_flg;
+//wire hpf_filter_out_en_temp;
+
+
+wire signed [62:0] prod_nf;
+wire signed [42:0] inputmux_section_nf;
+wire signed [19:0] coeffmux_section_nf;
+
+wire signed [42:0] prod_lpf;
+wire signed [24:0] inputmux_section_lpf;
+wire signed [17:0] coeffmux_section_lpf;
+
+wire signed [69:0] prod_hpf;
+wire signed [45:0] inputmux_section_hpf;
+wire signed [23:0] coeffmux_section_hpf;
+
+wire signed [69:0] prod;
+wire signed [45:0] inputmux_section;
+wire signed [23:0] coeffmux_section;
+
+assign  inputmux_section = lpf_filter_enable?   {{21{inputmux_section_lpf[24]}},inputmux_section_lpf} : 
+                           notch_filter_enable? {{3{inputmux_section_nf[42]}}  ,inputmux_section_nf } : inputmux_section_hpf;
+
+assign  coeffmux_section = lpf_filter_enable? {{6{coeffmux_section_lpf[17]}},coeffmux_section_lpf}  : 
+                           notch_filter_enable? {{4{coeffmux_section_nf[19]}}  ,coeffmux_section_nf } : coeffmux_section_hpf;
+
+assign prod = inputmux_section * coeffmux_section;
+
+
+
+
+assign prod_nf  = prod[62:0] & {63{notch_filter_enable}};
+assign prod_lpf = prod[50:0] & {51{lpf_filter_enable}};
+assign prod_hpf = prod[69:0] & {70{hpf_filter_enable}};
+
+
+filter_ctrl u_filter_ctrl(
+.clk_r(clk),
+.rst_n(cic_rst_n),
+.hpf_en(!hpf_filter_bypass_temp),
+.lpf_en(!lpf_filter_bypass_temp),
+.nf_en(!notch_filter_bypass_temp),
+.imeas_done(chdata_en_pulse),
+.hpf_done(hpf_chdata_en_temp),
+.lpf_done(lpf_filter_out_en_temp),
+.nf_done(notch_chdata_en_temp),
+.hpf_cnt(hpf_filter_enable_cnt),
+.lpf_cnt(lpf_filter_enable_cnt),
+.nf_cnt(notch_filter_enable_cnt),
+.lpf_cnt_flag(lpf_cnt_flag),
+.nf_sw_flg(nf_sw_flg),
+.hpf_fsm(hpf_filter_enable),
+.lpf_fsm(lpf_filter_enable),
+.nf_fsm(notch_filter_enable) 
+);
+
+
+
+
 
 
 
@@ -134,6 +191,10 @@ wire hpf_chdata_en;
     .bypass       (hpf_filter_bypass_temp),
     .coeff        (hpf_coeff_data),
     .filter_in    (filter1),
+    .cur_count(hpf_filter_enable_cnt),
+    .prod(prod_hpf),
+    .inputmux_section_1(inputmux_section_hpf),
+    .coeffmux_section_1(coeffmux_section_hpf),    
     .filter_out   (filter2)
    );
 
@@ -146,7 +207,11 @@ wire hpf_chdata_en;
    .bypass(notch_filter_bypass_temp),
    .notch_coeff_data(notch_coeff_data),
    .filter_in(filter3),
-   .o_cur_count(notch_filter_enable_cnt),
+   .prod(prod_nf),
+   .inputmux_section_1(inputmux_section_nf),
+   .coeffmux_section_1(coeffmux_section_nf),
+
+   .cur_count(notch_filter_enable_cnt),
    .filter_out(filter4)
    );
    
@@ -156,11 +221,14 @@ wire hpf_chdata_en;
    .clk_enable(1'b1),
    .reset(cic_rst_n),
    .sign_en(sign_en),
-   .filter_out_en(lpf_filter_out_en_temp),
+   .lpf_cnt_flag(lpf_cnt_flag),
    .lpf_coeff_data(lpf_coeff_data),
    .bypass(lpf_filter_bypass_temp),
    .filter_in(filter5),
-   .o_cur_count(lpf_filter_enable_cnt),
+   .mul_temp(prod_lpf),
+   .inputmux_1(inputmux_section_lpf),
+   .product_1_mux(coeffmux_section_lpf),
+   .cur_count(lpf_filter_enable_cnt),
    .filter_out(filter6)
    );
 
@@ -175,71 +243,94 @@ common_pulse_rising u_chdata_en_pulse(
 );
 
 
-always @ (posedge clk or negedge cic_rst_n)begin
-    if (cic_rst_n == 1'b0) begin
-        lpf_filter_enable <= 1'b0;
-    end
-    else if (hpf_chdata_en & !lpf_filter_bypass_temp) begin        
-        lpf_filter_enable <= 1'b1;   
-    end
-    else if (lpf_filter_enable) begin 
-      if (lpf_filter_enable_cnt == 5'b11011) begin        
-              lpf_filter_enable <= 1'b0;   
-            end
-            else begin
-              lpf_filter_enable <= 1'b1;   
-      end	    
-    end   
-    else begin
-        lpf_filter_enable <= 1'b0;
-    end 
-end
+//hpf
+//always @ (posedge clk or negedge cic_rst_n)begin
+//    if (cic_rst_n == 1'b0) begin
+//        hpf_filter_enable <= 1'b0;
+//    end
+//    else if (chdata_en_pulse & !hpf_filter_bypass_temp) begin        
+//        hpf_filter_enable <= 1'b1;   
+//    end
+//    else if (hpf_filter_enable) begin 
+//      if (hpf_filter_enable_cnt == 3'b101) begin        
+//              hpf_filter_enable <= 1'b0;   
+//            end
+//            else begin
+//              hpf_filter_enable <= 1'b1;   
+//      end	    
+//    end   
+//    else begin
+//        hpf_filter_enable <= 1'b0;
+//    end 
+//end
+
+
+//lpf
+//always @ (posedge clk or negedge cic_rst_n)begin
+//    if (cic_rst_n == 1'b0) begin
+//        lpf_filter_enable <= 1'b0;
+//    end
+//    else if (hpf_chdata_en & !lpf_filter_bypass_temp) begin        
+//        lpf_filter_enable <= 1'b1;   
+//    end
+//    else if (lpf_filter_enable) begin 
+//      if (lpf_filter_enable_cnt == 5'b11011) begin        
+//              lpf_filter_enable <= 1'b0;   
+//            end
+//            else begin
+//              lpf_filter_enable <= 1'b1;   
+//      end	    
+//    end   
+//    else begin
+//        lpf_filter_enable <= 1'b0;
+//    end 
+//end
 
 //notch
 assign lpf_filter_out_en = lpf_filter_bypass_temp? hpf_chdata_en : lpf_filter_out_en_temp;
-always @ (posedge clk or negedge cic_rst_n)begin
-    if (cic_rst_n == 1'b0) begin
-        notch_filter_enable <= 1'b0;
-        notch_chdata_en_temp        <= 1'b0;
-    end
-    else if (lpf_filter_out_en & !notch_filter_bypass_temp) begin        
-        notch_filter_enable <= 1'b1;  
-        notch_chdata_en_temp        <= 1'b0; 
-    end
-    else if (notch_filter_enable) begin 
-      if (notch_filter_enable_cnt == 6'b10_0011) begin        
-              notch_filter_enable <= 1'b0;  
-              notch_chdata_en_temp        <= 1'b1; 
-            end
-            else begin
-              notch_filter_enable <= 1'b1; 
-              notch_chdata_en_temp        <= 1'b0;  
-      end	    
-    end   
-    else begin
-        notch_filter_enable <= 1'b0;
-        notch_chdata_en_temp        <= 1'b0;
-    end 
-end
+//always @ (posedge clk or negedge cic_rst_n)begin
+//    if (cic_rst_n == 1'b0) begin
+//        notch_filter_enable <= 1'b0;
+//        notch_chdata_en_temp        <= 1'b0;
+//    end
+//    else if (lpf_filter_out_en & !notch_filter_bypass_temp) begin        
+//        notch_filter_enable <= 1'b1;  
+//        notch_chdata_en_temp        <= 1'b0; 
+//    end
+//    else if (notch_filter_enable) begin 
+//      if (notch_filter_enable_cnt == 6'b10_0011) begin        
+//             notch_filter_enable <= 1'b0;  
+//              notch_chdata_en_temp        <= 1'b1; 
+//            end
+//            else begin
+//              notch_filter_enable <= 1'b1; 
+//              notch_chdata_en_temp        <= 1'b0;  
+//      end	    
+//    end   
+//    else begin
+//        notch_filter_enable <= 1'b0;
+//        notch_chdata_en_temp        <= 1'b0;
+//    end 
+//end
 
 //hpf
-always @ (posedge clk or negedge cic_rst_n)begin
-    if (cic_rst_n == 1'b0) begin
-        hpf_chdata_en_temp <= 1'b0;
-    end else if (chdata_en_pulse & !hpf_filter_bypass_temp) begin        
-        hpf_chdata_en_temp <= 1'b1; 
-    end else begin
-        hpf_chdata_en_temp <= 1'b0;
-    end 
-end
+//always @ (posedge clk or negedge cic_rst_n)begin
+//    if (cic_rst_n == 1'b0) begin
+//        hpf_chdata_en_temp <= 1'b0;
+//    end else if (hpf_filter_out_en_temp & !hpf_filter_bypass_temp) begin        
+//        hpf_chdata_en_temp <= 1'b1; 
+//    end else begin
+//        hpf_chdata_en_temp <= 1'b0;
+//    end 
+//end
 
 assign lpf_clk_gtg_en      = !lpf_filter_bypass_temp & lpf_filter_enable;
 
-assign notch_clk_gtg_en    = !notch_filter_bypass_temp & notch_filter_enable;
+assign notch_clk_gtg_en    = !notch_filter_bypass_temp & nf_sw_flg;
 
 assign notch_chdata_en     = notch_filter_bypass_temp? lpf_filter_out_en : notch_chdata_en_temp;
 
-assign hpf_clk_gtg_en      = !hpf_filter_bypass_temp & (hpf_chdata_en);
+assign hpf_clk_gtg_en      = !hpf_filter_bypass_temp & (hpf_filter_enable);
 
 assign hpf_chdata_en       = hpf_filter_bypass_temp? chdata_en_pulse : hpf_chdata_en_temp;
 

@@ -52,10 +52,11 @@ test_SINC_4_24B #(
 	.ADC_RST(sdm_adc_rst),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_IN(`ANA_TOP.A2D_SDM0),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[0]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[0]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[0]),
 	.IA_valid(exp_cic_out_valid[0])
   );
@@ -69,10 +70,11 @@ test_SINC_4_24B #(
 	.ADC_RST(sdm_adc_rst),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_IN(`ANA_TOP.A2D_SDM1),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[1]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[1]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[1]),
 	.IA_valid(exp_cic_out_valid[1])
   );
@@ -86,10 +88,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM2),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[2]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[2]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[2]),
 	.IA_valid(exp_cic_out_valid[2])
   );
@@ -103,10 +106,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM3),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[3]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[3]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[3]),
 	.IA_valid(exp_cic_out_valid[3])
   );
@@ -120,10 +124,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM4),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[4]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[4]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[4]),
 	.IA_valid(exp_cic_out_valid[4])
   );
@@ -137,10 +142,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM5),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[5]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[5]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[5]),
 	.IA_valid(exp_cic_out_valid[5])
   );
@@ -154,10 +160,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM6),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[6]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[6]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[6]),
 	.IA_valid(exp_cic_out_valid[6])
   );
@@ -171,10 +178,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM7),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[7]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[7]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[7]),
 	.IA_valid(exp_cic_out_valid[7])
   );
@@ -188,10 +196,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM8),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[8]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[8]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[8]),
 	.IA_valid(exp_cic_out_valid[8])
   );
@@ -205,10 +214,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM9),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[9]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[9]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[9]),
 	.IA_valid(exp_cic_out_valid[9])
   );
@@ -222,10 +232,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM10),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[10]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[10]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[10]),
 	.IA_valid(exp_cic_out_valid[10])
   );
@@ -239,10 +250,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM11),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[11]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[11]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[11]),
 	.IA_valid(exp_cic_out_valid[11])
   );
@@ -256,10 +268,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM12),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[12]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[12]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[12]),
 	.IA_valid(exp_cic_out_valid[12])
   );
@@ -272,11 +285,12 @@ test_SINC_4_24B #(
 	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM13),
-        .CH_EN(1'b1),
+	.ADC_IN(`ANA_TOP.A2D_SDM12),
+        .CH_EN(imeas_vif.ch_en[13]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[13]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[13]),
 	.IA_valid(exp_cic_out_valid[13])
   );
@@ -290,10 +304,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM14),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[14]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[14]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[14]),
 	.IA_valid(exp_cic_out_valid[14])
   );
@@ -307,10 +322,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
 	.ADC_IN(`ANA_TOP.A2D_SDM15),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en[15]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[15]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out[15]),
 	.IA_valid(exp_cic_out_valid[15])
   );
@@ -326,10 +342,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM0),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[0]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[0]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[0]),
 	.IA_valid(exp_cic_out_valid_dev2[0])
   );
@@ -343,10 +360,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM1),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[1]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[1]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[1]),
 	.IA_valid(exp_cic_out_valid_dev2[1])
   );
@@ -360,10 +378,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM2),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[2]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[2]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[2]),
 	.IA_valid(exp_cic_out_valid_dev2[2])
   );
@@ -377,10 +396,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM3),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[3]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[3]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[3]),
 	.IA_valid(exp_cic_out_valid_dev2[3])
   );
@@ -394,10 +414,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM4),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[4]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[4]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[4]),
 	.IA_valid(exp_cic_out_valid_dev2[4])
   );
@@ -411,10 +432,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM5),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[5]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[5]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[5]),
 	.IA_valid(exp_cic_out_valid_dev2[5])
   );
@@ -428,10 +450,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM6),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[6]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[6]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[6]),
 	.IA_valid(exp_cic_out_valid_dev2[6])
   );
@@ -445,10 +468,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM7),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[7]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[7]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[7]),
 	.IA_valid(exp_cic_out_valid_dev2[7])
   );
@@ -462,10 +486,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM8),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[8]),
 	.OSR(`IMEAS_WRAPPER_TOP_S1.DR),
 	.OFFSET(offset_dev2[8]),
-	.FORMAT(`IMEAS_WRAPPER_TOP_S1.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[8]),
 	.IA_valid(exp_cic_out_valid_dev2[8])
   );
@@ -479,10 +504,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM9),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[9]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[9]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[9]),
 	.IA_valid(exp_cic_out_valid_dev2[9])
   );
@@ -496,10 +522,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM10),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[10]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[10]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[10]),
 	.IA_valid(exp_cic_out_valid_dev2[10])
   );
@@ -513,10 +540,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM11),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[11]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[11]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[11]),
 	.IA_valid(exp_cic_out_valid_dev2[11])
   );
@@ -530,10 +558,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM12),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[12]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[12]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[12]),
 	.IA_valid(exp_cic_out_valid_dev2[12])
   );
@@ -547,10 +576,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM13),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[13]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[13]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[13]),
 	.IA_valid(exp_cic_out_valid_dev2[13])
   );
@@ -564,10 +594,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM14),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[14]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[14]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[14]),
 	.IA_valid(exp_cic_out_valid_dev2[14])
   );
@@ -581,10 +612,11 @@ test_SINC_4_24B #(
         .ADC_CLK(sdm_adc_clk_dev2),
 	.ADC_RST(sdm_adc_rst_dev2),
 	.ADC_IN(`ANA_TOP_S1.A2D_SDM15),
-        .CH_EN(1'b1),
+        .CH_EN(imeas_vif.ch_en_dev2[15]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset_dev2[15]),
-	.FORMAT(`IMEAS_WRAPPER_TOP.imeas_reg_0[3:2]),
+	.FORMAT(dut_vif.input_format),
+	.FORMAT_SEL(dut_vif.output_format[0]),
 	.IA(exp_cic_out_dev2[15]),
 	.IA_valid(exp_cic_out_valid_dev2[15])
   );
@@ -650,6 +682,14 @@ assign imeas_vif.ch_en               = ~dut_vif.imeas_en_dis_ch & ((dut_vif.no_o
                                        (dut_vif.no_of_adc_dev1 == 4) ? 'hFF   :      // 'h3FF :
                                        (dut_vif.no_of_adc_dev1 == 5) ? 'h3F   :      // 'hFFF :
                                        (dut_vif.no_of_adc_dev1 == 6) ? 'hF  :  'h3); // 'h3FFF
+
+assign imeas_vif.ch_en_dev2          = ~dut_vif.imeas_en_dis_ch & ((dut_vif.no_of_adc_dev2 == 0) ? 'hFFFF :
+                                       (dut_vif.no_of_adc_dev2 == 1) ? 'h3FFF :      // 'hF : 
+                                       (dut_vif.no_of_adc_dev2 == 2) ? 'hFFF  :      // 'h3F :
+                                       (dut_vif.no_of_adc_dev2 == 3) ? 'h3FF  :      // 'hFF :
+                                       (dut_vif.no_of_adc_dev2 == 4) ? 'hFF   :      // 'h3FF :
+                                       (dut_vif.no_of_adc_dev2 == 5) ? 'h3F   :      // 'hFFF :
+                                       (dut_vif.no_of_adc_dev2 == 6) ? 'hF  :  'h3); // 'h3FFF
 
 assign imeas_vif.conv_valid          = |imeas_vif.chdata_en;
 assign imeas_vif.exp_chdata_en       = exp_cic_out_valid;

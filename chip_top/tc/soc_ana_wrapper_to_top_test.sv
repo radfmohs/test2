@@ -117,18 +117,18 @@ class `TESTNAME extends soc_base_test;
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0];
-        if (`ANA_TOP.D2A_BG_TRIM[6:0] !== rand_num[6:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][6:0]: %b",`ANA_TOP.D2A_BG_TRIM[6:0], rand_num[6:0]))
+        if (`ANA_TOP.D2A_BG_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
+        `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][7:0]: %b",`ANA_TOP.D2A_BG_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0]; 
 `else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[6:0] = $random;
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0] = $random;
         #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[6:0]; 
-                if (`ANA_TOP.D2A_BG_TRIM[6:0] !== rand_num[6:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][6:0]: %b",`ANA_TOP.D2A_BG_TRIM[6:0], rand_num[6:0]))
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0]; 
+                if (`ANA_TOP.D2A_BG_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
+        `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][7:0]: %b",`ANA_TOP.D2A_BG_TRIM[7:0], rand_num[7:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[6:0];  
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0];  
 `endif                  
     end
 
@@ -138,16 +138,16 @@ class `TESTNAME extends soc_base_test;
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1];
-        if (`ANA_TOP.D2A_IREF_TRIM[5:0] !== rand_num[5:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][6:0]: %b",`ANA_TOP.D2A_IREF_TRIM[5:0], rand_num[5:0]))
+        if (`ANA_TOP.D2A_BGBUFFER_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
+        `nnc_error("ANA", $sformatf("D2A_BGBUFFER_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][7:0]: %b",`ANA_TOP.D2A_BGBUFFER_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1];  
 `else
         force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8];
-        if (`ANA_TOP.D2A_IREF_TRIM[5:0] !== rand_num[5:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][6:0]: %b",`ANA_TOP.D2A_IREF_TRIM[5:0], rand_num[5:0]))
+        if (`ANA_TOP.D2A_BGBUFFER_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
+        `nnc_error("ANA", $sformatf("D2A_BGBUFFER_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][7:0]: %b",`ANA_TOP.D2A_BGBUFFER_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8];  
 `endif                                    
@@ -159,21 +159,261 @@ class `TESTNAME extends soc_base_test;
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2];
-        if (`ANA_TOP.D2A_CLDO1P8_TRIM[4:0] !== {rand_num[7], rand_num[3:0]}) begin // Only use 5-bit
-        `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][3:0]: %b",`ANA_TOP.D2A_CLDO1P8_TRIM[4:0], {rand_num[7], rand_num[3:0]}))
+        if (`ANA_TOP.D2A_IREF_TRIM[7:0] !== rand_num[7:0]) begin // Only use 5-bit
+        `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][7:0]: %b",`ANA_TOP.D2A_IREF_TRIM[7:0],  rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2]; 
 `else
         force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16];
-        if (`ANA_TOP.D2A_CLDO1P8_TRIM[4:0] !== {rand_num[7], rand_num[3:0]}) begin // Only use 5-bit
-        `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][3:0]: %b",`ANA_TOP.D2A_CLDO1P8_TRIM[4:0], {rand_num[7], rand_num[3:0]}))
+        if (`ANA_TOP.D2A_IREF_TRIM[7:0] !==  rand_num[7:0]) begin // Only use 5-bit
+        `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][7:0]: %b",`ANA_TOP.D2A_IREF_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16]; 
 `endif                      
     end
 
+   for (int i=0; i < 100; i++) begin   
+`ifdef BEHAVIORAL                                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];
+        if (`ANA_TOP.D2A_CLDO1P8_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of rand_num[7:0] : %b",`ANA_TOP.D2A_CLDO1P8_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];  
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];
+        if (`ANA_TOP.D2A_CLDO1P8_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of rand_num[7:0] : %b",`ANA_TOP.D2A_CLDO1P8_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];  
+`endif                   
+    end
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                                   
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4];
+        if (`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_OSC8MHZ_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
+        if (`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_OSC8MHZ_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
+`endif                                   
+    end
+
+    for (int i=0; i < 100; i++) begin
+`ifdef BEHAVIORAL                                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];
+        if (`ANA_TOP.D2A_TSC_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TSC_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TSC_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];   
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
+        if (`ANA_TOP.D2A_TSC_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TSC_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TSC_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
+`endif                                    
+    end
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6];
+        if (`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48];
+        if (`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48]; 
+`endif                     
+    end 
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7];
+        if (`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48];
+        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[63:56]; 
+`endif                     
+    end 
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8];
+        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM1_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64];
+        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM1_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64]; 
+`endif                     
+    end 
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9];
+        if (`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM2_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72];
+        if (`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM2_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72]; 
+`endif                     
+    end 
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10];
+        if (`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM3_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80];
+        if (`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM3_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80]; 
+`endif                     
+    end 
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11];
+        if (`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM4_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88];
+        if (`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM4_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88]; 
+`endif                     
+    end
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12];
+        if (`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM5_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96];
+        if (`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM5_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96]; 
+`endif                     
+    end
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13];
+        if (`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM6_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104];
+        if (`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM6_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104]; 
+`endif                     
+    end
+
+    for (int i=0; i < 100; i++) begin 
+`ifdef BEHAVIORAL                
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14];
+        if (`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM7_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14]; 
+`else
+        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112] = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112];
+        if (`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0] !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM7_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0], rand_num[7:0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112]; 
+`endif                     
+    end
+/*
     //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
 `ifdef BEHAVIORAL                                    
@@ -217,7 +457,7 @@ class `TESTNAME extends soc_base_test;
     end
     
     //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
+    for (int i=0; i < 100; i++) begin // DONEEEE
 `ifdef BEHAVIORAL                
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6] = $random;
         #10000ns;
@@ -269,9 +509,9 @@ class `TESTNAME extends soc_base_test;
       release  `ANA_TOP.A2D_POR_DVDD;              
     end
     
-    /*-----------------------------OSC-------------------------------*/       
+    //-----------------------------OSC-------------------------------//       
     //Module : OSC , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
+    for (int i=0; i < 100; i++) begin   // DONEEEEEEEEEEEEEEE
 `ifdef BEHAVIORAL                                
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3] = $random;
         #10000ns;
@@ -323,7 +563,7 @@ class `TESTNAME extends soc_base_test;
       release  `ANA_TOP.A2D_CLK2MHZ;              
     end
 
-    /*-----------------------------BIST-------------------------------*/       
+    //-----------------------------BIST-------------------------------//       
     //Module : BIST , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
 `ifdef BEHAVIORAL                   
@@ -366,9 +606,9 @@ class `TESTNAME extends soc_base_test;
 `endif                                         
     end  
 
-    /*-----------------------------CH1-------------------------------*/    
+    //-----------------------------CH1-------------------------------//    
     //Module : CH1 , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
+    for (int i=0; i < 100; i++) begin // DONEEEEEEEEEEEEEEEEEEEEEE
 `ifdef BEHAVIORAL                                   
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4] = $random;
         #10000ns;
@@ -678,7 +918,7 @@ class `TESTNAME extends soc_base_test;
     end
 
     //Module : CH2 , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
+    for (int i=0; i < 100; i++) begin // DONEEEEEEEEEEEEE
 `ifdef BEHAVIORAL                                
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5] = $random;
         #10000ns;
@@ -1200,7 +1440,7 @@ class `TESTNAME extends soc_base_test;
       release  `ANA_TOP.A2D_SPARE_RO_REG_0; 
 `endif                                                                                  
     end
-
+    */
     //for (int i=0; i < 100; i++) begin
     //    force `ANA_TOP.VDD_DIG = $random;
     //    #10000ns;

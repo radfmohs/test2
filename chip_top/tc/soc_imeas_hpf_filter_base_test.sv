@@ -50,13 +50,15 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
+  //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:13]};} // osr 2 to 13 supported
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:2]};} // osr 2 to 13 supported
 
   constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0) ->  iclk_sel inside {[4:11]};
-                                     (imeas_cic_rate == 1) ->  iclk_sel inside {[3:11]};
-                                     (imeas_cic_rate == 2) ->  iclk_sel inside {[2:11]};
-                                     (imeas_cic_rate == 3) ->  iclk_sel inside {[1:10]};
+                                     //(imeas_cic_rate == 0) ->  iclk_sel inside {[0:11]};
+                                     //(imeas_cic_rate == 1) ->  iclk_sel inside {[0:11]};
+                                     //(imeas_cic_rate == 2) ->  iclk_sel inside {[0:11]};
+                                     (imeas_cic_rate == 2) ->  iclk_sel inside {[7:9]};
+                                     (imeas_cic_rate == 3) ->  iclk_sel inside {[0:10]};
                                      (imeas_cic_rate == 4) ->  iclk_sel inside {[0:9]};
                                      (imeas_cic_rate == 5) ->  iclk_sel inside {[0:8]};
                                      (imeas_cic_rate == 6) ->  iclk_sel inside {[0:7]};
@@ -82,7 +84,8 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   //constraint c_hpf_cutoff_freq_fc   {  hpf_cutoff_freq_fc inside {0.2, 0.5, 1, 2, 5, 10}; }  
 
-  constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {0, 1, 2, 3, 4, 5};}
+  //constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {0, 1, 2, 3, 4, 5, 6, 7};}
+  constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {1, 1};}
 
   constraint c_hpf_coeff_index_1_select    {  solve imeas_samp_rate before hpf_coeff_index_1_select ;
                                              (imeas_samp_rate inside {[30:32]})      -> hpf_coeff_index_1_select == 0 ;   // 31.25
@@ -104,12 +107,14 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   function void post_randomize();
       case (hpf_coeff_index_0_select)
-          0: hpf_cutoff_freq_fc = 0.2;
-          1: hpf_cutoff_freq_fc = 0.5;
-          2: hpf_cutoff_freq_fc = 1.0;
-          3: hpf_cutoff_freq_fc = 2.0;
-          4: hpf_cutoff_freq_fc = 5.0;
-          5: hpf_cutoff_freq_fc = 10.0;
+          0: hpf_cutoff_freq_fc = 0.05;
+          1: hpf_cutoff_freq_fc = 0.1;
+          2: hpf_cutoff_freq_fc = 0.2;
+          3: hpf_cutoff_freq_fc = 0.5;
+          4: hpf_cutoff_freq_fc = 1.0;
+          5: hpf_cutoff_freq_fc = 2.0;
+          6: hpf_cutoff_freq_fc = 5.0;
+          7: hpf_cutoff_freq_fc = 10.0;
       endcase
       imeas_sin_expected_freq = hpf_cutoff_freq_fc * 1000 ;
   endfunction

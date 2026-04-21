@@ -1,7 +1,7 @@
 #if not scan mode
 if {[string match "filter_wrapper*" [get_object_name [current_design]]]} {
   if {[string match S4_m?? $i]==0} {
-    set hfosc_period  [expr {100}]; # 10 MHz
+    set hfosc_period  [expr {125}]; # 8 MHz
     create_clock -name clk {clk} -period $hfosc_period
     create_clock -name notch_clk {notch_clk} -period $hfosc_period
     create_clock -name lpf_clk {lpf_clk} -period $hfosc_period
@@ -15,7 +15,7 @@ if {[string match "filter_wrapper*" [get_object_name [current_design]]]} {
   }
 } else {
   if {[string match S4_m?? $i]==0} {
-      set hfosc_period 100; # 10 MHz
+      set hfosc_period 125; # 8 MHz
       create_clock -name pclk [get_ports {pclk}] -period $hfosc_period
       create_clock -name adc_clk_running [get_ports {adc_clk_running}] -period $hfosc_period
 
@@ -54,21 +54,14 @@ if {[string match "filter_wrapper*" [get_object_name [current_design]]]} {
 
 set clock_ports [get_attribute [all_clocks] sources]
 
-#if memory bist mode, disable the clocks
-if {[string match S3_m?? $i]} {
-  # Apply case analysis to the physical ports, not the clock objects
-  set_case_analysis 0 $clock_ports
-  set_false_path -from [all_inputs]
-  set_false_path -to [all_outputs]
-} else {
-  # Subtract PORTS from PORTS
-  set safe_inputs [remove_from_collection [all_inputs] $clock_ports]
-  set safe_outputs [remove_from_collection [all_outputs] $clock_ports]
+# Subtract PORTS from PORTS
+set safe_inputs [remove_from_collection [all_inputs] $clock_ports]
+set safe_outputs [remove_from_collection [all_outputs] $clock_ports]
 
-  foreach_in_collection c [all_clocks] {
-    set clk_name [get_object_name $c]
-    set_input_delay  2.0 -clock $clk_name $safe_inputs  -add_delay
-    set_output_delay 2.0 -clock $clk_name $safe_outputs -add_delay
-  }
-
+foreach_in_collection c [all_clocks] {
+  set clk_name [get_object_name $c]
+  set_input_delay  2.0 -clock $clk_name $safe_inputs  -add_delay
+  set_output_delay 2.0 -clock $clk_name $safe_outputs -add_delay
 }
+
+

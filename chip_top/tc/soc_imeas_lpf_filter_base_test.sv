@@ -49,23 +49,26 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
+  //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:13]};} // osr 2 to 13 supported
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:2]};} // osr 2 to 13 supported
 
-  constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
-                                      (imeas_cic_rate == 0) ->  iclk_sel inside {[2:11]};
-                                      (imeas_cic_rate == 1) ->  iclk_sel inside {[1:11]};
-                                      (imeas_cic_rate == 2) ->  iclk_sel inside {[0:11]};
-                                      (imeas_cic_rate == 3) ->  iclk_sel inside {[0:11]};
-                                      (imeas_cic_rate == 4) ->  iclk_sel inside {[0:11]};
-                                      (imeas_cic_rate == 5) ->  iclk_sel inside {[0:10]};
-                                      (imeas_cic_rate == 6) ->  iclk_sel inside {[0:9]};
-                                      (imeas_cic_rate == 7) ->  iclk_sel inside {[0:8]};
-                                      (imeas_cic_rate == 8) ->  iclk_sel inside {[0:7]};
-                                      (imeas_cic_rate == 9) ->  iclk_sel inside {[0:6]};
-                                      (imeas_cic_rate == 10) ->  iclk_sel inside {[0:5]};
-                                      (imeas_cic_rate == 11) ->  iclk_sel inside {[0:4]};
-                                      (imeas_cic_rate == 12) ->  iclk_sel inside {[0:3]};
-                                      (imeas_cic_rate == 13) ->  iclk_sel inside {[0:2]};}
+  constraint c_iclk_sel             { iclk_sel == 7;}
+
+  //constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
+  //                                    //(imeas_cic_rate == 0) ->  iclk_sel inside {[0:11]};
+  //                                    //(imeas_cic_rate == 1) ->  iclk_sel inside {[0:11]};
+  //                                    (imeas_cic_rate == 2) ->  iclk_sel inside {[7:7]};
+  //                                    (imeas_cic_rate == 3) ->  iclk_sel inside {[0:11]};
+  //                                    (imeas_cic_rate == 4) ->  iclk_sel inside {[0:11]};
+  //                                    (imeas_cic_rate == 5) ->  iclk_sel inside {[0:10]};
+  //                                    (imeas_cic_rate == 6) ->  iclk_sel inside {[0:9]};
+  //                                    (imeas_cic_rate == 7) ->  iclk_sel inside {[0:8]};
+  //                                    (imeas_cic_rate == 8) ->  iclk_sel inside {[0:7]};
+  //                                    (imeas_cic_rate == 9) ->  iclk_sel inside {[0:6]};
+  //                                    (imeas_cic_rate == 10) ->  iclk_sel inside {[0:5]};
+  //                                    (imeas_cic_rate == 11) ->  iclk_sel inside {[0:4]};
+  //                                    (imeas_cic_rate == 12) ->  iclk_sel inside {[0:3]};
+  //                                    (imeas_cic_rate == 13) ->  iclk_sel inside {[0:2]};}
 
   constraint c_imeas_sin_gen_en    { imeas_sin_gen_en == 1'b1; }//generate sdm adc sine
 

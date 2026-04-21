@@ -786,7 +786,7 @@ end
 //====================
 
 wire filter_clk_sclt;
-assign filter_clk_sclt = notch_filter_valid? ~(|osr_sel[3:2]) && ~(&osr_sel[1:0]) : ~(|osr_sel[3:1]);
+assign filter_clk_sclt =  ~(|osr_sel[3:2]);
 
 CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK[15:0] (
   .A(imeas_dig_adc_clk), 

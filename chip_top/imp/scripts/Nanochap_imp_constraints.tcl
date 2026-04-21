@@ -20,8 +20,8 @@
  #                 to the flop clock pin; at this point it is an estimate.
  
  #set hfosc_period       [expr {15.625}]      	; # 64 MHz     
- set hfosc_period       [expr {250}]      	; # 10 MHz 
- set extclk_period      [expr {250}] 	    	; # 10 MHz
+ set hfosc_period       [expr {110}]      	; # 9 MHz 
+ set extclk_period      [expr {110}] 	    	; # 9 MHz
  set spiclk_period      [expr {50}]       	; # 20 MHz SPI
  set mbistclk_period    [expr {120}]       	; # 10 Mhz BIST cannot be achieved in max corner. eprom is slow
 

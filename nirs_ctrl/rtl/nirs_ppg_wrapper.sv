@@ -1,3 +1,18 @@
+
+//------------------------------------------------------------------------------
+// Nanochap Pty Ltd (c) 2026
+//------------------------------------------------------------------------------
+// Project name: Nanochap ENS2  
+// Module Name : NIRS/PPF WRAPPER
+// Description : A wrapper to instatiate and connect signals for 8 channels  
+//------------------------------------------------------------------------------
+// Revision History
+//------------------------------------------------------------------------------
+// Revision     Date        Design
+//------------------------------------------------------------------------------
+// 0.1          18/04/2026  Truong Pham
+// Initial Rev
+//------------------------------------------------------------------------------
 module nirs_ppg_wrapper #(
   parameter NO_OF_NIRS = 8
 ) (
@@ -8,6 +23,9 @@ module nirs_ppg_wrapper #(
   input  wire clk_sys, // Max: 2MHz
 
   output wire  [NO_OF_NIRS-1:0] LED_ON_IO,
+  input  wire                   int_length_slct,
+  output wire                   INT_IO,
+
   ana_nirs_if.nirs        ana_nirs_if,
   spi_nirs_if.nirs        spi_nirs_if
 );
@@ -61,6 +79,12 @@ module nirs_ppg_wrapper #(
   wire    [NO_OF_NIRS-1:0]    IIN_SW;                  
   wire    [NO_OF_NIRS-1:0]    LED_ON;   
 
+/* Interrupts */
+  wire               [7:0]    NIRS_PPG_INT_SEL  [NO_OF_NIRS-1:0];
+  wire    [NO_OF_NIRS-1:0]    INT_IO_tmp;
+  wire    [NO_OF_NIRS-1:0]    INT; 
+  wire    [NO_OF_NIRS-1:0]    INT_CLR;                  
+
   wire          IDAC_EN           [NO_OF_NIRS-1:0];
   wire    [8:0] IDAC              [NO_OF_NIRS-1:0];
   wire   [12:0] DOUTC             [NO_OF_NIRS-1:0];
@@ -73,30 +97,33 @@ module nirs_ppg_wrapper #(
 genvar i, j;
 generate
   for (i = 0; i < NO_OF_NIRS; i++) begin
-     assign PERIOD_CTRL_0        [i]  =  spi_nirs_if.NIRS_CTRL[i][0][0][7:4];
-     assign OTS_CTRL_0           [i]  =  spi_nirs_if.NIRS_CTRL[i][0][0][3:0];
-     assign LED_OFF_CTRL_0       [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][7:6];
-     assign RESET_CTRL_0         [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][5:3];
-     assign LED_STABLE_CTRL_0    [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][2:0];
-     assign IDAC_MANUAL_0        [i]  = {spi_nirs_if.NIRS_CTRL[i][0][2][5:0], spi_nirs_if.NIRS_CTRL[i][0][3][7:5]};
-     assign IDAC_MANUAL_EN_0     [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][4];
-     assign IDAC_IDAC_EN_0       [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][3];
-     assign THRESHOLD_H_0        [i]  = {spi_nirs_if.NIRS_CTRL[i][0][3][2:0], spi_nirs_if.NIRS_CTRL[i][0][4], spi_nirs_if.NIRS_CTRL[i][0][5]};
-     assign THRESHOLD_L_0        [i]  = spi_nirs_if.NIRS_CTRL[i][0][6];
+     assign PERIOD_CTRL_0     [i]  =  spi_nirs_if.NIRS_CTRL[i][0][0][7:4];
+     assign OTS_CTRL_0        [i]  =  spi_nirs_if.NIRS_CTRL[i][0][0][3:0];
+     assign LED_OFF_CTRL_0    [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][7:6];
+     assign RESET_CTRL_0      [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][5:3];
+     assign LED_STABLE_CTRL_0 [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][2:0];
+     assign IDAC_MANUAL_0     [i]  = {spi_nirs_if.NIRS_CTRL[i][0][2][5:0], spi_nirs_if.NIRS_CTRL[i][0][3][7:5]};
+     assign IDAC_MANUAL_EN_0  [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][4];
+     assign IDAC_IDAC_EN_0    [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][3];
+     assign THRESHOLD_H_0     [i]  = {spi_nirs_if.NIRS_CTRL[i][0][3][2:0], spi_nirs_if.NIRS_CTRL[i][0][4], spi_nirs_if.NIRS_CTRL[i][0][5]};
+     assign THRESHOLD_L_0     [i]  =  spi_nirs_if.NIRS_CTRL[i][0][6];
 
-    assign PERIOD_CTRL_1        [i]  =  spi_nirs_if.NIRS_CTRL[i][1][0][7:4];
-    assign OTS_CTRL_1           [i]  =  spi_nirs_if.NIRS_CTRL[i][1][0][3:0];
-    assign LED_OFF_CTRL_1       [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][7:6];
-    assign RESET_CTRL_1         [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][5:3];
-    assign LED_STABLE_CTRL_1    [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][2:0];
-    assign IDAC_MANUAL_1        [i]  = {spi_nirs_if.NIRS_CTRL[i][1][2][5:0], spi_nirs_if.NIRS_CTRL[i][1][3][7:5]};
-    assign IDAC_MANUAL_EN_1     [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][4];
-    assign IDAC_IDAC_EN_1       [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][3];
-    assign THRESHOLD_H_1        [i]  = {spi_nirs_if.NIRS_CTRL[i][1][3][2:0], spi_nirs_if.NIRS_CTRL[i][1][4], spi_nirs_if.NIRS_CTRL[i][1][5]};
-    assign THRESHOLD_L_1        [i]  = spi_nirs_if.NIRS_CTRL[i][1][6];
+    assign PERIOD_CTRL_1      [i]  =  spi_nirs_if.NIRS_CTRL[i][1][0][7:4];
+    assign OTS_CTRL_1         [i]  =  spi_nirs_if.NIRS_CTRL[i][1][0][3:0];
+    assign LED_OFF_CTRL_1     [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][7:6];
+    assign RESET_CTRL_1       [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][5:3];
+    assign LED_STABLE_CTRL_1  [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][2:0];
+    assign IDAC_MANUAL_1      [i]  = {spi_nirs_if.NIRS_CTRL[i][1][2][5:0], spi_nirs_if.NIRS_CTRL[i][1][3][7:5]};
+    assign IDAC_MANUAL_EN_1   [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][4];
+    assign IDAC_IDAC_EN_1     [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][3];
+    assign THRESHOLD_H_1      [i]  = {spi_nirs_if.NIRS_CTRL[i][1][3][2:0], spi_nirs_if.NIRS_CTRL[i][1][4], spi_nirs_if.NIRS_CTRL[i][1][5]};
+    assign THRESHOLD_L_1      [i]  =  spi_nirs_if.NIRS_CTRL[i][1][6];
 
-    assign NIRS_PGG_MODE_SEL[i] = spi_nirs_if.NIRS_CTRL_MODE[i][4:0];
-    assign NIRS_SINGLE[i]       = (NIRS_PGG_MODE_SEL[i][3] == 1'b1) || (NIRS_PGG_MODE_SEL[i][0] == 1'b1);
+    assign NIRS_PGG_MODE_SEL  [i]  =  spi_nirs_if.NIRS_CTRL_MODE[i][4:0];
+    assign NIRS_SINGLE        [i]  = (NIRS_PGG_MODE_SEL[i][3] == 1'b1) || (NIRS_PGG_MODE_SEL[i][0] == 1'b1);
+    assign NIRS_PPG_INT_SEL   [i]  =  spi_nirs_if.NIRS_CTRL_INT[i];
+    assign INT_CLR            [i]  =  spi_nirs_if.NIRS_INT_CLR[i];
+    assign spi_nirs_if.NIRS_INT[i] =  INT[i];
 
     assign CMD[i] = spi_nirs_if. NIRS_CTRL_CMD[i];
 
@@ -106,18 +133,18 @@ generate
     assign spi_nirs_if.NIRS_DEBUG[i][3] = {DOUTC[i][7:0]};
     assign spi_nirs_if.NIRS_DEBUG[i][4] = {2'b0, IDAC_MAX[i], IDAC_MIN[i], IREF_COARSE_ON_NOT_OFF[i], IREF_COARSE_NOT_ON[i], IREF_FINE_ON_NOT_OFF[i], IREF_FINE_NOT_ON[i]};
 
-    assign ana_nirs_if.D2A_NIRS_EN[i]       = EN[i];
-    assign ana_nirs_if.D2A_IDAC_EN[i]       = IDAC_EN[i];
-    assign ana_nirs_if.D2A_NIRS_RESET_SW[i] = RESET[i];
-    assign ana_nirs_if.D2A_NIRS_IPD_SW[i]   = IPD_SW[i];
-    assign ana_nirs_if.D2A_NIRS_IIN_SW[i]   = IIN_SW[i];
-    assign ana_nirs_if.D2A_IPDMIRROR_ADJ[i] = spi_nirs_if.NIRS_CTRL_ADJ[1][6:5];
-    assign ana_nirs_if.D2A_IREFC_ADJ[i]     = {6'b0, spi_nirs_if.NIRS_CTRL_ADJ[1][4:3]};
-    assign ana_nirs_if.D2A_NIRS_IDAC[i]     = IDAC[i];
-    assign ana_nirs_if.D2A_NIRS_RATIO[i]    = RATIO_MANUAL[1:0];
+    assign ana_nirs_if.D2A_NIRS_EN        [i] = EN[i];
+    assign ana_nirs_if.D2A_IDAC_EN        [i] = IDAC_EN[i];
+    assign ana_nirs_if.D2A_NIRS_RESET_SW  [i] = RESET[i];
+    assign ana_nirs_if.D2A_NIRS_IPD_SW    [i] = IPD_SW[i];
+    assign ana_nirs_if.D2A_NIRS_IIN_SW    [i] = IIN_SW[i];
+    assign ana_nirs_if.D2A_IPDMIRROR_ADJ  [i] = spi_nirs_if.NIRS_CTRL_ADJ[1][6:5];
+    assign ana_nirs_if.D2A_IREFC_ADJ      [i] = spi_nirs_if.NIRS_CTRL_ADJ[1][4:3];
+    assign ana_nirs_if.D2A_NIRS_IDAC      [i] = IDAC[i];
+    assign ana_nirs_if.D2A_NIRS_RATIO     [i] = RATIO_MANUAL[1:0];
 
-    assign IREF_COARSE[i] = ana_nirs_if.A2D_NIRS_IREFCOARSE[i];
-    assign IREF_FINE[i]   = ana_nirs_if.A2D_NIRS_IREFFINE[i];
+    assign IREF_COARSE  [i] = ana_nirs_if.A2D_NIRS_IREFCOARSE[i];
+    assign IREF_FINE    [i] = ana_nirs_if.A2D_NIRS_IREFFINE[i];
 
 
     assign spi_nirs_if.NIRS_DOUT[i][0]  = {4'b0, DOUT[i][18:15]};
@@ -209,6 +236,14 @@ nirs_ppg_ctrl_top u_nirs_ctrl_top [NO_OF_NIRS-1:0] (
   .IIN_SW                 (IIN_SW),
   .LED_ON                 (LED_ON),
 
+// Interrupts
+  .NIRS_PPG_INT_SEL_spi   (NIRS_PPG_INT_SEL),
+  .int_length_slct_spi    (int_length_slct),
+  .INT_CLR                (INT_CLR),
+  .INT                    (INT),
+  .INT_IO                 (INT_IO_tmp),
+
+
 // Counters to Analog
   .IDAC_EN                (IDAC_EN),
   .IDAC                   (IDAC),
@@ -221,5 +256,7 @@ nirs_ppg_ctrl_top u_nirs_ctrl_top [NO_OF_NIRS-1:0] (
   .IREF_FINE              (IREF_FINE)
 
 );
+
+assign INT_IO = |INT_IO_tmp;
 
 endmodule

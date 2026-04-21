@@ -60,16 +60,14 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_single_shot_en      { single_shot_en == 0; }
 
   //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:1]};} 
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:1]};} 
 
   constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
                                      //(imeas_cic_rate == 0)  ->  iclk_sel inside {[4:11]};
                                      //(imeas_cic_rate == 1)  ->  iclk_sel inside {[3:11]};
                                      //(imeas_cic_rate == 2)  ->  iclk_sel inside {[2:11]};
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[4:4]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[3:3]};
                                      (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:4]};
-                                     (imeas_cic_rate == 3)  ->  iclk_sel inside {[1:10]};
+                                     (imeas_cic_rate == 3)  ->  iclk_sel inside {[1:2]};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[0:9]};
                                      (imeas_cic_rate == 5)  ->  iclk_sel inside {[0:8]};
                                      (imeas_cic_rate == 6)  ->  iclk_sel inside {[0:7]};

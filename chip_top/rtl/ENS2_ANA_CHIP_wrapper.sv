@@ -128,13 +128,16 @@ wire  [7:0] D2A_TRIM6_SIG;
 wire  [7:0] D2A_ADJ0_IO;
 wire  [7:0] D2A_ADJ1_IO;
 wire  [7:0] D2A_ADJ2_IO;
+wire  [7:0] D2A_ADJ1_2_IO;
 wire  [7:0] D2A_ADJ3_IO;
 wire  [7:0] D2A_ADJ4_IO;
 wire  [7:0] D2A_ADJ5_IO;
 wire  [7:0] D2A_ADJ6_IO;
 wire  [7:0] D2A_ADJ7_IO;
+wire  [7:0] D2A_ADJ6_7_IO;
 wire  [7:0] D2A_ADJ8_IO;
 wire  [7:0] D2A_ADJ9_IO;
+wire  [7:0] D2A_ADJ8_9_IO;
 wire  [7:0] D2A_ADJ10_IO;
 wire  [7:0] D2A_ADJ11_IO;
 wire  [7:0] D2A_ADJ12_IO;
@@ -479,20 +482,20 @@ assign D2A_TRIM5_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[12];
 assign D2A_TRIM6_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[13];
 assign D2A_TRIM7_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[14];
 
-assign D2A_ADJ0_IO  = pinmux_if.D2A_ADJ_IO[0];
-assign D2A_ADJ1_IO  = pinmux_if.D2A_ADJ_IO[1];
-assign D2A_ADJ2_IO  = pinmux_if.D2A_ADJ_IO[2];
-assign D2A_ADJ3_IO  = pinmux_if.D2A_ADJ_IO[3];
-assign D2A_ADJ4_IO  = pinmux_if.D2A_ADJ_IO[4];
-assign D2A_ADJ5_IO  = pinmux_if.D2A_ADJ_IO[5];
-assign D2A_ADJ6_IO  = pinmux_if.D2A_ADJ_IO[6];
-assign D2A_ADJ7_IO  = pinmux_if.D2A_ADJ_IO[7];
-assign D2A_ADJ8_IO  = pinmux_if.D2A_ADJ_IO[8];
-assign D2A_ADJ9_IO  = pinmux_if.D2A_ADJ_IO[9];
-assign D2A_ADJ10_IO  = pinmux_if.D2A_ADJ_IO[10];
-assign D2A_ADJ11_IO  = pinmux_if.D2A_ADJ_IO[11];
-assign D2A_ADJ12_IO  = pinmux_if.D2A_ADJ_IO[12];
-assign D2A_ADJ13_IO  = pinmux_if.D2A_ADJ_IO[13];
+assign D2A_ADJ0_IO   = D2A_ATM15 ?  pinmux_if.D2A_ADJ_IO[0]  : ANA_GEN_REG[0][14];
+assign D2A_ADJ1_2_IO = D2A_ATM16 ?  pinmux_if.D2A_ADJ_IO[1]  : (D2A_ATM17 ?  pinmux_if.D2A_ADJ_IO[2] : ANA_GEN_REG[1][14]);
+
+assign D2A_ADJ3_IO   = pinmux_if.D2A_ADJ_IO[3];//NIRS
+assign D2A_ADJ4_IO   = pinmux_if.D2A_ADJ_IO[4];//NIRS
+assign D2A_ADJ5_IO   = pinmux_if.D2A_ADJ_IO[5];//NIRS
+assign D2A_ADJ6_7_IO = D2A_ATM21 ?  pinmux_if.D2A_ADJ_IO[6] :  (D2A_ATM22 ?  pinmux_if.D2A_ADJ_IO[7] : ANA_GEN_REG[2][14]);
+
+assign D2A_ADJ8_9_IO = D2A_ATM23 ?  pinmux_if.D2A_ADJ_IO[8]  : (D2A_ATM24 ?  pinmux_if.D2A_ADJ_IO[9] : ANA_GEN_REG[3][14]);
+
+assign D2A_ADJ10_IO  = D2A_ATM25 ?  pinmux_if.D2A_ADJ_IO[10]  : ANA_GEN_REG[4][14];
+assign D2A_ADJ11_IO  = D2A_ATM26 ?  pinmux_if.D2A_ADJ_IO[11]  : ANA_GEN_REG[5][14];
+assign D2A_ADJ12_IO  = D2A_ATM27 ?  pinmux_if.D2A_ADJ_IO[12]  : ANA_GEN_REG[6][14];
+assign D2A_ADJ13_IO  = D2A_ATM28 ?  pinmux_if.D2A_ADJ_IO[13]  : ANA_GEN_REG[7][14];
 
 assign ANA_ENABLE_REG = pinmux_if.D2A_ANA_ENABLE_REG;
 assign ANA_GEN_REG    = spi_ana_if.D2A_ANA_GEN_REG;
@@ -506,31 +509,31 @@ assign spi_ana_if.A2D_ANA_GEN_REG[5] = A2D_SPARE_RO_REG_0;
 //ADJ//
 
                                                                      
-assign D2A_LOFF_COMP_TH          = ANA_GEN_REG[1][14][2:0];//D2A_ADJ1_IO //D2A_ADJ2_IO
-assign D2A_LOFF_IPOL				     = ANA_GEN_REG[1][14][3];
-assign D2A_LOFF_ISEL_ADJ         = ANA_GEN_REG[1][14][7:4];
+assign D2A_LOFF_COMP_TH          = D2A_ADJ1_2_IO[2:0];//D2A_ADJ1_IO //D2A_ADJ2_IO
+assign D2A_LOFF_IPOL				     = D2A_ADJ1_2_IO[3];
+assign D2A_LOFF_ISEL_ADJ         = D2A_ADJ1_2_IO[7:4];
 
 //LNA 
-assign D2A_EEGLNA8_GAIN          = ANA_GEN_REG[2][14][5:0];//D2A_ADJ6_IO //D2A_ADJ7_IO
-assign D2A_EEGLNA8_IADJ          = ANA_GEN_REG[2][14][7:6];
+assign D2A_EEGLNA8_GAIN          = D2A_ADJ6_7_IO[5:0];//D2A_ADJ6_IO //D2A_ADJ7_IO
+assign D2A_EEGLNA8_IADJ          = D2A_ADJ6_7_IO[7:6];
 
 //PGA
-assign D2A_EEGPGA8A_GAIN         = ANA_GEN_REG[3][14][2:0];//D2A_ADJ8_IO //D2A_ADJ9_IO
-assign D2A_EEGPGA8B_GAIN         = ANA_GEN_REG[3][14][7:3];
+assign D2A_EEGPGA8A_GAIN         = D2A_ADJ8_9_IO[2:0];//D2A_ADJ8_IO //D2A_ADJ9_IO
+assign D2A_EEGPGA8B_GAIN         = D2A_ADJ8_9_IO[7:3];
 
 //VCMGEN (PAD)
-assign D2A_VCMGENBUFF_IADJ       = ANA_GEN_REG[4][14];//D2A_ADJ10_IO
+assign D2A_VCMGENBUFF_IADJ       = D2A_ADJ10_IO;//D2A_ADJ10_IO
 
 //SDMVCMBUFF (PAD))
-assign D2A_SDMVCMBUFF_IADJ      = ANA_GEN_REG[5][13][1:0];//D2A_ADJ11_IO
-assign D2A_SDMVCMBUFF_SEL       = ANA_GEN_REG[5][13][7:2];
+assign D2A_SDMVCMBUFF_IADJ      = D2A_ADJ11_IO[1:0];//D2A_ADJ11_IO
+assign D2A_SDMVCMBUFF_SEL       = D2A_ADJ11_IO[7:2];
 
 //VREFP (PAD)
-assign D2A_SDMVREFP_IADJ        = ANA_GEN_REG[6][12][1:0];//D2A_ADJ12_IO
-assign D2A_SDMVREFP_SEL         = ANA_GEN_REG[6][12][7:2];
+assign D2A_SDMVREFP_IADJ        = D2A_ADJ12_IO[1:0];//D2A_ADJ12_IO
+assign D2A_SDMVREFP_SEL         = D2A_ADJ12_IO[7:2];
 
 //RLD (PAD)
-assign D2A_RLD_IADJ             = ANA_GEN_REG[7][13];//D2A_ADJ13_IO
+assign D2A_RLD_IADJ             = D2A_ADJ13_IO;//D2A_ADJ13_IO
 
 
 //PMU
@@ -548,7 +551,7 @@ assign D2A_OSC8MHZEN	           = ANA_ENABLE_REG[0][1][1];
 
 //TSC
 assign D2A_TSC_TRIM              = D2A_TRIM5_SIG;
-assign D2A_VDAC8B_DIN            = pinmux_if.d2a_tsc_vdac8b_din_ch1;//pending
+assign D2A_VDAC8B_DIN            = D2A_ATM15 ? pinmux_if.D2A_ADJ_IO[0] : pinmux_if.d2a_tsc_vdac8b_din_ch1;//pending
 assign D2A_EN_TSC                = pinmux_if.d2a_tsc_en_ch1;
 
 //BIST
@@ -770,7 +773,7 @@ wire        D2A_NIRS_RESET_SW       [7:0];
 wire        D2A_NIRS_IPD_SW         [7:0];
 wire        D2A_NIRS_IIN_SW         [7:0];
 wire  [1:0] D2A_NIRS_IPDMIRROR_ADJ  [7:0];
-wire  [7:0] D2A_NIRS_IREFC_ADJ      [7:0];
+wire  [1:0] D2A_NIRS_IREFC_ADJ      [7:0];
 wire  [1:0] D2A_NIRS_CFRATE_ADJ0; //RATIO
 wire  [1:0] D2A_NIRS_CFRATE_ADJ1; //RATIO
 wire  [1:0] D2A_NIRS_CFRATE_ADJ2; //RATIO

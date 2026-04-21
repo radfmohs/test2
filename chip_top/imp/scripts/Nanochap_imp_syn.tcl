@@ -155,7 +155,7 @@ set_clock_gating_style -sequential_cell latch \
 #remove_design -all
 if {$bottom_up == "yes"} {
    	                            
-  set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library imeas_wrapper.ddc];# $synthetic_library]
+  set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library ../data/synthesis_l2/imeas_wrapper.ddc];# $synthetic_library]
   set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
   
   sh rm -rf ./imeas_wrapper
@@ -213,7 +213,7 @@ redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${r
   elaborate -architecture verilog ${rm_project_top}}
 
 if {$bottom_up == "yes"} {  
-    read_ddc imeas_wrapper.ddc
+    read_ddc ../data/synthesis_l2/imeas_wrapper.ddc
 }
 
 # ------------------------------------------------------------------------------
@@ -355,7 +355,9 @@ compile_ultra  -scan -gate_clock -no_autoungroup; # -spg;# -self_gating;#use pla
 # unique names to avoid name collisions when integrating the design at the top
 # level
 set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
-uniquify -force
+if {$bottom_up != "yes"} {
+  uniquify -force
+}
 
 define_name_rules verilog -case_insensitive
 change_names -rules verilog -hierarchy -verbose > \
@@ -369,8 +371,8 @@ set_app_var verilogout_no_tri true
 # set_app_var power_cg_auto_identify true
 
 #sh mkdir ../data
-write -format ddc -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.ddc
-write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.v
+write -format ddc -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.ddc
+write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.v
 
 # Write and close SVF file, make it available for immediate use
 set_svf -off
