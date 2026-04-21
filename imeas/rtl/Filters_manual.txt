@@ -1,0 +1,147 @@
+1) Filter Specifications (from code, not comments)
+LPF — filter_fir_lpf.sv
+Parameter	Value / Source
+Type	FIR, linear phase
+Order / Taps	Order 31 — 32 taps (delay_pipeline[0:31], coeff1..coeff32)
+Architecture	Serial time-multiplexed, 1 shared multiplier; counter 0→31 (32 clocks/sample)
+Coefficient width	18-bit signed, fractional (sfix18_En18, range [−1, 1))
+Data width	32-bit signed I/O; 33-bit internal; 53-bit accumulator
+Passband	0 → Fs/8 (e.g., 0–8 192 Hz at Fs = 64 kHz)
+Stopband	Fs/4 and above (e.g., ≥ 16 348 Hz at Fs = 64 kHz)
+Transition band	Fs/8 wide — exactly one octave between Fpass and Fstop at every OSR
+Passband ripple	1 dB (from MATLAB-generated header, consistent with Parks-McClellan design)
+Stopband attenuation	80 dB
+OSR range	OSR 32–1024; bypassed automatically when iclk_div + osr_sel < 2 or > 15
+Clocks per output	32 (counter wraps at 5'b11111 → 5'b00000)
+HPF — filter_iir_hpf.v
+Parameter	Value / Source
+Type	IIR, 1st-order, Direct-Form II, single biquad section
+Architecture	Fully parallel (no counter, Folding Factor = 1); 1 clock/sample
+Order	1 (one delay element delay_section1)
+Coefficient width	24-bit signed input coeff (sfix24_En22, scale/a2 port)
+Data width	32-bit signed I/O; 33-bit internal; 50-bit state; 76-bit intermediate
+Normalized −3 dB point	7.8125×10⁻⁶ × Fs (for the default coefficient value)
+Actual Fcut	Programmable; at Fs = 2 048 Hz → Fcut ≈ 0.016 Hz (DC/baseline blocker)
+Rolloff	20 dB/decade above Fcut (single pole)
+Programmable parameters	Single 24-bit coeff input; a2 = (0.25 − coeff); scale = coeff
+Bypass	Fully bypassed when bypass = 1
+Notch Filter — notch_filter.sv
+Parameter	Value / Source
+Type	IIR, Direct-Form II, Second-Order Sections (SOS)
+Order	14 (7 biquad sections × 2nd order; 42 coefficients = 7 × 6)
+Architecture	Serial time-multiplexed; 1 shared multiplier; counter 0→41 (42 clocks/sample); 6 clocks per section
+Coefficient width	20-bit signed (sfix20_En18, range [−4, 4))
+State register width	50-bit per delay tap; 14 delay registers total (7 sections × 2)
+Data width	32-bit signed I/O
+Center frequency	50 Hz
+Passband edge 1	46.5 Hz (−3 dB)
+Stopband edge 1	48.9–49 Hz (−20 dB)
+Stopband edge 2	53.75 Hz (−20 dB)
+Passband edge 2	51.1 Hz (−3 dB)
+Transition bandwidth	Lower ~2.4 Hz, Upper ~2.65 Hz
+Stopband attenuation	20 dB minimum
+Passband ripple	3 dB (at ±3.5 Hz from center)
+Notch bandwidth (−20 dB)	~4.85 Hz (48.9–53.75 Hz)
+OSR support	data_rate_notch must be in [2, 11]; bypassed outside this range
+Clocks per output	42 (counter 0→41, wraps at 6'b10_1001 = 41)
+Pipeline order (hardcoded in wrapper): Input → LPF → Notch → HPF → Output
+Total pipeline latency: ~32 (LPF) + 42 (Notch) + 1 (HPF) = ~75 clocks (your estimate of 64 appears off; LPF = 32 + Notch = 42 + HPF = 1 = 75)
+
+2) Area Consumption and Scaling Formulas
+The dominant cost items per filter are: multiplier size, register bits, and MUX complexity.
+
+Register file comparison (per channel)
+Filter	Delay/State Regs	Accum	Other Regs	Total FF bits
+LPF	32 × 33-bit pipeline = 1 056 b	53-bit	5-bit counter	~1 115 b
+Notch	7 × 2 × 50-bit state = 700 b	72-bit	6×33-bit stage-out + 6-bit counter	~972 b
+HPF	1 × 50-bit state	—	33-bit output reg	~83 b
+Multiplier size comparison
+Filter	Multiplier operands	Product width	Relative cost
+Notch	58-bit × 20-bit	78-bit	Largest
+HPF	33-bit × 24-bit	57-bit	Medium
+LPF	33-bit × 18-bit	51-bit	Smallest
+(Multiplier area ∝ W₁ × W₂; Notch > HPF > LPF)
+
+MUX complexity
+LPF: 32:1 MUX on 33-bit data and 18-bit coefficients (O(N log₂N) gates)
+Notch: 42:1 MUX on 58-bit data and 20-bit coefficients (larger)
+HPF: none (combinational only)
+Approximate relative area (registers + multiplier; 1 channel)
+HPF ≈ 1× (baseline)
+LPF ≈ 8–10× HPF
+Notch ≈ 12–16× HPF
+
+Scaling formulas
+For serial FIR (LPF):
+
+Code
+A_FIR ∝ N × W_data            (delay pipeline dominates)
+      + log₂(N) × W_data       (MUX logic)
+      + W_coeff × W_data        (multiplier, shared → fixed)
+Halving Fcut at same Fs → ~double N → A ∝ 2× for each octave reduction in bandwidth
+Increasing stopband attenuation by ΔdB → N increases roughly proportionally → A ∝ ΔdB
+Each additional tap: +W_data FF bits + 1 MUX level
+For serial IIR (Notch):
+
+Code
+A_IIR ∝ K × 2 × W_state       (K = number of SOS sections; dominant)
+      + K × 6 × log₂(K) × 1   (MUX)
+      + W_mul_input × W_coeff  (multiplier, shared → fixed)
+Tightening the transition band (narrower notch or deeper rejection): K increases roughly as log₁₀(stopband_dB / passband_dB) × (Fs / transition_BW) → A ∝ K
+Widening the notch or relaxing specs: K can drop (e.g., 7 → 2 sections saves ~5/7 ≈ 70% of state regs)
+For HPF (parallel 1st-order IIR):
+
+Code
+A_HPF ≈ const             (area independent of Fcut; only coefficient changes)
+Moving Fcut does not change area. Order increase (e.g., to 2nd-order) would ~double the state registers.
+
+3) Area Reduction Opportunities
+LPF (32-tap FIR)
+Exploit linear-phase symmetry — If the FIR coefficients are symmetric (h[k] = h[N−1−k], as is typical for Parks-McClellan), only 16 unique multiplications are needed instead of 32. Fold the delay line to sum symmetric pairs first (one adder), then multiply. This halves the number of clock cycles to 16 and reduces the delay pipeline to 16 registers, saving ~50% of LPF area. This is the single biggest potential reduction.
+Half-band property — The current design has Fstop = 2 × Fpass (Fstop/Fpass = 2), which exactly satisfies the half-band FIR condition (Fstop + Fpass = Fs/2). In a half-band FIR, every other coefficient is zero. This means only ~16 coefficients are non-zero out of 32, further halving multiplications to 8 unique ones.
+Reduce coefficient word length — Dropping from 18 to 14 bits costs ~3–5 dB in stopband attenuation but shrinks the multiplier input and coefficient bus by 22%, with proportional reduction in MUX bits and multiplier logic.
+Replace FF delay line with SRAM/BRAM — 32 × 33-bit = 1 056 bits of delay register is the largest single area block. In a technology with SRAM macros, this can be implemented as a small SRAM (e.g., 32×33 = ~1 kbit), saving significant FF area.
+Reduce order if 80 dB is excessive — For most EEG applications, 60–70 dB stopband is sufficient. A 20-tap FIR (order 19) would achieve ~60 dB, cutting LPF area by ~37%.
+Notch Filter
+Reduce section count from 7 to 2–3 — A 14th-order IIR notch is exceptionally high for a 50 Hz notch with only −20 dB depth. A well-tuned 4th-order (2 biquad sections) IIR notch achieves −40 dB or more at 50 Hz. Reducing from 7 to 2 sections saves ~72% of state register area and reduces clocks from 42 to 12. This is the biggest potential gain.
+Replace with a linear-phase FIR notch — A short FIR notch (e.g., 12–20 taps) with a null placed at 50 Hz achieves −40–60 dB rejection with linear phase, simpler hardware, no stability concerns, and smaller state. The cost is slightly wider transition band.
+Reduce state register width — The 50-bit state may be oversized for 20 dB performance. Wordlength optimization (using MATLAB/filterDesigner) could likely trim to 38–42 bits without degrading the −20 dB spec.
+Reduce coefficient width from 20 to 16 bits — Shrinks both coefficient bus and multiplier input, at modest precision cost.
+HPF
+Share the HPF multiplier with LPF or Notch — The HPF is currently parallel (1 clock/sample). Since the LPF and Notch serial engines are already time-multiplexed, there are free clock slots during their computation periods. The HPF's single multiply (delay_section1 × coeff_a2) could be inserted into one spare time slot of the Notch or LPF multiplier, eliminating the HPF multiplier entirely. This saves one 33×24-bit multiplier per channel (16 total multipliers eliminated).
+HPF is already minimal — It's 1st-order, 83 FF bits. No further reduction is warranted.
+System-level (all filters)
+Channel time-multiplexing — All 16 channels currently have independent LPF+Notch+HPF instances. Since data comes in at a low rate (EEG ~250–2000 Hz), a single shared filter chain time-multiplexed across all 16 channels at 16× the individual channel clock would reduce the filter hardware count by 16×, at the cost of higher system clock. This is the largest system-level saving.
+Use CIC+short FIR instead of long FIR — The existing design already has a CIC stage upstream. If the CIC droop is pre-compensated, the downstream FIR can be 12–16 taps instead of 32, halving LPF area.
+Coefficient ROM sharing — All 16 channel instances share the same coefficient buses (lpf_coeff_data, notch_coeff_data, hpf_coeff_data). This is already done. However, eliminating the external bus and storing coefficients in a small per-filter ROM could reduce routing congestion.
+4) Comparison with Commercial EEG Filters
+Feature	Your LPF	Your HPF	Your Notch	ADS1299 (TI)	ADAS1000 (ADI)	MAX86900 / typical EEG ASIC
+Type	FIR, 32-tap	IIR, 1st order	IIR, 14th order (7 SOS)	Sinc³ + FIR	Sinc³ + CIC	Sinc + FIR
+Fcut / Fcenter	Fs/8 (prog.)	~0.016 Hz default (prog.)	50 Hz fixed center	262 Hz at 500 SPS	150 Hz	150–500 Hz
+HPF Fcut	—	Very low (~0.016 Hz at 2 kHz)	—	0.5 Hz internal	0.5 Hz	0.1–1 Hz
+Transition band	Fstop/Fpass = 2 (one octave, wide)	20 dB/decade	2.4/2.65 Hz	~10% of Fs	~20% of Fs	varies
+Stopband attenuation	80 dB (good)	20 dB/decade slope	Only 20 dB	~80 dB	~60 dB	40–80 dB
+Passband ripple	1 dB (good)	N/A (monotone)	3 dB at ±3.5 Hz	<0.5 dB	<1 dB	<1 dB
+Phase response	Linear ✓	Non-linear	Non-linear	Non-linear	Non-linear	Often non-linear
+Notch depth	—	—	−20 dB only	N/A (external)	N/A	40–60 dB typical
+60 Hz support	—	—	No	N/A	No	Often configurable
+Harmonic notch (100/150 Hz)	—	—	No	No	No	Rarely
+Programmable coefficients	✓ (full 32 coeffs)	✓ (1 coeff, limited)	✓ (42 coeffs)	No (fixed)	No (fixed)	Limited
+Architecture	Serial, 32 clk	Parallel	Serial, 42 clk	Fully parallel	Fully parallel	Parallel
+Per-channel copies	16 independent	16 independent	16 independent	Integrated per channel	Integrated per channel	Integrated
+What your filters may be lacking or need improvement:
+Notch depth is too shallow (−20 dB): This is the most significant deficiency. At −20 dB, a 1 mV powerline artifact is reduced to only 100 µV — still a major contaminant in EEG (typical cortical signals are 10–100 µV). Commercial EEG systems target −40 to −60 dB. You need to redesign the notch for at least −40 dB stopband, which also justifies the current high order.
+
+Notch passband ripple 3 dB at ±3.5 Hz: Losing 3 dB of signal at 46.5 Hz and 51.1 Hz is problematic for gamma-band EEG (30–80 Hz). This indicates the notch is far too broad. The 7-section design may have been optimizing for something other than a simple 50 Hz notch (e.g., a combined anti-aliasing characteristic).
+
+No 60 Hz notch: The powerline frequency is 60 Hz in North America, Japan, and parts of Latin America. A device intended for global use must support both 50 Hz and 60 Hz, selectable via coefficients. Your architecture supports this through coefficient reprogramming, but it needs two separate coefficient sets and documentation.
+
+HPF default Fcut far too low for clinical use: A 7.8125×10⁻⁶ normalized frequency means at Fs=500 Hz, Fcut ≈ 0.004 Hz, with a settling time constant of ~250 seconds. IEC 60601-2-26 (EEG safety standard) specifies HPF between 0.016 Hz and 1 Hz. The programmability is useful, but the default should probably be set near 0.1–0.5 Hz for typical EEG use.
+
+Wide LPF transition band (one octave): Signals between Fpass (Fs/8) and Fstop (Fs/4) are in the undefined transition zone. Standard EEG FIR anti-alias filters achieve Fstop/Fpass ≈ 1.1–1.3. This could alias components above the Nyquist of the target bandwidth into the passband.
+
+Phase distortion in HPF and Notch (IIR): Both the HPF and Notch are IIR and introduce non-linear phase. This is acceptable for clinical display, but degrades accuracy of event-related potential (ERP) latency measurements. The FIR LPF (linear phase) is a strength — consider an FIR notch for phase consistency.
+
+No harmonic rejection: The 50 Hz fundamental has harmonics at 100, 150, 200 Hz. These pass through the notch untouched and appear as artifacts in the stopband of the LPF. If Fs is high enough, these harmonics are within the LPF passband and will contaminate the signal.
+
+Notch architecture overcomplicated for the spec: 14th-order IIR for −20 dB at 50 Hz is excessive. Either the spec needs to be tightened to −40 dB (justifying the order) or the order should be dramatically reduced (2–4 SOS), saving significant area. The current design appears to be a mismatch between complexity and performance.
