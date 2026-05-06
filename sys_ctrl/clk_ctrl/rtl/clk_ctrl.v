@@ -72,6 +72,10 @@ input  wire         imeas_working_sync,
 input  wire         imeas_working,
 input  wire [15:0]  en_channels,
 
+input   wire    iclk_pga_disable,               // pga clock disable 
+input   wire  [2:0]  iclk_div_pga,               // pga clock divider
+output  wire 	     pga_ana_clk,
+
 input  wire  [3:0]  iclk_div,               // imeas adc clock divider
 input  wire	    imeas_adc_inv,	    // invert the input to analog imeas if 1, otherwise not inverted
 output wire [15:0]  imeas_pclk,             // for imeas pclk
@@ -631,18 +635,18 @@ assign iclk_div_final =  iclk_div ;               // imeas adc clock divider
 always @ (*) begin
   //case (iclk_div)
   case (iclk_div_final)
-    4'b0001: iclk_div_num = 10'd0;
-    4'b0010: iclk_div_num = 10'd1;
-    4'b0011: iclk_div_num = 10'd3;
-    4'b0100: iclk_div_num = 10'd7;
-    4'b0101: iclk_div_num = 10'd15;
-    4'b0110: iclk_div_num = 10'd31;
-    4'b0111: iclk_div_num = 10'd63;
-    4'b1000: iclk_div_num = 10'd127;
-    4'b1001: iclk_div_num = 10'd255;
-    4'b1010: iclk_div_num = 10'd511;
-    4'b1011: iclk_div_num = 10'd1023;
-    default: iclk_div_num = 10'd0;
+    4'b0001: iclk_div_num = 11'd0;
+    4'b0010: iclk_div_num = 11'd1;
+    4'b0011: iclk_div_num = 11'd3;
+    4'b0100: iclk_div_num = 11'd7;
+    4'b0101: iclk_div_num = 11'd15;
+    4'b0110: iclk_div_num = 11'd31;
+    4'b0111: iclk_div_num = 11'd63;
+    4'b1000: iclk_div_num = 11'd127;
+    4'b1001: iclk_div_num = 11'd255;
+    4'b1010: iclk_div_num = 11'd511;
+    4'b1011: iclk_div_num = 11'd1023;
+    default: iclk_div_num = 11'd0;
   endcase
 end
 
@@ -739,6 +743,77 @@ common_clock_gate u_cmsdk_clock_gate_analog_adcclk (
   );
 `endif
 
+//for pga clock
+//++++++++++++++++++++++++++++++++++++
+reg  [6:0]   iclk_div_pga_cnt;
+reg  [6:0]   iclk_div_pga_num;
+always @ (*) begin
+  case (iclk_div_pga)
+    3'b001: iclk_div_pga_num = 7'd0;
+    3'b010: iclk_div_pga_num = 7'd1;
+    3'b011: iclk_div_pga_num = 7'd3;
+    3'b100: iclk_div_pga_num = 7'd7;
+    3'b101: iclk_div_pga_num = 7'd15;
+    3'b110: iclk_div_pga_num = 7'd31;
+    3'b111: iclk_div_pga_num = 7'd63;
+    default: iclk_div_pga_num = 7'd0;
+  endcase
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn) 
+    iclk_div_pga_cnt <= 7'b0;
+  else if (iclk_div_pga_cnt >= iclk_div_pga_num)
+    iclk_div_pga_cnt <= 7'b0;
+  else
+    iclk_div_pga_cnt <= iclk_div_pga_cnt + 7'b1;
+end
+
+reg div_pga_fclk_d;
+reg div_pga_fclk_d_1t;
+always @ (*) begin
+    if (iclk_div_pga_cnt >= iclk_div_pga_num)
+        div_pga_fclk_d = ~div_pga_fclk_d_1t;
+    else
+        div_pga_fclk_d = div_pga_fclk_d_1t;
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+    if (~poresetn)
+        div_pga_fclk_d_1t <= 1'b0;
+    else
+        div_pga_fclk_d_1t <= div_pga_fclk_d;
+end
+
+  // creat_generate_clk here
+  DFFRHQ_X4_A7TULL DFF_DIV_PGA_FCLK (.Q(div_pga_fclk_q), .CK(fclk), .D(div_pga_fclk_d), .RN(poresetn));
+
+  wire not_div_pga;
+  assign not_div_pga = (iclk_div_pga == 3'b000);
+
+  wire div_pga_fclk_q_final;
+  wire iclk_pga;
+  CLKMX2_X4_A7TULL DNT_DIV_PGA_CLK (.A(div_pga_fclk_q), .B(fclk), .S0(not_div_pga), .Y(div_pga_fclk_q_final));
+  CLKMX2_X4_A7TULL DNT_DIV_PGA_FCLK_ATPG (.A(div_pga_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk_pga));
+
+wire iclk_pga_disable_sync;
+common_sync_bit u_pga_clk_sync(
+  .async_in(iclk_pga_disable),
+  .clk(iclk_pga),
+  .rst_(poresetn),      
+  .sync_out(iclk_pga_disable_sync)
+);	
+
+common_clock_gate u_pga_clk_gate (
+  .clk(iclk_pga),
+  .enable(~iclk_pga_disable_sync),
+  .bypass(atpg_en),
+  .gated_clk(pga_ana_clk)
+);
+
+//++++++++++++++++++++++++++++++++++++
+
+
 //for analog stable
 
 //wire start_sample;
@@ -788,10 +863,19 @@ end
 wire filter_clk_sclt;
 assign filter_clk_sclt =  ~(|osr_sel[3:2]);
 
-CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK[15:0] (
+wire [15:0]  imeas_dig_filter_clk_post_tmp;
+CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK_TMP[15:0] (
   .A(imeas_dig_adc_clk), 
   .B(fclk), 
   .S0(filter_clk_sclt), 
+  //.Y(imeas_dig_filter_clk_post)
+  .Y(imeas_dig_filter_clk_post_tmp)
+);
+
+CLKMX2_X4_A7TULL DNT_NOTCH_FILTER_CLK[15:0] (
+  .A(imeas_dig_filter_clk_post_tmp), 
+  .B(fclk), 
+  .S0(atpg_en), 
   .Y(imeas_dig_filter_clk_post)
 );
 
@@ -849,8 +933,8 @@ common_clock_gate u_cmsdk_clock_gate_fclk_1 (
   .gated_clk  (fclk_gate)
 );
 
-//always @ (posedge fclk or negedge poresetn) begin
-always @ (posedge fclk_gate or negedge poresetn) begin
+always @ (posedge fclk or negedge poresetn) begin
+//always @ (posedge fclk_gate or negedge poresetn) begin
   if (~poresetn) 
     ppg_clk_div_cnt <= 2'b0;
   else if(ppg_clk50duty & (ppg_clk_div_cnt >= ppg_clk_div_num))

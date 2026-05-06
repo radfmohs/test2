@@ -43,7 +43,14 @@ bit [`ALL_IMEAS_SIZE-1:0]    local_data_imeas;
 bit [`ALL_IMEAS_SIZE-1:0] local_data_filter;
 // 32-bit_width of sample data * ADC_NUM(16) * `SOC_TB.dut_vif.python_imeas_length (output filter - Filter output)
 
-wire [`SERIAL_BIT_PY_NUM:0]   local_data;
+localparam TOTAL_WIDTH = `SERIAL_BIT_PY_NUM
+                         + `ALL_IMEAS_SIZE
+                         + `ALL_IMEAS_SIZE
+                         + 1024
+                         + 1024;
+
+//wire [`SERIAL_BIT_PY_NUM:0]   local_data;
+wire [TOTAL_WIDTH:0]   local_data;
 
 bit [7:0]           local_data_out;
 bit [31 :0]         local_len ;
@@ -306,11 +313,11 @@ always @(wavegen_addr0)
 begin
   if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_0 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
  
-    if (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1) begin
+    if (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1) begin
        if (wavegen_addr0 == 0) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
-         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b0)) dac0_tag = !dac0_tag;
-         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1)) dac0_tag = !dac0_tag; 
+         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag; 
          #1;
          if (pos_stick1 == 1) begin
            python_data_num_0++;
@@ -319,11 +326,11 @@ begin
        end else if (wavegen_addr0 == 1)  begin
          if (pos_stick1 == 0) begin
            #1;
-           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b0)) dac0_tag = !dac0_tag;
-           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
          end else begin
-           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b0)) dac0_tag = !dac0_tag;
-           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
            @(negedge `WG_DRIVER_TOP.i_pclk);
            #1;
            python_data_num_0++;
@@ -332,8 +339,8 @@ begin
        end else if (wavegen_addr0 > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
          #1;
-         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b0)) dac0_tag = !dac0_tag;
-         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
          if ((pos_stick1 == 1) && (special_match_dac0 === 1'b0)) begin
            wait (match_dac0);
            python_data_num_0++;
@@ -347,8 +354,8 @@ begin
     end else begin
        @(posedge `WG_DRIVER_TOP.i_pclk);
        @(negedge `WG_DRIVER_TOP.i_pclk);
-       if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b0)) dac0_tag = !dac0_tag;
-       if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac0 === 1'b1)) dac0_tag = !dac0_tag;
+       if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+       if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
        wait (match_dac0); 
        python_data_num_0++;
        if (match_pos_dac0) `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {3'b110, dac0_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[0][11:0]};
@@ -366,12 +373,12 @@ always @(wavegen_addr1)
 begin
   if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_1 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
 
-    if (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1) begin
+    if (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1) begin
        if (wavegen_addr1 == 0) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
          #1;
-         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b0)) dac1_tag = !dac1_tag;
-         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1)) dac1_tag = !dac1_tag; 
+         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag; 
          if (pos_stick2 == 1) begin
            python_data_num_1++;
            `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};
@@ -379,21 +386,21 @@ begin
        end else if (wavegen_addr1 == 1)  begin
          if (pos_stick2 == 0) begin
            #1;
-           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b0)) dac1_tag = !dac1_tag;
-           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
          end
          else begin
            @(negedge `WG_DRIVER_TOP.i_pclk);
-           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b0)) dac1_tag = !dac1_tag;
-           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
            #1;
            python_data_num_1++;
            `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};
          end
        end else if (wavegen_addr1 > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
-         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b0)) dac1_tag = !dac1_tag;
-         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
          #1;
          if ((pos_stick2 == 1) && (special_match_dac1 === 1'b0)) begin
              wait (match_dac1);
@@ -408,8 +415,8 @@ begin
     end else begin
        @(posedge `WG_DRIVER_TOP.i_pclk);
        @(negedge `WG_DRIVER_TOP.i_pclk);
-       if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b0)) dac1_tag = !dac1_tag;
-       if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac1 === 1'b1)) dac1_tag = !dac1_tag;
+       if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+       if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
        wait (match_dac1); 
        python_data_num_1++;
        if (match_pos_dac1) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};
@@ -536,7 +543,8 @@ assign config_data_imeas = {
      // ---------------------------------------
      // Word-11 for IMEAS Configuration
      // ---------------------------------------
-     32'h00000000,
+     //32'h00000000,
+     `SOC_TB.dut_vif.imeas_sample_num_per_period,
 
      // ---------------------------------------
      // Word-10 for IMEAS Configuration
@@ -595,7 +603,7 @@ assign config_data_imeas = {
      `SOC_TB.dut_vif.output_format, // 2-bit [31:30]
      `SOC_TB.dut_vif.python_imeas_en, // 1-bit [29] - IMEAS CHECKER ENABLE
      `SOC_TB.dut_vif.imeas_noise_gen_en, // 1-bit [28]
-     `SOC_TB.dut_vif.imeas_sample_num_per_period, // 12-bit 
+      12'b0, // 12-bit  - imeas_sample_num_per_period updated to 32 bits so moved to WORD-11
      `SOC_TB.dut_vif.imeas_en_dis_ch[`ADC_NUM-1:0] // 16-bit
 };
 
@@ -607,7 +615,7 @@ assign config_data_imeas = {
 /************************************************************************************************************************************************************************************************/
 
 // =====================================================================
-// Connect data from IMEAS to here (2560 words) - local_data_imeas
+// Connect data from IMEAS to here (40000 words) - local_data_imeas
 // =====================================================================
 //always @(negedge `CLK_CTRL_TOP.imeas_dig_adc_clk[imeas_chnum])
 //always @(negedge `CLK_CTRL_TOP.pclk)begin
@@ -717,34 +725,35 @@ always @(negedge `CLK_CTRL_TOP.pclk) begin
     end
 end
 // =====================================================================
-// Connect data from Filters to here (2560 words) - local_data_filter
+// Connect data from Filters to here (40000 words) - local_data_filter
 // =====================================================================
-always @(negedge `FILTER_WRAPPER_TOP.pclk/*clk[filter_chnum]*/) // 16 clocks -> need to check
+//always @(negedge `FILTER_WRAPPER_TOP.pclk/*clk[filter_chnum]*/) // 16 clocks -> need to check
+always @(negedge `CLK_CTRL_TOP.pclk) // 16 clocks -> need to check
   if ((`IMEAS_WRAPPER_TOP.meas_done == 1'b1) && (filter_data_num < `SOC_TB.dut_vif.python_filter_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
 
     for (int i=0; i < 16; i++) begin
-      `SOC_TB.dut_vif.filter_data[i] = `IMEAS_WRAPPER_TOP.imeas_chdata_out[i][`FILTER_DATA_WIDTH-1:0] << filter_data_num*`FILTER_DATA_WIDTH;
+      `SOC_TB.dut_vif.filter_data[i] = `IMEAS_WRAPPER_TOP.imeas_chdata_out[i] << filter_data_num*32/*`FILTER_DATA_WIDTH*/;
       if (`SOC_TB.dut_vif.testmode_sel === 2'b00)
         `nnc_info("FILTER INFO", $sformatf("FILTER IS OUTPUTTING DATA[%d]: %h", filter_data_num, `SOC_TB.dut_vif.filter_data[i]), UVM_DEBUG);
     end
 
     casez (`SOC_TB.dut_vif.imeas_en_dis_ch & (`SOC_TB.dut_vif.notch_filter_en_per_ch | `SOC_TB.dut_vif.lpf_filter_en_per_ch | `SOC_TB.dut_vif.hpf_filter_en_per_ch))
-      16'h????_????_????_???0: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[0]; filter_chnum = 0; end
-      16'h????_????_????_??01: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[1]; filter_chnum = 1; end
-      16'h????_????_????_?011: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[2]; filter_chnum = 2; end
-      16'h????_????_????_0111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[3]; filter_chnum = 3; end
-      16'h????_????_???0_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[4]; filter_chnum = 4; end
-      16'h????_????_??01_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[5]; filter_chnum = 5; end
-      16'h????_????_?011_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[6]; filter_chnum = 6; end
-      16'h????_????_0111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[7]; filter_chnum = 7; end
-      16'h????_???0_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[8]; filter_chnum = 8; end
-      16'h????_??01_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[9]; filter_chnum = 9; end
-      16'h????_?011_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[10]; filter_chnum = 10; end
-      16'h????_0111_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[11]; filter_chnum = 11; end
-      16'h???0_1111_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[12]; filter_chnum = 12; end
-      16'h??01_1111_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[13]; filter_chnum = 13; end
-      16'h?011_1111_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[14]; filter_chnum = 15; end
-      16'h0111_1111_1111_1111: begin local_data_filter = local_data_filter | `SOC_TB.dut_vif.filter_data[15]; filter_chnum = 15; end
+      16'h????_????_????_???0: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[0]}; filter_chnum = 0; end
+      16'h????_????_????_??01: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[1]}; filter_chnum = 1; end
+      16'h????_????_????_?011: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[2]}; filter_chnum = 2; end
+      16'h????_????_????_0111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[3]}; filter_chnum = 3; end
+      16'h????_????_???0_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[4]}; filter_chnum = 4; end
+      16'h????_????_??01_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[5]}; filter_chnum = 5; end
+      16'h????_????_?011_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[6]}; filter_chnum = 6; end
+      16'h????_????_0111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[7]}; filter_chnum = 7; end
+      16'h????_???0_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[8]}; filter_chnum = 8; end
+      16'h????_??01_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[9]}; filter_chnum = 9; end
+      16'h????_?011_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[10]}; filter_chnum = 10; end
+      16'h????_0111_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[11]}; filter_chnum = 11; end
+      16'h???0_1111_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[12]}; filter_chnum = 12; end
+      16'h??01_1111_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[13]}; filter_chnum = 13; end
+      16'h?011_1111_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[14]}; filter_chnum = 15; end
+      16'h0111_1111_1111_1111: begin local_data_filter = local_data_filter | {8'h00, `SOC_TB.dut_vif.filter_data[15]}; filter_chnum = 15; end
       default:                 begin local_data_filter = local_data_filter; filter_chnum = 0; end
     endcase
 /*
@@ -775,8 +784,18 @@ always @(negedge `FILTER_WRAPPER_TOP.pclk/*clk[filter_chnum]*/) // 16 clocks -> 
 /************************************************************************************************************************************************************************************************/
 
   
-assign local_data = ((local_data_0 | local_data_1) << (2*32*32 + `ALL_IMEAS_SIZE*2)) | local_data_filter << (2*32*32 + `ALL_IMEAS_SIZE) | local_data_imeas << (2*32*32) | (config_data_imeas << (32*32)) | config_data; 
+//assign local_data = ((local_data_0 | local_data_1) << (2*32*32 + `ALL_IMEAS_SIZE*2)) | local_data_filter << (2*32*32 + `ALL_IMEAS_SIZE) | local_data_imeas << (2*32*32) | (config_data_imeas << (32*32)) | config_data;
  
+assign local_data = {local_data_0 | local_data_1, // `SERIAL_BIT_PY_NUM
+                     local_data_filter,           // `ALL_IMEAS_SIZE
+                     local_data_imeas,            // `ALL_IMEAS_SIZE
+                     config_data_imeas,           // 1024 bits
+                     config_data };               // 1024 bits
+ 
+//always @(*)begin 
+//$display("local_data_filter = %0h local_data =%0h",local_data_filter,local_data[2562047:1282048]);
+//end
+
 assign python_data_num = (python_data_num_0 > python_data_num_1) ? python_data_num_0 + 32 + 32 + `ALL_IMEAS_SIZE*2/32 : python_data_num_1 + 32 + 32 + `ALL_IMEAS_SIZE*2/32;
 
 `include "/projects/libs/vips/py_lib/sv/nnc_python_api.sv"

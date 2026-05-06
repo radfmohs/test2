@@ -52,7 +52,7 @@ parameter ADDR_WIDTH = 12,
   output logic [ELEC_NO_C-1:0]		o_driver_en_sw,
   output logic 				o_stimu_en,
 
-
+  output wire stim_global_en,
   
   
   input wire                     i_pclk,
@@ -78,9 +78,19 @@ wire   [1:0]            o_wg_driver_source[ELEC_NO_C-1:0];
 wire   [1:0]            o_period_num[ELEC_NO_C-1:0];
 wire   [1:0]            o_wg_driver_int_sts[ELEC_NO_C-1:0];
 
+wire                    wg_driver_in_wave_wr0[ELEC_NO_C-1:0];
+wire   [7:0]            wg_driver_in_wave_data_wr0[ELEC_NO_C-1:0];
+wire   [7:0]            wg_driver_in_wave_addr[ELEC_NO_C-1:0];
+wire   [7:0]            wg_driver_in_wave[ELEC_NO_C-1:0];
+
+assign wg_driver_in_wave_wr0      = spi_wg.wg_driver_in_wave_wr0;
+assign wg_driver_in_wave_data_wr0 = spi_wg.wg_driver_in_wave_data_wr0;
+assign wg_driver_in_wave_addr     = spi_wg.wg_driver_in_wave_addr;
+assign spi_wg.wg_driver_in_wave   = wg_driver_in_wave;
+
 
 assign  spi_wg.i_wg_driver_in_wave_addr      = o_wg_driver_in_wave_addr     ;
-assign  spi_wg.i_wg_driver_ems_wave_addr     = o_wg_driver_ems_wave_addr     ;
+//assign  spi_wg.i_wg_driver_ems_wave_addr     = o_wg_driver_ems_wave_addr     ;
 assign  spi_wg.i_wg_driver_source            = o_wg_driver_source           ;
 //assign  spi_wg.i_hlf_wave_cnt                = o_hlf_wave_cnt               ;
 assign  spi_wg.i_period_num                  = o_period_num                 ;
@@ -173,6 +183,9 @@ wire  w_sw[ELEC_NO_C-1:0] ;
 //assign o_ds_driver_c_ct6 = driver_c_ct[6] ;
 //assign o_ds_driver_c_ct7 = driver_c_ct[7] ;
 
+//for filter_stim_sync
+assign stim_global_en = (spi_wg.global_en) & (!(|spi_wg.stop_wavegen)) & (!(|lead_off_stop));
+//====================
 assign o_stimu_en = spi_wg.stimu_en;
 genvar i;
 generate 
@@ -401,6 +414,11 @@ wg_driver_top_inst
 
  .in_wave_addr  (o_wg_driver_in_wave_addr),
  .ems_wave_addr (o_wg_driver_ems_wave_addr),
+ .wg_driver_in_wave_wr0(wg_driver_in_wave_wr0),
+ .wg_driver_in_wave_data_wr0(wg_driver_in_wave_data_wr0),
+ .wg_driver_in_wave_addr(wg_driver_in_wave_addr),
+ .wg_driver_in_wave(wg_driver_in_wave),
+
  .w_source	(o_wg_driver_source),
  //.hlf_wave_cnt  (o_hlf_wave_cnt),
  .period_num    (o_period_num),

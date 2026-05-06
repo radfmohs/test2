@@ -24,7 +24,7 @@ package soc_top_pkg;
  import nnc_wavegen_pkg::*;
  import nnc_analog_pkg::*;
  import nnc_pinmux_pkg::*;
-
+ import nnc_nirs_ppg_pkg::*;
 `ifndef OTP_ENABLE
  import nnc_eeprom_pkg::*;
 `else

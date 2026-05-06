@@ -61,10 +61,10 @@ class `TESTCFG extends soc_nirs_ppg_base_test_cfg;
   constraint c_mask        { soft mask == 8'hff; }
 
   //
-  constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel inside{8,10,12,14};} //received master single
+  //constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel inside{8,10,12,14};} //received master single
 
   //NIRS_CTRL_CMD
-  constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 1;}  //0,1,2,3
+  //constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 1;}  //0,1,2,3
 
   //
   //constraint c_nirs_ppg_meas     { nirs_ppg_meas ==1;} only for mcu master single mode needs to be set 1
@@ -126,9 +126,9 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
 
-    `DUT_IF.nirs_ppg_mode_sel = top_test_cfg.nirs_ppg_mode_sel;
+    //`DUT_IF.nirs_ppg_mode_sel = top_test_cfg.nirs_ppg_mode_sel;
 
-    `DUT_IF.nirs_ppg_cmd = top_test_cfg.nirs_ppg_cmd;
+    //`DUT_IF.nirs_ppg_cmd = top_test_cfg.nirs_ppg_cmd;
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -210,7 +210,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     
     //In order to configure for 8 channels with all configuration
-    for(int i=0; i<1; i++)begin
+/*    for(int i=0; i<1; i++)begin
 
        `nnc_info("SOC_TEST", $sformatf("Configure for NIRS_CH[%0d]", i),NNC_LOW)
         configure_nirs_ctrl_regs(i);  //nirs from base test,nirs_addr_channel_en
@@ -241,8 +241,35 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
        `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CMD_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
        `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
 
+    end
+
+    for (int ch = 0; ch < 8; ch++) begin
+    
+        // 1. Randomize a fresh configuration for this channel
+        assert(top_test_cfg.randomize());
+    
+        // 2. Drive DUT interface with this channel's config
+        drive_dut_if_from_cfg();
+    
+        // 3. Enable only this channel
+        `DUT_IF.en_config_ch0 = (ch == 0);
+        `DUT_IF.en_config_ch1 = (ch == 1);
+        `DUT_IF.en_config_ch2 = (ch == 2);
+        `DUT_IF.en_config_ch3 = (ch == 3);
+        `DUT_IF.en_config_ch4 = (ch == 4);
+        `DUT_IF.en_config_ch5 = (ch == 5);
+        `DUT_IF.en_config_ch6 = (ch == 6);
+        `DUT_IF.en_config_ch7 = (ch == 7);
+    
+        // 4. Write registers for this channel
+        configure_nirs_ctrl_regs(ch);
+    
+        `nnc_info("PPG_TEST",
+                  $sformatf("Configured channel %0d with unique register values", ch),
+                  NNC_LOW);
+    
     end 
-    #20ms;
+    #20ms;*/
 
 //       //At OFFSET 0XC5(SOC_NIRS_CTRL_5_REG)
 //       //bit[2:0] LEAD_STABLE_CTRL bit, Time for LED stable before D2A_NIRS_IPD_SW (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)

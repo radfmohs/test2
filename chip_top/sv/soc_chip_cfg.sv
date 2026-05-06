@@ -28,6 +28,7 @@ class soc_chip_cfg extends nnc_object;
   nnc_wavegen_config              wavegen_cfg[`WAVEGEN_NUM_OF_MULT_CHIPS];
   nnc_pinmux_config               pinmux_cfg;
   nnc_analog_config               ana_cfg;
+  nnc_nirs_ppg_config             nirs_ppg_cfg;
   virtual dut_interface           dut_if;
 
   `nnc_object_utils_begin(soc_chip_cfg)
@@ -53,6 +54,7 @@ function soc_chip_cfg::new( string name = "soc_chip_cfg");
   pinmux_cfg = new("pinmux_cfg");
   imeas_cfg = new("imeas_cfg");
   lead_off_cfg = new("lead_off_cfg");
+  nirs_ppg_cfg = new("nirs_ppg_cfg"); 
   for (int i=0; i<`WAVEGEN_NUM_OF_MULT_CHIPS;i++) begin
     wavegen_cfg[i] = new($sformatf("wavegen_cfg[%0d]",i));
     `nnc_info("WAVE MON",$sformatf("creating wavegen_cfg[%0d] = %0p",i,wavegen_cfg[i]),NNC_MEDIUM)

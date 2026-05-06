@@ -60,7 +60,7 @@ module nirs_ppg_idac_ctrl #(
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
-      IDAC_MIN_reg <= 1'b0;
+      IDAC_MIN_reg <= 1'b1;
     else if (IDAC_MIN_tmp)
       IDAC_MIN_reg <= 1'b1;
     else

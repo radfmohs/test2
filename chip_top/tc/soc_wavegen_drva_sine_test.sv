@@ -27,7 +27,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   // ===============================================
   // Adding your new varialbles in config test
   // -----------------------------------------------
-
+    
   rand logic [7:0] wr_data[256];
   rand int         no_of_bytes; 
   rand logic [7:0] reg_addr;
@@ -35,7 +35,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
-  logic [7:0]      sine_data[128];
+  logic [7:0]      sine_data[16][128];
   logic [13:0]     clk_freq;//in Khz
   logic [12:0]     half_period_limit;
   randc logic      same_pos_neg_period;
@@ -64,6 +64,12 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   rand logic [7:0] dac1_data_l;
   rand logic [3:0] dac1_data_h;
   rand logic [2:0] dac1_msb_sel;
+  rand logic [7:0] dac2_data_l;
+  rand logic [3:0] dac2_data_h;
+  rand logic [2:0] dac2_msb_sel;
+  rand logic [7:0] dac3_data_l;
+  rand logic [3:0] dac3_data_h;
+  rand logic [2:0] dac3_msb_sel;
   rand logic       PULLAB_pos_en;
   rand logic       PULLAB_neg_en;
   rand logic [5:0] PULLAB_lim;
@@ -139,10 +145,14 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   constraint c_preload_sel     { preload_sel inside {0,3};} // bit[2:1] WAVEFORM_SEL of AWG_CTRL_REG0: 0x01 - 00: Preloaded SINE, 11: Used waveform loaded from SPI 
 
   //neg_ena
-  constraint c_neg_ena         { (/*(load_points_sel == 1'b1) || */(pos_neg_diff_sel == 1'b1) || (python_check_en == 1'b1)) -> neg_ena == 1'b1;}
+  //constraint c_neg_ena         { (/*(load_points_sel == 1'b1) || */(pos_neg_diff_sel == 1'b1) || (python_check_en == 1'b1)) -> neg_ena == 1'b1;}
+
+  constraint c_neg_ena         { neg_ena == 1'b1; }
 
   //pos_dis
-  constraint c_pos_dis         { ((neg_ena == 1'b0)/* || (load_points_sel == 1'b1)*/ || (pos_neg_diff_sel == 1'b1) || (python_check_en == 1'b1)) -> pos_dis == 1'b0;}
+  // constraint c_pos_dis         { ((neg_ena == 1'b0)/* || (load_points_sel == 1'b1)*/ || (pos_neg_diff_sel == 1'b1) || (python_check_en == 1'b1)) -> pos_dis == 1'b0;}
+  constraint c_pos_dis         { pos_dis == 1'b0; }
+
 
   /*
   Normal waveform:  
@@ -185,7 +195,8 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
                                }
 
   //pos_neg_diff_sel - bit [7] RESOLUTION_CTRL  of register AWG_CTRL_REG0: 0x01
-  constraint c_pos_neg_diff_sel { ((load_points_sel == 1'b1) && (python_check_en == 1'b1)) -> pos_neg_diff_sel == 1'b0; }
+  //constraint c_pos_neg_diff_sel { ((load_points_sel == 1'b1) && (python_check_en == 1'b1)) -> pos_neg_diff_sel == 1'b0; }
+  constraint c_pos_neg_diff_sel { pos_neg_diff_sel == 1'b1; }
 
   //auto_man - countinue_waveform - bit[5] of register AWG_CONFIG_REG0: 0x00
   // - 1: Continue repeating the waveform when getting second interrupt 
@@ -270,11 +281,23 @@ class `TESTNAME extends soc_wavegen_base_test;
     // -------------------
     // Scoreboard enables
     // -------------------
-    // `FLASH_SCOREBOARD_EN = 1;
-    // `SPIM_SCOREBOARD_EN = 1;
-    // `ANALOG_SCOREBOARD_EN = 1;
-    // `IMEAS_SCOREBOARD_EN = 1;
-    // `CLKRST_SCOREBOARD_EN = 1;
+    `NNC_WAVEGEN_REF_SCB_EN = 0;
+    `WAVEGEN_SCB_DRV_0_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_1_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_2_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_3_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_4_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_5_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_6_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_7_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_8_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_9_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_10_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_11_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_12_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_13_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_14_EN = 1'b0;
+    `WAVEGEN_SCB_DRV_15_EN = 1'b0;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -296,65 +319,68 @@ class `TESTNAME extends soc_wavegen_base_test;
     // Step 1: Do the common set up for Wavegen
     wavegen_setup(0);//chip 0
 
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h00<<1);});
+    `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
     // Step 2: Do the configuration for Wavegen 0
-    wavegen_drv_config(`WAVEGEN_0_ADDR_BASE);
+    wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE);
+   
+   `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_0_ADDR_BASE, 8'h02, 8'h00);
+   `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_0_ADDR_BASE, 8'h00, 8'h00);
 
     // Step 3: Do the configuration for Wavegen 1
-    wavegen_drv_config(`WAVEGEN_1_ADDR_BASE);
+    wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE);
+
+   `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_1_ADDR_BASE, 8'h01, 8'h00);
+   `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_1_ADDR_BASE, 8'h00, 8'h00);
 
     // Step 4: Do the configuration for Wavegen 2
-    wavegen_drv_config(`WAVEGEN_2_ADDR_BASE);
-
+    wavegen_drv_config(2'b00, `WAVEGEN_2_ADDR_BASE);
     // Step 5: Do the configuration for Wavegen 3
-    wavegen_drv_config(`WAVEGEN_3_ADDR_BASE);
+    wavegen_drv_config(2'b00, `WAVEGEN_3_ADDR_BASE);
 
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h01<<1);});
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // Step 6: Do the configuration for Wavegen 4
-    wavegen_drv_config(`WAVEGEN_4_ADDR_BASE);
-
+    wavegen_drv_config(2'b01, `WAVEGEN_4_ADDR_BASE);
     // Step 7: Do the configuration for Wavegen 5
-    wavegen_drv_config(`WAVEGEN_5_ADDR_BASE);
-
+    wavegen_drv_config(2'b01, `WAVEGEN_5_ADDR_BASE);
     // Step 8: Do the configuration for Wavegen 6
-    wavegen_drv_config(`WAVEGEN_6_ADDR_BASE);
-
+    wavegen_drv_config(2'b01, `WAVEGEN_6_ADDR_BASE);
     // Step 9: Do the configuration for Wavegen 7
-    wavegen_drv_config(`WAVEGEN_7_ADDR_BASE);
+    wavegen_drv_config(2'b01, `WAVEGEN_7_ADDR_BASE);
 
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h02<<1);});
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // Step 10: Do the configuration for Wavegen 8
-    wavegen_drv_config(`WAVEGEN_8_ADDR_BASE);
-
+    wavegen_drv_config(2'b10, `WAVEGEN_8_ADDR_BASE);
     // Step 11: Do the configuration for Wavegen 9
-    wavegen_drv_config(`WAVEGEN_9_ADDR_BASE);
-
+    wavegen_drv_config(2'b10, `WAVEGEN_9_ADDR_BASE);
     // Step 12: Do the configuration for Wavegen 10
-    wavegen_drv_config(`WAVEGEN_10_ADDR_BASE);
-
+    wavegen_drv_config(2'b10, `WAVEGEN_10_ADDR_BASE);
     // Step 13: Do the configuration for Wavegen 11
-    wavegen_drv_config(`WAVEGEN_11_ADDR_BASE);
+    wavegen_drv_config(2'b10, `WAVEGEN_11_ADDR_BASE);
 
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h03<<1);});
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // Step 14: Do the configuration for Wavegen 12
-    wavegen_drv_config(`WAVEGEN_12_ADDR_BASE);
+    wavegen_drv_config(2'b11, `WAVEGEN_12_ADDR_BASE);
 
     // Step 15: Do the configuration for Wavegen 13
-    wavegen_drv_config(`WAVEGEN_13_ADDR_BASE);
+    wavegen_drv_config(2'b11, `WAVEGEN_13_ADDR_BASE);
 
     // Step 16: Do the configuration for Wavegen 14
-    wavegen_drv_config(`WAVEGEN_14_ADDR_BASE);
+    wavegen_drv_config(2'b11, `WAVEGEN_14_ADDR_BASE);
 
     // Step 17: Do the configuration for Wavegen 15
-    wavegen_drv_config(`WAVEGEN_15_ADDR_BASE);
+    wavegen_drv_config(2'b11, `WAVEGEN_15_ADDR_BASE);
 
     // Step 4: Enable all wavegen at the time
     wavegen_drv_enable;
@@ -422,6 +448,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   // - points_sel : Point Selection - 0/1/2/3/4/5/6/7: 64/32/16/8/4/2/1/128 points (load_points_sel = 1) if it is 0, not used (AWG_POINT_CONFIG_REG - 0x02)
   // **********************************************************************************************************************************
   task wavegen_setup(input int chip_num);
+  logic [7:0] mem_tmp [128];
   begin
     top_test_cfg.LOAD_POINTS = top_test_cfg.load_points_sel;
     top_test_cfg.NO_OF_WAVEFORMS = top_test_cfg.waveform_sel;
@@ -432,59 +459,182 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.PULLAB_CTRL  = {top_test_cfg.PULLAB_pos_en, top_test_cfg.PULLAB_neg_en, top_test_cfg.PULLAB_lim};
     
     // From constraint of points_sel, decode and save NO_OF_POINTS and load correct hex file of sine wave
-    case(top_test_cfg.points_sel)
+    for (int i=0; i<16; i++) begin
+      case(top_test_cfg.points_sel)
+
          3'b000:begin
 		    top_test_cfg.NO_OF_POINTS = 64;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
+
          3'b001:begin
 		    top_test_cfg.NO_OF_POINTS = 32;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
+
          3'b010:begin
 		    top_test_cfg.NO_OF_POINTS = 16;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
+
          3'b011:begin
 		    top_test_cfg.NO_OF_POINTS = 8;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
+
          3'b100:begin
 		    top_test_cfg.NO_OF_POINTS = 4;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
+
 		end
+
          3'b101:begin
 		    top_test_cfg.NO_OF_POINTS = 2;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", top_test_cfg.sine_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
+
          3'b110:begin
 		    top_test_cfg.NO_OF_POINTS = 1;
-		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y1", mem_tmp);
 		end
+
          3'b111:begin
 		    top_test_cfg.NO_OF_POINTS = 128;
-		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", top_test_cfg.sine_data);
+		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y128", mem_tmp);
+
+                    // -----------------------------------------
+                    // 2) Copy loaded data into class array
+                    // -----------------------------------------
+                    for (int j = 0; j < 128; j++)
+                       top_test_cfg.sine_data[i][j] = mem_tmp[j];
+
+                    if (`DUT_IF.drive_mode_en === 1'b1) begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+                      end
+                    end else begin
+                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
+                        top_test_cfg.sine_data[i][j] = 0;
+                      end
+                    end 
 		end
-    endcase
-    
+      endcase
+    end
+
     // LOAD_POINTS = 0 (preloaded is enabled)
     if(top_test_cfg.LOAD_POINTS === 0)
 	top_test_cfg.NO_OF_LOAD_POINTS = top_test_cfg.NO_OF_POINTS;
@@ -524,9 +674,15 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_env.wavegen_vif[chip_num].no_of_point_b = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
 
     // Saving data for all points of 2 phases to wave_vif
-    for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
-      top_env.wavegen_vif[chip_num].hex_data_a[i] = top_test_cfg.sine_data[i]; // expected hex values
-      top_env.wavegen_vif[chip_num].hex_data_b[i] = top_test_cfg.sine_data[i]; // expected hex values
+    for (int i; i < 16; i++) begin 
+      mem_tmp = top_test_cfg.sine_data[i];
+      for (int j = 0; j < 128; j++)
+        mem_tmp[j] = top_test_cfg.sine_data[i][j];
+
+      for (int k=0; k < top_env.wavegen_vif[chip_num].no_of_point_a; k++) begin
+        top_env.wavegen_vif[chip_num].hex_data_a[i][k] = mem_tmp[k]; // expected hex values
+        top_env.wavegen_vif[chip_num].hex_data_b[i][k] = mem_tmp[k]; // expected hex values
+      end
     end
 
     // Saving interfaces
@@ -537,7 +693,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 
     // Saving interfaces
     for (int i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
-      top_env.wavegen_vif[chip_num].PULLAB_pos_en[i] = top_test_cfg.PULLAB_CTRL[7];
+      top_env.wavegen_vif[chip_num]. PULLAB_pos_en[i] = top_test_cfg.PULLAB_CTRL[7];
       top_env.wavegen_vif[chip_num].PULLAB_neg_en[i] = top_test_cfg.PULLAB_CTRL[6];
       top_env.wavegen_vif[chip_num].PULLAB_lim[i] = top_test_cfg.PULLAB_CTRL[5:0];
     end
@@ -568,7 +724,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       // ======================================================================================================================
 
       // ----------------------------------
-      // Calculating for Driver 0
+      // Calculating for Wave0
       // ----------------------------------
       wavegen_calc_clock_num(
       .clk_freq(top_test_cfg.clk_freq), 
@@ -578,7 +734,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       .neg_hlf_wave_per(top_test_cfg.half_period0[1])
       );
 
-      // Updating for DUT Interface for Driver 0
+      // Updating for DUT Interface for Wave0
       `DUT_IF.wg_hlf_wave0_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_neg_hlf_wave0_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_rest_wave0_lim[i] = top_test_cfg.rest_lim;
@@ -587,7 +743,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       // ======================================================================================================================
 
       // ----------------------------------
-      // Calculating for Driver 1
+      // Calculating for Wave1
       // ----------------------------------
       // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1]);
       wavegen_calc_clock_num(
@@ -598,7 +754,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       .neg_hlf_wave_per(top_test_cfg.half_period1[1])
       );
 
-      // Updating for DUT Interface for Driver 1
+      // Updating for DUT Interface for Wave1
       `DUT_IF.wg_hlf_wave1_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_neg_hlf_wave1_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim;
@@ -608,7 +764,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 
       // wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
       // ----------------------------------
-      // Calculating for Driver 2
+      // Calculating for Wave2
       // ----------------------------------
       // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1]);
       wavegen_calc_clock_num(
@@ -619,7 +775,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       .neg_hlf_wave_per(top_test_cfg.half_period2[1])
       );
 
-      // Updating for DUT Interface for Driver 2
+      // Updating for DUT Interface for Wave2
       `DUT_IF.wg_hlf_wave2_lim[i] = top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_neg_hlf_wave2_lim[i] = top_test_cfg.neg_hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_rest_wave2_lim[i] = top_test_cfg.rest_lim;
@@ -628,21 +784,21 @@ class `TESTNAME extends soc_wavegen_base_test;
       // ======================================================================================================================
 
       // ----------------------------------
-      // Updating configuration of Driver 0/1/2 from DUT to Wavegen VIPs
+      // Updating configuration of Wave 0/1/2 from DUT to Wavegen VIP
       // ----------------------------------    
-      // VIP 0
+      // Wave 0
       top_env.wavegen_vif[chip_num].wg_hlf_wave0_lim[i] = `DUT_IF.wg_hlf_wave0_lim[i];
       top_env.wavegen_vif[chip_num].wg_neg_hlf_wave0_lim[i] = `DUT_IF.wg_neg_hlf_wave0_lim[i];
       top_env.wavegen_vif[chip_num].wg_rest_wave0_lim[i] = `DUT_IF.wg_rest_wave0_lim[i];
       top_env.wavegen_vif[chip_num].wg_silent_wave0_lim[i] = `DUT_IF.wg_silent_wave0_lim[i];
 
-      // VIP 1
+      // Wave 1
       top_env.wavegen_vif[chip_num].wg_hlf_wave1_lim[i] = `DUT_IF.wg_hlf_wave1_lim[i];
       top_env.wavegen_vif[chip_num].wg_neg_hlf_wave1_lim[i] = `DUT_IF.wg_neg_hlf_wave1_lim[i];
       top_env.wavegen_vif[chip_num].wg_rest_wave1_lim[i] = `DUT_IF.wg_rest_wave1_lim[i];
       top_env.wavegen_vif[chip_num].wg_silent_wave1_lim[i] = `DUT_IF.wg_silent_wave1_lim[i];
 
-      // VIP 2
+      // Wave 2
       top_env.wavegen_vif[chip_num].wg_hlf_wave2_lim[i] = `DUT_IF.wg_hlf_wave2_lim[i];
       top_env.wavegen_vif[chip_num].wg_neg_hlf_wave2_lim[i] = `DUT_IF.wg_neg_hlf_wave2_lim[i];
       top_env.wavegen_vif[chip_num].wg_rest_wave2_lim[i] = `DUT_IF.wg_rest_wave2_lim[i];
@@ -652,12 +808,13 @@ class `TESTNAME extends soc_wavegen_base_test;
       // set clk_per_point_short
       // -----------------------------------------------
       // For Diver 0
-      if((chip_num === 0) && (i === 0)) begin
+      if(chip_num === 0) begin
         if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	  `DUT_IF.clk_per_point_short_dac0 = 1'b1;
+	  `DUT_IF.clk_per_point_short_dac[i] = 1'b1;
         else
-	  `DUT_IF.clk_per_point_short_dac0 = 1'b0;
+	  `DUT_IF.clk_per_point_short_dac[i] = 1'b0;
       end
+/*
       // For Diver 1      
       else if((chip_num === 0) && (i === 1)) begin
         if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
@@ -666,7 +823,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 	  `DUT_IF.clk_per_point_short_dac1 = 1'b0;
       end
       // For Diver 2 ?????????? -> Daniel
-
+*/
     end // end of for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
 
     // ------------------------------------------------------------------------------
@@ -688,25 +845,40 @@ class `TESTNAME extends soc_wavegen_base_test;
   // This task is used for configuring registers of each of Driver
   // ******************************************************************
   task wavegen_drv_config;
+  input [1:0] wg_drv_sel;
   input [7:0] WG_BASE;
 
   begin
 
     // Decode Base Address to know which selected driver
     if (WG_BASE === `WAVEGEN_0_ADDR_BASE)
-	`DUT_IF.wg_drv_sel = 0;
+	`DUT_IF.wg_drv_sel = 0 + 4*wg_drv_sel;
     else if(WG_BASE === `WAVEGEN_1_ADDR_BASE)
-	`DUT_IF.wg_drv_sel = 1;
+	`DUT_IF.wg_drv_sel = 1 + 4*wg_drv_sel;
+    else if(WG_BASE === `WAVEGEN_2_ADDR_BASE)
+        `DUT_IF.wg_drv_sel = 2 + 4*wg_drv_sel;
+    else if(WG_BASE === `WAVEGEN_3_ADDR_BASE)
+        `DUT_IF.wg_drv_sel = 3 + 4*wg_drv_sel;
 
     // --------------------------------------------------------
     // Write to SOC_ADDR_WG_DRV_CTRL0_REG (Control 0)
+    // DRIVE_REG_CTRL0: Offset:0x34
+    // bit-5: data_output_mode - 0: 8-bit, 1: 12-bit
+    // bit-4: mode_sel 1: Manual, 0: Auto
+    // bit-2: driverA_pullDA - DRIVERA_PULLDA (applicable only in manual mode) 
+    // bit-0: driverA_sourceA - DRIVERA_SOURCEA (applicable only in manual mode) 
     // --------------------------------------------------------
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL0_REG + WG_BASE); wr_data[0] == {2'b0, top_test_cfg.dac_bit_len_sel,top_test_cfg.auto_man, 4'b0};});
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL0_REG + WG_BASE); wr_data[0] == {2'b0, top_test_cfg.dac_bit_len_sel, top_test_cfg.auto_man, 4'b0};});
     `nnc_info("SOC_TEST", "Set drive reg ctrl0", NNC_LOW)
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write burst starting from SOC_ADDR_WG_DRV_CTRL1_REG (Control 1)
+    // DRIVE_REG_CTRL1: Offset:0x35 (IDAC_DIN_LSB)
+    // DRIVE_REG_CTRL2: Offset:0x35 
+    // - bit7: multi_argo_ctrl - 0: use right shift, 1: use a multiplier
+    // - bit[6:4]: - 8-bit_location_sel (0 -> 4) to scale up
+    // - bit[3:0] - IDAC_DIN_MSB
     // --------------------------------------------------------
     `nnc_info("SOC_TEST", "Set drive reg ctrl1-2", NNC_LOW)
 
@@ -718,6 +890,14 @@ class `TESTNAME extends soc_wavegen_base_test;
     else if(WG_BASE === `WAVEGEN_1_ADDR_BASE) begin  // Driver 1
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac1_msb_sel, top_test_cfg.dac1_data_h}; wr_data[1] == top_test_cfg.dac1_data_l;});
       // 2 registers
+      `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
+    end
+    else if(WG_BASE === `WAVEGEN_2_ADDR_BASE) begin  // Driver 1
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac2_msb_sel, top_test_cfg.dac2_data_h}; wr_data[1] == top_test_cfg.dac2_data_l;});
+      `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
+    end
+    else if(WG_BASE === `WAVEGEN_3_ADDR_BASE) begin  // Driver 1
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac3_msb_sel, top_test_cfg.dac3_data_h}; wr_data[1] == top_test_cfg.dac3_data_l;});
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
     end
 
@@ -799,7 +979,8 @@ class `TESTNAME extends soc_wavegen_base_test;
 
     // Save all points to internal Mem of Wavegen Controller 
     `nnc_info("SOC_TEST", $sformatf("Store %d wave points", top_test_cfg.NO_OF_LOAD_POINTS), NNC_LOW)
-    for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
+    for(int m=0; m<16; m++) begin
+      for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
        	// --------------------------------------------------------
     	// Write to ADDR_WG_DRV_IN_WAVE_ADDR_REG0
     	// --------------------------------------------------------
@@ -810,8 +991,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     	// Write to ADDR_WG_DRV_IN_WAVE_REG01
     	// --------------------------------------------------------
         // Save data of Mem to Register
-	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sine_data[i][7:0];});
+	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sine_data[m][i][7:0];});
     	`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+      end
     end
 
     // *******************************************************************************
@@ -866,7 +1048,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     // bit[5:3]: waveform_num_sel - top_test_cfg.NO_OF_WAVEFORMS
     // bit[2:1]:  waveform_sel - top_test_cfg.PRELOAD
     // Bit[0]: Wavegen_En - 1'b1
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF,top_test_cfg.LOAD_POINTS,top_test_cfg.NO_OF_WAVEFORMS,top_test_cfg.PRELOAD,1'b1};});
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF,top_test_cfg.LOAD_POINTS,top_test_cfg.NO_OF_WAVEFORMS,top_test_cfg.PRELOAD,1'b0};});
     if(top_test_cfg.PRELOAD === 2'b00) // because this test is sine wave
     	`nnc_info("SOC_TEST", "Config driver control register with preloaded sine values", NNC_LOW)
     else if(top_test_cfg.PRELOAD === 2'b11)
@@ -879,6 +1061,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   task wavegen_drv_enable;
   begin
     `nnc_info("SOC_TEST", $sformatf("enabling chip_0 wavegen sb now"), NNC_LOW)
+/*
     `WAVEGEN_SCB_DRV_0_EN = 1'b1;
     `WAVEGEN_SCB_DRV_1_EN = 1'b1;
     `WAVEGEN_SCB_DRV_2_EN = 1'b1;
@@ -895,6 +1078,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     `WAVEGEN_SCB_DRV_13_EN = 1'b1;
     `WAVEGEN_SCB_DRV_14_EN = 1'b1;
     `WAVEGEN_SCB_DRV_15_EN = 1'b1;
+*/
     // --------------------------------------------------------
     // Write to SOC_WAVEGEN_GLOBAL_REG to sync drivers
     // --------------------------------------------------------
@@ -908,7 +1092,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   // Declare the report_phase task
   // ------------------------------
   function void report_phase(nnc_phase phase) ;
-  super.report_phase(phase);
+    super.report_phase(phase);
   endfunction
 
 endclass : `TESTNAME

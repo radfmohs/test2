@@ -217,6 +217,11 @@ wire [15:0]             cic_data_ignore_tar;
 wire [23:0]             hpf_coeff_data;
 wire [17:0]             lpf_coeff_data [27:0];
 wire [19:0]             notch_coeff_data[35:0];
+wire                    o_nirs_int;
+
+wire stim_global_en;
+wire stim_eeg_sync_en;
+wire[23:0] filter_dly_tgt;
 
 //============
 wire    hfosc_out;
@@ -323,6 +328,7 @@ assign  por_resetn = A2D_SW_POWER_POR;    // power on reset, low active
   wire  [7:0] atm_data;
   wire  [7:0] atm_adj_data;
   wire        unlock_gpio;
+  wire        atm_adj;
   wire [13:0] atm_adj_mode;
 
 //  wire         atpg_en;
@@ -753,6 +759,7 @@ pinmux u_pinmux (
   .i_anac_int           (anac_int),
   .i_tsc_int            (o_tsc_intb),   
   .i_eeg_int            (o_eeg_int),
+  .i_nirs_int            (o_nirs_int),
 
   .o_OTP_UNLOCK         (unlock_gpio),
   .o_OTP_ATM_MODE_SEL   (atm_mode),
@@ -781,6 +788,10 @@ pinmux u_pinmux (
 //.d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
 //.d2a_tsc_comp_en_ch1    (d2a_tsc_comp_en_ch1),
   .d2a_tsc_en_ch1         (d2a_tsc_en_ch1),
+// WG
+  .i_ds_driver_en_current (o_ds_driver_en_current),
+  .i_stimu_en             (o_stimu_en),
+
 // NIRS
   .NIRS_LED_ON0           (NIRS_LED_ON[0]),
   .NIRS_LED_ON1           (NIRS_LED_ON[1]),
@@ -852,6 +863,8 @@ wire        adc_resetn;
 wire        adc_ctrl_resetn;
 wire        imeas_en;
 wire [3:0]  iclk_div ;
+wire [2:0]  iclk_div_pga ;
+wire   iclk_pga_disable ;
 //wire 	    D2A_POWER_EN;
 wire 	    enable_cic;
 wire        imeas_working_sync;
@@ -871,6 +884,11 @@ clk_ctrl u_clk_ctrl
   .imeas_working_sync(imeas_working_sync),
   .imeas_working(imeas_working),
   .en_channels(imeas_en_chn),
+
+.iclk_pga_disable(iclk_pga_disable),               // pga clock divider
+.iclk_div_pga(iclk_div_pga),               // pga clock divider
+.pga_ana_clk(),   //connected to analog or pinmux then analog top
+
   .iclk_div(iclk_div),
   .imeas_adc_inv(imeas_adc_inv),
   .imeas_pclk(imeas_pclk),
@@ -993,6 +1011,15 @@ reset_ctrl u_reset_ctrl
   .presetn              (presetn),
   //.otp_por_resetn       (otp_por_resetn),
   .otp_bist_resetn_atpg (otp_bist_resetn_atpg), //connect to otp for bist resetn
+
+  .stim_global_en 	(stim_global_en),
+  .stim_eeg_sync_en 	(stim_eeg_sync_en),
+  .filter_dly_tgt 	(filter_dly_tgt),
+
+
+//  .stim_eeg_sync_en 	(1),
+//  .stim_global_en 	(1),
+//  .filter_dly_tgt 	(24'hff),
 
   .otp_rst_reg          (otp_rst_reg),
   .dig_rst_reg          (dig_rst_reg),
@@ -1147,6 +1174,7 @@ imeas_wrapper  #(
 //from old pmu
 .start_y	(1'b0),
 
+//.start_cmd	(1),
 .start_cmd	(start_cmd),
 .stop_cmd	(stop_cmd),
 .single_shot	(single_shot),
@@ -1265,6 +1293,9 @@ spi_top  #(
 u_spi_top (
   .i_channel_max(i_channel_max),
 
+  .stim_eeg_sync_en 	(stim_eeg_sync_en),
+  .filter_dly_tgt 	(filter_dly_tgt),
+
 //  .spi_leadoff(spi_leadoff),
   .spi_anac(spi_anac),
   .spi_otp(spi_otp),
@@ -1273,6 +1304,9 @@ u_spi_top (
   .spi_pinmux_if(spi_pinmux_if),
   .spi_nirs_if(spi_nirs_if),
   .SCANMODE             (atpg_en),
+  .atm_adj_mode         (atm_adj_mode),
+  .atm_adj_data         (atm_adj_data),
+  .atm_adj              (atm_adj),
   .i_scanclk            (scan_clk),             
 //.i_sys_clk            (pclk),
   .i_rst_n              (presetn),
@@ -1302,6 +1336,10 @@ u_spi_top (
 //.standby_cmd        (standby_cmd),
   .single_shot        (single_shot),
   .iclk_div             (iclk_div),
+
+.iclk_pga_disable(iclk_pga_disable),               // pga clock divider
+  .iclk_div_pga             (iclk_div_pga),
+
   .imeas_en             (imeas_en),
   .imeas_reg_0          (imeas_reg_0),
   .imeas_en_chn          (imeas_en_chn),
@@ -1490,9 +1528,11 @@ wg_driver_top_wrapper #(
 //  .o_ds_driver_c_ct6(),
 //  .o_ds_driver_c_ct7(),
   .o_ds_driver_en_driver(o_ds_driver_en_driver),
-  .o_ds_driver_en_current(o_ds_driver_en_current),
+  .o_ds_driver_en_current(o_ds_driver_en_current),// to Pinmux
   .o_driver_en_sw(o_driver_en_sw),
-  .o_stimu_en(o_stimu_en),
+  .o_stimu_en(o_stimu_en),// to Pinmux
+
+  .stim_global_en 	(stim_global_en),
 
 //  .o_driver_driver_a_en         (o_driver_driver_a_en),//(o_driver_driver_a_en[3:0]),
 //  .o_drivera_isel0              (o_drivera_isel0),//(o_drivera_isel0[2:0]),
@@ -1672,7 +1712,7 @@ nirs_ppg_wrapper u_nirs_wrapper (
 
   .LED_ON_IO        (NIRS_LED_ON),
   .int_length_slct  (int_length_slct),
-  .INT_IO           (),
+  .INT_IO           (o_nirs_int),
 
   .ana_nirs_if      (ana_nirs_if),
   .spi_nirs_if      (spi_nirs_if)

@@ -23,3 +23,123 @@
 //9) Minimum gap between iref coarse and iref fine
 //10) IREF coarse chnage and hold for sometime (ON TIME)
 //11) IREF FINE change and hold for some time(ON TIME)
+
+nnc_nirs_ppg_interface nirs_ppg_vif();
+
+assign  nirs_ppg_vif.nirs_ppg_rst               =  `NIRS_PPG_TOP.rst_n;
+assign  nirs_ppg_vif.ens2_sys_clk               =  `NIRS_PPG_TOP.clk_sys;
+assign  nirs_ppg_vif.nirs_ppg_clk               =  `NIRS_PPG_TOP.clk_ppg;
+//
+assign  nirs_ppg_vif.D2A_PDBIAS_ADJ             =  `ANA_TOP.D2A_PDBIAS_ADJ; 
+assign  nirs_ppg_vif.D2A_PDBIAS_EN              =  `ANA_TOP.D2A_PDBIAS_EN;
+//
+wire   [7:0]  d2a_nirs_en_bus;
+wire   [7:0]  d2a_nirs_idac_en_bus;
+wire [7:0]  d2a_nirs_reset_sw_bus;
+wire [7:0]  d2a_nirs_ipd_sw_bus;
+wire [7:0]  d2a_nirs_iin_sw_bus;
+wire [7:0]  d2a_nirs_ipdmirror_adj_bus;
+wire [7:0]  d2a_nirs_irefc_adj_bus;
+wire [7:0]  d2a_nirs_cfrate_adj_bus;
+wire [7:0]  d2a_nirs_idac_adj_bus;
+wire [7:0]  a2nd_nirs_irefcoarse_bus;
+wire [7:0]  a2d_nirs_ireffine_bus;
+
+//
+assign d2a_nirs_en_bus      = {`ANA_TOP.D2A_NIRS7_EN,`ANA_TOP.D2A_NIRS6_EN,`ANA_TOP.D2A_NIRS5_EN,`ANA_TOP.D2A_NIRS4_EN,
+                                     `ANA_TOP.D2A_NIRS3_EN,`ANA_TOP.D2A_NIRS2_EN,`ANA_TOP.D2A_NIRS1_EN,`ANA_TOP.D2A_NIRS0_EN};
+//
+assign d2a_nirs_idac_en_bus =  {`ANA_TOP.D2A_NIRS7_IDAC_EN, `ANA_TOP.D2A_NIRS6_IDAC_EN,`ANA_TOP.D2A_NIRS5_IDAC_EN,`ANA_TOP.D2A_NIRS4_IDAC_EN,
+                                      `ANA_TOP.D2A_NIRS3_IDAC_EN,`ANA_TOP.D2A_NIRS2_IDAC_EN,`ANA_TOP.D2A_NIRS1_IDAC_EN,`ANA_TOP.D2A_NIRS0_IDAC_EN};
+//
+assign  nirs_ppg_vif.D2A_NIRS_TEST_EN           =  `ANA_TOP.D2A_NIRS_TEST_EN;
+//
+assign d2a_nirs_reset_sw_bus  = {`ANA_TOP.D2A_NIRS7_RESET_SW, `ANA_TOP.D2A_NIRS6_RESET_SW, `ANA_TOP.D2A_NIRS5_RESET_SW, `ANA_TOP.D2A_NIRS4_RESET_SW,
+                                     `ANA_TOP.D2A_NIRS3_RESET_SW, `ANA_TOP.D2A_NIRS2_RESET_SW, `ANA_TOP.D2A_NIRS1_RESET_SW, `ANA_TOP.D2A_NIRS0_RESET_SW };
+//  
+assign d2a_nirs_ipd_sw_bus    = {`ANA_TOP.D2A_NIRS7_IPD_SW, `ANA_TOP.D2A_NIRS6_IPD_SW, `ANA_TOP.D2A_NIRS5_IPD_SW, `ANA_TOP.D2A_NIRS4_IPD_SW,
+                                     `ANA_TOP.D2A_NIRS3_IPD_SW, `ANA_TOP.D2A_NIRS2_IPD_SW, `ANA_TOP.D2A_NIRS1_IPD_SW, `ANA_TOP.D2A_NIRS0_IPD_SW };
+//
+assign d2a_nirs_iin_sw_bus   = {`ANA_TOP.D2A_NIRS7_IIN_SW, `ANA_TOP.D2A_NIRS6_IIN_SW, `ANA_TOP.D2A_NIRS5_IIN_SW,  `ANA_TOP.D2A_NIRS4_IIN_SW,
+                                    `ANA_TOP.D2A_NIRS3_IIN_SW, `ANA_TOP.D2A_NIRS2_IIN_SW, `ANA_TOP.D2A_NIRS1_IIN_SW,  `ANA_TOP.D2A_NIRS0_IIN_SW}; 
+//
+assign d2a_nirs_ipdmirror_adj_bus  = {`ANA_TOP.D2A_NIRS7_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS6_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS5_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS4_IPDMIRROR_ADJ,
+                                          `ANA_TOP.D2A_NIRS3_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS2_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS1_IPDMIRROR_ADJ, `ANA_TOP.D2A_NIRS0_IPDMIRROR_ADJ };
+//
+assign d2a_nirs_irefc_adj_bus      = {`ANA_TOP.D2A_NIRS7_IREFC_ADJ, `ANA_TOP.D2A_NIRS6_IREFC_ADJ, `ANA_TOP.D2A_NIRS5_IREFC_ADJ, `ANA_TOP.D2A_NIRS4_IREFC_ADJ,
+                                          `ANA_TOP.D2A_NIRS3_IREFC_ADJ, `ANA_TOP.D2A_NIRS2_IREFC_ADJ, `ANA_TOP.D2A_NIRS1_IREFC_ADJ, `ANA_TOP.D2A_NIRS0_IREFC_ADJ };
+//
+assign d2a_nirs_cfrate_adj_bus     = {`ANA_TOP.D2A_NIRS7_CFRATE_ADJ, `ANA_TOP.D2A_NIRS6_CFRATE_ADJ, `ANA_TOP.D2A_NIRS5_CFRATE_ADJ, `ANA_TOP.D2A_NIRS4_CFRATE_ADJ,
+                                          `ANA_TOP.D2A_NIRS3_CFRATE_ADJ, `ANA_TOP.D2A_NIRS2_CFRATE_ADJ, `ANA_TOP.D2A_NIRS1_CFRATE_ADJ, `ANA_TOP.D2A_NIRS0_CFRATE_ADJ };
+//
+assign d2a_nirs_idac_adj_bus       = {`ANA_TOP.D2A_NIRS7_IDAC_ADJ, `ANA_TOP.D2A_NIRS6_IDAC_ADJ, `ANA_TOP.D2A_NIRS5_IDAC_ADJ, `ANA_TOP.D2A_NIRS4_IDAC_ADJ,
+                                          `ANA_TOP.D2A_NIRS3_IDAC_ADJ, `ANA_TOP.D2A_NIRS2_IDAC_ADJ, `ANA_TOP.D2A_NIRS1_IDAC_ADJ, `ANA_TOP.D2A_NIRS0_IDAC_ADJ };
+//
+assign a2nd_nirs_irefcoarse_bus    = {`ANA_TOP.A2D_NIRS7_IREFCOARSE, `ANA_TOP.A2D_NIRS6_IREFCOARSE, `ANA_TOP.A2D_NIRS5_IREFCOARSE, `ANA_TOP.A2D_NIRS4_IREFCOARSE,                                                                                                         `ANA_TOP.A2D_NIRS3_IREFCOARSE, `ANA_TOP.A2D_NIRS2_IREFCOARSE, `ANA_TOP.A2D_NIRS1_IREFCOARSE, `ANA_TOP.A2D_NIRS0_IREFCOARSE };
+//
+assign a2d_nirs_ireffine_bus       = {`ANA_TOP.A2D_NIRS7_IREFFINE, `ANA_TOP.A2D_NIRS6_IREFFINE, `ANA_TOP.A2D_NIRS5_IREFFINE, `ANA_TOP.A2D_NIRS4_IREFFINE,
+                                          `ANA_TOP.A2D_NIRS3_IREFFINE, `ANA_TOP.A2D_NIRS2_IREFFINE, `ANA_TOP.A2D_NIRS1_IREFFINE, `ANA_TOP.A2D_NIRS0_IREFFINE };
+
+//
+//always_comb begin
+genvar i;
+generate
+  for (i = 0; i < 8; i++) begin
+  //for(int i=0; i<8; i++)begin
+    always @(posedge `NIRS_PPG_TOP.clk_sys)begin
+      nirs_ppg_vif.D2A_NIRS_EN[i]                <= d2a_nirs_en_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IDAC_EN[i]           <= d2a_nirs_idac_en_bus[i] ;
+      nirs_ppg_vif.D2A_NIRS_RESET_SW[i]          <= d2a_nirs_reset_sw_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IPD_SW[i]            <= d2a_nirs_ipd_sw_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IIN_SW[i]            <= d2a_nirs_iin_sw_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IPDMIRROR_ADJ[i]     <= d2a_nirs_ipdmirror_adj_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IREFC_ADJ[i]         <= d2a_nirs_irefc_adj_bus[i];
+      nirs_ppg_vif.D2A_NIRS_CFRATE_ADJ[i]        <= d2a_nirs_cfrate_adj_bus[i];
+      nirs_ppg_vif.D2A_NIRS_IDAC_ADJ[i]          <= d2a_nirs_idac_adj_bus[i];
+      nirs_ppg_vif.A2D_NIRS_IREFCOARSE[i]        <= a2nd_nirs_irefcoarse_bus[i];
+      nirs_ppg_vif.A2D_NIRS_IREFFINE[i]          <= a2d_nirs_ireffine_bus[i];
+    end
+  end
+endgenerate
+ 
+assign  nirs_ppg_vif.D2A_CLK_NIRS               =  `ANA_TOP.D2A_CLK_NIRS;
+
+assign  nirs_ppg_vif.D2A_NIRS_CHOPPER_EN        =  `ANA_TOP.D2A_NIRS_CHOPPER_EN;
+
+assign  nirs_ppg_vif.D2A_NIRS_FCHOP_ADJ         =  `ANA_TOP.D2A_NIRS_FCHOP_ADJ;
+    
+
+//
+genvar i;
+generate
+  for (i = 0; i < 8; i++) begin
+    always @(posedge `NIRS_PPG_TOP.clk_sys or negedge `NIRS_PPG_TOP.rst_n) begin
+      if (!`NIRS_PPG_TOP.rst_n)begin
+        nirs_ppg_vif.nirs_ppg_en[i] <= 1'b0;
+        nirs_ppg_vif.nirs_ppg_meas[i] <= 1'b0;
+      end
+      else begin
+        // constant hierarchical reference per instance (macro expands to the path)
+        nirs_ppg_vif.nirs_ppg_en[i]  <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_EN;
+        nirs_ppg_vif.nirs_ppg_meas[i] <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_MEAS;
+      end
+    end
+  end
+endgenerate
+
+//{soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_nirs_wrapper.u_nirs_ctrl_top[0].u_nirs_pulse_ctrl.NIRS_MEAS}
+
+// Set CONFIG_DB
+initial begin
+    //nnc_config_db#(virtual nnc_nirs_ppg_interface)::set(uvm_root::get(), "uvm_test_top.top_env.nirs_ppg_env.*", "nirs_ppg_vif", nirs_ppg_vif);
+     nnc_config_db#(virtual nnc_nirs_ppg_interface)::set(uvm_root::get(), "*", "nirs_ppg_vif", nirs_ppg_vif);
+end
+
+`define  NIRS_PPG_CTRL_CFG           top_cfg.nirs_ppg_cfg
+`define  NIRS_PPG_IF                 `SOC_TB.nirs_ppg_vif
+
+
+//initial begin
+//    nirs_ppg_vif.cfg = top_cfg.nirs_ppg_cfg; //`NIRS_PPG_CTRL_CFG;   // pass config handle
+//end
+

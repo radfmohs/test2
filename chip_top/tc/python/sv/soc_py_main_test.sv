@@ -40,7 +40,7 @@ begin
   local_mode[95:64] = seed;
   // --------------------------------------------------------
   // Sending reserved code from TB to Python for any purpose  
-  local_mode[127:96] = 32'h0; // reserved
+  local_mode[127:96] = `WORD_OFFSET_PYTHON + python_data_num_0 + python_data_num_1; // reserved
 
   // --------------------------------------------------------
   // Set Data Length and send to Python

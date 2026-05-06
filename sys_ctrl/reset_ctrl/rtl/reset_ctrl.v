@@ -40,7 +40,11 @@ input wire          start_sample,
 input wire          start_sample_pclk,
 //input wire        stop_sample_pclk,
 //==========
-
+//for stim eeg sync
+input wire stim_eeg_sync_en,
+input wire stim_global_en,
+input wire[23:0] filter_dly_tgt,
+//===============
 input  wire         otp_rst_reg,
 input  wire         dig_rst_reg,
 input  wire         lead_off_rst,
@@ -262,8 +266,9 @@ common_rst_sync u_temp_sar_rst_sync(
 );
 
 
+wire filter_rst_dly_n;
 wire ppg_rst_presetn_tmp;
-assign ppg_rst_presetn_tmp = atpg_en? scan_rst_n : (global_rstn_atpg & (~ppg_rst_reg));
+assign ppg_rst_presetn_tmp = atpg_en? scan_rst_n : (global_rstn_atpg & (~ppg_rst_reg) & filter_rst_dly_n);
 
 common_rst_sync u_ppg_rst_rst_sync(
   .RSTINn    (ppg_rst_presetn_tmp),
@@ -363,11 +368,45 @@ assign reset_cmd_pulse = reset_cmd_d2 & (!reset_cmd_d3);
 
 //wire    start_measn;
 //assign  start_measn = ~start_meas;
+//==================
+//============================================================
+//add stim&EEG sync
+  //.RSTOUTn   (wave_gen_presetn)
+//wire stim_eeg_sync_en;
+//wire stim_global_en;
+//wire[23:0] filter_dly_tgt;
+reg[23:0] filter_dly_cnt;
+wire stim_eeg_sync_en_sync;
+
+assign filter_rst_dly_n = stim_eeg_sync_en_sync ? !(filter_dly_cnt < filter_dly_tgt) : 1'b1;
+
+common_sync_bit common_bit_sync_stim_eeg_sync_en(
+  .async_in(stim_eeg_sync_en),
+  .clk(hfosc_atpg),
+  .rst_(por_resetn_atpg),      
+  .sync_out(stim_eeg_sync_en_sync)
+);
+wire stim_timer_clk;
+common_clock_gate u_cmsdk_clock_gate_stim_timer_clk (
+  .clk(pclk),
+  .enable(stim_eeg_sync_en_sync & stim_global_en & (filter_dly_cnt < filter_dly_tgt)),
+  .bypass(atpg_en),
+  .gated_clk(stim_timer_clk)
+);
+always @(posedge stim_timer_clk or negedge wave_gen_presetn) begin
+  if (~wave_gen_presetn) 
+ 	filter_dly_cnt <= 24'b0;
+  else if(filter_dly_cnt < filter_dly_tgt)
+ 	filter_dly_cnt <= filter_dly_cnt + 24'b1;
+end
+//===================================================================
+//==================
 
 wire         filter_rstn_atpg;
 //MX2X4M DNT_MX_FILTER (.A(global_rstn_atpg  & start_measn), .B(scan_rst_n), .S0(atpg_en), .Y(filter_rstn_atpg));
 //MX2_X4_A7TULL DNT_MX_FILTER (.A(global_rstn_atpg & (~cic_rst) & (~reset_cmd_pulse) &  (!(start_sample_pclk | stop_sample_pclk))), .B(scan_rst_n), .S0(atpg_en), .Y(filter_rstn_atpg));
-MX2_X4_A7TULL DNT_MX_FILTER (.A(global_rstn_atpg & (~cic_rst) & (~reset_cmd_pulse) &  (!(start_sample_pclk ))), .B(scan_rst_n), .S0(atpg_en), .Y(filter_rstn_atpg));
+//MX2_X4_A7TULL DNT_MX_FILTER (.A(global_rstn_atpg & (~cic_rst) & (~reset_cmd_pulse) &  (!(start_sample_pclk ))), .B(scan_rst_n), .S0(atpg_en), .Y(filter_rstn_atpg));
+MX2_X4_A7TULL DNT_MX_FILTER (.A(global_rstn_atpg & (~cic_rst) & (~reset_cmd_pulse) &  (!(start_sample_pclk )) & filter_rst_dly_n), .B(scan_rst_n), .S0(atpg_en), .Y(filter_rstn_atpg));
 
 common_rst_sync u_presetn_filter_sync(
   .RSTINn    (filter_rstn_atpg),
@@ -380,7 +419,8 @@ common_rst_sync u_presetn_filter_sync(
 
 wire cic_rst_atpg_n;
 //assign cic_rst_atpg_n = atpg_en ? presetn : (presetn & (~cic_rst)  & (~reset_cmd_pulse) & (!(start_sample | stop_sample)));
-assign cic_rst_atpg_n = atpg_en ? presetn : (presetn & (~cic_rst)  & (~reset_cmd_pulse) & (!(start_sample )));
+//assign cic_rst_atpg_n = atpg_en ? presetn : (presetn & (~cic_rst)  & (~reset_cmd_pulse) & (!(start_sample )));
+assign cic_rst_atpg_n = atpg_en ? presetn : (presetn & (~cic_rst)  & (~reset_cmd_pulse) & (!(start_sample )) & filter_rst_dly_n);
 
 common_rst_sync u_cic_rst_sync(
   .RSTINn    (cic_rst_atpg_n),
@@ -392,7 +432,8 @@ common_rst_sync u_cic_rst_sync(
 );
 
 wire adc_resetn_pre;
-assign adc_resetn_pre = atpg_en ? presetn : (presetn & (~cic_rst) & (~reset_cmd_pulse)) ;
+//assign adc_resetn_pre = atpg_en ? presetn : (presetn & (~cic_rst) & (~reset_cmd_pulse)) ;
+assign adc_resetn_pre = atpg_en ? presetn : (presetn & (~cic_rst) & (~reset_cmd_pulse) & filter_rst_dly_n) ;
 
 common_rst_sync u_adc_rst_sync(
   .RSTINn    (adc_resetn_pre),

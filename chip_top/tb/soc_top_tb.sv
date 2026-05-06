@@ -33,6 +33,7 @@
 `define EPROM_IP1 `EPROM_TOP.WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen
 `define ANAC_TOP `DIG_TOP.u_anac
 `define TSC_TOP `DIG_TOP.u_temp_sar_ctrl
+`define NIRS_PPG_TOP `DIG_TOP.u_nirs_wrapper
 
 `define SOC_TOP_S1 `SOC_TB.u_Nanochap_ENS2_S1
 `define DIG_TOP_S1 `SOC_TOP_S1.u_top_dig

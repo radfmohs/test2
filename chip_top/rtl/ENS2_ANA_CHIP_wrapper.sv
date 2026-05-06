@@ -61,9 +61,9 @@ input  wire  D2A_SDM_CLK,
   //WG
   input wire [11:0] i_out_wave_driver_idac[15:0], //
   input wire [15:0] i_ds_driver_en_driver,
-  input wire 	      i_ds_driver_en_current, //
+//input wire 	      i_ds_driver_en_current, //
   input wire [15:0] i_driver_en_sw, // 
-  input wire 	      i_stimu_en,    //        
+//input wire 	      i_stimu_en,    //        
 
   input      [15:0] i_source_driver, //
 //input      [15:0] i_sourceb_driver_a,
@@ -72,6 +72,11 @@ input  wire  D2A_SDM_CLK,
 );
 
 wire  [7:0] A2D_ANA_GEN_REG_0;
+wire  [7:0] A2D_ANA_GEN_REG_1;
+wire  [7:0] A2D_ANA_GEN_REG_2;
+wire  [7:0] A2D_ANA_GEN_REG_3;
+wire  [7:0] A2D_ANA_GEN_REG_4;
+
 wire  [7:0] A2D_SPARE_RO_REG_0;
 wire  [7:0] A2D_SPARE_RO_REG_0_tmp;
 wire        A2D_COMP_OUT_CH1_tmp;
@@ -499,11 +504,11 @@ assign D2A_ADJ13_IO  = D2A_ATM28 ?  pinmux_if.D2A_ADJ_IO[13]  : ANA_GEN_REG[7][1
 
 assign ANA_ENABLE_REG = pinmux_if.D2A_ANA_ENABLE_REG;
 assign ANA_GEN_REG    = spi_ana_if.D2A_ANA_GEN_REG;
-assign spi_ana_if.A2D_ANA_GEN_REG[0] = A2D_ANA_GEN_REG[0];
-assign spi_ana_if.A2D_ANA_GEN_REG[1] = A2D_ANA_GEN_REG[1];
-assign spi_ana_if.A2D_ANA_GEN_REG[2] = A2D_ANA_GEN_REG[2];
-assign spi_ana_if.A2D_ANA_GEN_REG[3] = A2D_ANA_GEN_REG[3];
-assign spi_ana_if.A2D_ANA_GEN_REG[4] = A2D_ANA_GEN_REG[4];
+assign spi_ana_if.A2D_ANA_GEN_REG[0] = A2D_ANA_GEN_REG_0;
+assign spi_ana_if.A2D_ANA_GEN_REG[1] = A2D_ANA_GEN_REG_1;
+assign spi_ana_if.A2D_ANA_GEN_REG[2] = A2D_ANA_GEN_REG_2;
+assign spi_ana_if.A2D_ANA_GEN_REG[3] = A2D_ANA_GEN_REG_3;
+assign spi_ana_if.A2D_ANA_GEN_REG[4] = A2D_ANA_GEN_REG_4;
 assign spi_ana_if.A2D_ANA_GEN_REG[5] = A2D_SPARE_RO_REG_0;
 
 //ADJ//
@@ -564,13 +569,9 @@ assign D2A_DCLOFFEN              = ANA_ENABLE_REG[0][1][4];
 //RECORDING
 assign D2A_BIAS_MEAS             = ANA_ENABLE_REG[0][3][1];
 assign D2A_BIASREF_INT           = ANA_GEN_REG[0][0][3];  
-assign D2A_EEGLNA_EN[7:0]        = ANA_ENABLE_REG[0][4]; 
-assign D2A_EEGLNA_EN[8]          = ANA_ENABLE_REG[0][2][4];
-assign D2A_EEGLNA_EN[15:9]       = ANA_ENABLE_REG[0][5][6:0]; 
-assign D2A_QSTRLNA_EN            = {ANA_ENABLE_REG[0][7],ANA_ENABLE_REG[0][6]}; 
-assign D2A_EEGPGA_EN[7:0]        = ANA_ENABLE_REG[0][8]; 
-assign D2A_EEGPGA_EN[8]          = ANA_ENABLE_REG[0][2][5];
-assign D2A_EEGPGA_EN[15:9]       = ANA_ENABLE_REG[0][9][6:0]; 
+assign D2A_EEGLNA_EN             = {ANA_ENABLE_REG[0][5],ANA_ENABLE_REG[0][4]}; 
+assign D2A_QSTRLNA_EN            = {ANA_ENABLE_REG[0][7],ANA_ENABLE_REG[0][6]};  
+assign D2A_EEGPGA_EN             = {ANA_ENABLE_REG[0][9],ANA_ENABLE_REG[0][8]}; 
 assign D2A_QSTRPGA_EN            = {ANA_ENABLE_REG[0][11],ANA_ENABLE_REG[0][10]}; 
 assign D2A_VCMGENBUFF_EN         = ANA_ENABLE_REG[0][2][1];
 assign D2A_SDMVCMBUFF_EN         = ANA_ENABLE_REG[0][2][2];
@@ -713,11 +714,13 @@ assign D2A_DATA_15           =  i_out_wave_driver_idac[15];   // {ANA_GEN_REG[6]
 
 assign D2A_CBUF_EN           = i_driver_en_sw; 
 assign D2A_IDAC_EN           = i_ds_driver_en_driver;   // {ANA_ENABLE_REG[1][0],ANA_ENABLE_REG[0][14]}; 
-assign D2A_DRIVER_CUR_EN     = i_ds_driver_en_current;  // ANA_ENABLE_REG[0][1][2];
+//assign D2A_DRIVER_CUR_EN   = i_ds_driver_en_current;  // ANA_ENABLE_REG[0][1][2];
+assign D2A_DRIVER_CUR_EN     = pinmux_if.i_ds_driver_en_current;  // ANA_ENABLE_REG[0][1][2];
 assign D2A_DRIVER_CUR_TRIM   = D2A_TRIM6_SIG;
 assign D2A_PULLD             = i_pulldn_driver;         // {ANA_GEN_REG[6][6],ANA_GEN_REG[6][5]};
 assign D2A_SOURCE            = i_source_driver;         // {ANA_GEN_REG[6][8],ANA_GEN_REG[6][7]};
-assign D2A_STIMU_EN          = i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
+//assign D2A_STIMU_EN          = i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
+assign D2A_STIMU_EN          = pinmux_if.i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
 assign D2A_LEAD_OFF_EN       = ANA_ENABLE_REG[0][3][3];
 assign D2A_LEAD_OFF_INSEL    = ANA_GEN_REG[6][9][3:0];
 assign D2A_SHORT_DET_EN      = ANA_ENABLE_REG[0][3][4];
@@ -730,12 +733,8 @@ assign D2A_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
 //assign D2A_NIRS4_IDAC_EN     = ANA_ENABLE_REG[0][1][7];
 
 //SDM
-assign D2A_SDMEN[7:0]        =  ANA_ENABLE_REG[1][1];
-assign D2A_SDMEN[8]          = ANA_ENABLE_REG[0][2][7];
-assign D2A_SDMEN[15:9]       =  ANA_ENABLE_REG[1][2][6:0];
-assign D2A_SDMBUFF_EN[7:0]   = ANA_ENABLE_REG[1][3]; 
-assign D2A_SDMBUFF_EN[8]     = ANA_ENABLE_REG[0][2][6]; 
-assign D2A_SDMBUFF_EN[15:9]  = ANA_ENABLE_REG[1][4][6:0]; 
+assign D2A_SDMEN             = {ANA_ENABLE_REG[1][2],ANA_ENABLE_REG[1][1]}; 
+assign D2A_SDMBUFF_EN        = {ANA_ENABLE_REG[1][4],ANA_ENABLE_REG[1][3]}; 
 
 //SPARE
 assign D2A_SPI_SPARE0        = ANA_GEN_REG[0][13];
@@ -793,20 +792,31 @@ assign D2A_PDBIAS_ADJ           = ana_nirs_if.D2A_PDBIAS_ADJ;
 assign D2A_CLK_NIRS             = ana_nirs_if.D2A_CLK_NIRS;
 assign D2A_NIRS_CHOPPER_EN      = ana_nirs_if.D2A_CHOPPER_EN;
 assign D2A_NIRS_FCHOP_ADJ       = ana_nirs_if.D2A_FCHOP_ADJ;
-assign D2A_NIRS_TEST_EN         = ana_nirs_if.D2A_TEST_EN;
-assign D2A_NIRS_EN              = ana_nirs_if.D2A_NIRS_EN;
-assign D2A_NIRS_IDAC_EN         = ana_nirs_if.D2A_IDAC_EN;
+assign D2A_NIRS_TEST_EN         = ((D2A_ATM18 || D2A_ATM19 || D2A_ATM20) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_TEST_EN;
+
+assign D2A_NIRS_EN[3:0]         = ana_nirs_if.D2A_NIRS_EN[3:0];
+assign D2A_NIRS_EN[4]           = ((D2A_ATM18 || D2A_ATM19 || D2A_ATM20) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_NIRS_EN[4];
+assign D2A_NIRS_EN[7:5]         = ana_nirs_if.D2A_NIRS_EN[7:5];
+
+assign D2A_NIRS_IDAC_EN[3:0]    = ana_nirs_if.D2A_IDAC_EN[3:0];
+assign D2A_NIRS_IDAC_EN[4]      = (D2A_ATM20  && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_IDAC_EN[4];
+assign D2A_NIRS_IDAC_EN[7:5]    = ana_nirs_if.D2A_IDAC_EN[7:5];
+
 assign D2A_NIRS_RESET_SW        = ana_nirs_if.D2A_NIRS_RESET_SW;
 assign D2A_NIRS_IPD_SW          = ana_nirs_if.D2A_NIRS_IPD_SW;
 assign D2A_NIRS_IIN_SW          = ana_nirs_if.D2A_NIRS_IIN_SW;
 assign D2A_NIRS_IPDMIRROR_ADJ   = ana_nirs_if.D2A_IPDMIRROR_ADJ;
-assign D2A_NIRS_IREFC_ADJ       = ana_nirs_if.D2A_IREFC_ADJ;
-assign D2A_NIRS_IDAC_ADJ        = ana_nirs_if.D2A_NIRS_IDAC;
+assign D2A_NIRS_IREFC_ADJ[3:0]  = ana_nirs_if.D2A_IREFC_ADJ[3:0];
+assign D2A_NIRS_IREFC_ADJ[4]    = D2A_ATM18 ? pinmux_if.D2A_ADJ_IO[3][1:0] : D2A_ATM19 ? pinmux_if.D2A_ADJ_IO[4][1:0] : ana_nirs_if.D2A_IREFC_ADJ[4];
+assign D2A_NIRS_IREFC_ADJ[7:5]  = ana_nirs_if.D2A_IREFC_ADJ[7:5];
+assign D2A_NIRS_IDAC_ADJ[3:0]   = ana_nirs_if.D2A_NIRS_IDAC[3:0];
+assign D2A_NIRS_IDAC_ADJ[4]     = D2A_ATM20 ? {1'b0, pinmux_if.D2A_ADJ_IO[5]} : ana_nirs_if.D2A_NIRS_IDAC[4];
+assign D2A_NIRS_IDAC_ADJ[7:5]   = ana_nirs_if.D2A_NIRS_IDAC[7:5];
 assign D2A_NIRS_CFRATE_ADJ0     = ana_nirs_if.D2A_NIRS_RATIO[0];
 assign D2A_NIRS_CFRATE_ADJ1     = ana_nirs_if.D2A_NIRS_RATIO[1];
 assign D2A_NIRS_CFRATE_ADJ2     = ana_nirs_if.D2A_NIRS_RATIO[2];
 assign D2A_NIRS_CFRATE_ADJ3     = ana_nirs_if.D2A_NIRS_RATIO[3];
-assign D2A_NIRS_CFRATE_ADJ4     = {4'b0, ana_nirs_if.D2A_NIRS_RATIO[4]};
+assign D2A_NIRS_CFRATE_ADJ4     = D2A_ATM18 ? pinmux_if.D2A_ADJ_IO[3][7:2] : D2A_ATM19 ? pinmux_if.D2A_ADJ_IO[4][7:2] : {4'b0, ana_nirs_if.D2A_NIRS_RATIO[4]};
 assign D2A_NIRS_CFRATE_ADJ5     = ana_nirs_if.D2A_NIRS_RATIO[5];
 assign D2A_NIRS_CFRATE_ADJ6     = ana_nirs_if.D2A_NIRS_RATIO[6];
 assign D2A_NIRS_CFRATE_ADJ7     = ana_nirs_if.D2A_NIRS_RATIO[7];

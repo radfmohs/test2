@@ -201,6 +201,8 @@ if {[string match S1?2_m?? $i]} {
 #if normal mode
 if {[string match S1??_m?? $i]} {  
   set_false_path -setup -from [get_clocks spi_clk] -through IOBUF_PAD[3] -through u_top_dig/u_pinmux/u_gpio3_pinmux/altf_y -through u_top_dig/u_pinmux/u_gpio6_pinmux/altf_oe -through IOBUF_PAD[6] -to [get_clocks spi_clk] ;#CS can affect MISO but not timing critical
+  set_multicycle_path 2 -setup -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]
+  set_multicycle_path 1 -hold  -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]
 }
 
 #if normal mode

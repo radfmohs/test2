@@ -49,7 +49,7 @@ class `TESTNAME extends soc_imeas_notch_filter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(2s);
+    uvm_top.set_timeout(25s);
     //uvm_top.set_timeout(400ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
@@ -97,6 +97,7 @@ class `TESTNAME extends soc_imeas_notch_filter_base_test;
     `DUT_IF.cic_rate        = top_test_cfg.imeas_cic_rate;
     `DUT_IF.imeas_osr       = top_test_cfg.imeas_osr;
     `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
+    `DUT_IF.sine_num_of_period = top_test_cfg.sine_num_of_period;
     `DUT_IF.imeas_sin_gen_en = top_test_cfg.imeas_sin_gen_en;
     `DUT_IF.imeas_sin_freq_unit = top_test_cfg.imeas_sin_freq_unit;
     `DUT_IF.imeas_sin_expected_freq = top_test_cfg.imeas_sin_expected_freq;

@@ -24,7 +24,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [5:0] reg_addr;
   rand logic [5:0] cmd;  
   logic [5:0] read_data[];
-  logic [8:0] atm;
+  logic [28:0] atm;
   
   // -----------------------------------------------
   // End of decalration of new variables 
@@ -148,7 +148,7 @@ class `TESTNAME extends soc_base_test;
     // ---------------------------------------------------- 
     // Part I: Configure chip to ATM4
     // ----------------------------------------------------
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b100;
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00100;
 
     // select TEST_MODE, PAD: TEST_MODE0=0, TEST_MODE1=1
     // Checking pin testmode
@@ -180,12 +180,12 @@ class `TESTNAME extends soc_base_test;
     // Before entering ATM mode, Disbale internal POR and clock
     // ========================================================================
     //stuck internal POR=1
-    force `ANA_TOP.A2D_POR_DVDD = 1'b1;
+    force `ANA_TOP.A2D_POR = 1'b1;
     //disable internal clock
-    //force `ANA_TOP.A2D_CLK2MHZ = 1'b0; // no need to force because hfosc_fixed_gnd_en =1 this take care stuck 0
+    force `ANA_TOP.A2D_CLK8MHZ = 1'b0; // no need to force because hfosc_fixed_gnd_en =1 this take care stuck 0
 
     // Use external resetn (set LOW to HIGH )
-    force `ANA_TOP.PMU_SW.DVDD = 1'b1; //in testmode LDO will not connected to DVDD so need provide external supply 1.8v
+    //force `ANA_TOP.PMU_SW.DVDD = 1'b1; //in testmode LDO will not connected to DVDD so need provide external supply 1.8v
     //force `SOC_TB.ext_resetn = 1'b0;
     #100000;
     force `SOC_TB.ext_resetn = 1'b1;
@@ -199,29 +199,129 @@ class `TESTNAME extends soc_base_test;
      #100000ns;
 
   `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
+    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[28]};
 `else
     top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
 `endif  
-    // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+     // Checking ATM
+    if (top_test_cfg.atm !== (29'b1_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM4", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end       
+        `nnc_error("ATM4", $sformatf("ATM[0:28] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (29'b1_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end 
 
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    //Check default signal  
+    if (`ANA_TOP.D2A_BIST_SEL !== 5'b00100)
       begin
-        `nnc_error("ATM4", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-  
+        `nnc_error("ATM4", $sformatf("D2A_BIST_SEL = %b is not as expectation of 5'b00011", `ANA_TOP.D2A_BIST_SEL))
+      end  
+    if (`ANA_TOP.D2A_BIST_EN !== 1'b1)
+      begin
+        `nnc_error("ATM4", $sformatf("D2A_BIST_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_BIST_EN))
+      end  
+    if (`ANA_TOP.D2A_OSC8MHZEN !== 1'b1)
+      begin
+        `nnc_error("ATM4", $sformatf("D2A_OSC8MHZEN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_OSC8MHZEN))
+      end 
+    if(`ANA_TOP.D2A_BGBUFFER_CPTEST_EN != 1'b1)
+      begin
+        `nnc_error("ATM4", $sformatf("D2A_BGBUFFER_CPTEST_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_BGBUFFER_CPTEST_EN))
+      end
+
+    //Checking the connections from PADs to ANA Interface
+    for (int i=0; i < 100; i++) begin
+        force {`SOC_TOP.IOBUF_PAD[8:1]} = $random;
+        #10000ns;
+        rand_num[7:0] = `SOC_TOP.IOBUF_PAD[8:1]; 
+`ifdef BEHAVIORAL             
+        if (`ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4][7:0]!== {rand_num[7:0]}) begin
+        `nnc_error("ATM4", $sformatf("`SOC_TOP.pinmux_if.D2A_TRIM_SIG[4][7:0] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4][7:0], {rand_num[7:0]}));
+        end
+`else
+        if (`ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0]!== {rand_num[7:0]}) begin
+        `nnc_error("ATM4", $sformatf("`SOC_TOP.pinmux_if.D2A_TRIM_SIG[7:0] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0], {rand_num[7:0]}));
+        end
+`endif
+        if (`ANA_TOP.D2A_OSC8MHZ_TRIM!== {rand_num[7:0]}) begin
+        `nnc_error("ATM4", $sformatf("`ANA_TOP.D2A_OSC8MHZ_TRIM = %b is not as expectation of = %b", `ANA_TOP.D2A_OSC8MHZ_TRIM, {rand_num[7:0]}));
+        end
+
+        release  `SOC_TOP.IOBUF_PAD[8:1];      
+    end 
+
+    // Checking OTP_UNLOCK pin (input)
+    for (int i=0; i < 100; i++) begin
+        force `SOC_TOP.CLKSEL = $random;
+        #10000ns;
+        rand_bit = `SOC_TOP.CLKSEL;
+        if (`EPROM_TOP.unlock_gpio !== rand_bit) begin
+        `nnc_error("ATM4", $sformatf("`EPROM_TOP.unlock_gpio:%b is not as expectation of CLKSEL: %b",`EPROM_TOP.unlock_gpio, rand_bit))
+        end
+      release  `SOC_TOP.CLKSEL;              
+    end 
+
+    // Checking Resetn pin (input)
+    for (int i=0; i < 100; i++) begin
+        force `SOC_TOP.RESETn = $random;	
+        #10000ns;
+        rand_bit = `SOC_TOP.RESETn;
+        `ifndef POSTLAYOUT_PG
+           if (`RST_CTRL_TOP.ext_resetn !== rand_bit) begin
+           `nnc_error("ATM4", $sformatf("`RST_CTRL_TOP.ext_resetn:%b is not as expectation of RESETn: %b",`RST_CTRL_TOP.ext_resetn, rand_bit))
+           end
+           if (`RST_CTRL_TOP.scan_rst_n !== rand_bit) begin
+           `nnc_error("ATM4", $sformatf("`RST_CTRL_TOP.scan_rst_n:%b is not as expectation of RESETn: %b",`RST_CTRL_TOP.scan_rst_n, rand_bit))
+           end
+           if (`RST_CTRL_TOP.otp_bist_resetn !== rand_bit) begin
+           `nnc_error("ATM4", $sformatf("`RST_CTRL_TOP.otp_bist_resetn:%b is not as expectation of RESETn: %b",`RST_CTRL_TOP.otp_bist_resetn, rand_bit))
+           end
+        `else //in postlayout above all reset signals of pinmux has been optimized so consider only below one
+           if (`DIG_TOP.u_pinmux.iopad_resetn_y !== rand_bit) begin
+           `nnc_error("ATM4", $sformatf("`DIG_TOP.u_pinmux.iopad_resetn_y:%b is not as expectation of RESETn: %b",`DIG_TOP.u_pinmux.iopad_resetn_y, rand_bit))
+           end
+           if (`RST_CTRL_TOP.otp_bist_resetn!== rand_bit) begin
+             `nnc_error("ATM4", $sformatf("`DIG_TOP.u_pinmux.otp_bist_resetn = %b is not as expectation of = %b", `RST_CTRL_TOP.otp_bist_resetn, rand_bit));
+           end
+           if (`DIG_TOP.scan_rst_n !== rand_bit) begin
+            `nnc_error("ATM4", $sformatf("`DIG_TOP.u_pinmux.scan_rst_n = %b is not as expectation of scan_rst_n = %b",`DIG_TOP.scan_rst_n, `SOC_TB.scan_rst_n))
+          end
+        `endif
+
+      release  `SOC_TOP.RESETn;              
+    end
+
+// Checking EXT_CLK pin (input)
+`ifdef BEHAVIORAL                         
+    for (int i=0; i < 100; i++) begin
+        #1000ns;
+        force `SOC_TOP.IOBUF_PAD[0] = $random;
+        #10000ns;
+        rand_bit = `SOC_TOP.IOBUF_PAD[0];
+        if (`CLK_CTRL_TOP.ext_hfclk !== rand_bit) begin
+        `nnc_error("ATM4", $sformatf("`CLK_CTRL_TOP.ext_hfclk : %b is not as expectation of EXT_CLK: %b",`CLK_CTRL_TOP.ext_hfclk, rand_bit))
+        end
+        release `SOC_TOP.IOBUF_PAD[0];                      
+    end  
+`endif
+
+    // Checking OTP_VPP_EN pin (output)
+    for (int i=0; i < 100; i++) begin
+        force `DIG_TOP.u_pinmux.i_otp_vpp_en = $random;
+        #10000ns;
+        rand_bit = `DIG_TOP.u_pinmux.i_otp_vpp_en;
+        if (`SOC_TOP.IOBUF_PAD[9] !== rand_bit) begin
+        `nnc_error("ATM4", $sformatf("`DIG_TOP.IOBUF_PAD[9] : %b is not as expectation of `DIG_TOP.u_pinmux.i_otp_vpp_en: %b",`SOC_TOP.IOBUF_PAD[9], rand_bit))
+        end
+        release `DIG_TOP.u_pinmux.i_otp_vpp_en;                      
+    end   
+
+/*  
     #10000ns;
 
     // --------------------------------------------------------- 
     // Part III: Checking fixed signals in CHIP on ANA Interface
     // ---------------------------------------------------------
     //Check default signal           
-    if (`ANA_TOP.D2A_BIST_SEL !== 4'b0100)
+    if (`ANA_TOP.D2A_BIST_SEL !== 5'b00100)
       begin
         `nnc_error("ATM4", $sformatf("D2A_BIST_SEL = %b is not as expectation of 4'b0100", `ANA_TOP.D2A_BIST_SEL))
       end  
@@ -338,7 +438,7 @@ class `TESTNAME extends soc_base_test;
 
         release  `SOC_TOP.IOBUF_PAD[7:1];      
     end     
-    
+    */
 `endif
                    	    
     end

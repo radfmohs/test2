@@ -24,6 +24,12 @@ interface dut_interface();
   wire  soc_resetn_chipA;
   wire  soc_resetn_chipB;
 
+  logic       default_only_en;
+  logic       nirs_reg_en;
+  logic       wavegen_reg_en;
+  logic       normal_reg_en;
+  logic       ana_reg_en;
+
   // inout
   `ifndef FPGA
   `else
@@ -129,10 +135,10 @@ interface dut_interface();
   logic [7:0]  tmp_pos;
   logic [7:0]  tmp_neg;   
   logic [7:0]  pulse_data; 
-  //logic        pulla;
-  //logic        pullb;
-  //logic        sourcea;
-  //logic        sourceb;
+  //logic      pulla;
+  //logic      pullb;
+  //logic      sourcea;
+  //logic      sourceb;
   logic        scale_en = 0;
   logic        dac_bit_len_sel_drv0; 
   logic        dac_bit_len_sel_drv1; 
@@ -171,8 +177,8 @@ interface dut_interface();
   logic        stop_wave1;
   logic        stop_wave2;
   logic        clk_per_point_short;//for wg scb
-  logic        clk_per_point_short_dac0;//for drv0 py tb
-  logic        clk_per_point_short_dac1;//for drv1 py tb
+  logic        clk_per_point_short_dac[`WAVEGEN_DRIVER_NUM];//for drv0 py tb
+  //logic        clk_per_point_short_dac1;//for drv1 py tb
 
   //logic [31:0] ch1_addr_range;
   //logic [31:0] ch2_addr_range;
@@ -395,7 +401,7 @@ interface dut_interface();
   logic [31:0] imeas_sin_freq_unit;
   logic [31:0] imeas_sin_expected_freq;
   logic [31:0] imeas_sin_no_clk_per_period;
-  logic [11:0] imeas_sample_num_per_period;
+  logic [31:0] imeas_sample_num_per_period;
 
   logic [31:0] python_imeas_length;
   logic [`ONE_IMEAS_SIZE-1:0]   imeas_data[`FILTER_NUM];
@@ -419,6 +425,10 @@ interface dut_interface();
   logic        imeas_status_en;
   logic        imeas_24bitdata_en;
   logic [31:0] no_of_samples; 
+  logic [31:0] sine_num_of_period;
+  logic [23:0] filter_dly_val;
+  logic        filter_sync_en;
+
   logic [`FILTER_DATA_WIDTH-1:0] filter_data_out[`FILTER_NUM-1:0] ;
   logic [`FILTER_DATA_WIDTH-1:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
   logic        filter_case;
@@ -532,7 +542,7 @@ interface dut_interface();
   logic         debug_led;
   logic [3:0]   debug_channel;
 
-              
+  logic [15:0]  drive_mode_en;              
      
 endinterface: dut_interface
 `endif

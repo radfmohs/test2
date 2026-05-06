@@ -7,19 +7,20 @@ module nirs_ppg_pulse_ctrl (
 
 //  - 0000: RECEIVER MASTER (CON TYP) - 0010: RECEIVER MASTER (CON FAST) - 0110: RECEIVER MASTER (CON FAST)
 /*
-  0xxxx: DUAL LED_d
-  1xxxx: SINGLE LED_d
-  xxxx1: MCU MASTER (SINGLE)
-  x0000: RECEIVER MASTER (CON TYP) - EN follows IREF FINE
-  x0100: RECEIVER MASTER (CON TYP) - EN always on
-  x0x10: RECEIVER MASTER (CON FAST)
-  x1xx0: RECEIVER MASTER (SINGLE)
+  1xxxxx: Ambient enable
+  x0xxxx: DUAL LED_d
+  x1xxxx: SINGLE LED_d
+  xxxxx1: MCU MASTER (SINGLE)
+  xx0000: RECEIVER MASTER (CON TYP) - EN follows IREF FINE
+  xx0100: RECEIVER MASTER (CON TYP) - EN always on
+  xx0x10: RECEIVER MASTER (CON FAST)
+  xx1xx0: RECEIVER MASTER (SINGLE)
 */
-  input  wire [4:0] MODE_SEL, 
+  input  wire [5:0] MODE_SEL, 
 
   input  wire       NIRS_EN, 
   input  wire       NIRS_MEAS,
-  output wire       LED,
+  output wire [1:0] LED,
 
 // CONFIG signals
   input  wire [2:0] LED_stable_ctrl_0,
@@ -43,19 +44,19 @@ module nirs_ppg_pulse_ctrl (
   output wire       LED_ON
 );
 
-localparam t_STABLE_1M4   = 16'd140;
-localparam t_STABLE_1M2   = 16'd120;
-localparam t_STABLE_1M    = 16'd100;
-localparam t_STABLE_80US  = 16'd80;
-localparam t_STABLE_60US  = 16'd60;
-localparam t_STABLE_40US  = 16'd40;
-localparam t_STABLE_20US  = 16'd20;
+localparam t_STABLE_200US = 16'd200;
+localparam t_STABLE_150US = 16'd150;
+localparam t_STABLE_120US = 16'd120;
+localparam t_STABLE_100US = 16'd100;
+localparam t_STABLE_70US  = 16'd70;
+localparam t_STABLE_50US  = 16'd50;
+localparam t_STABLE_30US  = 16'd30;
 localparam t_STABLE_10US  = 16'd10;
 
+localparam t_LED_OFF_5US  = 16'd5;
+localparam t_LED_OFF_4US  = 16'd4;
 localparam t_LED_OFF_3US  = 16'd3;
 localparam t_LED_OFF_2US  = 16'd2;
-localparam t_LED_OFF_1US  = 16'd1;
-localparam t_LED_OFF_0US  = 16'd0;
 
 localparam t_PERIOD_22MS  = 16'd22000;
 localparam t_PERIOD_20MS  = 16'd20000;
@@ -74,16 +75,17 @@ localparam t_PERIOD_500US = 16'd500;
 localparam t_PERIOD_250US = 16'd250;
 localparam t_PERIOD_125US = 16'd125;
 
+localparam t_OTS_50US     = 16'd50;
+localparam t_OTS_45US     = 16'd45;
+localparam t_OTS_40US     = 16'd40;
+localparam t_OTS_35US     = 16'd35;
+localparam t_OTS_30US     = 16'd30;
 localparam t_OTS_25US     = 16'd25;
 localparam t_OTS_20US     = 16'd20;
-localparam t_OTS_18US     = 16'd18;
-localparam t_OTS_16US     = 16'd16;
-localparam t_OTS_14US     = 16'd14;
+localparam t_OTS_15US     = 16'd15;
 localparam t_OTS_12US     = 16'd12;
 localparam t_OTS_10US     = 16'd10;
-localparam t_OTS_9US      = 16'd9;
 localparam t_OTS_8US      = 16'd8;
-localparam t_OTS_7US      = 16'd7;
 localparam t_OTS_6US      = 16'd6;
 localparam t_OTS_5US      = 16'd5;
 localparam t_OTS_4US      = 16'd4;
@@ -91,14 +93,14 @@ localparam t_OTS_3US      = 16'd3;
 localparam t_OTS_2US      = 16'd2;
 localparam t_OTS_1US      = 16'd1;
 
-localparam t_RESET_1M     = 16'd100;
-localparam t_RESET_90US   = 16'd90;
-localparam t_RESET_80US   = 16'd80;
+localparam t_RESET_200US  = 16'd200;
+localparam t_RESET_180US  = 16'd180;
+localparam t_RESET_160US  = 16'd160;
+localparam t_RESET_140US  = 16'd140;
+localparam t_RESET_120US  = 16'd120;
+localparam t_RESET_100US  = 16'd100;
 localparam t_RESET_70US   = 16'd70;
-localparam t_RESET_60US   = 16'd60;
 localparam t_RESET_50US   = 16'd50;
-localparam t_RESET_40US   = 16'd40;
-localparam t_RESET_30US   = 16'd30;
 
 parameter [15:0] t_delay_timing   = 16'd10;
 
@@ -118,26 +120,34 @@ parameter [15:0] t_delay_timing   = 16'd10;
   wire [15:0] LED_ON_h, LED_ON_l;
 
 /*
-  DUAL LED_d sel
+  DUAL LED_d sel - ambient
 */
-  reg LED_d; // 0: LED_0 - 1: LED_1
-  wire [3:0] MODE;
+  reg  [1:0] LED_d; // 00: LED_0 - 01: Ambient LED0 - 10: LED_1 -- 11: Ambient of LED1
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      LED_d <= 1'b1;  // default as 1 so on the first toggle, LED0 is selected.
+      LED_d <= 2'b11;  // default as 1 so on the first toggle, LED0 is selected.
     end else if (MODE_SEL[4] == 1'b1) begin // SINGLE LED_d MODE
-      LED_d <= 1'b0;
-    end else if (counter == RESET_h) begin  // DUAL LED_d MODE - Toggled at every RESET_SW
-      LED_d <= ~LED_d;
+      if (MODE_SEL[5] == 1'b1) begin //Ambient
+        LED_d[0]  <= ~LED_d[0];   
+      end else begin
+        LED_d     <= 2'b0; 
+      end
+    end else if (counter == RESET_h) begin  // DUAL LED_d MODE
+      if (MODE_SEL[5] == 1'b1) begin //Ambient
+        LED_d     <= LED_d + 2'b01;   
+      end else begin
+        LED_d[0]  <= 1'b0; 
+        LED_d[1]  <= ~LED_d[1]; 
+      end
     end
   end
 
-  assign LED_stable_ctrl_sel  = (LED_d == 1'b0) ? LED_stable_ctrl_0 : LED_stable_ctrl_1;
-  assign LED_off_ctrl_sel     = (LED_d == 1'b0) ? LED_off_ctrl_0    : LED_off_ctrl_1;
-  assign RESET_ctrl_sel       = (LED_d == 1'b0) ? RESET_ctrl_0      : RESET_ctrl_1;
-  assign PERIOD_ctrl_sel      = (LED_d == 1'b0) ? PERIOD_ctrl_0     : PERIOD_ctrl_1;
-  assign OTS_ctrl_sel         = (LED_d == 1'b0) ? OTS_ctrl_0        : OTS_ctrl_1;
+  assign LED_stable_ctrl_sel  = (LED_d[1] == 1'b0) ? LED_stable_ctrl_0 : LED_stable_ctrl_1;
+  assign LED_off_ctrl_sel     = (LED_d[1] == 1'b0) ? LED_off_ctrl_0    : LED_off_ctrl_1;
+  assign RESET_ctrl_sel       = (LED_d[1] == 1'b0) ? RESET_ctrl_0      : RESET_ctrl_1;
+  assign PERIOD_ctrl_sel      = (LED_d[1] == 1'b0) ? PERIOD_ctrl_0     : PERIOD_ctrl_1;
+  assign OTS_ctrl_sel         = (LED_d[1] == 1'b0) ? OTS_ctrl_0        : OTS_ctrl_1;
 
 /*
   TIMINGS sel
@@ -160,29 +170,29 @@ parameter [15:0] t_delay_timing   = 16'd10;
                             (PERIOD_ctrl_sel      == 4'h0) ? t_PERIOD_125US  : t_PERIOD_125US;
 
   assign t_stable_led   =   (LED_stable_ctrl_sel  == 3'd0) ? t_STABLE_10US :
-                            (LED_stable_ctrl_sel  == 3'd1) ? t_STABLE_20US :
-                            (LED_stable_ctrl_sel  == 3'd2) ? t_STABLE_40US :
-                            (LED_stable_ctrl_sel  == 3'd3) ? t_STABLE_60US :
-                            (LED_stable_ctrl_sel  == 3'd4) ? t_STABLE_80US :
-                            (LED_stable_ctrl_sel  == 3'd5) ? t_STABLE_1M   :
-                            (LED_stable_ctrl_sel  == 3'd6) ? t_STABLE_1M2  :
-                            (LED_stable_ctrl_sel  == 3'd7) ? t_STABLE_1M4  : t_STABLE_10US;
+                            (LED_stable_ctrl_sel  == 3'd1) ? t_STABLE_30US :
+                            (LED_stable_ctrl_sel  == 3'd2) ? t_STABLE_50US :
+                            (LED_stable_ctrl_sel  == 3'd3) ? t_STABLE_70US :
+                            (LED_stable_ctrl_sel  == 3'd4) ? t_STABLE_100US:
+                            (LED_stable_ctrl_sel  == 3'd5) ? t_STABLE_120US:
+                            (LED_stable_ctrl_sel  == 3'd6) ? t_STABLE_150US:
+                            (LED_stable_ctrl_sel  == 3'd7) ? t_STABLE_200US: t_STABLE_10US;
 
-  assign t_off_led      =   (LED_off_ctrl_sel     == 2'd0) ? t_LED_OFF_0US :
-                            (LED_off_ctrl_sel     == 2'd1) ? t_LED_OFF_1US :
-                            (LED_off_ctrl_sel     == 2'd2) ? t_LED_OFF_2US :
-                            (LED_off_ctrl_sel     == 2'd3) ? t_LED_OFF_3US : t_LED_OFF_0US;                         
+  assign t_off_led      =   (LED_off_ctrl_sel     == 2'd0) ? t_LED_OFF_5US :
+                            (LED_off_ctrl_sel     == 2'd1) ? t_LED_OFF_4US :
+                            (LED_off_ctrl_sel     == 2'd2) ? t_LED_OFF_3US :
+                            (LED_off_ctrl_sel     == 2'd3) ? t_LED_OFF_2US : t_LED_OFF_2US;                         
 
-  assign t_IPD_SW_w_sel  =  (OTS_ctrl_sel         == 4'hf) ? t_OTS_25US  :
-                            (OTS_ctrl_sel         == 4'he) ? t_OTS_20US  :
-                            (OTS_ctrl_sel         == 4'hd) ? t_OTS_18US  :
-                            (OTS_ctrl_sel         == 4'hc) ? t_OTS_16US  :
-                            (OTS_ctrl_sel         == 4'hb) ? t_OTS_14US  :
-                            (OTS_ctrl_sel         == 4'ha) ? t_OTS_12US  :
-                            (OTS_ctrl_sel         == 4'h9) ? t_OTS_10US  :
-                            (OTS_ctrl_sel         == 4'h8) ? t_OTS_9US   :
-                            (OTS_ctrl_sel         == 4'h7) ? t_OTS_8US   :
-                            (OTS_ctrl_sel         == 4'h6) ? t_OTS_7US   :
+  assign t_IPD_SW_w_sel  =  (OTS_ctrl_sel         == 4'hf) ? t_OTS_50US  :
+                            (OTS_ctrl_sel         == 4'he) ? t_OTS_45US  :
+                            (OTS_ctrl_sel         == 4'hd) ? t_OTS_40US  :
+                            (OTS_ctrl_sel         == 4'hc) ? t_OTS_35US  :
+                            (OTS_ctrl_sel         == 4'hb) ? t_OTS_30US  :
+                            (OTS_ctrl_sel         == 4'ha) ? t_OTS_25US  :
+                            (OTS_ctrl_sel         == 4'h9) ? t_OTS_20US  :
+                            (OTS_ctrl_sel         == 4'h8) ? t_OTS_15US  :
+                            (OTS_ctrl_sel         == 4'h7) ? t_OTS_10US  :
+                            (OTS_ctrl_sel         == 4'h6) ? t_OTS_8US   :
                             (OTS_ctrl_sel         == 4'h5) ? t_OTS_6US   :
                             (OTS_ctrl_sel         == 4'h4) ? t_OTS_5US   :
                             (OTS_ctrl_sel         == 4'h3) ? t_OTS_4US   :
@@ -190,14 +200,14 @@ parameter [15:0] t_delay_timing   = 16'd10;
                             (OTS_ctrl_sel         == 4'h1) ? t_OTS_2US   :
                             (OTS_ctrl_sel         == 4'h0) ? t_OTS_1US   : t_OTS_1US;
 
-  assign t_RESET_w_timing = (RESET_ctrl_sel       == 3'h7) ? t_RESET_1M   :
-                            (RESET_ctrl_sel       == 3'h6) ? t_RESET_90US :
-                            (RESET_ctrl_sel       == 3'h5) ? t_RESET_80US :
-                            (RESET_ctrl_sel       == 3'h4) ? t_RESET_70US :
-                            (RESET_ctrl_sel       == 3'h3) ? t_RESET_60US :
-                            (RESET_ctrl_sel       == 3'h2) ? t_RESET_50US :
-                            (RESET_ctrl_sel       == 3'h1) ? t_RESET_40US :
-                            (RESET_ctrl_sel       == 3'h0) ? t_RESET_30US : t_RESET_30US;
+  assign t_RESET_w_timing = (RESET_ctrl_sel       == 3'h7) ? t_RESET_200US  :
+                            (RESET_ctrl_sel       == 3'h6) ? t_RESET_180US  :
+                            (RESET_ctrl_sel       == 3'h5) ? t_RESET_160US  :
+                            (RESET_ctrl_sel       == 3'h4) ? t_RESET_140US  :
+                            (RESET_ctrl_sel       == 3'h3) ? t_RESET_120US  :
+                            (RESET_ctrl_sel       == 3'h2) ? t_RESET_100US  :
+                            (RESET_ctrl_sel       == 3'h1) ? t_RESET_70US   :
+                            (RESET_ctrl_sel       == 3'h0) ? t_RESET_50US   : t_RESET_50US;
 
 
   assign t_period       = t_period_sel      * 16'd2 - 16'd1;

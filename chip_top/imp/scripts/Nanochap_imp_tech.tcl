@@ -114,7 +114,7 @@ if {[info exists sh_launch_dir] == 0} {
 
 # Set the base path for libraries (e.g. "/projects/my_project/libraries")
 set stdcell_db_path "../tech/gf_arm_180nm_ULL_BCDlite/ULL_1V8_sc7xz_base_g1p8/arm/db"
-#set eeprom_db_path "../tech/GF180_ULL_ISO_65V_EEPROM128x8/Timing_model/"
+set sram_db_path "../tech/gf_arm_180nm_SP_SRAM_BCDlite"
 set otp_db_path "../tech/OTP_eMemory/OTP_32x32_EO32X32GCT2Q_H3_v1/EO32X32GCT2Q_H3_v1.4/lib/"
 set io_db_path "../tech/gf_arm_180nm_ULL_BCDlite/GF018bcdlite_icpio_5p0_75_wp_2016q1v1/lib_018ull"
 set ana_db_path "../tech/ana_lib"
@@ -143,12 +143,13 @@ set ana_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_in
 set pad_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/GF018bcdlite_icpio_5p0_75_wp_6lm_9TM.mw]
 set otp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/otp.mw]
 set vpp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/GF_CI_VPP.mw]
+set vpp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/SRAM_SP.mw]
 
 # -----------------------------------------------------------------------------
 # Library search path and Milkyway locations
 # -----------------------------------------------------------------------------
 set stdcell_search_path     [list $stdcell_db_path $stdcell_sdb_path]
-#set eeprom_search_path         [list $eeprom_db_path]
+set sram_search_path        [list $sram_db_path]
 set otp_search_path         [list $otp_db_path]
 set io_search_path          [list $io_db_path]
 set ana_search_path         [list $ana_db_path]
@@ -171,10 +172,10 @@ set stdcell_library(db,$typ_corner_pvt)  [ list \
                                         ${tt_lib_name}.db \
                                         ]
 
-# eeprom
-#set eeprom_max_library [list YEN12808F18B5AA2_Y01_SS_V10.db]
-#set eeprom_min_library [list YEN12808F18B5AA2_Y01_FF_V10.db]
-#set eeprom_typ_library [list YEN12808F18B5AA2_Y01_TT_V10.db]
+# sram
+set sram_max_library [list sram_sp_128x8_nldm_ss_1p62v_1p62v_125c_syn.db]
+set sram_min_library [list sram_sp_128x8_nldm_ff_1p98v_1p98v_m40c_syn.db]
+set sram_typ_library [list sram_sp_128x8_nldm_tt_1p80v_1p80v_25c_syn.db]
 
 # otp
 set otp_max_library [list EO32X32GCT2Q_H3_PA_ss.db]

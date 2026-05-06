@@ -119,41 +119,52 @@
 
 // analog register define
 //My add
+
 `define  ANA_EN_BASE_ADDR           8'hC0 // 2 Enable sections
-`define  ANA_EN_SEC                 `ANA_EN_BASE_ADDR+8'h00//40
-`define  ANA_ENABLE_REG_0           `ANA_EN_BASE_ADDR+8'h01//41
-`define  ANA_ENABLE_REG_1           `ANA_EN_BASE_ADDR+8'h02//42
-`define  ANA_ENABLE_REG_2           `ANA_EN_BASE_ADDR+8'h03//43
-`define  ANA_ENABLE_REG_3           `ANA_EN_BASE_ADDR+8'h04//44
-`define  ANA_ENABLE_REG_4           `ANA_EN_BASE_ADDR+8'h05//45
-`define  ANA_ENABLE_REG_5           `ANA_EN_BASE_ADDR+8'h06//46
-`define  ANA_ENABLE_REG_6           `ANA_EN_BASE_ADDR+8'h07//47
-`define  ANA_ENABLE_REG_7           `ANA_EN_BASE_ADDR+8'h08//48
-`define  ANA_ENABLE_REG_8           `ANA_EN_BASE_ADDR+8'h09//49
-`define  ANA_ENABLE_REG_9           `ANA_EN_BASE_ADDR+8'h0A//4A
-`define  ANA_ENABLE_REG_10          `ANA_EN_BASE_ADDR+8'h0B//4B
-`define  ANA_ENABLE_REG_11          `ANA_EN_BASE_ADDR+8'h0C//4C
-`define  ANA_ENABLE_REG_12          `ANA_EN_BASE_ADDR+8'h0D//4D
-`define  ANA_ENABLE_REG_13          `ANA_EN_BASE_ADDR+8'h0E//4E
-`define  ANA_ENABLE_REG_14          `ANA_EN_BASE_ADDR+8'h0F//4F
+`define  ANA_EN_SECTION_SEL         `ANA_EN_BASE_ADDR+8'h00//C0
+`define  ANA_ENABLE_REG_0           `ANA_EN_BASE_ADDR+8'h01//C1
+`define  ANA_ENABLE_REG_1           `ANA_EN_BASE_ADDR+8'h02//C2
+`define  ANA_ENABLE_REG_2           `ANA_EN_BASE_ADDR+8'h03//C3
+`define  ANA_ENABLE_REG_3           `ANA_EN_BASE_ADDR+8'h04//C4
+`define  ANA_ENABLE_REG_4           `ANA_EN_BASE_ADDR+8'h05//C5
+`define  ANA_ENABLE_REG_5           `ANA_EN_BASE_ADDR+8'h06//C6
+`define  ANA_ENABLE_REG_6           `ANA_EN_BASE_ADDR+8'h07//C7
+`define  ANA_ENABLE_REG_7           `ANA_EN_BASE_ADDR+8'h08//C8
+`define  ANA_ENABLE_REG_8           `ANA_EN_BASE_ADDR+8'h09//C9
+`define  ANA_ENABLE_REG_9           `ANA_EN_BASE_ADDR+8'h0A//CA
+`define  ANA_ENABLE_REG_10          `ANA_EN_BASE_ADDR+8'h0B//CB
+`define  ANA_ENABLE_REG_11          `ANA_EN_BASE_ADDR+8'h0C//CC
+`define  ANA_ENABLE_REG_12          `ANA_EN_BASE_ADDR+8'h0D//CD
+`define  ANA_ENABLE_REG_13          `ANA_EN_BASE_ADDR+8'h0E//CE
+`define  ANA_ENABLE_REG_14          `ANA_EN_BASE_ADDR+8'h0F//CF
  
 `define  ANA_REG_BASE_ADDR          8'hD0 // 8 GEN sections
-`define  ANA_GEN_SEC                `ANA_REG_BASE_ADDR+8'h00//50
-`define  ANA_GEN_REG_1              `ANA_REG_BASE_ADDR+8'h01//51
-`define  ANA_GEN_REG_2              `ANA_REG_BASE_ADDR+8'h02//52
-`define  ANA_GEN_REG_3              `ANA_REG_BASE_ADDR+8'h03//53
-`define  ANA_GEN_REG_4              `ANA_REG_BASE_ADDR+8'h04//54
-`define  ANA_GEN_REG_5              `ANA_REG_BASE_ADDR+8'h05//55
-`define  ANA_GEN_REG_6              `ANA_REG_BASE_ADDR+8'h06//56
-`define  ANA_GEN_REG_7              `ANA_REG_BASE_ADDR+8'h07//57
-`define  ANA_GEN_REG_8              `ANA_REG_BASE_ADDR+8'h08//58
-`define  ANA_GEN_REG_9              `ANA_REG_BASE_ADDR+8'h09//59
-`define  ANA_GEN_REG_10             `ANA_REG_BASE_ADDR+8'h0A//5A
-`define  ANA_GEN_REG_11             `ANA_REG_BASE_ADDR+8'h0B//5B
-`define  ANA_GEN_REG_12             `ANA_REG_BASE_ADDR+8'h0C//5C
-`define  ANA_GEN_REG_13             `ANA_REG_BASE_ADDR+8'h0D//5D
-`define  ANA_GEN_REG_14             `ANA_REG_BASE_ADDR+8'h0E//5E
-`define  A2D_ANA_GEN_REG            `ANA_REG_BASE_ADDR+8'h0F//5F
+`define  ANA_GEN_SECTION_SEL        `ANA_REG_BASE_ADDR+8'h00//D0
+`define  ANA_GEN_REG_1              `ANA_REG_BASE_ADDR+8'h01//D1
+`define  ANA_GEN_REG_2              `ANA_REG_BASE_ADDR+8'h02//D2
+`define  ANA_GEN_REG_3              `ANA_REG_BASE_ADDR+8'h03//D3
+`define  ANA_GEN_REG_4              `ANA_REG_BASE_ADDR+8'h04//D4
+`define  ANA_GEN_REG_5              `ANA_REG_BASE_ADDR+8'h05//D5
+`define  ANA_GEN_REG_6              `ANA_REG_BASE_ADDR+8'h06//D6
+`define  ANA_GEN_REG_7              `ANA_REG_BASE_ADDR+8'h07//D7
+`define  ANA_GEN_REG_8              `ANA_REG_BASE_ADDR+8'h08//D8
+`define  ANA_GEN_REG_9              `ANA_REG_BASE_ADDR+8'h09//D9
+`define  ANA_GEN_REG_10             `ANA_REG_BASE_ADDR+8'h0A//DA
+`define  ANA_GEN_REG_11             `ANA_REG_BASE_ADDR+8'h0B//DB
+`define  ANA_GEN_REG_12             `ANA_REG_BASE_ADDR+8'h0C//DC
+`define  ANA_GEN_REG_13             `ANA_REG_BASE_ADDR+8'h0D//DD
+`define  ANA_GEN_REG_14             `ANA_REG_BASE_ADDR+8'h0E//DE -SPARE
+`define  ANA_GEN_REG_15             `ANA_REG_BASE_ADDR+8'h0F//DF - AJD
+
+`define  A2D_ANA_REG_BASE_ADDR          8'hA0 
+`define  A2D_ANA_GEN_REG_0          `A2D_ANA_REG_BASE_ADDR+8'h00//E0
+`define  A2D_ANA_GEN_REG_1          `A2D_ANA_REG_BASE_ADDR+8'h01//E1
+`define  A2D_ANA_GEN_REG_2          `A2D_ANA_REG_BASE_ADDR+8'h02//E2
+`define  A2D_ANA_GEN_REG_3          `A2D_ANA_REG_BASE_ADDR+8'h03//E3
+`define  A2D_ANA_GEN_REG_4          `A2D_ANA_REG_BASE_ADDR+8'h04//E4
+`define  A2D_ANA_GEN_REG_5          `A2D_ANA_REG_BASE_ADDR+8'h05//E4
+
+
  //spare reg `ANA_REG_BASE_ADDR + 8'h0F//4F
 
 // anac
@@ -206,7 +217,7 @@
 `define  GENERAL_INTERUPT_STATUS_REG06   `INT_REG_BASE_ADDR+8'h06//7D
 
 //pinmux
-`define  PINMUX_REG_BASE_ADDR            8'h7E
+`define  PINMUX_REG_BASE_ADDR            8'h7F
 `define  ATM_HC_SEL                      `PINMUX_REG_BASE_ADDR+8'h00
 //spare reg `PINMUX_REG_BASE_ADDR + 8'h01//7F
 
@@ -254,6 +265,12 @@
 `define FILTER_COEFF_DATA2               `FILTER_REG_BASE_ADDR +8'h0D
 `define FILTER_COEFF_DATA3               `FILTER_REG_BASE_ADDR +8'h0E
 
+
+`define FILTER_DLY_TGT_0                   8'hF0 
+`define FILTER_DLY_TGT_1                   8'hF1 
+`define FILTER_DLY_TGT_2                   8'hF2 
+`define FILTER_SYNC_CTRL                   8'hF3 
+
 `timescale 1ns/1ps
 module spi_reg #(
   parameter ADDR_WIDTH =8,
@@ -295,6 +312,9 @@ module spi_reg #(
   spi_nirs_if.spi         spi_nirs_if,
 
   output [DATA_WIDTH-1:0] o_rd_data, 
+
+output reg stim_eeg_sync_en,
+output reg[23:0] filter_dly_tgt,
         
   // system outputs
   // inputs from other blocks
@@ -303,7 +323,7 @@ module spi_reg #(
 
 
 //imeas       
-  input   wire [31:0]     imeas_chdata[EEG_CHN_NUM-1:0],
+  input   wire [23:0]     imeas_chdata[EEG_CHN_NUM-1:0],
 
   output  wire 	          reset_cmd,
   output  wire 	          start_cmd,
@@ -319,6 +339,8 @@ module spi_reg #(
   output  wire            daisy_en,
   output  wire [1:0]      mode,
   output  wire [3:0]      iclk_div,
+  output  wire [2:0]      iclk_div_pga,
+  output  wire iclk_pga_disable,
   output                  imeas_adc_inv,
   output                  cic_rst,
   output  wire [15:0]     stable_time,
@@ -471,14 +493,20 @@ module spi_reg #(
 
  //analog reg
  wire [7:0]     A2D_ANA_GEN_REG_0;
+ wire [7:0]     A2D_ANA_GEN_REG_1;
+ wire [7:0]     A2D_ANA_GEN_REG_2;
+ wire [7:0]     A2D_ANA_GEN_REG_3;
+ wire [7:0]     A2D_ANA_GEN_REG_4;
+ wire [7:0]     A2D_ANA_GEN_REG_5;
+
  wire [7:0]     A2D_SPARE_RO_REG_0;
 
  reg       ana_en_sec_reg;//My add
  reg [2:0] ana_gen_sec_reg;
  
  reg [7:0] ana_gen_reg [7:0][14:0];
- reg [7:0] ana_enable_reg [1:0][15:0];
- reg  [7:0] a2d_ana_gen_reg  [7:0];
+ reg [7:0] ana_enable_reg [1:0][14:0];
+ reg [7:0] a2d_ana_gen_reg  [7:0];
 
 
  reg            drivea_global_en;
@@ -512,7 +540,7 @@ assign reset_cmd   = imeas_reg_2[2:0] == 3'h4;
 assign single_shot    = imeas_ctrl[3];
 assign imeas_data_sel = imeas_ctrl[7:4];
 
-reg[31:0] imeas_chdata_wire;
+reg[23:0] imeas_chdata_wire;
 
 assign imeas_chdata_wire = (imeas_data_sel < EEG_CHN_NUM)?imeas_chdata[imeas_data_sel] : imeas_chdata[4'd0];
 
@@ -552,11 +580,14 @@ assign stable_time   = {stable_time_1,stable_time_0};
 //-----------------------------------------------------------------------------------
 //------------------------------------config register write---------------------------
 //------------------------------------------------------------------------------------
-reg[3:0]  anac_ctrl;
+reg[7:0]  anac_ctrl;
 assign anac_clock_en      = anac_ctrl[0];
 assign anac_reset         = anac_ctrl[1];
 assign temp_sar_reset     = anac_ctrl[2];
 assign temp_sar_clock_dis = anac_ctrl[3];
+
+assign iclk_pga_disable = anac_ctrl[7];
+assign iclk_div_pga = anac_ctrl[6:4];
 
 reg [3:0]  tsc_ctrl;
 reg [1:0]  tsc_int_crtl_reg;
@@ -591,7 +622,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
     stable_time_1        <= 8'h0;
     // clk_ctrl
     clk_ctrl_reg         <= 8'h30; 
-    anac_ctrl            <= 4'b0;
+    anac_ctrl            <= 8'h30;
     tsc_ctrl             <= 4'b0;
     sample_duration      <= 8'h10;
     stable_duration      <= 12'h1ff;
@@ -622,7 +653,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
       `O_CLK_SEL         	 : o_clk_sel             <= i_wr  ?  i_wr_data[0]   : o_clk_sel;
       // clk_ctrl  
       `CLK_CTRL_REG      	 : clk_ctrl_reg          <=  i_wr ?  i_wr_data[7:0]: clk_ctrl_reg;
-      `ANAC_CTRL                 : anac_ctrl             <=  i_wr ?  i_wr_data[3:0]: anac_ctrl;
+      `ANAC_CTRL                 : anac_ctrl             <=  i_wr ?  i_wr_data[7:0]: anac_ctrl;
       `TSC_EN_REG_SEL            : en_reg_sel            <=  i_wr ?  i_wr_data[7:0]: en_reg_sel;
       `TSC_CTRL                  : tsc_ctrl              <=  i_wr ?  i_wr_data[3:0]: tsc_ctrl;
       `TSC_VDAC8B_DIN_CH1        : tsc_vdac8b_din_ch1    <=  i_wr ?  i_wr_data[7:0]: tsc_vdac8b_din_ch1;
@@ -640,9 +671,9 @@ always @(posedge i_clk or negedge i_rst_n) begin
   end
 end
 //My add
-   always@(posedge i_clk or negedge i_rst_n) begin
+ always@(posedge i_clk or negedge i_rst_n) begin
     if(!i_rst_n) begin
-
+			ana_en_sec_reg				<= 1'b0;
       ana_enable_reg [0][0] <= 8'h00;
       ana_enable_reg [0][1] <= 8'h02;
       ana_enable_reg [0][2] <= 8'h00;
@@ -658,31 +689,30 @@ end
       ana_enable_reg [0][12] <= 8'h00;
       ana_enable_reg [0][13] <= 8'h00;      
       ana_enable_reg [0][14] <= 8'h00;
-      ana_enable_reg [0][15] <= 8'h00;
     // reset ENABLE
-      for (int j = 0; j < 16; j++)begin
+      for (int j = 0; j < 15; j++)begin
         ana_enable_reg[1][j] <= 8'h00;
       end
  end else begin
       //ENABLE
           case (i_addr[7:0])
 
-            `ANA_EN_SEC       :   ana_en_sec_reg <= i_wr ? i_wr_data[0] :  ana_en_sec_reg;
-            `ANA_ENABLE_REG_0 :   ana_enable_reg [ana_en_sec_reg][0]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][0];
-            `ANA_ENABLE_REG_1 :   ana_enable_reg [ana_en_sec_reg][1]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][1];
-            `ANA_ENABLE_REG_2 :   ana_enable_reg [ana_en_sec_reg][2]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][2];
-            `ANA_ENABLE_REG_3 :   ana_enable_reg [ana_en_sec_reg][3]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][3];
-            `ANA_ENABLE_REG_4 :   ana_enable_reg [ana_en_sec_reg][4]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][4];
-            `ANA_ENABLE_REG_5 :   ana_enable_reg [ana_en_sec_reg][5]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][5];
-            `ANA_ENABLE_REG_6 :   ana_enable_reg [ana_en_sec_reg][6]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][6];
-            `ANA_ENABLE_REG_7 :   ana_enable_reg [ana_en_sec_reg][7]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][7];
-            `ANA_ENABLE_REG_8 :   ana_enable_reg [ana_en_sec_reg][8]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][8];
-            `ANA_ENABLE_REG_9 :   ana_enable_reg [ana_en_sec_reg][9]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][9];
-            `ANA_ENABLE_REG_10:   ana_enable_reg [ana_en_sec_reg][10]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][10];
-            `ANA_ENABLE_REG_11:   ana_enable_reg [ana_en_sec_reg][11]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][11];
-            `ANA_ENABLE_REG_12:   ana_enable_reg [ana_en_sec_reg][12]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][12];
-            `ANA_ENABLE_REG_13:   ana_enable_reg [ana_en_sec_reg][13]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][13];
-            `ANA_ENABLE_REG_14:   ana_enable_reg [ana_en_sec_reg][14]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][14];
+            `ANA_EN_SECTION_SEL  :   ana_en_sec_reg <= i_wr ? i_wr_data[0] :  ana_en_sec_reg;
+            `ANA_ENABLE_REG_0    :   ana_enable_reg [ana_en_sec_reg][0]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][0];
+            `ANA_ENABLE_REG_1    :   ana_enable_reg [ana_en_sec_reg][1]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][1];
+            `ANA_ENABLE_REG_2    :   ana_enable_reg [ana_en_sec_reg][2]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][2];
+            `ANA_ENABLE_REG_3    :   ana_enable_reg [ana_en_sec_reg][3]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][3];
+            `ANA_ENABLE_REG_4    :   ana_enable_reg [ana_en_sec_reg][4]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][4];
+            `ANA_ENABLE_REG_5    :   ana_enable_reg [ana_en_sec_reg][5]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][5];
+            `ANA_ENABLE_REG_6    :   ana_enable_reg [ana_en_sec_reg][6]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][6];
+            `ANA_ENABLE_REG_7    :   ana_enable_reg [ana_en_sec_reg][7]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][7];
+            `ANA_ENABLE_REG_8    :   ana_enable_reg [ana_en_sec_reg][8]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][8];
+            `ANA_ENABLE_REG_9    :   ana_enable_reg [ana_en_sec_reg][9]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][9];
+            `ANA_ENABLE_REG_10   :   ana_enable_reg [ana_en_sec_reg][10]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][10];
+            `ANA_ENABLE_REG_11   :   ana_enable_reg [ana_en_sec_reg][11]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][11];
+            `ANA_ENABLE_REG_12   :   ana_enable_reg [ana_en_sec_reg][12]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][12];
+            `ANA_ENABLE_REG_13   :   ana_enable_reg [ana_en_sec_reg][13]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][13];
+            `ANA_ENABLE_REG_14   :   ana_enable_reg [ana_en_sec_reg][14]  <= i_wr ? i_wr_data : ana_enable_reg [ana_en_sec_reg][14];
          endcase
        end
   end
@@ -690,12 +720,22 @@ end
 
 	always @(posedge i_clk or negedge i_rst_n) begin
 		if (!i_rst_n) begin
+			ana_gen_sec_reg	<= 3'b0;
+
+    /* Truong changed logic to reset all regs in all sections - 23/04/2026
 			for (int j = 0; j < 14; j++)begin
-        			ana_gen_reg[ana_gen_sec_reg][j] <= 8'h00;	
-                    end		
-			end else begin
+				ana_gen_reg[ana_gen_sec_reg][j] <= 8'h00;	
+      end		
+    */
+      for (int i = 0; i < 8; i++) begin
+			  for (int j = 0; j < 14; j++) begin
+				  ana_gen_reg[i][j] <= 8'h00;	
+        end
+      end		
+
+		end else begin
 				case (i_addr[7:0])
-            `ANA_GEN_SEC       :   ana_gen_sec_reg <= i_wr ? i_wr_data[2:0] :  ana_gen_sec_reg;
+            `ANA_GEN_SECTION_SEL       :   ana_gen_sec_reg <= i_wr ? i_wr_data[2:0] :  ana_gen_sec_reg;
             `ANA_GEN_REG_1 :   ana_gen_reg[ana_gen_sec_reg][0]  <= i_wr ? i_wr_data : ana_gen_reg[ana_gen_sec_reg][0];
             `ANA_GEN_REG_2 :   ana_gen_reg[ana_gen_sec_reg][1]  <= i_wr ? i_wr_data : ana_gen_reg[ana_gen_sec_reg][1];
             `ANA_GEN_REG_3 :   ana_gen_reg[ana_gen_sec_reg][2]  <= i_wr ? i_wr_data : ana_gen_reg[ana_gen_sec_reg][2];
@@ -717,19 +757,29 @@ end
 	
 
 	always @(posedge i_clk or negedge i_rst_n) begin
-		if (!i_rst_n)
-				ana_gen_reg[ana_gen_sec_reg][14]	<= 8'h00;
-				
-		else if (i_wr)
-
-				ana_gen_reg[ana_gen_sec_reg][14]	<= i_wr_data;
-				
-		else if (atm_adj)
-			if(atm_adj_mode[ana_gen_sec_reg])
-				ana_gen_reg[ana_gen_sec_reg][14]	<= atm_adj_data;
-				
-	end
-
+    if (!i_rst_n)begin
+      for(int y = 0; y < 8; y = y + 1) begin
+        ana_gen_reg[y][14]	<= 8'h00;
+      end
+		// SPI WRITE NORMAL MODE
+		end else if (i_wr) begin
+      if(i_addr[7:0] == `ANA_GEN_REG_15) begin
+        for (int x = 0; x < 8; x = x + 1)begin
+          if (x == ana_gen_sec_reg) begin
+            ana_gen_reg[x][14] <= i_wr_data;
+					end
+				end
+      end
+    end
+		// IO WRITE ATM ADJ MODE
+    else if (atm_adj) begin
+      for (int x = 0; x < 8; x++) begin				
+        if(atm_adj_mode[x]) begin
+          ana_gen_reg[x][14]	<= atm_adj_data;
+        end
+      end
+    end
+  end
 //to anac
 //xin change temporily, pls Truong check
 //assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
@@ -1114,6 +1164,10 @@ always @(posedge i_clk or negedge i_rst_n) begin : FILTER_SPI_REG
     coeff_addr      <= 8'h00;
     for(int a=0;a<LPF_COEFF+NOTCH_COEFF+HPF_COEFF;a++)begin
     coeff_data[a]  <= coeff_data_def[a];
+
+stim_eeg_sync_en <= 1'b0;
+filter_dly_tgt <= 24'hFF;
+
     end
   end
   else begin
@@ -1134,6 +1188,13 @@ always @(posedge i_clk or negedge i_rst_n) begin : FILTER_SPI_REG
       `FILTER_COEFF_DATA1    :  coeff_data[coeff_addr][7:0]        <= i_wr ? i_wr_data[7:0] : coeff_data[coeff_addr][7:0]; 
       `FILTER_COEFF_DATA2    :  coeff_data[coeff_addr][15:8]       <= i_wr ? i_wr_data[7:0] : coeff_data[coeff_addr][15:8]; 
       `FILTER_COEFF_DATA3    :  coeff_data[coeff_addr][23:16]      <= i_wr ? i_wr_data[7:0] : coeff_data[coeff_addr][23:16]; 
+
+`FILTER_DLY_TGT_0            :  filter_dly_tgt[7:0] <= i_wr ? i_wr_data[7:0] : filter_dly_tgt[7:0];     
+`FILTER_DLY_TGT_1            :  filter_dly_tgt[15:8] <= i_wr ? i_wr_data[7:0] : filter_dly_tgt[15:8];  
+`FILTER_DLY_TGT_2            :  filter_dly_tgt[23:16] <= i_wr ? i_wr_data[7:0] : filter_dly_tgt[23:16];
+`FILTER_SYNC_CTRL            :  stim_eeg_sync_en <= i_wr ? i_wr_data[0] : stim_eeg_sync_en;
+
+
     endcase
   end
 end
@@ -1432,7 +1493,7 @@ generate
    .i_wr_data			(i_wr_data),
 
    .i_wg_driver_in_wave_addr	(spi_wg.i_wg_driver_in_wave_addr[i]),
-   .i_wg_driver_ems_wave_addr	(spi_wg.i_wg_driver_ems_wave_addr[i]),
+  //.i_wg_driver_ems_wave_addr	(spi_wg.i_wg_driver_ems_wave_addr[i]), // Truong 04/05/2026
    .i_wg_driver_source	(spi_wg.i_wg_driver_source[i]),
    .i_period_num              (spi_wg.i_period_num[i]),
    .o_wg_driver_en		(spi_wg.o_wg_driver_en[i]),
@@ -1475,7 +1536,7 @@ generate
    .wg_driver_neg_scale           (spi_wg.wg_driver_neg_scale[i]),
    .wg_driver_pos_scale           (spi_wg.wg_driver_pos_scale[i]),
    .wg_driver_neg_offset          (spi_wg.wg_driver_neg_offset[i]),
-   .wg_driver_pos_offset          (spi_wg.wg_driver_pos_offset[i]),      
+   .wg_driver_pos_offset          (spi_wg.wg_driver_pos_offset[i]),
 
    .o_reg_wg_cal_addr             (spi_wg.o_reg_wg_cal_addr[i]),
 
@@ -1488,7 +1549,13 @@ generate
    .o_addr0_int_clr               (spi_wg.o_addr0_int_clr[i]),    
    .o_addr1_int_clr               (spi_wg.o_addr1_int_clr[i]),
    .o_wg_driver_int_cnt           (spi_wg.o_wg_driver_int_cnt[i]),
-   .i_wg_driver_int_sts           (spi_wg.i_wg_driver_int_sts[i])
+   .i_wg_driver_int_sts           (spi_wg.i_wg_driver_int_sts[i]),
+
+  // Truong added 04/05/2026
+    .reg_wg_driver_in_wave_wr0      (spi_wg.wg_driver_in_wave_wr0[i]),
+    .reg_wg_driver_in_wave_data_wr0 (spi_wg.wg_driver_in_wave_data_wr0[i]),
+    .reg_wg_driver_in_wave_addr     (spi_wg.wg_driver_in_wave_addr[i]),
+    .reg_wg_driver_in_wave          (spi_wg.wg_driver_in_wave[i])
   );
      end
 endgenerate
@@ -1545,11 +1612,11 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `IMEAS_D0           : reg_rd_data <= imeas_chdata_wire[7:0];
       `IMEAS_D1           : reg_rd_data <= imeas_chdata_wire[15:8];
       `IMEAS_D2           : reg_rd_data <= imeas_chdata_wire[23:16];
-      `IMEAS_D3           : reg_rd_data <= imeas_chdata_wire[31:24];
+    //`IMEAS_D3           : reg_rd_data <= imeas_chdata_wire[31:24];
  
     // clk_ctrl
       `CLK_CTRL_REG       :   reg_rd_data <={ clk_ctrl_reg};   //{2'b00,otp_to_clk_ctrl}; 
-      `ANAC_CTRL          :   reg_rd_data <={ 4'b0,anac_ctrl};
+      `ANAC_CTRL          :   reg_rd_data <={ anac_ctrl};
       `TSC_EN_REG_SEL     :   reg_rd_data <=en_reg_sel;
       `TSC_CTRL           :   reg_rd_data <={4'b0,tsc_ctrl};
       `TSC_VDAC8B_DIN_CH1 :   reg_rd_data <= tsc_vdac8b_din_ch1;
@@ -1631,16 +1698,16 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 
       // analog register
 // My add
-         `ANA_EN_SEC           :  reg_rd_data  <= {7'b0, ana_en_sec_reg};
-         `ANA_ENABLE_REG_0     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][0];
-         `ANA_ENABLE_REG_1     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][1];
-         `ANA_ENABLE_REG_2     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][2];
-         `ANA_ENABLE_REG_3     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][3];
-         `ANA_ENABLE_REG_4     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][4];
-         `ANA_ENABLE_REG_5     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][5];
-         `ANA_ENABLE_REG_6     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][6];
-         `ANA_ENABLE_REG_7     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][7];
-         `ANA_ENABLE_REG_8     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][8];
+         `ANA_EN_SECTION_SEL    :  reg_rd_data  <= {7'b0, ana_en_sec_reg};
+         `ANA_ENABLE_REG_0      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][0];
+         `ANA_ENABLE_REG_1      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][1];
+         `ANA_ENABLE_REG_2      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][2];
+         `ANA_ENABLE_REG_3      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][3];
+         `ANA_ENABLE_REG_4      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][4];
+         `ANA_ENABLE_REG_5      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][5];
+         `ANA_ENABLE_REG_6      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][6];
+         `ANA_ENABLE_REG_7      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][7];
+         `ANA_ENABLE_REG_8      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][8];
          `ANA_ENABLE_REG_9      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][9];
          `ANA_ENABLE_REG_10     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][10];
          `ANA_ENABLE_REG_11     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][11];
@@ -1648,22 +1715,30 @@ always @ (posedge i_clk or negedge i_rst_n) begin
          `ANA_ENABLE_REG_13     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][13];
          `ANA_ENABLE_REG_14     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][14];
 
-         `ANA_GEN_SEC         :  reg_rd_data  <= {5'b0, ana_gen_sec_reg};
-         `ANA_GEN_REG_1       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][0];
-         `ANA_GEN_REG_2       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][1];
-         `ANA_GEN_REG_3       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][2];
-         `ANA_GEN_REG_4       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][3];
-         `ANA_GEN_REG_5       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][4];
-         `ANA_GEN_REG_6       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][5];
-         `ANA_GEN_REG_7       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][6];
-         `ANA_GEN_REG_8       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][7];
-         `ANA_GEN_REG_9        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][8];
-         `ANA_GEN_REG_10       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][9];  
-         `ANA_GEN_REG_11       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][10];  
-         `ANA_GEN_REG_12       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][11];  
-         `ANA_GEN_REG_13       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][12];
-         `ANA_GEN_REG_14       :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][13];
-         `A2D_ANA_GEN_REG      :  reg_rd_data   <= a2d_ana_gen_reg[ana_gen_sec_reg];
+         `ANA_GEN_SECTION_SEL   :  reg_rd_data  <= {5'b0, ana_gen_sec_reg};
+         `ANA_GEN_REG_1         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][0];
+         `ANA_GEN_REG_2         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][1];
+         `ANA_GEN_REG_3         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][2];
+         `ANA_GEN_REG_4         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][3];
+         `ANA_GEN_REG_5         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][4];
+         `ANA_GEN_REG_6         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][5];
+         `ANA_GEN_REG_7         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][6];
+         `ANA_GEN_REG_8         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][7];
+         `ANA_GEN_REG_9         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][8];
+         `ANA_GEN_REG_10        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][9];  
+         `ANA_GEN_REG_11        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][10];  
+         `ANA_GEN_REG_12        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][11];  
+         `ANA_GEN_REG_13        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][12];
+         `ANA_GEN_REG_14        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][13];
+         `ANA_GEN_REG_15        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][14];
+
+         `A2D_ANA_GEN_REG_0     :  reg_rd_data <= A2D_ANA_GEN_REG_0 ;
+         `A2D_ANA_GEN_REG_1     :  reg_rd_data <= A2D_ANA_GEN_REG_1 ;
+         `A2D_ANA_GEN_REG_2     :  reg_rd_data <= A2D_ANA_GEN_REG_2 ;
+         `A2D_ANA_GEN_REG_3     :  reg_rd_data <= A2D_ANA_GEN_REG_3 ;
+         `A2D_ANA_GEN_REG_4     :  reg_rd_data <= A2D_ANA_GEN_REG_4 ;
+         `A2D_ANA_GEN_REG_5     :  reg_rd_data <= A2D_ANA_GEN_REG_5 ;
+
 //    `ANAC_SHORT_BLK_SLCT                  : reg_rd_data <= {4'b0,anac_short_blk_slct_reg};              
 //    `ANA_INT_SOTP_WAVEGEN                 : reg_rd_data <= ana_int_stop_wavegen_reg;      
 //
@@ -1734,6 +1809,11 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `FILTER_COEFF_DATA3 :  reg_rd_data  <= coeff_data[coeff_addr][23:16]; 
     //`FILTER_COEFF_DATA3 :  reg_rd_data  <= (coeff_addr < 8'd16)? {6'b0,coeff_data[coeff_addr][17:16]} : {4'b0,coeff_data[coeff_addr][19:16]}; 
 
+`FILTER_DLY_TGT_0            :  reg_rd_data  <= filter_dly_tgt[7:0] ;     
+`FILTER_DLY_TGT_1            :  reg_rd_data  <= filter_dly_tgt[15:8];  
+`FILTER_DLY_TGT_2            :  reg_rd_data  <= filter_dly_tgt[23:16];
+`FILTER_SYNC_CTRL            :  reg_rd_data  <= {7'b0,stim_eeg_sync_en};
+
       default             :  reg_rd_data  <= 8'b0;
      endcase      
    end
@@ -1769,8 +1849,12 @@ end
 assign o_rd_data = wavegen_cmd_reg ? wavegen_rd_data : (nirs_cmd_reg ? nirs_rd_data : reg_rd_data);
 
 // Analog Inputs
-assign  a2d_ana_gen_reg   = spi_ana_if.A2D_ANA_GEN_REG;
-assign A2D_SPARE_RO_REG_0 = a2d_ana_gen_reg[5]; 
+assign  A2D_ANA_GEN_REG_0   = spi_ana_if.A2D_ANA_GEN_REG[0];
+assign  A2D_ANA_GEN_REG_1   = spi_ana_if.A2D_ANA_GEN_REG[1];
+assign  A2D_ANA_GEN_REG_2   = spi_ana_if.A2D_ANA_GEN_REG[2];
+assign  A2D_ANA_GEN_REG_3   = spi_ana_if.A2D_ANA_GEN_REG[3];
+assign  A2D_ANA_GEN_REG_4   = spi_ana_if.A2D_ANA_GEN_REG[4];
+assign  A2D_ANA_GEN_REG_5   = spi_ana_if.A2D_ANA_GEN_REG[5]; 
 
 
 // Analog Output's

@@ -35,6 +35,7 @@ class soc_env extends nnc_env;
     nnc_wavegen_env            wavegen_env;
     nnc_pinmux_env             pinmux_env;
     nnc_spi_mon_env            spi_mon_env_i;
+    nnc_nirs_ppg_env           nirs_ppg_env; 
     //virtual  nnc_spi_if             spi_mon_if;                       
     virtual  nnc_spi_interface      spi_vif;
     virtual  nnc_boost_interface    boost_vif;
@@ -42,7 +43,7 @@ class soc_env extends nnc_env;
     virtual  nnc_lead_off_interface lead_off_vif;                       
     virtual  nnc_wavegen_interface  wavegen_vif[`WAVEGEN_NUM_OF_MULT_CHIPS];
     virtual  nnc_pinmux_interface   pinmux_vif;    
-
+    virtual  nnc_nirs_ppg_interface   nirs_ppg_vif;
     
     `nnc_component_utils(soc_env)
 
@@ -73,6 +74,7 @@ class soc_env extends nnc_env;
         sysc_env = nnc_sysc_environment::type_id::create("sysc_env", this);
         spi_mon_env_i = nnc_spi_mon_env::type_id::create("spi_mon_env_i", this);
         ana_env = nnc_analog_env::type_id::create("ana_env", this);
+        nirs_ppg_env = nnc_nirs_ppg_env::type_id::create("nirs_ppg_env", this);
 
         if (!nnc_config_db#(soc_chip_cfg)::get(this, "", "top_cfg", top_cfg))
           `nnc_fatal("TOP_ENV_BUILD_PHASE", "Can't get top_cfg")
@@ -99,7 +101,7 @@ class soc_env extends nnc_env;
         //if (!nnc_config_db#(virtual nnc_spi_if)::get(this, "", "spi_mon_if", spi_mon_if))
         //  `nnc_fatal("ENS2_CHIP_ENV", "Can't get spi_mon_if")
         //nnc_config_db#(virtual nnc_spi_if)::set(this, "spi_mon_env_i.*", "spi_mon_if", spi_mon_if);
-
+        nnc_config_db#(nnc_nirs_ppg_config)::set(this, "nirs_ppg_env*", "nirs_ppg_cfg", top_cfg.nirs_ppg_cfg);
 
         if (!nnc_config_db#(virtual nnc_spi_interface)::get(this, "", "spi_vif", spi_vif))
           `nnc_fatal("ENS2_CHIP_ENV", "Can't get spi_vif")
@@ -127,6 +129,12 @@ class soc_env extends nnc_env;
             `nnc_fatal("ENS2_CHIP_ENV", $sformatf("Can't get wavegen_vif[%0d]",i))
           nnc_config_db#(virtual nnc_wavegen_interface)::set(this, "nnc_wavegen_env[i].*", "wavegen_vif", wavegen_vif[i]);
         end
+
+       if (!nnc_config_db#(virtual nnc_nirs_ppg_interface)::get(this, "", "nirs_ppg_vif", nirs_ppg_vif))
+          `nnc_fatal("ENS2_CHIP_ENV", "Can't get nirs_ppg_vif")
+        nnc_config_db#(virtual nnc_nirs_ppg_interface)::set(this, "nirs_ppg_env.*", "nirs_ppg_vif", nirs_ppg_vif);
+
+        
 
         //if (!nnc_config_db#(virtual spi_master_if)::get(this, "", "m_spiif", m_spiif))
         //  `nnc_fatal("ENS2_CHIP_ENV", "Can't get m_spiif")

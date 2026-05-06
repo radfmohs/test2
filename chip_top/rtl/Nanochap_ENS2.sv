@@ -470,9 +470,9 @@ ENS2_ANA_CHIP_wrapper u_top_ana_wrapper (
   .i_out_wave_driver_idac  (out_wave_driver_idac),
 
   .i_ds_driver_en_driver(ds_driver_en_driver),
-  .i_ds_driver_en_current(ds_driver_en_current),
+//.i_ds_driver_en_current(ds_driver_en_current),
   .i_driver_en_sw(driver_en_sw),
-  .i_stimu_en(stimu_en),
+//.i_stimu_en(stimu_en),
 
   .i_source_driver       (source_driver),
 //.i_sourceb_driver_a       (sourceb_driver_a),

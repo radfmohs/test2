@@ -48,22 +48,22 @@ generate
     assign CONFIG_ROM1[i]  = init_enable ? CONFIG1[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM2[i]  = init_enable ? CONFIG2[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM3[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM4[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM5[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM6[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM7[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM8[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM9[i]  = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM10[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM11[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM12[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM13[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM14[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM15[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM16[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM17[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM18[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM19[i] = init_enable ? CONFIG3[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM4[i]  = init_enable ? CONFIG4[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM5[i]  = init_enable ? CONFIG5[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM6[i]  = init_enable ? CONFIG6[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM7[i]  = init_enable ? CONFIG7[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM8[i]  = init_enable ? CONFIG8[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM9[i]  = init_enable ? CONFIG9[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM10[i] = init_enable ? CONFIG10[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM11[i] = init_enable ? CONFIG11[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM12[i] = init_enable ? CONFIG12[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM13[i] = init_enable ? CONFIG13[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM14[i] = init_enable ? CONFIG14[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM15[i] = init_enable ? CONFIG15[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM16[i] = init_enable ? CONFIG16[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM17[i] = init_enable ? CONFIG17[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM18[i] = init_enable ? CONFIG18[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM19[i] = init_enable ? CONFIG19[7+(8*i):8*i] : {8{1'bz}};
 
   end
 endgenerate

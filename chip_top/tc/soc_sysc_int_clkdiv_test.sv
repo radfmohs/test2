@@ -140,22 +140,22 @@ class `TESTNAME extends soc_sysc_clkdiv_test;
     // ---------------------------------------------------------------------------------- 
     // write to ANA_ENABLE_REG1 to check internal oscillator disabled or not
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_0; no_of_bytes == 1; data[0][1]==0;});
-    `nnc_info("D2A_OSC2MHZEN", "Write to SOC_ANA_ENABLE_REG_1[1] to disable D2A_OSC2MHZ_EN", NNC_LOW)
+    `nnc_info("D2A_OSC8MHZEN", "Write to SOC_ANA_ENABLE_REG_1[1] to disable D2A_OSC2MHZ_EN", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0],  top_test_cfg.pads);
   
-    `nnc_info("D2A_OSC2MHZEN", "Check D2A_OSC2MHZEN", NNC_LOW);
-     if(`ANA_TOP.D2A_OSC2MHZEN !== 1'b0) begin
-       `nnc_error("D2A_OSC2MHZEN", "D2A_OSC2MHZEN error!!!");
+    `nnc_info("D2A_OSC8MHZEN", "Check D2A_OSC8MHZEN", NNC_LOW);
+     if(`ANA_TOP.D2A_OSC8MHZEN !== 1'b0) begin
+       `nnc_error("D2A_OSC8MHZEN", "D2A_OSC8MHZEN error!!!");
      end
      #1us; // add delay and check
-    `nnc_info("D2A_OSC2MHZEN", "Check A2D_CLK2MHZ", NNC_LOW);   
-     if(`ANA_TOP.A2D_CLK2MHZ !== 1'b0)begin
-       `nnc_error("D2A_OSC2MHZEN", "A2D_CLK2MHZ error!!!");
+    `nnc_info("D2A_OSC8MHZEN", "Check A2D_CLK8MHZ", NNC_LOW);   
+     if(`ANA_TOP.A2D_CLK8MHZ !== 1'b0)begin
+       `nnc_error("D2A_OSC8MHZEN", "A2D_CLK8MHZ error!!!");
      end
      #1us; // add delay and check   
-    `nnc_info("D2A_OSC2MHZEN", "Check hfosc", NNC_LOW);
+    `nnc_info("D2A_OSC8MHZEN", "Check hfosc", NNC_LOW);
      if(`CLK_CTRL_TOP.hfosc !== 1'b0)begin
-       `nnc_error("D2A_OSC2MHZEN", "hfosc error!!!");
+       `nnc_error("D2A_OSC8MHZEN", "hfosc error!!!");
      end
      #1ms;
  

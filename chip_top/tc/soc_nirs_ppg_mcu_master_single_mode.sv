@@ -61,10 +61,22 @@ class `TESTCFG extends soc_nirs_ppg_base_test_cfg;
   constraint c_mask        { soft mask == 8'hff; }
   
   //
-  constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel inside {1,3,5,7,9,11,13,15};}
+  //constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel inside {1,3,5,7,9,11,13,15};}
 
   //NIRS_CTRL_CMD
-  constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 2;}  //0,1,2,3
+  //constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 2;}  //0,1,2,3
+  //
+  //constraint c_threshold_h_18_16             {threshold_h_18_16  inside {[0:0]};}
+
+  ////NIRS_CTRL_4
+  //constraint c_threshold_h_15_8              {threshold_h_15_8  inside {[0:0]};}
+
+  ////NIRS_CTRL_5
+  //constraint c_threshold_h_7_0               {threshold_h_7_0  inside {[0:10]};}
+
+  ////NIRS_CTRL_6
+  //constraint c_threshold_l_7_0               {threshold_l_7_0  inside {[0:10]};}
+
   //
   //constraint c_nirs_ppg_meas     { nirs_ppg_meas ==1;}
 
@@ -122,15 +134,23 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     super.pre_reset_phase(phase);
 
-    assert(top_test_cfg.randomize());
+    //assert(top_test_cfg.randomize());
 
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
 
-    `DUT_IF.nirs_ppg_mode_sel = top_test_cfg.nirs_ppg_mode_sel;
+    //`DUT_IF.nirs_ppg_mode_sel = top_test_cfg.nirs_ppg_mode_sel;
 
-    `DUT_IF.nirs_ppg_cmd = top_test_cfg.nirs_ppg_cmd;
+    //`DUT_IF.nirs_ppg_cmd = top_test_cfg.nirs_ppg_cmd;
+
+    //`DUT_IF.threshold_h_18_16  =  top_test_cfg.threshold_h_18_16;  
+    //                    
+    //`DUT_IF.threshold_h_15_8   =  top_test_cfg.threshold_h_15_8; 
+    //                    
+    //`DUT_IF.threshold_h_7_0    =  top_test_cfg.threshold_h_7_0;  
+    //       
+    //`DUT_IF.threshold_l_7_0    =  top_test_cfg.threshold_l_7_0;
 
     //`DUT_IF.nirs_ppg_led_signle_en        =                top_test_cfg.nirs_ppg_led_signle_en;
 
@@ -213,39 +233,132 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
     //// ########################################################
     //// ########################################################
     //In order to configure for 8 channels with all configuration
-    for(int i=0; i<1; i++)begin
-        `nnc_info("SOC_MCU_MASTER_SINGLE_MODE", $sformatf("SOC_NIRS_REGS NIRS_REG_ADDR :%0h burst_write_data[%0d] :%0h ",i, i, top_test_cfg.wr_data[i]), NNC_LOW)
+    //for(int i=0; i<1; i++)begin
+    //    `nnc_info("SOC_MCU_MASTER_SINGLE_MODE", $sformatf("SOC_NIRS_REGS NIRS_REG_ADDR :%0h burst_write_data[%0d] :%0h ",i, i, top_test_cfg.wr_data[i]), NNC_LOW)
 
-       `nnc_info("SOC_TEST", $sformatf("Configure for NIRS_CH[%0d]", i),NNC_LOW)
-       configure_nirs_ctrl_regs(i);  //nirs from base test,nirs_addr_channel_en
-    
-       //At OFFSET 0X0A
-       //0X0A[3:0] == nirs_ppg_mode_sel
-       //0x0A[4]== 0: dual led mode, 1:single led mode
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_MODE REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_MODE_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.nirs_ppg_led_signle_en,`DUT_IF.nirs_ppg_mode_sel};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_MODE REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+    //   `nnc_info("SOC_TEST", $sformatf("Configure for NIRS_CH[%0d]", i),NNC_LOW)
+    //   configure_nirs_ctrl_regs(i);  //nirs from base test,nirs_addr_channel_en
+    //
+    //   //At OFFSET 0X0A
+    //   //0X0A[3:0] == nirs_ppg_mode_sel
+    //   //0x0A[4]== 0: dual led mode, 1:single led mode
+    //   `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_MODE REG", NNC_LOW)
+    //   //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
+    //   assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_MODE_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.nirs_ppg_led_signle_en,`DUT_IF.nirs_ppg_mode_sel};});
+    //   `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_MODE REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+    //   `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
 
-       //At OFFSET 0X10
-       //0X10[3:0] == debug_channel
-       //0x10[4]== debug led
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_DEBUG_SEL REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_DEBUG_SEL_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.debug_led,`DUT_IF.debug_channel};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_DEBUG_SEL REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+    //   //At OFFSET 0X10
+    //   //0X10[3:0] == debug_channel
+    //   //0x10[4]== debug led
+    //   `nnc_info("SOC_TEST", "Configure SOC_NIRS_DEBUG_SEL REG", NNC_LOW)
+    //   //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
+    //   assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_DEBUG_SEL_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.debug_led,`DUT_IF.debug_channel};});
+    //   `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_DEBUG_SEL REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+    //   `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
 
-       //At OFFSET 0X0F
-       //0X0F[1:0] == NIRS_PPG_CMD
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_CMD_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CMD_REG; mask == 8'hff; data[0] == {6'b0,`DUT_IF.nirs_ppg_cmd};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CMD_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+    //   //At OFFSET 0X0F
+    //   //0X0F[1:0] == NIRS_PPG_CMD
+    //   `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_CMD_REG", NNC_LOW)
+    //   //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
+    //   assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CMD_REG; mask == 8'hff; data[0] == {6'b0,`DUT_IF.nirs_ppg_cmd};});
+    //   `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CMD_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
+    //   `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
  
-    end
+    //end
+
+    assert(top_test_cfg.randomize() with {top_test_cfg.ch_en_mask != 0;});
+    `nnc_info("PPG_TEST",$sformatf("top_test_cfg.ch_en_mask=%h",top_test_cfg.ch_en_mask),NNC_LOW);
+
+    for (int ch = 0; ch < 8; ch++) begin
+        bit ch_en = top_test_cfg.ch_en_mask[ch];
+        `nnc_info("PPG_TEST",$sformatf("channel_number=%0d, ch_en=%0h",ch, ch_en),NNC_LOW);
+ 
+       // // 1. Randomize a fresh configuration for this channel
+       //// assert(top_test_cfg.randomize() with {top_test_cfg.threshold_h_18_16  inside {[0:0]}; top_test_cfg.threshold_h_15_8  inside {[0:0]}; top_test_cfg.threshold_h_7_0  inside {[0:10]}; top_test_cfg.threshold_l_7_0  inside {[0:10]}; });
+       // super.top_test_cfg.threshold_h_18_16 = 'h0;
+       // super.top_test_cfg.threshold_h_15_8 ='h0;
+       // super.top_test_cfg.threshold_h_7_0 = $urandom_range(0,10);
+       // super.top_test_cfg.threshold_l_7_0 = $urandom_range(0,10);
+    
+       //$display("nirs pgg base test top_test_cfg: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+       //  super.top_test_cfg.threshold_h_18_16,
+       //  super.top_test_cfg.threshold_h_15_8,
+       //  super.top_test_cfg.threshold_h_7_0,
+       //  super.top_test_cfg.threshold_l_7_0);
+
+      //// 2. Drive DUT interface with this channel's config
+       // drive_dut_if_from_cfg();
+
+       // $display("DUT_IF: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+       //  `DUT_IF.threshold_h_18_16,
+       //  `DUT_IF.threshold_h_15_8,
+       //  `DUT_IF.threshold_h_7_0,
+       //  `DUT_IF.threshold_l_7_0);
+    
+       // // 3. Enable only this channel
+       // `DUT_IF.en_config_ch0 = (ch == 0);
+       // `DUT_IF.en_config_ch1 = (ch == 1);
+       // `DUT_IF.en_config_ch2 = (ch == 2);
+       // `DUT_IF.en_config_ch3 = (ch == 3);
+       // `DUT_IF.en_config_ch4 = (ch == 4);
+       // `DUT_IF.en_config_ch5 = (ch == 5);
+       // `DUT_IF.en_config_ch6 = (ch == 6);
+       // `DUT_IF.en_config_ch7 = (ch == 7);
+    
+       // // 4. Write registers for this channel
+       // configure_nirs_ctrl_regs(ch);
+    
+       // `nnc_info("PPG_TEST",
+       //           $sformatf("Configured channel %0d with unique register values", ch),
+       //           NNC_LOW);
+
+
+   
+       // // 1. Randomize a fresh configuration for this channel
+       assert(`NIRS_PPG_CTRL_CFG.randomize() with{nirs_ppg_mode_sel inside {1,3,5,7,9,11,13,15};
+                                                  threshold_h_18_16 == 'h0;
+                                                  threshold_h_15_8  == 'h0; 
+                                                  threshold_h_7_0 inside {[0:10]};
+                                                  threshold_l_7_0 inside {[0:10]};
+                                                 });
+
+    
+       `nnc_info("PPG_TEST",$sformatf("nirs pgg base test top_test_cfg: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+                 `NIRS_PPG_CTRL_CFG.threshold_h_18_16,
+                 `NIRS_PPG_CTRL_CFG.threshold_h_15_8,
+                 `NIRS_PPG_CTRL_CFG.threshold_h_7_0,
+                 `NIRS_PPG_CTRL_CFG.threshold_l_7_0),NNC_LOW);
+
+   
+       //3. Enable only this channel
+       `NIRS_PPG_CTRL_CFG.en_config_ch0 = (ch == 0) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch1 = (ch == 1) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch2 = (ch == 2) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch3 = (ch == 3) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch4 = (ch == 4) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch5 = (ch == 5) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch6 = (ch == 6) && ch_en;
+       `NIRS_PPG_CTRL_CFG.en_config_ch7 = (ch == 7) && ch_en;
+   
+      //3. STORE RANDOMIZED VALUES INTO EXPECTED MODEL for scoreboard/checker
+      `NIRS_PPG_CTRL_CFG.compute_expected(ch); 
+
+      //4. Drive DUT interface with this channel's config, debug purpose
+      drive_dut_if_from_cfg(ch);
+
+      `nnc_info("PPG_TEST",$sformatf("DUT_IF: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+                 `DUT_IF.threshold_h_18_16,
+                 `DUT_IF.threshold_h_15_8,
+                 `DUT_IF.threshold_h_7_0,
+                 `DUT_IF.threshold_l_7_0),NNC_LOW);
+
+
+      //5. Write registers for this channel
+      configure_nirs_ctrl_regs(ch);
+    
+      `nnc_info("PPG_TEST",$sformatf("Configured channel %0d with unique register values", ch),NNC_LOW);    
+    end 
 
     #15ms;
        

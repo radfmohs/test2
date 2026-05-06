@@ -44,6 +44,9 @@ module spi_top#(
   input                i_mosi,
   output               o_miso,
 
+output wire stim_eeg_sync_en,
+output wire[23:0] filter_dly_tgt,
+
 //bps imeas
   input  wire[23:0]    imeas_chdata[EEG_CHN_NUM-1:0],
   input                i_imeas_done,
@@ -54,6 +57,8 @@ module spi_top#(
 //output  wire         standby_cmd,
   output wire          single_shot,
   output wire [3:0]    iclk_div,
+  output wire [2:0]    iclk_div_pga,
+  output wire 		iclk_pga_disable,
   output wire          imeas_en,
   output wire [7:0]    imeas_reg_0,
   output wire [15:0]   imeas_en_chn,
@@ -163,7 +168,9 @@ module spi_top#(
 //output               fclk_dynen_otp,
 //output               dc_dc_en_otp,
 //output [2:0]         dc_clk_div_otp, 
-
+  input   wire [7:0]   atm_adj_data,
+  input   wire [13:0]  atm_adj_mode,
+  input   wire         atm_adj,
   output  wire         pmuenable,            // pmu enable
   output  wire         hresetreq,            // system reset request
   output  wire         sleepdeep,            // system enters deep-sleep state
@@ -413,8 +420,13 @@ spi_reg_u (
   .i_clk(int_clk),            //clk for reg block same as sclk 
   .i_rst_n(i_rst_n),
 
-  .atpg_en(SCANMODE),
+.stim_eeg_sync_en(stim_eeg_sync_en),
+.filter_dly_tgt(filter_dly_tgt),
 
+  .atpg_en(SCANMODE),
+  .atm_adj_mode(atm_adj_mode),
+  .atm_adj_data(atm_adj_data),
+  .atm_adj(atm_adj),
   .i_addr(addr),
   .i_wr(wr),
   .i_rd(rd),
@@ -442,6 +454,8 @@ spi_reg_u (
 //.standby_cmd(standby_cmd),
   .single_shot(single_shot),
   .iclk_div(iclk_div),
+  .iclk_div_pga(iclk_div_pga),
+  .iclk_pga_disable(iclk_pga_disable),
   .imeas_en(imeas_en),
   .imeas_reg_0(imeas_reg_0),
   .imeas_en_chn(imeas_en_chn),

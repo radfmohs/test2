@@ -24,10 +24,10 @@ reg [OUT_WIDTH-1:0] DOUT_reg;
 
 wire [7:0] RATIO, RATIO_tmp;
 
-assign RATIO_tmp =  (RATIO_CTRL_sel[2:1] == 2'd0) ? 128 :
-                    (RATIO_CTRL_sel[2:1] == 2'd1) ?  64 :
-                    (RATIO_CTRL_sel[2:1] == 2'd2) ?  32 :
-                    (RATIO_CTRL_sel[2:1] == 2'd3) ?  16 : 128;
+assign RATIO_tmp =  (RATIO_CTRL_sel[2:1] == 2'd0) ? 8'd128 :
+                    (RATIO_CTRL_sel[2:1] == 2'd1) ?  8'd64 :
+                    (RATIO_CTRL_sel[2:1] == 2'd2) ?  8'd32 :
+                    (RATIO_CTRL_sel[2:1] == 2'd3) ?  8'd16 : 8'd128;
 
 assign RATIO = RATIO_CTRL_sel[0] ? RATIO_MANUAL_sel : RATIO_tmp;
 

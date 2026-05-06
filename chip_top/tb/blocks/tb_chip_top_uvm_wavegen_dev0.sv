@@ -14,7 +14,7 @@ nnc_wavegen_interface     wavegen_vif[`WAVEGEN_NUM_OF_MULT_CHIPS]();
 
 nnc_wavegen_if            dut_wg_vif[`WAVEGEN_DRIVER_NUM]();
 
-logic [0:15] wg_drive_sw_tmp;
+logic [0:`WAVEGEN_DRIVER_NUM-1] wg_drive_sw_tmp;
 
 `ifdef BEHAVIORAL
   assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[0];
@@ -34,14 +34,14 @@ for (genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++)begin
   // Each of driver; get 64-bytes from 0x00 - 0x3F and assign to wave_reg
   // {>>{ array }}
   // flattens the array into a bitstream (LSB ? MSB) and then re-packs it into the destination array.
-  assign dut_wg_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[2][8'h00+8'h40*i:8'h3F+8'h40*i]}};
+  assign dut_wg_vif[i].wave_reg    =   {>>{spi_vif.REG_DATA[2][8'h00+`WAVEGEN_DRIVER_OFFSET*i : (`WAVEGEN_DRIVER_OFFSET-1) + `WAVEGEN_DRIVER_OFFSET*i]}};
   // for (int k = 0; k < 64; k++) dut_wg_vif[i].wave_reg[k] = spi_vif.REG_DATA[2][64*i + k]; (like this)
 
   assign dut_wg_vif[i].wg_drive_sw =   wg_drive_sw_tmp;
 
-  always @(dut_wg_vif[i].wave_reg[8'h01][0]) begin
-    if (dut_wg_vif[i].wave_reg[8'h01][0])  
-      wg_drive_sw_tmp |= dut_wg_vif[i].wave_reg[8'h3E:8'h3F]; 
+  always @(dut_wg_vif[i].wave_reg[`SOC_ADDR_WG_DRV_CTRL_REG0][0]) begin
+    if (dut_wg_vif[i].wave_reg[`SOC_ADDR_WG_DRV_CTRL_REG0][0])  
+      wg_drive_sw_tmp |= dut_wg_vif[i].wave_reg[`SOC_AWG_DRIVEC_SW_CFG0_REG:`SOC_AWG_DRIVEC_SW_CFG1_REG]; 
   end
 
   // int clear type -> r1c

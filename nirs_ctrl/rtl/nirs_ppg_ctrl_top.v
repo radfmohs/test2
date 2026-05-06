@@ -6,13 +6,18 @@ module nirs_ppg_ctrl_top #(
   input  wire             clk_ppg, // for counters and latch final counting values - Should match with ppg clock
   input  wire             clk_sys, // a stable 2Mhz to control pulses with pre-set widths
 
-  input  wire      [4:0]  NIRS_PGG_MODE_SEL_spi,
+  input  wire      [5:0]  NIRS_PGG_MODE_SEL_spi,
   input  wire             NIRS_PPG_EN_spi,    // NIRS/PPG enable
   input  wire             NIRS_PPG_MEAS_spi,
 
 // RATIO for DOUT - OPTIONAL for MANUAL MODE
-  input  wire      [7:0]  RATIO_MANUAL_spi,   // Value for manual mode
-  input  wire      [2:0]  RATIO_CTRL_spi,         // ratio[1:0], manual_en for Ratio
+  input  wire      [7:0]  RATIO_MANUAL_spi_0,   // Value for manual mode
+  input  wire      [2:0]  RATIO_CTRL_spi_0,         // ratio[1:0], manual_en for Ratio
+
+  input  wire      [7:0]  RATIO_MANUAL_spi_1,   // Value for manual mode
+  input  wire      [2:0]  RATIO_CTRL_spi_1,         // ratio[1:0], manual_en for Ratio
+
+  output wire      [1:0]  D2A_RATIO_CTRL,
 
 // Thresholds and manual mode for IDAC - MUST have manual mode
   input  wire     [18:0]  THRESHOLD_H_spi_0,    // High threhold
@@ -20,12 +25,19 @@ module nirs_ppg_ctrl_top #(
   input  wire             IDAC_MANUAL_EN_spi_0, // Enable IDAC manual mode
   input  wire      [8:0]  IDAC_MANUAL_spi_0,    // Value for manual mode
   input  wire             IDAC_IDAC_EN_spi_0,
+  input  wire      [1:0]  IPDMIRROR_ADJ_spi_0,
+  input  wire      [1:0]  IREFC_ADJ_spi_0,
 
   input  wire     [18:0]  THRESHOLD_H_spi_1,    // High threhold
   input  wire      [7:0]  THRESHOLD_L_spi_1,    // Low threshold
   input  wire             IDAC_MANUAL_EN_spi_1, // Enable IDAC manual mode
   input  wire      [8:0]  IDAC_MANUAL_spi_1,    // Value for manual mode
   input  wire             IDAC_IDAC_EN_spi_1,
+  input  wire      [1:0]  IPDMIRROR_ADJ_spi_1,
+  input  wire      [1:0]  IREFC_ADJ_spi_1,
+
+  output wire      [1:0]  IPDMIRROR_ADJ,
+  output wire      [1:0]  IREFC_ADJ,
 
 // Pulse config signals - Users control
   input  wire       [2:0] LED_STABLE_CTRL_spi_0,
@@ -80,11 +92,15 @@ module nirs_ppg_ctrl_top #(
   wire DOUTC_LATCH_EN, DOUTF_LATCH_EN, DOUT_EN;
   wire sync_bypass_sys, sync_bypass_ppg;
 
-  wire   [4:0]  NIRS_PGG_MODE_SEL;
+  wire   [5:0]  NIRS_PGG_MODE_SEL;
   wire          NIRS_PPG_EN;
   wire          NIRS_PGG_MEAS;
   wire   [7:0]  RATIO_MANUAL;             // Value for manual mode
   wire   [2:0]  RATIO_CTRL;               // ratio[1:0], manual_en for Ratio
+  wire   [7:0]  RATIO_MANUAL_0;       
+  wire   [2:0]  RATIO_CTRL_0;     
+  wire   [7:0]  RATIO_MANUAL_1;       
+  wire   [2:0]  RATIO_CTRL_1;    
 
   wire  [18:0]  THRESHOLD_H_0;  // High threhold
   wire   [7:0]  THRESHOLD_L_0;  // Low threshold
@@ -109,13 +125,13 @@ module nirs_ppg_ctrl_top #(
   wire   [3:0]  OTS_ctrl_1;
 
   wire   [7:0]  NIRS_PPG_INT_SEL;
-  wire          int_length_slct_spi;
+  wire          int_length_slct;
 
   assign NIRS_PGG_MODE_SEL  = NIRS_PGG_MODE_SEL_spi;
   assign NIRS_PPG_EN        = NIRS_PPG_EN_spi;
   assign NIRS_PGG_MEAS      = NIRS_PPG_MEAS_spi;
-  assign RATIO_MANUAL       = RATIO_MANUAL_spi;
-  assign RATIO_CTRL         = RATIO_CTRL_spi;
+  assign RATIO_MANUAL_0     = RATIO_MANUAL_spi_0;
+  assign RATIO_CTRL_0       = RATIO_CTRL_spi_0;
   assign THRESHOLD_H_0      = THRESHOLD_H_spi_0;
   assign THRESHOLD_L_0      = THRESHOLD_L_spi_0;
   assign IDAC_MANUAL_EN_0   = IDAC_MANUAL_EN_spi_0;
@@ -127,23 +143,25 @@ module nirs_ppg_ctrl_top #(
   assign RESET_ctrl_0       = RESET_CTRL_spi_0;
   assign OTS_ctrl_0         = OTS_CTRL_spi_0;
 
-  assign THRESHOLD_H_1     = THRESHOLD_H_spi_1;
-  assign THRESHOLD_L_1     = THRESHOLD_L_spi_1;
-  assign IDAC_MANUAL_EN_1  = IDAC_MANUAL_EN_spi_1;
-  assign IDAC_MANUAL_1     = IDAC_MANUAL_spi_1;
+  assign RATIO_MANUAL_1     = RATIO_MANUAL_spi_1;
+  assign RATIO_CTRL_1       = RATIO_CTRL_spi_1;
+  assign THRESHOLD_H_1      = THRESHOLD_H_spi_1;
+  assign THRESHOLD_L_1      = THRESHOLD_L_spi_1;
+  assign IDAC_MANUAL_EN_1   = IDAC_MANUAL_EN_spi_1;
+  assign IDAC_MANUAL_1      = IDAC_MANUAL_spi_1;
   assign IDAC_IDAC_EN_1     = IDAC_IDAC_EN_spi_1;
-  assign LED_stable_ctrl_1 = LED_STABLE_CTRL_spi_1;
-  assign LED_off_ctrl_1    = LED_OFF_CTRL_spi_1;
-  assign PERIOD_ctrl_1     = PERIOD_CTRL_spi_1;
-  assign RESET_ctrl_1      = RESET_CTRL_spi_1;
-  assign OTS_ctrl_1        = OTS_CTRL_spi_1;
+  assign LED_stable_ctrl_1  = LED_STABLE_CTRL_spi_1;
+  assign LED_off_ctrl_1     = LED_OFF_CTRL_spi_1;
+  assign PERIOD_ctrl_1      = PERIOD_CTRL_spi_1;
+  assign RESET_ctrl_1       = RESET_CTRL_spi_1;
+  assign OTS_ctrl_1         = OTS_CTRL_spi_1;
 
-  assign NIRS_PPG_INT_SEL  = NIRS_PPG_INT_SEL_spi;
-  assign int_length_slct   = int_length_slct_spi;
+  assign NIRS_PPG_INT_SEL   = NIRS_PPG_INT_SEL_spi;
+  assign int_length_slct    = int_length_slct_spi;
 
 
-  wire IDAC_UPDATE_EN, IDAC_INCREASE;
-  wire LED; // 0: LED0 - 1: LED1
+  wire  IDAC_UPDATE_EN, IDAC_INCREASE;
+  wire [1:0]  LED; // 0: LED0 - 1: LED1
 
   // common_sync_bit u_sync_bypass_ppg (
   //   .clk      (clk_ppg),
@@ -206,16 +224,24 @@ module nirs_ppg_ctrl_top #(
 /*
   DUAL LED sel for IDAC
 */
-  wire IDAC_LED0_EN = IDAC_UPDATE_EN && ~LED && IDAC_IDAC_EN_0;
-  wire IDAC_LED1_EN = IDAC_UPDATE_EN && LED  && IDAC_IDAC_EN_1;
+  wire IDAC_LED0_EN = IDAC_UPDATE_EN && ~LED[1] && IDAC_IDAC_EN_0;
+  wire IDAC_LED1_EN = IDAC_UPDATE_EN && LED[1]  && IDAC_IDAC_EN_1;
   wire [8:0] IDAC_tmp [1:0];
   wire IDAC_MAX_tmp [1:0];
   wire IDAC_MIN_tmp [1:0];
+  wire LED_ON_tmp;
 
-  assign IDAC_EN  = LED ? IDAC_IDAC_EN_1  : IDAC_IDAC_EN_0; 
-  assign IDAC     = LED ? IDAC_tmp[1]     : IDAC_tmp[0];
-  assign IDAC_MAX = LED ? IDAC_MAX_tmp[1] : IDAC_MAX_tmp[0];
-  assign IDAC_MIN = LED ? IDAC_MIN_tmp[1] : IDAC_MIN_tmp[0];
+  assign IDAC_EN        = LED[1] ? IDAC_IDAC_EN_1  : IDAC_IDAC_EN_0; 
+  assign IDAC           = LED[0] ? 9'b0 : (LED[1] ? IDAC_tmp[1] : IDAC_tmp[0]);
+  assign IDAC_MAX       = LED[1] ? IDAC_MAX_tmp[1] : IDAC_MAX_tmp[0];
+  assign IDAC_MIN       = LED[1] ? IDAC_MIN_tmp[1] : IDAC_MIN_tmp[0];
+  assign LED_ON         = LED[0] ? 1'b0 : LED_ON_tmp;
+
+  assign RATIO_MANUAL   = LED[1] ? RATIO_MANUAL_1 : RATIO_MANUAL_0;
+  assign RATIO_CTRL     = LED[1] ? RATIO_CTRL_1 : RATIO_CTRL_0;
+  assign D2A_RATIO_CTRL = RATIO_CTRL[2:1];
+  assign IPDMIRROR_ADJ  = LED[1] ? IPDMIRROR_ADJ_spi_0 : IPDMIRROR_ADJ_spi_1;
+  assign IREFC_ADJ      = LED[1] ? IREFC_ADJ_spi_0 : IREFC_ADJ_spi_1;
 
   nirs_ppg_idac_ctrl #(.WIDTH(WIDTH)) u_idac_led0_ctrl (
     .rst_n          (rst_n),
@@ -340,7 +366,7 @@ module nirs_ppg_ctrl_top #(
     .RESET            (RESET),
     .IPD_SW           (IPD_SW),
     .IIN_SW           (IIN_SW),
-    .LED_ON           (LED_ON)
+    .LED_ON           (LED_ON_tmp)
   );
 
   nirs_ppg_int  u_nirs_ppg_int (

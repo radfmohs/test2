@@ -14,7 +14,6 @@
 //slave samples at posedge of sclk and changes data at posedge of sclk. master has to place the data at posdeg of master clk and samples on posedge of master clk)
 //supported mode  general cpol=0,cpha=0, data latch and sample at same as master posdeg of sclk and master clk
 //master equavalent is cpol=0,cpha=1(master won't work, it can't latch the data)
-//`define 24B_IMEAS_DATA_EN
 
 `timescale 1ns/1ps
 
@@ -536,14 +535,13 @@ end
 // ------------------------------CONTROL SIGNAL---------------------------------//
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
-`ifndef 24B_IMEAS_DATA_EN
-assign adc_inc_val = mode[0] ? 2'b10 : 2'b11;
-`else
-assign adc_inc_val = 2'b11;
-`endif
+
+assign adc_inc_val = 2'b10;
+
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
-assign chdata_size = mode[0] ? 3'h3 : 3'h4;
+//assign chdata_size = mode[0] ? 3'h3 : 3'h4;
+assign chdata_size = 3'h3;
 
 /*********************************************
 - When master chip has not finished sending its imeas data (!next_dev_valid) 

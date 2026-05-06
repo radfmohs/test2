@@ -26,8 +26,9 @@ class `TESTCFG extends soc_base_test_cfg;
 
   //rand logic [7:0] expected_data;
   //logic [7:0]      rd_data[];
-    rand logic [7:0]      wg_glb_reg;
-    rand logic [7:0] pads;
+    rand logic [15:0] drive_mode_en; // 1: positive; from DATA, negative: all will be 0s, 1: positive: all will be 0s and negative from DATA
+    rand logic [7:0]  wg_glb_reg;
+    rand logic [7:0]  pads;
   // -----------------------------------------------
   // End of decalration of new variables 
   // ===============================================
@@ -51,6 +52,7 @@ class `TESTCFG extends soc_base_test_cfg;
   // at the time
     constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
+    constraint c_drive_mode_en  {drive_mode_en == 16'hAAAA;}
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
@@ -98,6 +100,7 @@ class `TESTNAME extends soc_base_test;
 
     // 00: Driver0-3, 01: Driver4-7, 10: Driver8-11, 11: Driver12-15
     `DUT_IF.DRIVE_SLCT = top_test_cfg.wg_glb_reg[2:1];
+    `DUT_IF.drive_mode_en = top_test_cfg.drive_mode_en;
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -122,7 +125,7 @@ class `TESTNAME extends soc_base_test;
     // ---------------------------------------------------------------------------------- 
     // ??? Only CFG0, how is CFG1??? for Wavegen 0 -> how is another
     // wavegens????
-    `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG, 8'hFF, 8'h00);
+    //`WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG, 8'hFF, 8'h00);
 
     // Select Driver Group 
     `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, top_test_cfg.wg_glb_reg, 8'h00);

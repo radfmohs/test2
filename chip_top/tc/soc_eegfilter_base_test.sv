@@ -43,8 +43,8 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [`FILTER_NUM - 1 :0] imeas_en_dis_ch; // 0: enable, 1 :disbale
        logic [31:0] act_chdata;
        logic [31:0] act_chdata_combined [256];
-       logic [31:0] act_chdata_combined_rdatac [5000][`FILTER_NUM];
-       logic [31:0] exp_chdata_combined_rdatac [5000][`FILTER_NUM];
+       logic [31:0] act_chdata_combined_rdatac [40000][`FILTER_NUM];
+       logic [31:0] exp_chdata_combined_rdatac [40000][`FILTER_NUM];
        logic        eeg_int_sts;
   rand logic        eeg_int_sts_en;
   rand logic        eeg_int_en;
@@ -130,7 +130,7 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_channel_sel         { soft imeas_data_sel inside {[0:(`FILTER_NUM - 1)]}; }//currently 16 channels considered in design
 
-  constraint c_no_of_conversions   { no_of_conversions inside {[1:3]}; }
+  constraint c_no_of_conversions   { no_of_conversions inside {[5:10]}; }
 
   constraint c_iclk_pmu_ctrl_en     { iclk_pmu_ctrl_en == 1'b1; }
 
@@ -144,7 +144,7 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_eeg_int_en  { eeg_int_en == 1; }
 
-  constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 100; }//sine frequency precision 100: imeas_sin_expected_freq in Hz/100
+  constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 1000; }//sine frequency precision 100: imeas_sin_expected_freq in Hz/100
 
   constraint c_imeas_status_en { imeas_status_en == 0; }// default no Imeas status 
   constraint c_imeas_24bitdata_en { imeas_24bitdata_en == 1; }// latest - only 24 bit supported
@@ -484,26 +484,54 @@ class `TESTNAME extends soc_base_test;
 
   task wait_for_intb();
     `nnc_info("SOC_TEST", "wait for EEG filter int and INTB assert", NNC_MEDIUM)
-     wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 1);    
-     if(`DUT_IF.int_active_level_high_or_low == 1) 
-        wait(`SOC_TB.INTB === 1);
-      else 
-        wait(`SOC_TB.INTB === 0);
+
+    fork : wait_for_intr
+      begin
+        wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 1);    
+
+        if(`SOC_TB.INTB === 1'bx)
+          `nnc_fatal("TEST", $sformatf("EEG INT asserted but INTB = %0d", `SOC_TB.INTB))
+
+        if(`DUT_IF.int_active_level_high_or_low == 1) 
+           wait(`SOC_TB.INTB === 1);
+         else 
+           wait(`SOC_TB.INTB === 0);
+      end 
+
+      begin
+        #30ms;
+        `nnc_fatal("TEST", $sformatf("TIMEOUT: new INTB not received , older not cleared properly ?? "))
+      end 
+    join_any
+    disable wait_for_intr;
+
     `nnc_info("SOC_TEST", "wait done for EEG filter int and INTB assert", NNC_MEDIUM)
   endtask : wait_for_intb
 
   task wait_for_intb_clear();
-    `nnc_info("SOC_TEST", "wait for INTB clear", NNC_MEDIUM)
-    if(`DUT_IF.intr_length_slct_level_or_pulse == 0)begin // level intr
-      if(`DUT_IF.int_active_level_high_or_low == 1) 
-        wait(`SOC_TB.INTB === 0);
-      else 
-        wait(`SOC_TB.INTB === 1);
-    end 
-    else begin
-      wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 0);    
-    end 
-    `nnc_info("SOC_TEST", "wait done for INTB clear", NNC_MEDIUM)
+    //fork : wait_for_intr_clr
+    //  begin
+        `nnc_info("SOC_TEST", "wait for INTB clear", NNC_MEDIUM)
+        if(`DUT_IF.intr_length_slct_level_or_pulse == 0)begin // level intr
+          if(`DUT_IF.int_active_level_high_or_low == 1) 
+            wait(`SOC_TB.INTB === 0);
+          else 
+            wait(`SOC_TB.INTB === 1);
+        end 
+        else begin
+          wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 0);    
+        end 
+        `nnc_info("SOC_TEST", "wait done for INTB clear", NNC_MEDIUM)
+    //  end 
+
+    //  begin
+    //    #20ms;
+    //    `nnc_fatal("TEST", $sformatf("TIMEOUT: INTB not cleared = %0d", `SOC_TB.INTB))
+    //  end 
+    //join_any
+
+    //disable wait_for_intr_clr;
+
   endtask : wait_for_intb_clear
 
   task basic_traffic_with_multi_start_stop ();
@@ -706,6 +734,7 @@ class `TESTNAME extends soc_base_test;
       fork 
         begin
 	  for(int j = 0; j < `DUT_IF.no_of_samples;j++)begin
+	    `nnc_info("SOC_TEST", $sformatf("intr num = %0d",j), NNC_MEDIUM)
 	    wait_for_intb();
             wait_for_intb_clear();
             if(`DUT_IF.filter_case)begin

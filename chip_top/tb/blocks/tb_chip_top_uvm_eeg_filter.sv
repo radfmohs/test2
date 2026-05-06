@@ -703,6 +703,12 @@ assign imeas_vif.FORMAT_SEL          = dut_vif.output_format;
 assign imeas_vif.SINGLE_SHOT_EN      = `SPI_TOP.spi_reg_u.single_shot;//dut_vif.single_shot_en;
 assign imeas_vif.STABLE_TIME         = dut_vif.stable_time;
 assign imeas_vif.IMEAS_REG_RST       = `SPI_TOP.spi_reg_u.imeas_reg_0[1];//imeas_rst
+
+assign imeas_vif.filter_dly_val         = dut_vif.filter_dly_val;
+assign imeas_vif.filter_sync_en         = dut_vif.filter_sync_en;
+assign imeas_vif.wavegen_global_en      = `SPI_REG.drivea_global_en;
+assign imeas_vif.wavegen_reg_rst        = `WG_DRIVER_TOP.i_presetn;
+
 assign imeas_vif.stable_cnt_dis_rstn = `RST_CTRL_TOP.adc_resetn;
 assign dut_vif.imeas_pos_done        =  |imeas_vif.chdata_en;
 assign dut_vif.filter_data_out        = `IMEAS_WRAPPER_TOP.imeas_chdata_out;

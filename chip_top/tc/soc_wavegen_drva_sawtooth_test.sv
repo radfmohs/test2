@@ -35,7 +35,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
-  logic [7:0]      sawtooth_data[128];
+  logic [7:0]      sawtooth_data[16][128];
   logic [13:0]     clk_freq;//in Khz
   logic [12:0]     half_period_limit;
   randc logic      same_pos_neg_period;
@@ -295,6 +295,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   endtask
 
   task wavegen_setup(input int chip_num);
+  logic [7:0] mem_tmp [128]; 
   begin
     top_test_cfg.LOAD_POINTS = top_test_cfg.load_points_sel;
     top_test_cfg.NO_OF_WAVEFORMS = top_test_cfg.waveform_sel;
@@ -303,60 +304,75 @@ class `TESTNAME extends soc_wavegen_base_test;
     top_test_cfg.POS_OFF = top_test_cfg.pos_dis;
     top_test_cfg.POS_NEG_DIFF = top_test_cfg.pos_neg_diff_sel;
     top_test_cfg.PULLAB_CTRL  = {top_test_cfg.PULLAB_pos_en, top_test_cfg.PULLAB_neg_en, top_test_cfg.PULLAB_lim};
-    
-    case(top_test_cfg.points_sel)
+   
+    for (int i=0; i<16; i++) begin 
+      case(top_test_cfg.points_sel)
          3'b000:begin
 		    top_test_cfg.NO_OF_POINTS = 64;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b001:begin
 		    top_test_cfg.NO_OF_POINTS = 32;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y32", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y32", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b010:begin
 		    top_test_cfg.NO_OF_POINTS = 16;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y16", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y16", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b011:begin
 		    top_test_cfg.NO_OF_POINTS = 8;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y8", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y8", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b100:begin
 		    top_test_cfg.NO_OF_POINTS = 4;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y4", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y4", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b101:begin
 		    top_test_cfg.NO_OF_POINTS = 2;
 		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y2", top_test_cfg.sawtooth_data);
+		    	$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y2", mem_tmp);
 		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+			$readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b110:begin
 		    top_test_cfg.NO_OF_POINTS = 1;
-		    $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+		    $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
          3'b111:begin
 		    top_test_cfg.NO_OF_POINTS = 128;
-		    $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", top_test_cfg.sawtooth_data);
+		    $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y128", mem_tmp);
 		end
-    endcase
+      endcase
     
+      for (int j = 0; j < 128; j++)
+        top_test_cfg.sawtooth_data[i][j] = mem_tmp[j];
+
+      if (`DUT_IF.drive_mode_en === 1'b1) begin
+        for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin
+          top_test_cfg.sawtooth_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
+         end
+      end else begin
+        for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin
+          top_test_cfg.sawtooth_data[i][j] = 0;
+        end
+      end
+    end
+ 
     if(top_test_cfg.LOAD_POINTS === 0)
 	top_test_cfg.NO_OF_LOAD_POINTS = top_test_cfg.NO_OF_POINTS;
     else begin
@@ -389,10 +405,24 @@ class `TESTNAME extends soc_wavegen_base_test;
     end
     top_env.wavegen_vif[chip_num].no_of_point_a = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
     top_env.wavegen_vif[chip_num].no_of_point_b = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
-    for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
-      top_env.wavegen_vif[chip_num].hex_data_a[i] = top_test_cfg.sawtooth_data[i]; // expected hex values
-      top_env.wavegen_vif[chip_num].hex_data_b[i] = top_test_cfg.sawtooth_data[i]; // expected hex values
+
+    // Saving data for all points of 2 phases to wave_vif
+    //for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
+    //  top_env.wavegen_vif[chip_num].hex_data_a[i] = top_test_cfg.sawtooth_data[i]; // expected hex values
+    //  top_env.wavegen_vif[chip_num].hex_data_b[i] = top_test_cfg.sawtooth_data[i]; // expected hex values
+    //end
+
+    for (int i; i < 16; i++) begin 
+      mem_tmp = top_test_cfg.sawtooth_data[i];
+      for (int j = 0; j < 128; j++)
+        mem_tmp[j] = top_test_cfg.sawtooth_data[i][j];
+
+      for (int k=0; k < top_env.wavegen_vif[chip_num].no_of_point_a; k++) begin
+        top_env.wavegen_vif[chip_num].hex_data_a[i][k] = mem_tmp[k]; // expected hex values
+        top_env.wavegen_vif[chip_num].hex_data_b[i][k] = mem_tmp[k]; // expected hex values
+      end
     end
+
     top_env.wavegen_vif[chip_num].pos_neg_from_same_addr = top_test_cfg.POS_NEG_DIFF; 
     top_env.wavegen_vif[chip_num].load_wave_data_till_points = top_test_cfg.LOAD_POINTS; 
     top_env.wavegen_vif[chip_num].no_of_waveforms = top_test_cfg.NO_OF_WAVEFORMS; 
@@ -455,15 +485,15 @@ class `TESTNAME extends soc_wavegen_base_test;
     //set clk_per_point_short
     if((chip_num === 0) && (i === 0)) begin
       if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac0 = 1'b1;
+	`DUT_IF.clk_per_point_short_dac[0] = 1'b1;
       else
-	`DUT_IF.clk_per_point_short_dac0 = 1'b0;
+	`DUT_IF.clk_per_point_short_dac[0] = 1'b0;
     end
     else if((chip_num === 0) && (i === 1)) begin
       if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac1 = 1'b1;
+	`DUT_IF.clk_per_point_short_dac[1] = 1'b1;
       else
-	`DUT_IF.clk_per_point_short_dac1 = 1'b0;
+	`DUT_IF.clk_per_point_short_dac[1] = 1'b0;
     end
     end
 
@@ -585,7 +615,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     `nnc_info("SOC_TEST", $sformatf("Store %d wave points", top_test_cfg.NO_OF_LOAD_POINTS), NNC_LOW)
-    for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
+
+    for(int m=0; m<16; m++) begin
+      for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
        	// --------------------------------------------------------
     	// Write to ADDR_WG_DRV_IN_WAVE_ADDR_REG0
     	// --------------------------------------------------------
@@ -594,8 +626,9 @@ class `TESTNAME extends soc_wavegen_base_test;
 	// --------------------------------------------------------
     	// Write to ADDR_WG_DRV_IN_WAVE_REG01
     	// --------------------------------------------------------
-	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sawtooth_data[i][7:0];});
+	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sawtooth_data[m][i][7:0];});
     	`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+      end
     end
 
     // --------------------------------------------------------

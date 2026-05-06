@@ -34,12 +34,12 @@ source -echo -verbose ../scripts/Nanochap_imp_tech.tcl
 
 set_app_var synthetic_library dw_foundation.sldb
 
-set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_search_path $ana_search_path $search_path]
+set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_search_path $ana_search_path $sram_search_path $search_path]
 set_app_var symbol_library $stdcell_sdb
 
 set_app_var target_library [concat $stdcell_library(db,$slow_corner_pvt) $stdcell_library(db,$fast_corner_pvt)]
 
-set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library];# $synthetic_library]
+set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $sram_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library $sram_min_library];# $synthetic_library]
 
 # ------------------------------------------------------------------------------
 # Associate libraries with min libraries
@@ -56,7 +56,7 @@ foreach libraryname [array names dont_use] {
 }
 
 set hdlin_infer_multibit default_all
-set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
+set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library $sram_mw_library]
 #set_mw_lib_reference -mw_reference_library [concat $stdcell_mw_library]
 
 # ------------------------------------------------------------------------------
@@ -155,8 +155,8 @@ set_clock_gating_style -sequential_cell latch \
 #remove_design -all
 if {$bottom_up == "yes"} {
    	                            
-  set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library ../data/synthesis_l2/imeas_wrapper.ddc];# $synthetic_library]
-  set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library]
+  set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library  $sram_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library $sram_min_library ../data/synthesis_l2/imeas_wrapper.prescan.ddc];# $synthetic_library]
+  set_app_var mw_reference_library [concat $stdcell_mw_library $pad_mw_library $vpp_mw_library $otp_mw_library $ana_mw_library $sram_mw_library]
   
   sh rm -rf ./imeas_wrapper
   create_mw_lib -technology $tech_file \
@@ -213,7 +213,7 @@ redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${r
   elaborate -architecture verilog ${rm_project_top}}
 
 if {$bottom_up == "yes"} {  
-    read_ddc ../data/synthesis_l2/imeas_wrapper.ddc
+    read_ddc ../data/synthesis_l2/imeas_wrapper.prescan.ddc
 }
 
 # ------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ set_app_var power_cg_physically_aware_cg true
 
 
 # run this in ICC and provide result below: write_def -version 5.7 -rows_tracks_gcells -macro -pins -blockages -specialnets -vias -regions_groups -verbose -output my_physical_data.def
-#extract_physical_constraints /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/ens2_run2_0606/Nanochap_ENS2_physical_data.def
+extract_physical_constraints /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/ens2_run1_1710/Nanochap_ENS2.def
 ###############################################
 
 # ------------------------------------------------------------------------------

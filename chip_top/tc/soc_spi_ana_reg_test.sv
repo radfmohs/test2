@@ -6,7 +6,7 @@
 // Project	: Nanochap ENS2                                  		        
 // Description	: Testcase soc_spi_ana_reg_test                                             
 // Designer	: pfwang@nanochap.com                                                                 
-// Date		: 23-09-2024                                                                     
+// Dwr_dataate		: 23-09-2024                                                                     
 // Revision	: 0.1 Initial version created by script                                 
 // ====================================================================================*/
 
@@ -126,60 +126,14 @@ class `TESTNAME extends soc_base_test;
     // ==================================================================================
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
+    // Write check point for default
+    // Vu code here
     
-    //// --------------------------------------------------------
-    //// This is an example WR_REG - single write to registers
-    //// --------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == `SOC_ADDR_WG_DRV_CONFIG_REG0;});
-    //`nnc_info("SOC_TEST", "Single Writing to a Register", NNC_LOW)
-    //`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-
-    //// --------------------------------------------------------
-    //// This is an example RD_REG - single read to registers
-    //// --------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == `SOC_ADDR_WG_DRV_CONFIG_REG0;});
-    //`nnc_info("SOC_TEST", "Single Reading to a Register", NNC_LOW)
-    //`RD_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-
-    repeat (10) begin
-    top_test_cfg.A2D_ANA_REG.rand_mode(1);
-    assert(top_test_cfg.randomize() with {A2D_ANA_REG[0][7:3] == 5'b0;});
-    top_test_cfg.A2D_ANA_REG.rand_mode(0);
-    
-    uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_LVD", top_test_cfg.A2D_ANA_REG[0][0]);
-    uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU0_1", top_test_cfg.A2D_ANA_REG[0][1]);
-    //uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU1", top_test_cfg.A2D_ANA_REG[0][2]);
-    uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU2_3", top_test_cfg.A2D_ANA_REG[0][2]);
-    //uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU3", top_test_cfg.A2D_ANA_REG[0][4]);
-    uvm_hdl_force("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_SPARE_RO_REG_0", top_test_cfg.A2D_ANA_REG[1]);
-
-    top_test_cfg.rd_data=new[2];
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_0;});
-    `nnc_info("SOC_TEST", "Single Reading to a Register", NNC_LOW)
-    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_A2D_SPARE_RO_REG0;});
-    `nnc_info("SOC_TEST", "Single Reading to a Register", NNC_LOW)
-    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[1]);
-    
-    //top_test_cfg.A2D_ANA_REG[0][2:1] = 2'b0;
-    
-    foreach (top_test_cfg.A2D_ANA_REG[i]) begin
-        if(top_test_cfg.A2D_ANA_REG[i] !== top_test_cfg.rd_data[i]) 
-        `nnc_error("SOC_TEST", $sformatf("A2D_ANA_REG[%0d] ERROR!!! , SPI_REG=%8h , ANA_IF=%8h", i , top_test_cfg.rd_data[i], top_test_cfg.A2D_ANA_REG[i]));
-    end
-//    if(`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0 !== top_test_cfg.rd_data[0])
-//	`nnc_error("SOC_TEST", $sformatf("A2D_ANA_REG[%0d] ERROR!!! , SPI_REG=%8h , ANA_IF=%8h", 0 , top_test_cfg.rd_data[0], `ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0));
- //   if(`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0 !== top_test_cfg.rd_data[1])
-//	`nnc_error("SOC_TEST", $sformatf("A2D_ANA_REG[%0d] ERROR!!! , SPI_REG=%8h , ANA_IF=%8h", 1 , top_test_cfg.rd_data[1], `ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0));
-    uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_LVD");
-    uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU0_1");
-    //uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU1");
-    uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU2_3");
-    //uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_COMP_OUT_STIMU3");
-    uvm_hdl_release("soc_top_tb.u_Nanochap_ENS2.u_top_ana_wrapper.u_top_ana.A2D_SPARE_RO_REG_0");
-    end
-
+    // Write check point after write
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_ADDR_WG_DRV_CONFIG_REG0; wr_data[0] == 8'h17;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    // Vu code here
+  
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------

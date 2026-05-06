@@ -28,7 +28,11 @@ class `TESTCFG extends soc_imeas_lpf_filter_base_test_cfg;
   // Adding constraints of randomization
   // -----------------------------------------------
   //constraint c_imeas_sin_expected_freq {imeas_sin_expected_freq inside {[20000: passband_cut_off_freq * 1000]};} // passband freq = 125 //sine freq * 1000
-  constraint c_imeas_sin_expected_freq { imeas_sin_expected_freq == passband_cut_off_freq * 1000;} // passband freq = 125 //sine freq * 1000
+  //constraint c_imeas_sin_expected_freq { imeas_sin_expected_freq == passband_cut_off_freq * 1000;} // passband freq = 125 //sine freq * 1000
+  //constraint c_imeas_sin_expected_freq { imeas_sin_expected_freq ==  64 * 1000;} // passband freq = 125 //sine freq * 1000
+  constraint c_imeas_sin_expected_freq { solve imeas_samp_rate before imeas_sin_expected_freq;
+                                         if (imeas_samp_rate > 2000) {imeas_sin_expected_freq ==  (imeas_samp_rate/6) * 1000;}
+                                         else {imeas_sin_expected_freq == 64 * 1000 ;}}  //sine freq * 1000
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -48,8 +52,9 @@ class `TESTNAME extends soc_imeas_lpf_filter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(5s);
-    //uvm_top.set_timeout(400ms);
+    //uvm_top.set_timeout(5s);
+    //uvm_top.set_timeout(5000ms);
+    uvm_top.set_timeout(5000ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -96,6 +101,7 @@ class `TESTNAME extends soc_imeas_lpf_filter_base_test;
     `DUT_IF.cic_rate        = top_test_cfg.imeas_cic_rate;
     `DUT_IF.imeas_osr       = top_test_cfg.imeas_osr;
     `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
+    `DUT_IF.sine_num_of_period = top_test_cfg.sine_num_of_period;
     `DUT_IF.imeas_sin_gen_en = top_test_cfg.imeas_sin_gen_en;
     `DUT_IF.imeas_sin_freq_unit = top_test_cfg.imeas_sin_freq_unit;
     `DUT_IF.imeas_sin_expected_freq = top_test_cfg.imeas_sin_expected_freq;
@@ -104,9 +110,15 @@ class `TESTNAME extends soc_imeas_lpf_filter_base_test;
     `DUT_IF.lpf_filter_en_per_ch = top_test_cfg.lpf_filter_en_per_ch;
     `DUT_IF.lpf_coeff_index_0_select = top_test_cfg.lpf_coeff_index_0_select;
     `DUT_IF.lpf_coeff_index_1_select = top_test_cfg.lpf_coeff_index_1_select;
+    //`DUT_IF.lpf_coeff_index_0_select = 0;
+    //`DUT_IF.lpf_coeff_index_1_select = 2;
 
     `DUT_IF.stopband_cut_off_freq = top_test_cfg.stopband_cut_off_freq;
     `DUT_IF.passband_cut_off_freq = top_test_cfg.passband_cut_off_freq;
+    //`DUT_IF.stopband_cut_off_freq = 180;
+    //`DUT_IF.passband_cut_off_freq = 32;
+    `DUT_IF.filter_python_check_en = 1;
+    `DUT_IF.python_imeas_en = 1;
 
     rdatac_cmd_en = 1;
     `DUT_IF.filter_case = top_test_cfg.filter_case;

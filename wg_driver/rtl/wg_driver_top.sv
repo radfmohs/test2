@@ -43,6 +43,11 @@ parameter ADDR_WIDTH = 12,
 
   output wire  [7:0] in_wave_addr[ELEC_NO-1:0], //
   output wire  [7:0] ems_wave_addr[ELEC_NO-1:0], //
+  input  wire        wg_driver_in_wave_wr0[ELEC_NO-1:0],
+  input  wire  [7:0] wg_driver_in_wave_data_wr0[ELEC_NO-1:0],
+  input  wire  [7:0] wg_driver_in_wave_addr[ELEC_NO-1:0],
+  output wire  [7:0] wg_driver_in_wave[ELEC_NO-1:0],
+
   output wire  [1:0] w_source[ELEC_NO-1:0],
   output reg   o_sw[ELEC_NO-1:0],
 //  output wire [7:0] hlf_wave_cnt[ELEC_NO-1:0],
@@ -227,6 +232,26 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
 		 .o_wg_driver_interrupt		(w_interrupt[i])
 	);
 */
+  wg_sram_top #(
+    .AW (7),
+    .DW (8))
+  u_wg_sram_top (
+    .mbist_mode     (1'b0),
+    .scan_mode      (scan_mode),
+    .scan_enable    (1'b0),
+    .clk            (i_pclk),
+    .rst_n          (i_presetn),
+    .waddr          (wg_driver_in_wave_addr[i][6:0]),
+    .raddr          (ems_wave_addr[i][6:0]),
+    .write          (wg_driver_in_wave_wr0[i]),
+    .wdata          (wg_driver_in_wave_data_wr0[i]),
+    .rdata          (wg_driver_in_wave[i]),
+    .sram_bist_clk  (1'b0),
+    .sram_bist_rstn (1'b1),
+    .sram_bist_done (),
+    .sram_bist_fail ()
+  );
+
 end
 
 //assign o_driver_enable = 	|w_enable;

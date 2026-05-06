@@ -46,7 +46,7 @@ interface spi_wg #(
 
 // wavegen
 wire  [7:0]    i_wg_driver_in_wave_addr[NO_OF_WAVEGEN-1:0];
-wire  [7:0]    i_wg_driver_ems_wave_addr[NO_OF_WAVEGEN-1:0];
+//wire  [7:0]    i_wg_driver_ems_wave_addr[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_wg_driver_source[NO_OF_WAVEGEN-1:0];
 //wire  [7:0]  i_hlf_wave_cnt[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_period_num[NO_OF_WAVEGEN-1:0];
@@ -81,6 +81,10 @@ wire           o_addr0_int_clr[NO_OF_WAVEGEN-1:0] ;
 wire           o_addr1_int_clr[NO_OF_WAVEGEN-1:0] ;     
 wire  [7:0]    o_wg_driver_int_cnt[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_wg_driver_int_sts[NO_OF_WAVEGEN-1:0];
+wire           wg_driver_in_wave_wr0  [NO_OF_WAVEGEN-1:0];
+wire  [7:0]    wg_driver_in_wave_data_wr0 [NO_OF_WAVEGEN-1:0];
+wire  [7:0]    wg_driver_in_wave_addr [NO_OF_WAVEGEN-1:0];
+wire  [7:0]    wg_driver_in_wave  [NO_OF_WAVEGEN-1:0];
 wire  [7:0]    o_pullba_ctrl[NO_OF_WAVEGEN-1:0];
 wire  [17:0]   dirve[NO_OF_WAVEGEN-1:0];      
 wire           global_en;
@@ -163,11 +167,15 @@ modport master(
   output w_isel,
 
   input i_wg_driver_in_wave_addr,
-  input i_wg_driver_ems_wave_addr,
+//input i_wg_driver_ems_wave_addr,
   input i_wg_driver_source,
 //input i_hlf_wave_cnt, 
   input i_period_num,
-  input i_wg_driver_int_sts
+  input i_wg_driver_int_sts,
+  output wg_driver_in_wave_wr0,
+  output wg_driver_in_wave_data_wr0,
+  output wg_driver_in_wave_addr,
+  input  wg_driver_in_wave
 );
 
 modport slave (
@@ -227,11 +235,16 @@ modport slave (
   output  wg_driver_pos_offset,
 
   output i_wg_driver_in_wave_addr,
-  output i_wg_driver_ems_wave_addr,
+//output i_wg_driver_ems_wave_addr,
   output i_wg_driver_source,
 //output i_hlf_wave_cnt, 
   output i_period_num,
-  output i_wg_driver_int_sts
+  output i_wg_driver_int_sts,
+
+  input  wg_driver_in_wave_wr0,
+  input  wg_driver_in_wave_data_wr0,
+  input  wg_driver_in_wave_addr,
+  output wg_driver_in_wave
 );
 
 endinterface
@@ -387,12 +400,14 @@ wire						  [28:0] D2A_ATM;                        //from pinmux to ana
 //wire            [2:0] ENCODED_ATM;                    //from pinmux to ana
 wire              [7:0] D2A_TRIM_SIG [14:0]; //from pinmux to ana 
 wire              [7:0] D2A_ADJ_IO   [ADJ_NUMBER-1:0]; //from pinmux to ana 
-
+wire                    ATM_HC_SEL;
 //wire            [1:0] A2D_TRIM_SIG [TRIM_NUMBER-1:0]; //from ana to pinmux 
 wire              [7:0] d2a_tsc_vdac8b_din_ch1; 
 //wire                    d2a_tsc_vdac8b_en_ch1;  
 //wire                    d2a_tsc_comp_en_ch1;    
 wire                    d2a_tsc_en_ch1;       
+wire                    i_ds_driver_en_current;       
+wire                    i_stimu_en;       
 //wire                    D2A_ANA_OUT_SEL1;
 //wire                    D2A_ANA_OUT_SEL2;
 //wire                    D2A_ANA_OUT_SEL3;
@@ -409,10 +424,14 @@ modport A2D (
   input  D2A_TRIM_SIG,
   input  D2A_ADJ_IO,
 //output A2D_TRIM_SIG
+  input  ATM_HC_SEL,
   input  d2a_tsc_vdac8b_din_ch1,
 //input  d2a_tsc_vdac8b_en_ch1,
 //input  d2a_tsc_comp_en_ch1,
+  input  i_ds_driver_en_current,
+  input  i_stimu_en,
   input  d2a_tsc_en_ch1
+
 
 //input   D2A_ANA_OUT_SEL1,
 //input   D2A_ANA_OUT_SEL2,
@@ -431,7 +450,10 @@ modport D2A (
   output D2A_TRIM_SIG,
   output D2A_ADJ_IO,
 //input  A2D_TRIM_SIG
+  output ATM_HC_SEL,
   output d2a_tsc_vdac8b_din_ch1,
+  output i_ds_driver_en_current,
+  output i_stimu_en,
 //output d2a_tsc_vdac8b_en_ch1,
 //output d2a_tsc_comp_en_ch1,
   output d2a_tsc_en_ch1
@@ -473,7 +495,7 @@ interface spi_pinmux_if #(
   EN_REG_NUMBER = 16
 ) ();
 
-wire [7:0] ANA_ENABLE_REG [1:0][15:0];
+wire [7:0] ANA_ENABLE_REG [1:0][14:0];
 wire       ATM_HC_SEL;
 wire       ANA_BIST_HC_SEL;
 wire       INT_LEVEL_SEL;
@@ -567,12 +589,12 @@ interface spi_nirs_if #(
 )
 ();
 
-  wire              [4:0] NIRS_CTRL_MODE      [NO_OF_NIRS-1:0];
+  wire              [5:0] NIRS_CTRL_MODE      [NO_OF_NIRS-1:0];
   wire              [1:0] NIRS_CTRL_CMD       [NO_OF_NIRS-1:0];
   wire              [7:0] NIRS_CTRL_INT       [NO_OF_NIRS-1:0];
   wire   [NO_OF_NIRS-1:0] NIRS_INT_CLR;
-  wire              [7:0] NIRS_CTRL           [NO_OF_NIRS-1:0][1:0][6:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
-  wire              [7:0] NIRS_CTRL_ADJ       [2:0];
+  wire              [7:0] NIRS_CTRL           [NO_OF_NIRS-1:0][1:0][8:0]; // NO_OF_NIRS channels, 14 regs each channel, 8 bits each reg
+  wire              [7:0] NIRS_CTRL_ADJ;
   wire              [7:0] NIRS_DOUT           [NO_OF_NIRS-1:0][3:0];
   wire              [7:0] NIRS_DEBUG          [NO_OF_NIRS-1:0][4:0];
   wire   [NO_OF_NIRS-1:0] NIRS_INT;

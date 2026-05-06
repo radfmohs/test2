@@ -163,12 +163,12 @@ class `TESTNAME extends soc_base_test;
 
   task do_force;
   begin
-    force `ANA_TOP.A2D_CLK2MHZ = 1'bx;
+    //force `ANA_TOP.A2D_CLK2MHZ = 1'bx;
     force `ANA_TOP.A2D_LVD = 1'bx;
-    force `ANA_TOP.A2D_POR_DVDD = 1'bx;
-    force `ANA_TOP.A2D_COMP_OUT_CH1 = 1'bx;
-    force `ANA_TOP.A2D_COMP_OUT_CH2 = 1'bx;
-    force `ANA_TOP.A2D_SPARE_RO_REG_0 = 8'bx;
+    //force `ANA_TOP.A2D_POR_DVDD = 1'bx;
+    //force `ANA_TOP.A2D_COMP_OUT_CH1 = 1'bx;
+    //force `ANA_TOP.A2D_COMP_OUT_CH2 = 1'bx;
+    //force `ANA_TOP.A2D_SPARE_RO_REG_0 = 8'bx;
     `ifdef POSTLAYOUT
     force `SOC_TB.VDD_DIG = 1'b0;
     #10ns

@@ -78,6 +78,7 @@ module pinmux (
   input  wire         i_anac_int,
   input  wire         i_tsc_int,
   input  wire         i_eeg_int,
+  input  wire         i_nirs_int,
 
   output wire         pin_rstn,
 
@@ -125,10 +126,18 @@ module pinmux (
   input wire   [7:0]  d2a_tsc_vdac8b_din_ch1,
 //input wire          d2a_tsc_vdac8b_en_ch1,
 //input wire          d2a_tsc_comp_en_ch1,
-  input wire          d2a_tsc_en_ch1
-);
+  input wire          d2a_tsc_en_ch1,
 
-  wire        GPIO14_NORMAL_OUT;
+// WG 
+  input wire          i_ds_driver_en_current,
+  input wire          i_stimu_en
+);
+//wire        GPIO14_NORMAL_OUT;
+  wire        GPIO15_NORMAL_OUT;
+  wire        GPIO16_NORMAL_OUT;
+  wire        GPIO17_NORMAL_OUT;
+  wire        GPIO18_NORMAL_OUT;
+  wire        GPIO19_NORMAL_OUT;
   wire        ext_clk_sel;
   wire        scan_mode; 
 //wire [3:0]  ana_test_mode;
@@ -343,7 +352,7 @@ module pinmux (
                     (ana_test_mode == 5'd28)? 5'b11110: 5'b11111);
    
 //combine interrupt
- assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int); 
+ assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int | i_nirs_int); 
  assign INTB      = (INT_LEVEL_SEL == 1'b1) ? INTB_tmp : ~INTB_tmp;
 
 // EXTERNAL CLOCK
@@ -397,28 +406,32 @@ module pinmux (
   assign ATM_HC_SEL       = spi_pinmux_if.ATM_HC_SEL;
   assign ANA_BIST_HC_SEL  = spi_pinmux_if.ANA_BIST_HC_SEL;
   assign INT_LEVEL_SEL    = spi_pinmux_if.INT_LEVEL_SEL;
+  assign pinmux_if.ATM_HC_SEL = ATM_HC_SEL;
 
   assign pinmux_if.d2a_tsc_vdac8b_din_ch1 = d2a_tsc_vdac8b_din_ch1;
 //assign pinmux_if.d2a_tsc_vdac8b_en_ch1  = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_vdac8b_en_ch1;
 //assign pinmux_if.d2a_tsc_comp_en_ch1    = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_comp_en_ch1;
 //assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & (ATM6 || ATM1)) ?  1'b1  : d2a_tsc_en_ch1;
   assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ( ATM5 || ATM11 || ATM15)) ?  1'b1  : d2a_tsc_en_ch1;
+  assign pinmux_if.i_ds_driver_en_current = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_ds_driver_en_current;
+  assign pinmux_if.i_stimu_en             = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_stimu_en;
+
 
   assign pinmux_if.D2A_ANA_ENABLE_REG[0][0]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][0];
   assign pinmux_if.D2A_ANA_ENABLE_REG[0][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][1];
   assign pinmux_if.D2A_ANA_ENABLE_REG[0][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][2];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM3[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][2];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM4[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][3];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM5[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][4];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM6[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][5];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][7]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM7[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][6];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][8]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM8[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][7];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][9]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM9[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][8];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][10]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM10[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][9];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][11]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM11[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][10];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][12]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM12[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][11];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][13]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM13[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][12];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][14]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM14[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][13];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM3[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][3];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM4[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][4];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM5[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][5];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM6[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][6];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][7]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM7[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][7];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][8]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM8[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][8];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][9]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM9[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][9];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][10]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM10[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][10];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][11]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM11[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][11];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][12]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM12[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][12];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][13]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM13[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][13];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[0][14]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM14[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][14];
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][0]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM15[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][0];
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM16[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][1];
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM17[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][2];
@@ -463,13 +476,13 @@ module pinmux (
  assign pinmux_if.D2A_TRIM_SIG[11] = ATM11 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[11];
 
 //debug_signal_mode1(ATM12)- SPARE
- assign pinmux_if.D2A_TRIM_SIG[12] = ATM12 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[12];
+ assign pinmux_if.D2A_TRIM_SIG[12] = ATM12 ? pad_d2a_trim12_sig : sys_d2a_trim_reg[12];
 
 //debug_signal_mode1(ATM13)- SPARE
- assign pinmux_if.D2A_TRIM_SIG[13] = ATM13 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[13];
+ assign pinmux_if.D2A_TRIM_SIG[13] = ATM13 ? pad_d2a_trim13_sig : sys_d2a_trim_reg[13];
 
 //debug_signal_mode1(ATM14)- SPARE
- assign pinmux_if.D2A_TRIM_SIG[14] = ATM14 ? pad_d2a_trim11_sig : sys_d2a_trim_reg[14];
+ assign pinmux_if.D2A_TRIM_SIG[14] = ATM14 ? pad_d2a_trim14_sig : sys_d2a_trim_reg[14];
 
 //debug_signal_mode1(ATM15)- ADJUST PATH not stored to OTP
  assign pinmux_if.D2A_ADJ_IO[0] =  ATM15 ? pad_d2a_adj0_sig : 8'b00;
@@ -3720,178 +3733,178 @@ u_gpio9_pinmux (
 .test1_a    (1'b0),
 .test1_def  (1'b0),
 .test1_y    (),
-// test2
+// test2  
 .test2_ie   (1'b0),
-.test2_oe   (1'b0),
-.test2_a    (1'b0),
-.test2_def  (1'b0),         
-.test2_y    (),   
+.test2_oe   (1'b1),
+.test2_a    (i_otp_vpp_en),
+.test2_def  (1'b0),
+.test2_y    (),
 // test3
 .test3_ie   (1'b0),
-.test3_oe   (1'b0),
-.test3_a    (1'b0),
+.test3_oe   (1'b1),
+.test3_a    (i_otp_vpp_en),
 .test3_def  (1'b0),
 .test3_y    (),
 // test4
 .test4_ie   (1'b0),
-.test4_oe   (1'b0),
-.test4_a    (1'b0),
+.test4_oe   (1'b1),
+.test4_a    (i_otp_vpp_en),
 .test4_def  (1'b0),
 .test4_y    (),
 // test5
 .test5_ie   (1'b0),
-.test5_oe   (1'b0),
-.test5_a    (1'b0),
+.test5_oe   (1'b1),
+.test5_a    (i_otp_vpp_en),
 .test5_def  (1'b0),
 .test5_y    (),
 // test6
 .test6_ie   (1'b0),
-.test6_oe   (1'b0),
-.test6_a    (1'b0),
+.test6_oe   (1'b1),
+.test6_a    (i_otp_vpp_en),
 .test6_def  (1'b0),
 .test6_y    (),
 // test7
 .test7_ie   (1'b0),
-.test7_oe   (1'b0),
-.test7_a    (1'b0),
+.test7_oe   (1'b1),
+.test7_a    (i_otp_vpp_en),
 .test7_def  (1'b0),
 .test7_y    (),
 // test8
 .test8_ie   (1'b0),
-.test8_oe   (1'b0),
-.test8_a    (1'b0),
+.test8_oe   (1'b1),
+.test8_a    (i_otp_vpp_en),
 .test8_def  (1'b0),
 .test8_y    (),
 // test9
 .test9_ie   (1'b0),
-.test9_oe   (1'b0),
-.test9_a    (1'b0),
+.test9_oe   (1'b1),
+.test9_a    (i_otp_vpp_en),
 .test9_def  (1'b0),
 .test9_y    (),
 // test10
 .test10_ie   (1'b0),
-.test10_oe   (1'b0),
-.test10_a    (1'b0),
+.test10_oe   (1'b1),
+.test10_a    (i_otp_vpp_en),
 .test10_def  (1'b0),
 .test10_y    (),
 // test11
 .test11_ie   (1'b0),
-.test11_oe   (1'b0),
-.test11_a    (1'b0),
+.test11_oe   (1'b1),
+.test11_a    (i_otp_vpp_en),
 .test11_def  (1'b0),
 .test11_y    (),
 // test12
 .test12_ie   (1'b0),
-.test12_oe   (1'b0),
-.test12_a    (1'b0),
+.test12_oe   (1'b1),
+.test12_a    (i_otp_vpp_en),
 .test12_def  (1'b0),
 .test12_y    (),
 // test13
 .test13_ie   (1'b0),
-.test13_oe   (1'b0),
-.test13_a    (1'b0),
+.test13_oe   (1'b1),
+.test13_a    (i_otp_vpp_en),
 .test13_def  (1'b0),
 .test13_y    (),
 // test14
 .test14_ie   (1'b0),
-.test14_oe   (1'b0),
-.test14_a    (1'b0),
+.test14_oe   (1'b1),
+.test14_a    (i_otp_vpp_en),
 .test14_def  (1'b0),
 .test14_y    (),
 // test15
 .test15_ie   (1'b0),
-.test15_oe   (1'b0),
-.test15_a    (1'b0),
+.test15_oe   (1'b1),
+.test15_a    (i_otp_vpp_en),
 .test15_def  (1'b0),
 .test15_y    (),
 // test16
 .test16_ie   (1'b0),
-.test16_oe   (1'b0),
-.test16_a    (1'b0),
+.test16_oe   (1'b1),
+.test16_a    (i_otp_vpp_en),
 .test16_def  (1'b0),
 .test16_y    (),
 // test17
 .test17_ie   (1'b0),
-.test17_oe   (1'b0),
-.test17_a    (1'b0),
+.test17_oe   (1'b1),
+.test17_a    (i_otp_vpp_en),
 .test17_def  (1'b0),
 .test17_y    (),
 // test18
 .test18_ie   (1'b0),
-.test18_oe   (1'b0),
-.test18_a    (1'b0),
+.test18_oe   (1'b1),
+.test18_a    (i_otp_vpp_en),
 .test18_def  (1'b0),
 .test18_y    (),
 // test19
 .test19_ie   (1'b0),
-.test19_oe   (1'b0),
-.test19_a    (1'b0),
+.test19_oe   (1'b1),
+.test19_a    (i_otp_vpp_en),
 .test19_def  (1'b0),
 .test19_y    (),
 // test20
 .test20_ie   (1'b0),
-.test20_oe   (1'b0),
-.test20_a    (1'b0),
+.test20_oe   (1'b1),
+.test20_a    (i_otp_vpp_en),
 .test20_def  (1'b0),
 .test20_y    (),
 // test21
 .test21_ie   (1'b0),
-.test21_oe   (1'b0),
-.test21_a    (1'b0),
+.test21_oe   (1'b1),
+.test21_a    (i_otp_vpp_en),
 .test21_def  (1'b0),
 .test21_y    (),
 // test22
 .test22_ie   (1'b0),
-.test22_oe   (1'b0),
-.test22_a    (1'b0),
+.test22_oe   (1'b1),
+.test22_a    (i_otp_vpp_en),
 .test22_def  (1'b0),
 .test22_y    (),
 // test23
 .test23_ie   (1'b0),
-.test23_oe   (1'b0),
-.test23_a    (1'b0),
+.test23_oe   (1'b1),
+.test23_a    (i_otp_vpp_en),
 .test23_def  (1'b0),
 .test23_y    (),
 // test24
 .test24_ie   (1'b0),
-.test24_oe   (1'b0),
-.test24_a    (1'b0),
+.test24_oe   (1'b1),
+.test24_a    (i_otp_vpp_en),
 .test24_def  (1'b0),
 .test24_y    (),
 // test25
 .test25_ie   (1'b0),
-.test25_oe   (1'b0),
-.test25_a    (1'b0),
+.test25_oe   (1'b1),
+.test25_a    (i_otp_vpp_en),
 .test25_def  (1'b0),
 .test25_y    (),
 // test26
 .test26_ie   (1'b0),
-.test26_oe   (1'b0),
-.test26_a    (1'b0),
+.test26_oe   (1'b1),
+.test26_a    (i_otp_vpp_en),
 .test26_def  (1'b0),
 .test26_y    (),
 // test27
 .test27_ie   (1'b0),
-.test27_oe   (1'b0),
-.test27_a    (1'b0),
+.test27_oe   (1'b1),
+.test27_a    (i_otp_vpp_en),
 .test27_def  (1'b0),
 .test27_y    (),
 // test28
 .test28_ie   (1'b0),
-.test28_oe   (1'b0),
-.test28_a    (1'b0),
+.test28_oe   (1'b1),
+.test28_a    (i_otp_vpp_en),
 .test28_def  (1'b0),
 .test28_y    (),
 // test29
 .test29_ie   (1'b0),
-.test29_oe   (1'b0),
-.test29_a    (1'b0),
+.test29_oe   (1'b1),
+.test29_a    (i_otp_vpp_en),
 .test29_def  (1'b0),
 .test29_y    (),
 // test30
 .test30_ie   (1'b0),
-.test30_oe   (1'b0),
-.test30_a    (1'b0),
+.test30_oe   (1'b1),
+.test30_a    (i_otp_vpp_en),
 .test30_def  (1'b0),
 .test30_y    (),
 

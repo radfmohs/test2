@@ -370,9 +370,11 @@ class `TESTNAME extends soc_wavegen_base_test;
     end
     top_env.wavegen_vif[chip_num].no_of_point_a = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
     top_env.wavegen_vif[chip_num].no_of_point_b = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
-    for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
-      top_env.wavegen_vif[chip_num].hex_data_a[i] = 8'hFF; // expected hex values
-      top_env.wavegen_vif[chip_num].hex_data_b[i] = 8'hFF; // expected hex values
+    for (int i=0; i < 16; i++) begin
+      for (int j=0; j < top_env.wavegen_vif[chip_num].no_of_point_a; j++) begin
+        top_env.wavegen_vif[chip_num].hex_data_a[i][j] = 8'hFF; // expected hex values
+        top_env.wavegen_vif[chip_num].hex_data_b[i][j] = 8'hFF; // expected hex values
+      end
     end
     top_env.wavegen_vif[chip_num].pos_neg_from_same_addr = top_test_cfg.POS_NEG_DIFF; 
     top_env.wavegen_vif[chip_num].load_wave_data_till_points = top_test_cfg.LOAD_POINTS; 
@@ -437,15 +439,15 @@ class `TESTNAME extends soc_wavegen_base_test;
     //set clk_per_point_short
     if((chip_num === 0) && (i === 0)) begin
       if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac0 = 1'b1;
+	`DUT_IF.clk_per_point_short_dac[0] = 1'b1;
       else
-	`DUT_IF.clk_per_point_short_dac0 = 1'b0;
+	`DUT_IF.clk_per_point_short_dac[0] = 1'b0;
     end
     else if((chip_num === 0) && (i === 1)) begin
       if(`DUT_IF.wg_hlf_wave0_lim[i] === 32'h00000001)
-	`DUT_IF.clk_per_point_short_dac1 = 1'b1;
+	`DUT_IF.clk_per_point_short_dac[1] = 1'b1;
       else
-	`DUT_IF.clk_per_point_short_dac1 = 1'b0;
+	`DUT_IF.clk_per_point_short_dac[1] = 1'b0;
     end
     end
 

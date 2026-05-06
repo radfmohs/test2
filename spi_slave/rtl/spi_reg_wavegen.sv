@@ -98,11 +98,11 @@
 `define AWG_DRIVEC_SW_CFG1                      10'h3F
 
 module spi_reg_wavegen #(
-	parameter ADDR_WIDTH =8,
-	parameter DATA_WIDTH =8, 
-	parameter HLF_WV_NO_PTS = 6, 
-	parameter NO_OF_WAVEGEN =8,
-	parameter OUT_NO_BITS = 8)
+  parameter ADDR_WIDTH =8,
+  parameter DATA_WIDTH =8, 
+  parameter HLF_WV_NO_PTS = 6, 
+  parameter NO_OF_WAVEGEN =8,
+  parameter OUT_NO_BITS = 8)
 (
   input wire                  i_clk,
   input wire                  i_rst_n,
@@ -110,11 +110,11 @@ module spi_reg_wavegen #(
   input wire                  i_rd,
   input wire [ADDR_WIDTH-1:0] i_addr,
   input wire [DATA_WIDTH-1:0] i_wr_data,	
-	
+  
 
 //inputs from ctrl block
   input  wire [7:0]           i_wg_driver_in_wave_addr,
-  input  wire [7:0]           i_wg_driver_ems_wave_addr,
+//input  wire [7:0]           i_wg_driver_ems_wave_addr, // Truong 04/05/2026
   input  wire [1:0]           i_wg_driver_source, //which source is active?
 //input  wire [7:0]           i_hlf_wave_cnt, 
   input  wire [1:0]           i_period_num,   
@@ -179,9 +179,17 @@ module spi_reg_wavegen #(
   output wire  [7:0]          o_wg_driver_int_cnt,
   input  wire                 int_clear_type,
   input  wire                 i_rd_normal,
-  input  wire  [1:0]          i_wg_driver_int_sts  
+  input  wire  [1:0]          i_wg_driver_int_sts,
 
 //output   wire               o_wg_driver_interrupt
+
+// Truong added 04/05/2026
+
+  output wire                 reg_wg_driver_in_wave_wr0,      // WRITE request
+  output wire  [7:0]          reg_wg_driver_in_wave_data_wr0, // WRITE DATA
+  output reg   [7:0]          reg_wg_driver_in_wave_addr,
+  input  wire  [7:0]          reg_wg_driver_in_wave       // READ DATA
+
 );
 
 //WG_DRV_CONFIG_REG
@@ -281,12 +289,7 @@ wire        reg_wg_driver_point_config_wr;
 //wire        reg_wg_driver_clk_freq_wr0;
 
 //ADDR_WG_DRV_IN_WAVE_ADDR_REG
-reg [7:0]   reg_wg_driver_in_wave_addr;
 wire        reg_wg_driver_in_wave_addr_wr0;
-
-//ADDR_WG_DRV_IN_WAVE_REG
-reg [OUT_NO_BITS-1:0] reg_wg_driver_in_wave[(2**HLF_WV_NO_PTS)-1:0];
-wire        reg_wg_driver_in_wave_wr0;
 
 //ADDR_WG_DRV_ALT_LIM_REG		
 reg [15:0]  reg_wg_driver_alt_lim;
@@ -722,18 +725,15 @@ assign o_reg_wg_driver_point_config      = reg_wg_driver_point_config;
 
 assign reg_wg_driver_in_wave_addr_wr0 = i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_IN_WAVE_ADDR_REG0+10'h40 * NO_OF_WAVEGEN));
 assign reg_wg_driver_in_wave_wr0 = 	i_wr & (i_addr[ADDR_WIDTH-1:0]==(`ADDR_WG_DRV_IN_WAVE_REG01+10'h40 * NO_OF_WAVEGEN));
+assign reg_wg_driver_in_wave_data_wr0 = i_wr_data;
 
 //write to reg_wg_driver_in_wave
 always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     reg_wg_driver_in_wave_addr[7:0]  <= 8'h00;
-    for(integer i=0;i<2**HLF_WV_NO_PTS;i=i+1)begin
-    reg_wg_driver_in_wave[i]  <= 8'h00;
-    end
   end
   else begin
     reg_wg_driver_in_wave_addr[7:0]  <= 			reg_wg_driver_in_wave_addr_wr0 ? i_wr_data[7:0]  : reg_wg_driver_in_wave_addr[7:0];
-    reg_wg_driver_in_wave[reg_wg_driver_in_wave_addr]  <= 	reg_wg_driver_in_wave_wr0 ? 	 i_wr_data[7:0]  : reg_wg_driver_in_wave[reg_wg_driver_in_wave_addr];
  end
 end
 
@@ -772,14 +772,14 @@ assign wave_2nd = i_period_num==2'b01;
 assign wave_3rd = i_period_num==2'b10;
 
 assign w_in_wave_tmp = (o_period_sel[2:0]==3'b000)? (waveform_preload==2'b00) ?  w_in_wave_tmp_sine  :
-	                                            (waveform_preload==2'b01) ?  w_in_wave_tmp_pluse :
-	                                            (waveform_preload==2'b10) ?  w_in_wave_tmp_triangle : reg_wg_driver_in_wave[wg_driver_in_wave_addr_normal] : 
+                                              (waveform_preload==2'b01) ?  w_in_wave_tmp_pluse :
+                                              (waveform_preload==2'b10) ?  w_in_wave_tmp_triangle : reg_wg_driver_in_wave : 
                        (o_period_sel[2:0]==3'b001)? (waveform_preload==2'b00) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_pluse & ({8{wave_2nd}})) :
-	                                            (waveform_preload==2'b01) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_triangle & ({8{wave_2nd}})):
-	                                            (waveform_preload==2'b10) ?  (w_in_wave_tmp_pluse & ({8{wave_1st}}))| (w_in_wave_tmp_triangle & ({8{wave_2nd}})) : reg_wg_driver_in_wave[wg_driver_in_wave_addr_normal] : 
+                                              (waveform_preload==2'b01) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_triangle & ({8{wave_2nd}})):
+                                              (waveform_preload==2'b10) ?  (w_in_wave_tmp_pluse & ({8{wave_1st}}))| (w_in_wave_tmp_triangle & ({8{wave_2nd}})) : reg_wg_driver_in_wave : 
                        (o_period_sel[2:0]==3'b010)? (waveform_preload==2'b00) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_pluse & ({8{wave_2nd}}))    | (w_in_wave_tmp_triangle & ({8{wave_3rd}})):
-	                                            (waveform_preload==2'b01) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_triangle & ({8{wave_2nd}})) | (w_in_wave_tmp_pluse & ({8{wave_3rd}})):
-	                                                                         reg_wg_driver_in_wave[wg_driver_in_wave_addr_normal] : reg_wg_driver_in_wave[wg_driver_in_wave_addr_normal];
+                                              (waveform_preload==2'b01) ?  (w_in_wave_tmp_sine & ({8{wave_1st}})) | (w_in_wave_tmp_triangle & ({8{wave_2nd}})) | (w_in_wave_tmp_pluse & ({8{wave_3rd}})):
+                                                                           reg_wg_driver_in_wave : reg_wg_driver_in_wave;
 
 wire [7:0] addr_con,pos_addr_con,neg_addr_con,pos_addr_con1,neg_addr_con1;
 
@@ -872,7 +872,7 @@ assign pos_wg_driver_in_wave_temp = (pos_wg_driver_in_wave<= 17'hfff)? pos_wg_dr
 assign neg_wg_driver_in_wave_temp = (neg_wg_driver_in_wave<= 17'hfff)? neg_wg_driver_in_wave[11:0] : 12'hfff;
 
 assign data_envelope  = (!w_continue & i_wg_driver_int_sts[1]) ? 12'b0 : (i_wg_driver_source==2) ? neg_wg_driver_in_wave_temp : pos_wg_driver_in_wave_temp; //if we arrive at the second address interrupt (meaning that we are falling behind in inserting new waves), if w_continue is 1, then we ignore the interrupt and will repeat the wave in the output as a reult. For hearing aid, it means the person will hear a repeating sound if microcontroller is slow in loading the next sound waveform. Unless w_continue is 0, in which case no wave form will be sent out until the interrupt is cleared
-assign data_carrier = ems_data_ctrl[3]? reg_wg_driver_in_wave[i_wg_driver_ems_wave_addr] : 8'h01;
+assign data_carrier = ems_data_ctrl[3]? reg_wg_driver_in_wave : 8'h01;
 assign data_mul_final= data_carrier * data_envelope;
 assign o_wg_driver_in_wave = ems_data_ctrl[3]? data_mul_final >> ems_data_ctrl[2:0] : data_mul_final[11:0];
 
@@ -1156,7 +1156,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
   drive_ctrl_reg2   <= 8'h00; 
   end
   else begin
-	  case (i_addr[ADDR_WIDTH-1:0])
+    case (i_addr[ADDR_WIDTH-1:0])
             `DRIVE_REG_CTRL0+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg0   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg0; 
             `DRIVE_REG_CTRL1+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg1   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg1;
             `DRIVE_REG_CTRL2+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg2   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg2;
@@ -1173,7 +1173,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
   o_no_of_num_slient_tar       <= 16'h0005; 
   end
   else begin
-	  case (i_addr[ADDR_WIDTH-1:0])
+    case (i_addr[ADDR_WIDTH-1:0])
             `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN     :  o_no_of_num_slient_disable  <= i_wr? i_wr_data[0]   : o_no_of_num_slient_disable; 
             `NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[7:0]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
             `NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN      :  o_no_of_num_slient_tar[15:8]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
@@ -1305,7 +1305,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 //      `ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT_REG04 :   reg_rd_data <= reg_wg_driver_neg_hlf_wave_prd[31:24];  
 //      `ADDR_WG_DRV_CLK_FREQ_REG0          :   reg_rd_data <= 8'h00;  
         `ADDR_WG_DRV_IN_WAVE_ADDR_REG0	    :   reg_rd_data <= reg_wg_driver_in_wave_addr[7:0]; 
-        `ADDR_WG_DRV_IN_WAVE_REG01 	    :   reg_rd_data <= reg_wg_driver_in_wave[reg_wg_driver_in_wave_addr]; 
+        `ADDR_WG_DRV_IN_WAVE_REG01 	    :   reg_rd_data <= reg_wg_driver_in_wave; 
         `ADDR_WG_DRV_INT_NUM_REG02 	    :   reg_rd_data <= o_wg_driver_int_cnt; 
         `ADDR_WG_DRV_ALT_LIM_REG01	    :   reg_rd_data <= reg_wg_driver_alt_lim[7:0]; 
         `ADDR_WG_DRV_ALT_LIM_REG02	    :   reg_rd_data <= reg_wg_driver_alt_lim[15:8]; 
@@ -1366,7 +1366,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `AWG_DRIVEC_ISEL                     :  reg_rd_data  <=  {7'b0,w_isel_reg};
         `AWG_DRIVEC_SW_CFG0                  :  reg_rd_data  <=  sw_config_reg[7:0];
         `AWG_DRIVEC_SW_CFG1                  :  reg_rd_data  <=  sw_config_reg[15:8];
-	default                             :   reg_rd_data <= 8'h00;
+  default                             :   reg_rd_data <= 8'h00;
       endcase
    end
 end

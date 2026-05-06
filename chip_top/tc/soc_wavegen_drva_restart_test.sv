@@ -349,6 +349,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   endtask
 
   task wavegen_setup(input int chip_num);
+  logic [7:0] mem_tmp [128];
   begin
     top_test_cfg.LOAD_POINTS = top_test_cfg.load_points_sel;
     top_test_cfg.NO_OF_WAVEFORMS = top_test_cfg.waveform_sel;
@@ -404,10 +405,23 @@ class `TESTNAME extends soc_wavegen_base_test;
     // Interface
     top_env.wavegen_vif[chip_num].no_of_point_a = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
     top_env.wavegen_vif[chip_num].no_of_point_b = top_test_cfg.NO_OF_LOAD_POINTS; // expected resolution
-    for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
-      top_env.wavegen_vif[chip_num].hex_data_a[i] = 8'hFF; // expected hex values
-      top_env.wavegen_vif[chip_num].hex_data_b[i] = 8'hFF; // expected hex values
+
+// Saving data for all points of 2 phases to wave_vif
+    for (int i; i < 16; i++) begin 
+      //mem_tmp = top_test_cfg.sine_data[i];
+      for (int j = 0; j < 128; j++)
+        mem_tmp[j] = 8'hFF;
+
+      for (int k=0; k < top_env.wavegen_vif[chip_num].no_of_point_a; k++) begin
+        top_env.wavegen_vif[chip_num].hex_data_a[i][k] = mem_tmp[k]; // expected hex values
+        top_env.wavegen_vif[chip_num].hex_data_b[i][k] = mem_tmp[k]; // expected hex values
+      end
     end
+
+    //for (int i=0; i < top_env.wavegen_vif[chip_num].no_of_point_a; i++) begin
+    //  top_env.wavegen_vif[chip_num].hex_data_a[i] = 8'hFF; // expected hex values
+    //  top_env.wavegen_vif[chip_num].hex_data_b[i] = 8'hFF; // expected hex values
+    //end
     top_env.wavegen_vif[chip_num].pos_neg_from_same_addr = top_test_cfg.POS_NEG_DIFF; 
     top_env.wavegen_vif[chip_num].load_wave_data_till_points = top_test_cfg.LOAD_POINTS; 
     top_env.wavegen_vif[chip_num].no_of_waveforms = top_test_cfg.NO_OF_WAVEFORMS; 

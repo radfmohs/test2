@@ -288,6 +288,7 @@ class `TESTNAME extends soc_base_test;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
                 force `DIG_TOP.u_pinmux.i_anac_int = 0;
+		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
                 `ifndef BEHAVIORAL
                    force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
                    int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
@@ -307,13 +308,15 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_lead_off_int;
                 release `DIG_TOP.u_pinmux.i_eeg_int;
                 release `DIG_TOP.u_pinmux.i_tsc_int;
-                release `DIG_TOP.u_pinmux.i_anac_int;		
+                release `DIG_TOP.u_pinmux.i_anac_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;		
                 
 		//--------------------Check i_lead_off_int-----------------//
                 force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 	        force `DIG_TOP.u_pinmux.i_eeg_int = 0; 	
                 force `DIG_TOP.u_pinmux.i_tsc_int = 0;
 		force `DIG_TOP.u_pinmux.i_anac_int = 0;
+		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 
                 `ifndef BEHAVIORAL
                    release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL; 
@@ -336,13 +339,15 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_wg_drviver_int;
                 release `DIG_TOP.u_pinmux.i_eeg_int;
                 release `DIG_TOP.u_pinmux.i_tsc_int;
-                release `DIG_TOP.u_pinmux.i_anac_int;		
+                release `DIG_TOP.u_pinmux.i_anac_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;		
 
                 // ----------------------Check i_eeg_int-----------------------//
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
 		force `DIG_TOP.u_pinmux.i_anac_int = 0;
+		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 
                 `ifndef BEHAVIORAL
                    release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
@@ -358,7 +363,7 @@ class `TESTNAME extends soc_base_test;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_eeg_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_lead_off_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
+                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_eeg_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
                   end
                   release `DIG_TOP.u_pinmux.i_eeg_int;
                 end
@@ -366,12 +371,14 @@ class `TESTNAME extends soc_base_test;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 		release `DIG_TOP.u_pinmux.i_tsc_int;
 		release `DIG_TOP.u_pinmux.i_anac_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;
 
 		// ----------------------Check i_tsc_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_anac_int = 0;
+                force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 
                 `ifndef BEHAVIORAL
                    release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
@@ -387,7 +394,7 @@ class `TESTNAME extends soc_base_test;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_tsc_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_lead_off_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
+                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_tsc_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
                   end
                   release `DIG_TOP.u_pinmux.i_tsc_int;
                 end
@@ -395,12 +402,14 @@ class `TESTNAME extends soc_base_test;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 	        release `DIG_TOP.u_pinmux.i_eeg_int;
 		release `DIG_TOP.u_pinmux.i_anac_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;
 
 		// ----------------------Check i_anac_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
+                force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 
                 `ifndef BEHAVIORAL
                    release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
@@ -416,7 +425,37 @@ class `TESTNAME extends soc_base_test;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_anac_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_lead_off_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
+                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_anac_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
+                  end
+                  release `DIG_TOP.u_pinmux.i_anac_int;
+                end
+                release `DIG_TOP.u_pinmux.i_lead_off_int;
+		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
+		release `DIG_TOP.u_pinmux.i_eeg_int;
+		release `DIG_TOP.u_pinmux.i_tsc_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;
+
+		// ----------------------Check i_nirs_int-----------------------
+		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
+		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
+		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
+
+                `ifndef BEHAVIORAL
+                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
+                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
+                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
+                `else 
+                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
+                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
+                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
+                `endif
+                for (int i=0; i < 100; i++) begin
+                  force `DIG_TOP.u_pinmux.i_nirs_int = $random;
+                  #10000ns;
+                  rand_bit = `DIG_TOP.u_pinmux.i_nirs_int;
+                  if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
+                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is not as expectation of i_nirs_int = %b",`SOC_TOP.IOBUF_PAD[8], rand_bit))
                   end
                   release `DIG_TOP.u_pinmux.i_anac_int;
                 end
@@ -489,6 +528,19 @@ class `TESTNAME extends soc_base_test;
                     `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[13] = %b is not as expectation of `DIG_TOP.u_pinmux.o_A2D_COMP1 = %b", `SOC_TOP.IOBUF_PAD[13], rand_bit))
                   end
                   release `DIG_TOP.u_pinmux.o_A2D_COMP1;
+                end
+
+                // ----------------------------------------------------------
+                // Checking NIRS_LED_ON1 output pin- `SOC_TOP.IOBUF_PAD[14]
+                // ----------------------------------------------------------
+                for (int i=0; i < 100; i++) begin
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = $random;
+                  #10000ns;
+                  rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON0;
+                  if (`SOC_TOP.IOBUF_PAD[14] !== rand_bit) begin
+                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[14] = %b is not as expectation of `DIG_TOP.u_pinmux.NIRS_LED_ON0 = %b", `SOC_TOP.IOBUF_PAD[14], rand_bit))
+                  end
+                  release `DIG_TOP.u_pinmux.NIRS_LED_ON0;
                 end
 
                 // ----------------------------------------------------------
@@ -582,6 +634,8 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.NIRS_LED_ON7;
                 end
 
+
+                /*
                 // -------------------------------------------------------------------------------------------------------------------------------
                 // Checking NIRS_LED_ON0/NIRS_RESET_SW0/NIRS_IPD_SW0/NIRS_IIN_SW0/A2D_IREFCOARSE0/A2D_IREFFINE0 output pin- `SOC_TOP.IOBUF_PAD[14]
                 // -------------------------------------------------------------------------------------------------------------------------------
@@ -639,7 +693,7 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.NIRS_IPD_SW0;
                   release `DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
                   release `DIG_TOP.u_pinmux.A2D_IREFFINE0;
-                end
+                end */
 
                 
 

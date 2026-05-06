@@ -181,52 +181,52 @@ file mkdir ../data/synthesis_l3
 file mkdir ../report/synthesis_l3
 
 # create canonical scan boundary ports
-create_port -direction in  {b_scan_clk b_scan_en b_testmode b_scan_in}
-create_port -direction out {b_scan_out}
+#create_port -direction in  {b_scan_clk b_scan_en b_testmode b_scan_in}
+#create_port -direction out {b_scan_out}
 
-set_dft_signal -view spec         -type ScanClock   -port b_scan_clk
-set_dft_signal -view existing_dft -type ScanClock   -port b_scan_clk -timing {35 65}
+#set_dft_signal -view spec         -type ScanClock   -port b_scan_clk
+#set_dft_signal -view existing_dft -type ScanClock   -port b_scan_clk -timing {35 65}
 
-set_dft_signal -view spec -type ScanEnable  -port b_scan_en   -active_state 1
-set_dft_signal -view spec -type ScanDataIn  -port b_scan_in
-set_dft_signal -view spec -type ScanDataOut -port b_scan_out
-set_dft_signal -view spec -type TestMode    -port atpg_en     ;# block test mode
+#set_dft_signal -view spec -type ScanEnable  -port b_scan_en   -active_state 1
+#set_dft_signal -view spec -type ScanDataIn  -port b_scan_in
+#set_dft_signal -view spec -type ScanDataOut -port b_scan_out
+#set_dft_signal -view spec -type TestMode    -port atpg_en     ;# block test mode
 
 # Resets stay resets only (do NOT use as scan ports)
-foreach r {presetn cic_rst_n} {
-  set_dft_signal -view spec         -type Reset -port $r -active_state 0
-  set_dft_signal -view existing_dft -type Reset -port $r -active_state 0
-}
+#foreach r {presetn cic_rst_n} {
+#  set_dft_signal -view spec         -type Reset -port $r -active_state 0
+#  set_dft_signal -view existing_dft -type Reset -port $r -active_state 0
+#}
 
 # Functional test clocks for DRC/control
-set func_clks {clk notch_clk lpf_clk hpf_clk pclk adc_clk}
-foreach c $func_clks {
-  set_dft_signal -view spec         -type TestClock -port $c
-  set_dft_signal -view existing_dft -type TestClock -port $c -timing {45 55}
-}
+#set func_clks {clk notch_clk lpf_clk hpf_clk pclk adc_clk}
+#foreach c $func_clks {
+#  set_dft_signal -view spec         -type TestClock -port $c
+#  set_dft_signal -view existing_dft -type TestClock -port $c -timing {45 55}
+#}
 
 # Scan config
-set_scan_configuration -style multiplexed_flip_flop \
-                       -clock_mixing mix_clocks \
-                       -add_lockup true -lockup_type latch \
-                       -chain_count 1 -replace true
-set_dft_configuration  -scan_compression disable
-set_dft_insertion_configuration -preserve_design_name true -synthesis_optimization none
+#set_scan_configuration -style multiplexed_flip_flop \
+#                       -clock_mixing mix_clocks \
+#                       -add_lockup true -lockup_type latch \
+#                       -chain_count 1 -replace true
+#set_dft_configuration  -scan_compression disable
+#set_dft_insertion_configuration -preserve_design_name true -synthesis_optimization none
 
 # Test timing
-set test_default_period 100.0
-set test_default_delay  5.0
-set test_default_strobe 90.0
+#set test_default_period 100.0
+#set test_default_delay  5.0
+#set test_default_strobe 90.0
 
-create_test_protocol -capture_procedure multi_clock
+#create_test_protocol -capture_procedure multi_clock
 
-dft_drc -verbose > ../report/synthesis_l3/dft_drc_l3.log
-insert_dft
-compile_ultra -incremental
+#dft_drc -verbose > ../report/synthesis_l3/dft_drc_l3.log
+#insert_dft
+#compile_ultra -incremental
 
 change_names -rules verilog -hierarchy
 
-write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.scan.v
+write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l3/single_channel.ddc
