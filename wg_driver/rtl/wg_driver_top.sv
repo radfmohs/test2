@@ -35,25 +35,21 @@ parameter ADDR_WIDTH = 12,
 
 // Digital side interface
 //clock and reset
-  input          		i_pclk,          // pclk
+  input          		i_pclk[ELEC_NO-1:0],// pclk
 //  input          		i_pclkg,         // gated clock
   input          		i_presetn,       // reset
   input wire                    scan_mode,  //tri add
   input  wire                   int_length_slct,
+  input  wire                   start_with_silent[ELEC_NO-1:0],
 
   output wire  [7:0] in_wave_addr[ELEC_NO-1:0], //
   output wire  [7:0] ems_wave_addr[ELEC_NO-1:0], //
-  input  wire        wg_driver_in_wave_wr0[ELEC_NO-1:0],
-  input  wire  [7:0] wg_driver_in_wave_data_wr0[ELEC_NO-1:0],
-  input  wire  [7:0] wg_driver_in_wave_addr[ELEC_NO-1:0],
-  output wire  [7:0] wg_driver_in_wave[ELEC_NO-1:0],
-
   output wire  [1:0] w_source[ELEC_NO-1:0],
   output reg   o_sw[ELEC_NO-1:0],
 //  output wire [7:0] hlf_wave_cnt[ELEC_NO-1:0],
   output wire [1:0] period_num[ELEC_NO-1:0],
 
-  input wire  [15:0] rest_t[ELEC_NO-1:0], 	//resting time (in microseconds) between the positive side and the negative side of the wave in a period
+  input wire  [23:0] rest_t[ELEC_NO-1:0], 	//resting time (in microseconds) between the positive side and the negative side of the wave in a period
   input wire  [31:0] silent_t[ELEC_NO-1:0], 	//silent time (in microseconds) before the next wave period
   input wire  [15:0] rest_t1[ELEC_NO-1:0], 	//resting time (in microseconds) between the positive side and the negative side of the wave in a period
   input wire  [31:0] silent_t1[ELEC_NO-1:0], 	//silent time (in microseconds) before the next wave period
@@ -148,7 +144,7 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
 		.delay_lim		(delay_lim[i]), 
 //		.clk_freq		(clk_freq[i]), //clock frequency in MHz
 		.i_config_reg		(config_reg[i]), //bit 0:rest enable, 1:negative enable, 2: silent enable, 3: source B enable, 4: alternating (+/-) the positive side
-		.clk			(i_pclk),
+		.clk			(i_pclk[i]),
 		.reset			(i_presetn),
                 .scan_mode              (scan_mode),   //tri change
                 .int_length_slct(int_length_slct),
@@ -165,6 +161,7 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
                 .wg_driver_interrupt  (w_interrupt[i]),
 		.o_in_wave_addr	      (in_wave_addr[i]),
 		.o_ems_wave_addr      (ems_wave_addr[i]),
+                .start_with_silent    (start_with_silent[i]),
 
                 .i_data_scl                    (i_data_scl[i]),
                 .i_ems_data_ctrl               (i_ems_data_ctrl[i]),
@@ -232,26 +229,6 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
 		 .o_wg_driver_interrupt		(w_interrupt[i])
 	);
 */
-  wg_sram_top #(
-    .AW (7),
-    .DW (8))
-  u_wg_sram_top (
-    .mbist_mode     (1'b0),
-    .scan_mode      (scan_mode),
-    .scan_enable    (1'b0),
-    .clk            (i_pclk),
-    .rst_n          (i_presetn),
-    .waddr          (wg_driver_in_wave_addr[i][6:0]),
-    .raddr          (ems_wave_addr[i][6:0]),
-    .write          (wg_driver_in_wave_wr0[i]),
-    .wdata          (wg_driver_in_wave_data_wr0[i]),
-    .rdata          (wg_driver_in_wave[i]),
-    .sram_bist_clk  (1'b0),
-    .sram_bist_rstn (1'b1),
-    .sram_bist_done (),
-    .sram_bist_fail ()
-  );
-
 end
 
 //assign o_driver_enable = 	|w_enable;

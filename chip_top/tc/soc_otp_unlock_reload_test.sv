@@ -31,10 +31,10 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
-  logic [7:0] save_trim_wdata[11] = '{default : 8'h0};
-  logic [7:0] prev_wdata[11];
-  logic [7:0] cur_wdata[11];   
-  logic [7:0] trim_wdata[11] = '{default : 8'h0};
+  logic [7:0] save_trim_wdata[15] = '{default : 8'h0};
+  logic [7:0] prev_wdata[15];
+  logic [7:0] cur_wdata[15];   
+  logic [7:0] trim_wdata[15] = '{default : 8'h0};
   rand logic [7:0] otp_wdata[512];
   logic [7:0]      temp_otp_wdata[512];
   rand logic [8:0] otp_data_addr;
@@ -170,7 +170,7 @@ class `TESTNAME extends soc_base_test;
     // -------------------
     // Scoreboard enables
     // -------------------
-    `SPI_SCB_EN = 1'b1;    
+    `SPI_SCB_EN = 1'b0;    
     // `FLASH_SCOREBOARD_EN = 1;
     // `SPIM_SCOREBOARD_EN = 1;
     // `ANALOG_SCOREBOARD_EN = 1;
@@ -192,7 +192,7 @@ class `TESTNAME extends soc_base_test;
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
 `ifndef MIX_SIM_EN   
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     $display("===============================================");
     $display("Step 1: Reload invaild with failed trim_tag");
     $display("===============================================");
@@ -207,12 +207,12 @@ class `TESTNAME extends soc_base_test;
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
             
     //set trim_reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; foreach(data[i]) data[i]>8'h0;});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
            
-    foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[7-i];
+    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[14-i];
 
-    for (int i=0; i<8 ; i++) begin
+    for (int i=0; i<15 ; i++) begin
       `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
 
@@ -257,11 +257,11 @@ class `TESTNAME extends soc_base_test;
       
     
     //read trim_reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]);
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]);
 
 
-    if(top_test_cfg.save_trim_wdata[0:7] === top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
+    if(top_test_cfg.save_trim_wdata[0:14] === top_test_cfg.rd_data[0:14]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
 
 //Step 2 : Unlock invaild with no operate for unlock reg           
     $display("===============================================");
@@ -274,7 +274,7 @@ class `TESTNAME extends soc_base_test;
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_0_REG; no_of_bytes == 1; data[0] == 8'h5a;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; foreach(data[i]) data[i]>8'h0;});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);    
         
     //set unlock bit0:unlock
@@ -292,12 +292,12 @@ class `TESTNAME extends soc_base_test;
     #1000us; 
 
     //if(top_test_cfg.rd_data[0][7] !== 1'b1) `nnc_error("SOC_TEST", "trim tag is vaild!!!");
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     //read trim_reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]);
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]);
 
-    if(top_test_cfg.save_trim_wdata[0:7] === top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
+    if(top_test_cfg.save_trim_wdata[0:14] === top_test_cfg.rd_data[0:14]) `nnc_error("SOC_TEST", "save_trim_wdata == rd_data !!!")
         
     //Step 3 : Unlock vaild with trim_tag 5A and unlock_key 10101
     $display("===========================================================");
@@ -313,11 +313,11 @@ class `TESTNAME extends soc_base_test;
    `nnc_info("SOC_TEST", $sformatf("TRIM_TAG=%8h ", top_test_cfg.data[0]), UVM_LOW) 
 
     //set trim_reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8;foreach(data[i]) data[i]>8'h0;});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15;foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);   
-     foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] |= top_test_cfg.data[7-i];
+     foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] |= top_test_cfg.data[14-i];
 
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<15 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
     
@@ -368,16 +368,16 @@ class `TESTNAME extends soc_base_test;
     if(top_test_cfg.rd_data[0] !== 8'b0000_1001) `nnc_error("SOC_TEST", $sformatf("READ PMU_REG0 =%h, Expected Data=%h!!!", top_test_cfg.rd_data[0],  8'b0000_1001))
     else `nnc_info("SOC_TEST", $sformatf("READ PMU_REG0 =%h ", top_test_cfg.rd_data[0]), UVM_LOW) 
 
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     //read trim_reg
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM DATA"), UVM_LOW)
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]);
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]);
      #10ms;    
     //if(top_test_cfg.save_trim_wdata[0:7] !== top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata !== rd_data !!!")
-    for(int i=0; i<8 ; i++) begin
-        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8h !== rd_data %8h!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h === rd_data %8h!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    for(int i=0; i<15 ; i++) begin
+        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8h !== rd_data %8h!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h === rd_data %8h!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
 //Step 4 : Only unlock check reload trim
@@ -430,16 +430,16 @@ class `TESTNAME extends soc_base_test;
 
     enable_otp_clk_gating();
 
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     //read trim_reg
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM DATA"), UVM_LOW)    
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]);
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]);
 
     //if(top_test_cfg.save_trim_wdata[0:7] !== top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata !== rd_data !!!")
-    for(int i=0; i<8 ; i++) begin
-        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    for(int i=0; i<15 ; i++) begin
+        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
 // Step 5 : 2 times unlock because this test copy from ENS1P4 , in ENs1p4 unlock repeat will case error
@@ -487,15 +487,15 @@ class `TESTNAME extends soc_base_test;
 
     enable_otp_clk_gating();
 
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     //read trim_reg
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM DATA"), UVM_LOW)    
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]);
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]);
 
-    for(int i=0; i<8 ; i++) begin
-        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    for(int i=0; i<15 ; i++) begin
+        if(top_test_cfg.save_trim_wdata[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
     #100000ns;
@@ -580,12 +580,12 @@ class `TESTNAME extends soc_base_test;
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 
     //2. Data ready: write the data to spi trim reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8;foreach(data[i]) data[i]>8'h0;});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15;foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);   
     //foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] &= top_test_cfg.data[7-i];
-    foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[7-i];
+    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[14-i];
 
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<15 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
     
@@ -631,7 +631,7 @@ class `TESTNAME extends soc_base_test;
     //top_test_cfg.otp_data_addr.rand_mode(0);
     top_test_cfg.temp_otp_wdata = top_test_cfg.otp_wdata;
    
-    for(addr =16; addr < 17/*256*/ ; addr++) begin
+    for(addr =20; addr < 21/*256*/ ; addr++) begin
        //top_test_cfg.otp_data_addr = i ;
       `nnc_info("SOC_TEST", $sformatf("otp addr =%h, otp_wdata[%h] = %h, temp_otp_wdata[%h] =%h ", addr, addr, top_test_cfg.otp_wdata[addr], addr, top_test_cfg.temp_otp_wdata[addr]), UVM_LOW) 
 
@@ -862,14 +862,14 @@ task wait_reload_done();
     end while (top_test_cfg.rd_data[0][5] == 1'b0);
 endtask
 
-task read_and_compare_trim_reg_data(logic [7:0] prev_wdata_1[11], logic [7:0] cur_wdata_1[11]);
-    top_test_cfg.rd_data = new[8];
+task read_and_compare_trim_reg_data(logic [7:0] prev_wdata_1[15], logic [7:0] cur_wdata_1[15]);
+    top_test_cfg.rd_data = new[15];
     //read trim_reg
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM DATA"), UVM_LOW)
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]); 
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]); 
     
-    for (int i =0; i<8; i++)begin
+    for (int i =0; i<15; i++)begin
         `nnc_info("SOC_TEST", $sformatf("for-loop i=%h prev_wdata=%h curr_wdata=%h", i, prev_wdata_1[i], cur_wdata_1[i]), UVM_LOW)
         //if((top_test_cfg.prev_wdata[i] ===  1'b0) && (top_test_cfg.save_trim_wdata[i] === 1'b1))begin     // 0==>1
         //     top_test_cfg.cur_wdata[i] = 1'b1; //top_test_cfg.save_trim_wdata[i]; //1; 
@@ -887,21 +887,21 @@ task read_and_compare_trim_reg_data(logic [7:0] prev_wdata_1[11], logic [7:0] cu
     end 
 
     //if(top_test_cfg.save_trim_wdata[0:7] !== top_test_cfg.rd_data[0:7]) `nnc_error("SOC_TEST", "save_trim_wdata !== rd_data !!!")
-    for(int i=0; i<8 ; i++) begin
-        if(top_test_cfg.cur_wdata[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("READ DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", top_test_cfg.cur_wdata[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("READ DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", top_test_cfg.cur_wdata[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    for(int i=0; i<15 ; i++) begin
+        if(top_test_cfg.cur_wdata[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("READ DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", top_test_cfg.cur_wdata[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("READ DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", top_test_cfg.cur_wdata[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
 endtask 
 
-task read_and_compare_trim_shadowreg_data(logic [7:0] cur_wdata_1[11]);
-    top_test_cfg.rd_data = new[8];
+task read_and_compare_trim_shadowreg_data(logic [7:0] cur_wdata_1[15]);
+    top_test_cfg.rd_data = new[15];
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM SHADOW REG DATA"), UVM_LOW)
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]); 
-    for(int i=0; i<8 ; i++) begin
-        if(cur_wdata_1[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("READ SHADOW REG DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("READ SHADOW REG DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]); 
+    for(int i=0; i<15 ; i++) begin
+        if(cur_wdata_1[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("READ SHADOW REG DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("READ SHADOW REG DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
 
@@ -914,17 +914,17 @@ task set_valid_tag();
 endtask 
 
 task spi_wr_to_trim_reg();
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<15 ; i++) begin
       top_test_cfg.prev_wdata[i] = top_test_cfg.save_trim_wdata[i];
       `nnc_info("SOC_TEST", $sformatf("save_trim_wdata=%8h, prev_trim_wdata %8h ",  top_test_cfg.save_trim_wdata[i], top_test_cfg.prev_wdata[i]), UVM_LOW)
     end 
   
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8;foreach(data[i]) data[i]>8'h0;});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15;foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);   
-    foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[7-i];
+    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[14-i];
     //foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] |= top_test_cfg.data[7-i];
 
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<15 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
 endtask

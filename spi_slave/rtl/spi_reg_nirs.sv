@@ -324,6 +324,8 @@ end
       `NIRS_CTRL_6        :  reg_rd_data  <= nirs_ctrl_tmp[6];
       `NIRS_CTRL_7        :  reg_rd_data  <= nirs_ctrl_tmp[7];
       `NIRS_CTRL_8        :  reg_rd_data  <= nirs_ctrl_tmp[8];
+
+      `NIRS_DEBUG_SEL     :  reg_rd_data  <= {3'b0, nirs_debug_sel_reg};
       `NIRS_DEBUG_0       :  reg_rd_data  <= nirs_debug_tmp[0];
       `NIRS_DEBUG_1       :  reg_rd_data  <= nirs_debug_tmp[1];
       `NIRS_DEBUG_2       :  reg_rd_data  <= nirs_debug_tmp[2];

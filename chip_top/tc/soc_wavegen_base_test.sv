@@ -26,9 +26,10 @@ class `TESTCFG extends soc_base_test_cfg;
 
   //rand logic [7:0] expected_data;
   //logic [7:0]      rd_data[];
-    rand logic [15:0] drive_mode_en; // 1: positive; from DATA, negative: all will be 0s, 1: positive: all will be 0s and negative from DATA
+    rand logic [15:0] wavegen_drv_mode; // 0: Source and 1: Pull
     rand logic [7:0]  wg_glb_reg;
     rand logic [7:0]  pads;
+    rand logic [15:0] wavegen_drv_en;   // 0: disable, 1: enable
   // -----------------------------------------------
   // End of decalration of new variables 
   // ===============================================
@@ -52,7 +53,9 @@ class `TESTCFG extends soc_base_test_cfg;
   // at the time
     constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
-    constraint c_drive_mode_en  {drive_mode_en == 16'hAAAA;}
+    constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0002;} // 0 is Source and 1 is Sink 
+
+    constraint c_wavegen_drv_en {wavegen_drv_en == 16'h0003;} // 0 and 1 is enabled
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
@@ -100,7 +103,9 @@ class `TESTNAME extends soc_base_test;
 
     // 00: Driver0-3, 01: Driver4-7, 10: Driver8-11, 11: Driver12-15
     `DUT_IF.DRIVE_SLCT = top_test_cfg.wg_glb_reg[2:1];
-    `DUT_IF.drive_mode_en = top_test_cfg.drive_mode_en;
+    `DUT_IF.wavegen_drv_mode = top_test_cfg.wavegen_drv_mode;
+    `DUT_IF.wavegen_drv_en = top_test_cfg.wavegen_drv_en;
+
     // -------------------
     // Scoreboard enables
     // -------------------

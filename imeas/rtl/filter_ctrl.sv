@@ -38,7 +38,7 @@ output wire nf_done,
 
 output wire [2:0] hpf_cnt,
 output wire [4:0] lpf_cnt,
-output wire [5:0] nf_cnt,
+output wire [4:0] nf_cnt,
 
 output reg        lpf_cnt_flag,
 
@@ -68,8 +68,8 @@ wire hpf_ready,lpf_ready,nf_ready,data_done;
 wire timeout_flg;
 //counter
 localparam HPF_CNT_TAR = 6'h6;
-localparam LPF_CNT_TAR = 6'h1d;
-localparam NF_CNT_TAR  = 6'h24;
+localparam LPF_CNT_TAR = 6'h1D;
+localparam NF_CNT_TAR  = 6'h18;
 localparam TIME_OUT    = 6'h3f;
 
 reg [5:0] fsm_cnt;
@@ -83,7 +83,7 @@ assign timeout_flg = (cur_state != S_IDLE) & (fsm_cnt==TIME_OUT);
 assign hpf_cnt  = hpf_fsm? (fsm_cnt<HPF_CNT_TAR)? fsm_cnt[2:0] : 3'b0  : 3'b0;
 assign lpf_cnt  = lpf_fsm?  fsm_cnt[4:0] : 5'h1B;
 //assign nf_cnt   = nf_fsm ? (fsm_cnt<NF_CNT_TAR )? fsm_cnt[5:0] : 6'b0  : 6'b0;
-assign nf_cnt   = fsm_cnt[5:0] & {6{nf_fsm}};
+assign nf_cnt   = fsm_cnt[4:0] & {5{nf_fsm}};
 
 always_ff@(posedge clk_r or negedge rst_n) begin
   if(~rst_n)begin
@@ -92,7 +92,7 @@ always_ff@(posedge clk_r or negedge rst_n) begin
   nf_sw_flg <= 1'b0;
   end
   else if(lpf_ready) begin
-  fsm_cnt <= 6'h1b; 
+  fsm_cnt <= 6'h1B; 
   lpf_cnt_flag <= 1'b1;
   end
   else begin
@@ -156,11 +156,11 @@ always_comb begin
         if(hpf_en)begin
          next_state = S_HPF;
         end
-        else if(lpf_en) begin
-         next_state = S_LPF;
-        end
         else if(nf_en) begin
          next_state = S_NF;
+        end
+        else if(lpf_en) begin
+         next_state = S_LPF;
         end
         else begin
          next_state = S_IDLE;
@@ -173,14 +173,14 @@ always_comb begin
 
   S_HPF :begin
      if(hpf_done) begin
-        if(lpf_en) begin
-         next_state = S_LPF;
-        end
-        else if(nf_en) begin
+        if(nf_en) begin
          next_state = S_NF;
         end
+        else if(lpf_en) begin
+         next_state = S_LPF;
+        end
         else begin
-         next_state = S_HPF;
+         next_state = S_IDLE;
         end 
      end
      else begin
@@ -188,29 +188,29 @@ always_comb begin
      end
   end
 
-  S_LPF :begin
-     if(lpf_done) begin
-        if(nf_en) begin
-         next_state = S_NF;
-        end
-        else begin
-         next_state = S_LPF;
-        end       
-     end
-     else begin
-      next_state = S_LPF;
-     end
-  end
-          
   S_NF :begin
      if(nf_done) begin
-      next_state = S_FILTER_DONE;
+       if(lpf_en) begin         
+         next_state = S_LPF;
+       end
+       else begin
+         next_state = S_IDLE;
+       end
      end
      else begin
       next_state = S_NF;
      end
   end
 
+  S_LPF :begin
+     if(lpf_done) begin        
+         next_state = S_FILTER_DONE;
+     end       
+     else begin
+         next_state = S_LPF;
+     end       
+  end
+          
   S_FILTER_DONE :begin
       next_state = S_IDLE;
   end
@@ -226,9 +226,9 @@ end
 //state-3
 
 assign hpf_ready = (cur_state==S_IDLE) & (next_state==S_HPF);
-assign lpf_ready = (cur_state==S_IDLE) & (next_state==S_LPF) | ((cur_state==S_HPF)  & (next_state==S_LPF));
-assign nf_ready  = (cur_state==S_IDLE) & (next_state==S_NF)  | ((cur_state==S_HPF)  & (next_state==S_NF)) | ((cur_state==S_LPF)  & (next_state==S_NF));
-assign data_done = (cur_state==S_NF)   & (next_state==S_FILTER_DONE);
+assign lpf_ready = (cur_state==S_IDLE) & (next_state==S_LPF) | ((cur_state==S_HPF)  & (next_state==S_LPF)) | ((cur_state==S_NF)  & (next_state==S_LPF));
+assign nf_ready  = (cur_state==S_IDLE) & (next_state==S_NF)  | ((cur_state==S_HPF)  & (next_state==S_NF));
+assign data_done = (cur_state==S_LPF)   & (next_state==S_FILTER_DONE);
 
 
 always_ff@(posedge clk_r or negedge rst_n) begin

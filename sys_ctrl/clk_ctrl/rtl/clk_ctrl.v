@@ -72,9 +72,16 @@ input  wire         imeas_working_sync,
 input  wire         imeas_working,
 input  wire [15:0]  en_channels,
 
-input   wire    iclk_pga_disable,               // pga clock disable 
-input   wire  [2:0]  iclk_div_pga,               // pga clock divider
-output  wire 	     pga_ana_clk,
+input   wire    iclk_ina_pga_disable,               // ina_pga clock disable 
+input   wire  [2:0]  iclk_div_ina_pga,               // ina_pga clock divider
+output  wire 	     ina_pga_ana_clk,
+
+input   wire         iclk_stim_monitor_enable,               // stim monitor clock enable 
+input   wire  [3:0]  iclk_div_stim_monitor,               // stim monitor clock divider
+input   wire        iclk_stim_monitor_inv,               
+output  wire 	     stim_monitor_ana_clk,
+output  wire 	     stim_monitor_dig_clk,
+output  wire 	     stim_monitor_clk_running,
 
 input  wire  [3:0]  iclk_div,               // imeas adc clock divider
 input  wire	    imeas_adc_inv,	    // invert the input to analog imeas if 1, otherwise not inverted
@@ -743,76 +750,194 @@ common_clock_gate u_cmsdk_clock_gate_analog_adcclk (
   );
 `endif
 
-//for pga clock
+//for ina_pga clock
 //++++++++++++++++++++++++++++++++++++
-reg  [6:0]   iclk_div_pga_cnt;
-reg  [6:0]   iclk_div_pga_num;
+reg  [6:0]   iclk_div_ina_pga_cnt;
+reg  [6:0]   iclk_div_ina_pga_num;
 always @ (*) begin
-  case (iclk_div_pga)
-    3'b001: iclk_div_pga_num = 7'd0;
-    3'b010: iclk_div_pga_num = 7'd1;
-    3'b011: iclk_div_pga_num = 7'd3;
-    3'b100: iclk_div_pga_num = 7'd7;
-    3'b101: iclk_div_pga_num = 7'd15;
-    3'b110: iclk_div_pga_num = 7'd31;
-    3'b111: iclk_div_pga_num = 7'd63;
-    default: iclk_div_pga_num = 7'd0;
+  case (iclk_div_ina_pga)
+    3'b001: iclk_div_ina_pga_num = 7'd0;
+    3'b010: iclk_div_ina_pga_num = 7'd1;
+    3'b011: iclk_div_ina_pga_num = 7'd3;
+    3'b100: iclk_div_ina_pga_num = 7'd7;
+    3'b101: iclk_div_ina_pga_num = 7'd15;
+    3'b110: iclk_div_ina_pga_num = 7'd31;
+    3'b111: iclk_div_ina_pga_num = 7'd63;
+    default: iclk_div_ina_pga_num = 7'd0;
   endcase
 end
 
 always @ (posedge fclk or negedge poresetn) begin
   if (~poresetn) 
-    iclk_div_pga_cnt <= 7'b0;
-  else if (iclk_div_pga_cnt >= iclk_div_pga_num)
-    iclk_div_pga_cnt <= 7'b0;
+    iclk_div_ina_pga_cnt <= 7'b0;
+  else if (iclk_div_ina_pga_cnt >= iclk_div_ina_pga_num)
+    iclk_div_ina_pga_cnt <= 7'b0;
   else
-    iclk_div_pga_cnt <= iclk_div_pga_cnt + 7'b1;
+    iclk_div_ina_pga_cnt <= iclk_div_ina_pga_cnt + 7'b1;
 end
 
-reg div_pga_fclk_d;
-reg div_pga_fclk_d_1t;
+reg div_ina_pga_fclk_d;
+reg div_ina_pga_fclk_d_1t;
 always @ (*) begin
-    if (iclk_div_pga_cnt >= iclk_div_pga_num)
-        div_pga_fclk_d = ~div_pga_fclk_d_1t;
+    if (iclk_div_ina_pga_cnt >= iclk_div_ina_pga_num)
+        div_ina_pga_fclk_d = ~div_ina_pga_fclk_d_1t;
     else
-        div_pga_fclk_d = div_pga_fclk_d_1t;
+        div_ina_pga_fclk_d = div_ina_pga_fclk_d_1t;
 end
 
 always @ (posedge fclk or negedge poresetn) begin
     if (~poresetn)
-        div_pga_fclk_d_1t <= 1'b0;
+        div_ina_pga_fclk_d_1t <= 1'b0;
     else
-        div_pga_fclk_d_1t <= div_pga_fclk_d;
+        div_ina_pga_fclk_d_1t <= div_ina_pga_fclk_d;
 end
 
   // creat_generate_clk here
-  DFFRHQ_X4_A7TULL DFF_DIV_PGA_FCLK (.Q(div_pga_fclk_q), .CK(fclk), .D(div_pga_fclk_d), .RN(poresetn));
+  wire div_ina_pga_fclk_q;
+  DFFRHQ_X4_A7TULL DFF_DIV_PGA_FCLK (.Q(div_ina_pga_fclk_q), .CK(fclk), .D(div_ina_pga_fclk_d), .RN(poresetn));
 
-  wire not_div_pga;
-  assign not_div_pga = (iclk_div_pga == 3'b000);
+  wire not_div_ina_pga;
+  assign not_div_ina_pga = (iclk_div_ina_pga == 3'b000);
 
-  wire div_pga_fclk_q_final;
-  wire iclk_pga;
-  CLKMX2_X4_A7TULL DNT_DIV_PGA_CLK (.A(div_pga_fclk_q), .B(fclk), .S0(not_div_pga), .Y(div_pga_fclk_q_final));
-  CLKMX2_X4_A7TULL DNT_DIV_PGA_FCLK_ATPG (.A(div_pga_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk_pga));
+  wire div_ina_pga_fclk_q_final;
+  wire iclk_ina_pga;
+  CLKMX2_X4_A7TULL DNT_DIV_PGA_CLK (.A(div_ina_pga_fclk_q), .B(fclk), .S0(not_div_ina_pga), .Y(div_ina_pga_fclk_q_final));
+  CLKMX2_X4_A7TULL DNT_DIV_PGA_FCLK_ATPG (.A(div_ina_pga_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk_ina_pga));
 
-wire iclk_pga_disable_sync;
-common_sync_bit u_pga_clk_sync(
-  .async_in(iclk_pga_disable),
-  .clk(iclk_pga),
+wire iclk_ina_pga_disable_sync;
+common_sync_bit u_ina_pga_clk_sync(
+  .async_in(iclk_ina_pga_disable),
+  .clk(iclk_ina_pga),
   .rst_(poresetn),      
-  .sync_out(iclk_pga_disable_sync)
+  .sync_out(iclk_ina_pga_disable_sync)
 );	
 
-common_clock_gate u_pga_clk_gate (
-  .clk(iclk_pga),
-  .enable(~iclk_pga_disable_sync),
+common_clock_gate u_ina_pga_clk_gate (
+  .clk(iclk_ina_pga),
+  .enable(~iclk_ina_pga_disable_sync),
   .bypass(atpg_en),
-  .gated_clk(pga_ana_clk)
+  .gated_clk(ina_pga_ana_clk)
 );
 
 //++++++++++++++++++++++++++++++++++++
+//for stim_monitor clock
+//++++++++++++++++++++++++++++++++++++
+reg  [10:0]   iclk_div_stim_monitor_cnt;
+reg  [10:0]   iclk_div_stim_monitor_num;
+always @ (*) begin
+  case (iclk_div_stim_monitor)
+    4'b001: iclk_div_stim_monitor_num = 11'd0;
+    4'b010: iclk_div_stim_monitor_num = 11'd1;
+    4'b011: iclk_div_stim_monitor_num = 11'd3;
+    4'b100: iclk_div_stim_monitor_num = 11'd7;
+    4'b101: iclk_div_stim_monitor_num = 11'd15;
+    4'b110: iclk_div_stim_monitor_num = 11'd31;
+    4'b111: iclk_div_stim_monitor_num = 11'd63;
+    4'b1000: iclk_div_stim_monitor_num = 11'd127;
+    4'b1001: iclk_div_stim_monitor_num = 11'd255;
+    4'b1010: iclk_div_stim_monitor_num = 11'd511;
+    4'b1011: iclk_div_stim_monitor_num = 11'd1023;
+    4'b1100: iclk_div_stim_monitor_num = 11'd0;
+    default: iclk_div_stim_monitor_num = 11'd0;
+  endcase
+end
 
+always @ (posedge fclk or negedge poresetn) begin
+  if (~poresetn) 
+    iclk_div_stim_monitor_cnt <= 11'b0;
+  else if (iclk_div_stim_monitor_cnt >= iclk_div_stim_monitor_num)
+    iclk_div_stim_monitor_cnt <= 11'b0;
+  else
+    iclk_div_stim_monitor_cnt <= iclk_div_stim_monitor_cnt + 11'b1;
+end
+
+reg div_stim_monitor_fclk_d;
+reg div_stim_monitor_fclk_d_1t;
+always @ (*) begin
+    if (iclk_div_stim_monitor_cnt >= iclk_div_stim_monitor_num)
+        div_stim_monitor_fclk_d = ~div_stim_monitor_fclk_d_1t;
+    else
+        div_stim_monitor_fclk_d = div_stim_monitor_fclk_d_1t;
+end
+
+always @ (posedge fclk or negedge poresetn) begin
+    if (~poresetn)
+        div_stim_monitor_fclk_d_1t <= 1'b0;
+    else
+        div_stim_monitor_fclk_d_1t <= div_stim_monitor_fclk_d;
+end
+
+  // creat_generate_clk here
+  wire div_stim_monitor_fclk_q;
+  DFFRHQ_X4_A7TULL DFF_DIV_STIM_MON_FCLK (.Q(div_stim_monitor_fclk_q), .CK(fclk), .D(div_stim_monitor_fclk_d), .RN(poresetn));
+
+  wire not_div_stim_monitor;
+  assign not_div_stim_monitor = (iclk_div_stim_monitor == 4'b000) | (iclk_div_stim_monitor == 4'b1100);
+
+  wire div_stim_monitor_fclk_q_final;
+  wire iclk_stim_monitor;
+  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_CLK (.A(div_stim_monitor_fclk_q), .B(fclk), .S0(not_div_stim_monitor), .Y(div_stim_monitor_fclk_q_final));
+  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_FCLK_ATPG (.A(div_stim_monitor_fclk_q_final), .B(scan_clk), .S0(atpg_en), .Y(iclk_stim_monitor));
+assign stim_monitor_clk_running = iclk_stim_monitor;
+
+//for adc analog sample clock
+//1/4 high, 3/4 low
+//dont support 8M
+//+++++++++++++++++++++++++++++++++++++++
+reg stim_monitor_ana_div_cnt;
+always @ (posedge iclk_stim_monitor or negedge poresetn) begin
+  if (~poresetn) 
+    stim_monitor_ana_div_cnt <= 1'b0;
+  else
+    stim_monitor_ana_div_cnt <= stim_monitor_ana_div_cnt + 1'd1;
+end
+wire i_stim_monitor_anaen;
+assign i_stim_monitor_anaen = (stim_monitor_ana_div_cnt==1'b1);
+
+wire stim_monitor_ana_wire_temp;
+common_clock_gate u_cmsdk_clock_gate_stim_monitor_ana (
+  .clk(iclk_stim_monitor),
+  .enable(i_stim_monitor_anaen), 
+  .bypass(scan_enable), 
+  .gated_clk(stim_monitor_ana_wire_temp)
+);
+  wire clkis8m;
+  assign clkis8m = (iclk_div_stim_monitor == 4'b1100);
+wire stim_monitor_ana_wire_final;
+  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_CLK2 (.A(stim_monitor_ana_wire_temp), .B(fclk), .S0(clkis8m), .Y(stim_monitor_ana_wire_final));
+//+++++++++++++++++++++++++++++
+
+wire iclk_stim_monitor_enable_sync;
+common_sync_bit u_stim_monitor_clk_sync(
+  .async_in(iclk_stim_monitor_enable),
+  .clk(stim_monitor_ana_wire_final),
+  .rst_(poresetn),      
+  .sync_out(iclk_stim_monitor_enable_sync)
+);	
+
+//wire stim_monitor_dig_clk_temp;
+common_clock_gate u_stim_monitor_clk_gate (
+  .clk(stim_monitor_ana_wire_final),
+  .enable(iclk_stim_monitor_enable_sync),
+  .bypass(atpg_en),
+  .gated_clk(stim_monitor_ana_clk)
+);
+
+  wire iclk_stim_monitor_inv_atpg;
+  CLKMX2_X4_A7TULL DNT_STIM_MON_CLK_ATPG (
+    .A(iclk_stim_monitor_inv), 
+    .B(1'b0), 
+    .S0(atpg_en), 
+    .Y(iclk_stim_monitor_inv_atpg)
+  );
+  CLKMX2_X4_A7TULL DNT_STIM_MON_CLK_INV  (
+   .A(stim_monitor_ana_clk),
+   .B(~stim_monitor_ana_clk), 
+   .S0(iclk_stim_monitor_inv_atpg), 
+   .Y(stim_monitor_dig_clk)
+  );
+
+//++++++++++++++++++++++++++++++++++++
 
 //for analog stable
 

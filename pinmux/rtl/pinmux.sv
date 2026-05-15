@@ -27,7 +27,11 @@ module pinmux (
   output wire         sclk,
   output wire         cs_n,
   output wire         mosi,
+  output wire         mosi1,
   input  wire         miso,
+  input  wire         miso1,
+  input  wire         dual_en,
+  input  wire         dual_wr,
   output wire         o_cpoln,   
   output wire         o_cpha,
   output wire         o_DAISY_IN, 
@@ -79,6 +83,7 @@ module pinmux (
   input  wire         i_tsc_int,
   input  wire         i_eeg_int,
   input  wire         i_nirs_int,
+  input  wire         i_stim_mon_int,
 
   output wire         pin_rstn,
 
@@ -89,7 +94,7 @@ module pinmux (
   output wire [7:0]   o_OTP_ATM_TRIM_DATA,
 
   input wire  [7:0]   sys_d2a_trim_reg        [14:0], 
-  output wire [13:0]  o_SPI_ATM_MODE_SEL,
+  output wire [14:0]  o_SPI_ATM_MODE_SEL,
   output wire         o_SPI_ANA_TESTMODE,
   output wire [7:0]   o_SPI_ATM_ADJ_DATA,
 
@@ -97,11 +102,11 @@ module pinmux (
 //input  wire         NORMAL_OUT_SEL,
 //input  wire         COMP_OUT_EN,
 //input  wire         COMP_OUT_SEL,
-  input  wire         o_A2D_COMP0,
-  input  wire         o_A2D_COMP1,
+//input  wire         o_A2D_COMP0,
+//input  wire         o_A2D_COMP1,
 //input  wire         COMP_OUT_SEL_STIM,
-  input  wire         A2D_STIMU0_1,
-  input  wire         A2D_STIMU2_3,
+//input  wire         A2D_STIMU0_1,
+//input  wire         A2D_STIMU2_3,
   
 //NIRS
   input  wire		  NIRS_LED_ON0,
@@ -187,6 +192,7 @@ module pinmux (
   wire        ATM26;
   wire        ATM27;
   wire        ATM28;
+  wire        ATM29;
   wire [7:0]  pad_d2a_trim0_sig;
   wire [7:0]  pad_d2a_trim1_sig;
   wire [7:0]  pad_d2a_trim2_sig;
@@ -216,26 +222,30 @@ module pinmux (
   wire [7:0]  pad_d2a_adj11_sig;
   wire [7:0]  pad_d2a_adj12_sig;
   wire [7:0]  pad_d2a_adj13_sig;
-  wire [7:0]  CONFIG_ROM0 [28:0];
-  wire [7:0]  CONFIG_ROM1 [28:0];
-  wire [7:0]  CONFIG_ROM2 [28:0];
-  wire [7:0]  CONFIG_ROM3 [28:0]; 
-  wire [7:0]  CONFIG_ROM4 [28:0]; 
-  wire [7:0]  CONFIG_ROM5 [28:0]; 
-  wire [7:0]  CONFIG_ROM6 [28:0]; 
-  wire [7:0]  CONFIG_ROM7 [28:0]; 
-  wire [7:0]  CONFIG_ROM8 [28:0]; 
-  wire [7:0]  CONFIG_ROM9 [28:0]; 
-  wire [7:0]  CONFIG_ROM10[28:0]; 
-  wire [7:0]  CONFIG_ROM11[28:0]; 
-  wire [7:0]  CONFIG_ROM12[28:0]; 
-  wire [7:0]  CONFIG_ROM13[28:0]; 
-  wire [7:0]  CONFIG_ROM14[28:0]; 
-  wire [7:0]  CONFIG_ROM15[28:0]; 
-  wire [7:0]  CONFIG_ROM16[28:0]; 
-  wire [7:0]  CONFIG_ROM17[28:0]; 
-  wire [7:0]  CONFIG_ROM18[28:0]; 
-  wire [7:0]  CONFIG_ROM19[28:0]; 
+  wire [7:0]  pad_d2a_adj14_sig;
+  wire [7:0]  CONFIG_ROM0 [29:0];
+  wire [7:0]  CONFIG_ROM1 [29:0];
+  wire [7:0]  CONFIG_ROM2 [29:0];
+  wire [7:0]  CONFIG_ROM3 [29:0]; 
+  wire [7:0]  CONFIG_ROM4 [29:0]; 
+  wire [7:0]  CONFIG_ROM5 [29:0]; 
+  wire [7:0]  CONFIG_ROM6 [29:0]; 
+  wire [7:0]  CONFIG_ROM7 [29:0]; 
+  wire [7:0]  CONFIG_ROM8 [29:0]; 
+  wire [7:0]  CONFIG_ROM9 [29:0]; 
+  wire [7:0]  CONFIG_ROM10[29:0]; 
+  wire [7:0]  CONFIG_ROM11[29:0]; 
+  wire [7:0]  CONFIG_ROM12[29:0]; 
+  wire [7:0]  CONFIG_ROM13[29:0]; 
+  wire [7:0]  CONFIG_ROM14[29:0]; 
+  wire [7:0]  CONFIG_ROM15[29:0]; 
+  wire [7:0]  CONFIG_ROM16[29:0]; 
+  wire [7:0]  CONFIG_ROM17[29:0]; 
+  wire [7:0]  CONFIG_ROM18[29:0]; 
+  wire [7:0]  CONFIG_ROM19[29:0]; 
+  wire [7:0]  CONFIG_ROM20[29:0]; 
+  wire [7:0]  CONFIG_ROM21[29:0]; 
+
 
 //ENABLE_REG
   wire        ATM_HC_SEL;
@@ -310,9 +320,10 @@ module pinmux (
   assign ATM26 = (debug_mode_en && (ana_test_mode== 5'b11010))  ? 1'b1 : 1'b0;
   assign ATM27 = (debug_mode_en && (ana_test_mode== 5'b11011))  ? 1'b1 : 1'b0;
   assign ATM28 = (debug_mode_en && (ana_test_mode== 5'b11100))  ? 1'b1 : 1'b0;
+  assign ATM29 = (debug_mode_en && (ana_test_mode== 5'b11101))  ? 1'b1 : 1'b0;
 //assign ATM8 = (ana_test_mode== 4'b1001)  ? 1'b1 : 1'b0;
-
-  assign pinmux_if.D2A_ATM      = { ATM28, ATM27, ATM26, ATM25, ATM24,ATM23, ATM22, ATM21, ATM20, 
+  assign pinmux_if.debug_mode_en = debug_mode_en;
+  assign pinmux_if.D2A_ATM       = { ATM29 ,ATM28, ATM27, ATM26, ATM25, ATM24,ATM23, ATM22, ATM21, ATM20, 
 				    ATM19,ATM18, ATM17, ATM16,ATM15, ATM14, ATM13, ATM12, ATM11, 
 				    ATM10, ATM9,ATM8, ATM7, ATM6, ATM5, ATM4, ATM3, ATM2, ATM1, ATM0};
 //assign pinmux_if.ENCODED_ATM  = ana_test_mode;
@@ -349,7 +360,8 @@ module pinmux (
                     (ana_test_mode == 5'd25)? 5'b11011:
                     (ana_test_mode == 5'd26)? 5'b11100:
                     (ana_test_mode == 5'd27)? 5'b11101:
-                    (ana_test_mode == 5'd28)? 5'b11110: 5'b11111);
+                    (ana_test_mode == 5'd28)? 5'b11110: 
+                    (ana_test_mode == 5'd29)? 5'b11111: 	5'b00000);
    
 //combine interrupt
  assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int | i_nirs_int); 
@@ -400,7 +412,9 @@ module pinmux (
     .CONFIG_ROM16  (CONFIG_ROM16),
     .CONFIG_ROM17  (CONFIG_ROM17),
     .CONFIG_ROM18  (CONFIG_ROM18),
-    .CONFIG_ROM19  (CONFIG_ROM19)
+    .CONFIG_ROM19  (CONFIG_ROM19),
+    .CONFIG_ROM20  (CONFIG_ROM20),
+    .CONFIG_ROM21  (CONFIG_ROM21)
 );
 
   assign ATM_HC_SEL       = spi_pinmux_if.ATM_HC_SEL;
@@ -412,7 +426,7 @@ module pinmux (
 //assign pinmux_if.d2a_tsc_vdac8b_en_ch1  = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_vdac8b_en_ch1;
 //assign pinmux_if.d2a_tsc_comp_en_ch1    = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ATM6)           ?  1'b1  : d2a_tsc_comp_en_ch1;
 //assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & (ATM6 || ATM1)) ?  1'b1  : d2a_tsc_en_ch1;
-  assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ( ATM5 || ATM11 || ATM15)) ?  1'b1  : d2a_tsc_en_ch1;
+  assign pinmux_if.d2a_tsc_en_ch1         = (ATM_CONFG & (ATM_HC_SEL == 1'b0) & ( ATM5  || ATM15|| ATM29)) ?  1'b1  : d2a_tsc_en_ch1;
   assign pinmux_if.i_ds_driver_en_current = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_ds_driver_en_current;
   assign pinmux_if.i_stimu_en             = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_stimu_en;
 
@@ -437,6 +451,8 @@ module pinmux (
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM17[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][2];
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM18[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][3];
   assign pinmux_if.D2A_ANA_ENABLE_REG[1][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM19[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][4];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM20[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][5];
+  assign pinmux_if.D2A_ANA_ENABLE_REG[1][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM21[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][6];
 
 
 //debug_signal_mode0(ATM0)
@@ -525,6 +541,9 @@ module pinmux (
 
 //debug_signal_mode1(ATM28)- ADJUST PATH not stored to OTP
  assign pinmux_if.D2A_ADJ_IO[13] =  ATM28 ? pad_d2a_adj13_sig : 8'b00;
+
+//debug_signal_mode1(ATM29)- ADJUST PATH not stored to OTP
+ assign pinmux_if.D2A_ADJ_IO[14] =  ATM29 ? pad_d2a_adj14_sig : 8'b00;
   
 //LOAD TRIMS to OTP
   assign o_OTP_ATM_MODE_SEL   = { ATM14, ATM13, ATM12, ATM11, ATM10, ATM9, ATM8,
@@ -551,7 +570,7 @@ module pinmux (
   assign o_OTP_UNLOCK         = debug_mode_en ? i_ext_clk_sel : 1'b0;
  
 
-  assign o_SPI_ATM_MODE_SEL = {ATM28, ATM27, ATM26, ATM25, ATM24, ATM23, ATM22,
+  assign o_SPI_ATM_MODE_SEL = {ATM29, ATM28, ATM27, ATM26, ATM25, ATM24, ATM23, ATM22,
                                ATM21, ATM20, ATM19, ATM18, ATM17, ATM16, ATM15};
   assign o_SPI_ANA_TESTMODE   = debug_mode_en;
 
@@ -569,6 +588,7 @@ module pinmux (
                                 ATM26 ? pad_d2a_adj11_sig : 
                                 ATM27 ? pad_d2a_adj12_sig : 
                                 ATM28 ? pad_d2a_adj13_sig : 
+                                ATM29 ? pad_d2a_adj14_sig : 
                                 8'h00;
 // non-scan pad
 // pad->core force to 0, NOT USING in scan mode
@@ -608,6 +628,7 @@ module pinmux (
 // test28: ext_clk
 // test29: ext_clk
 // test30: ext_clk
+// test31: ext_clk
 
 pinmux_1bit 
 #(
@@ -642,12 +663,13 @@ pinmux_1bit
 .TEST27_CLKIN(1),
 .TEST28_CLKIN(1),
 .TEST29_CLKIN(1),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(1),
+.TEST31_CLKIN(1))
 // .TEST10_CLKIN(0))
 u_gpio0_pinmux (
 // test and alternate select
 //.altf_sel   (2'd0),
-.test_sel   (scan_mode ? 5'd0 : (otp_bist_en ? 5'd1 : (debug_mode_en ? 5'd2 : 5'd31))),
+.test_sel   (scan_mode ? 5'd0 : (otp_bist_en ? 5'd1 : (debug_mode_en ? 5'd2 : 5'd0))),
 .test_en    (test_en),
 .test0_en   (scan_mode),
 .test1_en   (otp_bist_en),
@@ -680,6 +702,7 @@ u_gpio0_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
@@ -900,6 +923,12 @@ u_gpio0_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[0]),
@@ -942,6 +971,7 @@ u_gpio0_pinmux (
 // test28: pad_d2a_adj11_sig[0]
 // test29: pad_d2a_adj12_sig[0]
 // test30: pad_d2a_adj13_sig[0]
+// test31: pad_d2a_adj14_sig[0]
 
  
 pinmux_1bit 
@@ -977,7 +1007,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio1_pinmux (
 // test and alternate select
@@ -1015,6 +1046,7 @@ u_gpio1_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -1236,6 +1268,12 @@ u_gpio1_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[0]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[0]),
 
 
 // with pad interface
@@ -1278,6 +1316,7 @@ u_gpio1_pinmux (
 // test28: pad_d2a_adj11_sig[1]
 // test29: pad_d2a_adj12_sig[1]
 // test30: pad_d2a_adj13_sig[1]
+// test31: pad_d2a_adj14_sig[1]
 
   
 pinmux_1bit 
@@ -1313,7 +1352,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio2_pinmux (
 // test and alternate select
@@ -1351,6 +1391,7 @@ u_gpio2_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
@@ -1571,6 +1612,12 @@ u_gpio2_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[1]),
+// test30
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[1]),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[2]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[2]),
@@ -1611,6 +1658,7 @@ u_gpio2_pinmux (
 // test28: pad_d2a_adj11_sig[2]
 // test29: pad_d2a_adj12_sig[2]
 // test30: pad_d2a_adj13_sig[2]
+// test31: pad_d2a_adj14_sig[2]
 
 pinmux_1bit 
 #(
@@ -1645,7 +1693,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio3_pinmux (
 // test and alternate select
@@ -1683,6 +1732,7 @@ u_gpio3_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -1904,6 +1954,12 @@ u_gpio3_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[2]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[2]),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[3]),
@@ -1945,6 +2001,7 @@ u_gpio3_pinmux (
 // test28: pad_d2a_adj11_sig[3]
 // test29: pad_d2a_adj12_sig[3]
 // test30: pad_d2a_adj13_sig[3]
+// test31: pad_d2a_adj14_sig[3]
 pinmux_1bit 
 #(
 .ALTF_CLKIN(1),
@@ -1978,7 +2035,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio4_pinmux (
 // test and alternate select
@@ -2016,6 +2074,7 @@ u_gpio4_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
 /*
@@ -2236,6 +2295,12 @@ u_gpio4_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[3]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[3]),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[4]),
@@ -2277,6 +2342,7 @@ u_gpio4_pinmux (
 // test28: pad_d2a_adj11_sig[4]
 // test29: pad_d2a_adj12_sig[4]
 // test30: pad_d2a_adj13_sig[4]
+// test31: pad_d2a_adj14_sig[4]
   
 pinmux_1bit 
 #(
@@ -2311,7 +2377,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio5_pinmux (
 // test and alternate select
@@ -2349,6 +2416,7 @@ u_gpio5_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -2378,9 +2446,9 @@ u_gpio5_pinmux (
 .altf3_def  (1'b1),                         
 .altf3_y    (mosi_3),    
 */
-.altf_ie   (1'b1),         
-.altf_oe   (1'b0),                         
-.altf_a    (1'b0),                         
+.altf_ie   (dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b1),         //!dual_en || dual_wr
+.altf_oe   (dual_en ? (dual_wr ? 1'b0 : 1'b1)  :1'b0),             //~(dual_en && dual_wr)      
+.altf_a    (miso1),   //miso                      
 .altf_def  (1'b1),                         
 .altf_y    (pad_mosi),
 // test mode function
@@ -2570,7 +2638,12 @@ u_gpio5_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[4]),
-
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[4]),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[5]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[5]),
@@ -2612,6 +2685,7 @@ u_gpio5_pinmux (
 // test28: pad_d2a_adj11_sig[5]
 // test29: pad_d2a_adj12_sig[5]
 // test30: pad_d2a_adj13_sig[5]
+// test31: pad_d2a_adj14_sig[5]
 
 pinmux_1bit 
 #(
@@ -2646,7 +2720,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio6_pinmux (
 // test and alternate select
@@ -2684,6 +2759,7 @@ u_gpio6_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -2713,11 +2789,12 @@ u_gpio6_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (sclk_3),   
 */
-.altf_ie   (1'b0),   
-.altf_oe   (~cs_n),
-.altf_a    (miso),
+.altf_ie   (dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b0),         //dual_en && dual_wr
+.altf_oe   (dual_en ? (dual_wr ? 1'b0 : 1'b1) : 1'b1),      //!dual_en || !dual_wr
+//.altf_oe   (~cs_n),
+.altf_a    (miso), //miso1
 .altf_def  (1'b0),
-.altf_y    (), 
+.altf_y    (pad_mosi1), //pad_mosi1 
 // test mode function
 // test0
 .test0_ie   (1'b1),    
@@ -2905,6 +2982,13 @@ u_gpio6_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[5]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[5]),
+
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[6]),
@@ -2946,6 +3030,7 @@ u_gpio6_pinmux (
 // test28: pad_d2a_adj11_sig[6]
 // test29: pad_d2a_adj12_sig[6]
 // test30: pad_d2a_adj13_sig[6]
+// test31: pad_d2a_adj14_sig[6]
 
 
 pinmux_1bit 
@@ -2981,7 +3066,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio7_pinmux (
 // test and alternate select
@@ -3019,6 +3105,7 @@ u_gpio7_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
 /*
@@ -3239,6 +3326,12 @@ u_gpio7_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[6]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[6]),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[7]),
@@ -3280,6 +3373,7 @@ u_gpio7_pinmux (
 // test28: pad_d2a_adj11_sig[7]
 // test29: pad_d2a_adj12_sig[7]
 // test30: pad_d2a_adj13_sig[7]
+// test31: pad_d2a_adj14_sig[7]
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -3313,7 +3407,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio8_pinmux (
 // test and alternate select
@@ -3351,6 +3446,7 @@ u_gpio8_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
@@ -3573,6 +3669,13 @@ u_gpio8_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (pad_d2a_adj13_sig[7]),
+// test31
+.test31_ie   (1'b1),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (pad_d2a_adj14_sig[7]),
+
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[8]),
@@ -3614,6 +3717,7 @@ u_gpio8_pinmux (
 // test28: OTP_VPP_EN
 // test29: OTP_VPP_EN
 // test30: OTP_VPP_EN
+// test31: OTP_VPP_EN
 
 pinmux_1bit 
 #(
@@ -3648,7 +3752,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio9_pinmux (
 // test and alternate select
@@ -3686,6 +3791,7 @@ u_gpio9_pinmux (
 .test28_en  (ATM26),
 .test29_en  (ATM27),
 .test30_en  (ATM28),
+.test31_en  (ATM29),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -3907,6 +4013,12 @@ u_gpio9_pinmux (
 .test30_a    (i_otp_vpp_en),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b1),
+.test31_a    (i_otp_vpp_en),
+.test31_def  (1'b0),
+.test31_y    (),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[9]),
@@ -3947,6 +4059,7 @@ u_gpio9_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(1),
@@ -3980,7 +4093,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio10_pinmux (
 // test and alternate select
@@ -4018,6 +4132,7 @@ u_gpio10_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (1'b0),
 //.test_ana   (1'b0),      //Disable IE/OE/A:: 
 // alternate function
@@ -4239,6 +4354,12 @@ u_gpio10_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[10]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[10]),
@@ -4280,6 +4401,7 @@ u_gpio10_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -4313,7 +4435,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio11_pinmux (
 // test and alternate select
@@ -4351,6 +4474,7 @@ u_gpio11_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -4572,6 +4696,13 @@ u_gpio11_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
+
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[11]),
@@ -4581,7 +4712,7 @@ u_gpio11_pinmux (
 ); 
 
 // GPIO12 pad
-// normal: A2D_COMP0 
+// normal: none 
 // test0 : scan_out[0]
 // test1 : wire_ens2_IOBUF_Y[2]
 // test2 : None
@@ -4613,6 +4744,7 @@ u_gpio11_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 
 pinmux_1bit 
 #(
@@ -4647,7 +4779,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio12_pinmux (
 // test and alternate select
@@ -4685,6 +4818,7 @@ u_gpio12_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test_ana   (1'b0),      //Disable IE/OE/A:: 
 // alternate function
 /*
@@ -4714,8 +4848,8 @@ u_gpio12_pinmux (
 .altf3_y    (int_clk_out_gpio[3]), 
 */
 .altf_ie   (1'b0),
-.altf_oe   (1'b1),
-.altf_a    (o_A2D_COMP0),
+.altf_oe   (1'b0),
+.altf_a    (1'b0),
 .altf_def  (1'b0),
 .altf_y    (), 
 // test mode function
@@ -4905,6 +5039,12 @@ u_gpio12_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[12]),
@@ -4914,7 +5054,7 @@ u_gpio12_pinmux (
 ); 
 
 // GPIO13 pad
-// normal:  A2D_COMP1
+// normal:  none
 // test0 :  scan_out[1] 
 // test1 :  wire_ens2_IOBUF_Y[3]
 // test2 :  None 
@@ -4946,7 +5086,7 @@ u_gpio12_pinmux (
 // test28: None
 // test29: None
 // test30: None
-
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -4980,7 +5120,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio13_pinmux (
 // test and alternate select
@@ -5018,6 +5159,7 @@ u_gpio13_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (1'b0),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -5048,8 +5190,8 @@ u_gpio13_pinmux (
 .altf3_y    (),     
 */
 .altf_ie   (1'b0),
-.altf_oe   (1'b1),
-.altf_a    (o_A2D_COMP1),
+.altf_oe   (1'b0),
+.altf_a    (1'b0),
 .altf_def  (1'b0),
 .altf_y    (),
 // test mode function
@@ -5240,6 +5382,12 @@ u_gpio13_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[13]),
@@ -5281,6 +5429,7 @@ u_gpio13_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -5314,7 +5463,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio14_pinmux (
 // test and alternate select
@@ -5352,6 +5502,7 @@ u_gpio14_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (1'b0),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: 
 // alternate function
@@ -5573,6 +5724,12 @@ u_gpio14_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[14]),
@@ -5615,6 +5772,7 @@ u_gpio14_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -5648,7 +5806,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio15_pinmux (
 // test and alternate select
@@ -5686,6 +5845,7 @@ u_gpio15_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -5881,6 +6041,12 @@ u_gpio15_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[15]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[15]),         
@@ -5922,6 +6088,7 @@ u_gpio15_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 
 pinmux_1bit 
 #(
@@ -5956,7 +6123,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio16_pinmux (
 // test and alternate select
@@ -5994,6 +6162,7 @@ u_gpio16_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -6189,6 +6358,12 @@ u_gpio16_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[16]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[16]),         
@@ -6229,7 +6404,7 @@ u_gpio16_pinmux (
 // test28: None
 // test29: None
 // test30: None
-
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -6263,7 +6438,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio17_pinmux (
 // test and alternate select
@@ -6301,6 +6477,7 @@ u_gpio17_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -6496,6 +6673,12 @@ u_gpio17_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[17]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[17]),         
@@ -6535,6 +6718,7 @@ u_gpio17_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 
 pinmux_1bit 
 #(
@@ -6569,7 +6753,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio18_pinmux (
 // test and alternate select
@@ -6607,6 +6792,7 @@ u_gpio18_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -6802,6 +6988,12 @@ u_gpio18_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[18]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[18]),         
@@ -6841,6 +7033,7 @@ u_gpio18_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 
 pinmux_1bit 
 #(
@@ -6875,7 +7068,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio19_pinmux (
 // test and alternate select
@@ -6913,6 +7107,7 @@ u_gpio19_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -7108,6 +7303,12 @@ u_gpio19_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[19]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[19]),         
@@ -7147,7 +7348,7 @@ u_gpio19_pinmux (
 // test28: None
 // test29: None
 // test30: None
-
+// test31: None
 pinmux_1bit 
 #(
 .ALTF_CLKIN(0),
@@ -7181,7 +7382,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio20_pinmux (
 // test and alternate select
@@ -7219,6 +7421,7 @@ u_gpio20_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -7414,6 +7617,12 @@ u_gpio20_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[20]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[20]),         
@@ -7453,6 +7662,7 @@ u_gpio20_pinmux (
 // test28: None
 // test29: None
 // test30: None
+// test31: None
 
 pinmux_1bit 
 #(
@@ -7487,7 +7697,8 @@ pinmux_1bit
 .TEST27_CLKIN(0),
 .TEST28_CLKIN(0),
 .TEST29_CLKIN(0),
-.TEST30_CLKIN(0))
+.TEST30_CLKIN(0),
+.TEST31_CLKIN(0))
 //.TEST10_CLKIN(0))
 u_gpio21_pinmux (
 // test and alternate select
@@ -7525,6 +7736,7 @@ u_gpio21_pinmux (
 .test28_en   (1'b0),
 .test29_en   (1'b0),
 .test30_en   (1'b0),
+.test31_en   (1'b0),
 //.test10_en  (ATM8),
 //.test_ana   (1'b0),       //Disable IE/OE/A:: TESTMODE0 GPIO0 serves pure analog signal
 // alternate function
@@ -7720,6 +7932,12 @@ u_gpio21_pinmux (
 .test30_a    (1'b0),
 .test30_def  (1'b0),
 .test30_y    (),
+// test31
+.test31_ie   (1'b0),
+.test31_oe   (1'b0),
+.test31_a    (1'b0),
+.test31_def  (1'b0),
+.test31_y    (),
 // with pad interface
 .iopad_gpio_y    (i_ens2_IOBUF_Y[21]),
 .iopad_gpio_ie   (o_ens2_IOBUF_IE[21]),         

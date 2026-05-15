@@ -32,8 +32,8 @@ class `TESTCFG extends soc_imeas_hpf_filter_base_test_cfg;
   constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:1],[5:13]};} // upto 512 only considered
 
   constraint c_iclk_sel            { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[0:1]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[0:0]};
+                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[0:11]};
+                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[0:11]};
                                      (imeas_cic_rate == 5)  ->  iclk_sel inside {[11:11]};
                                      (imeas_cic_rate == 6)  ->  iclk_sel inside {[10:11]};
                                      (imeas_cic_rate == 7)  ->  iclk_sel inside {[9:11]};

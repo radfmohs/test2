@@ -49,6 +49,7 @@ input  wire         test27_en,
 input  wire         test28_en,
 input  wire         test29_en,
 input  wire         test30_en,
+input  wire         test31_en,
 //input  wire	    test_ana,			//added by supriya
 // alternate function
 /*
@@ -271,7 +272,12 @@ input  wire         test30_oe,
 input  wire         test30_a ,
 input  wire         test30_def,
 output  wire        test30_y,
-
+// test31
+input  wire         test31_ie,
+input  wire         test31_oe,
+input  wire         test31_a ,
+input  wire         test31_def,
+output  wire        test31_y,
 
 //end
 // analog enable
@@ -321,7 +327,7 @@ parameter TEST27_CLKIN = 0;
 parameter TEST28_CLKIN = 0;
 parameter TEST29_CLKIN = 0;
 parameter TEST30_CLKIN = 0;
-
+parameter TEST31_CLKIN = 0;
 
 // wire altf0_en;
 // wire altf1_en;
@@ -383,6 +389,7 @@ wire test27_bufin;
 wire test28_bufin;
 wire test29_bufin;
 wire test30_bufin;
+wire test31_bufin;
 
 wire testmode_en;
 wire testmode_ie;
@@ -440,6 +447,7 @@ assign test27_bufin = TEST27_CLKIN ? clk_bufin : data_bufin;
 assign test28_bufin = TEST28_CLKIN ? clk_bufin : data_bufin;
 assign test29_bufin = TEST29_CLKIN ? clk_bufin : data_bufin;
 assign test30_bufin = TEST30_CLKIN ? clk_bufin : data_bufin;
+assign test31_bufin = TEST31_CLKIN ? clk_bufin : data_bufin;
 
 
 
@@ -447,9 +455,9 @@ assign test30_bufin = TEST30_CLKIN ? clk_bufin : data_bufin;
 cell_mx16 u_test_ie1 (.Z(test_mux_ie1), .A(test0_ie), .B(test1_ie), .C(test2_ie), .D(test3_ie), .E(test4_ie), .F(test5_ie),  .G(test6_ie),  .H(test7_ie),  .I(test8_ie),
      				     .J(test9_ie),  .K(test10_ie),  .L(test11_ie),  .M(test12_ie),  .N(test13_ie),  .O(test14_ie),  .P(test15_ie),
 		   		     .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
-// (ATM14 - ATM28)
+// (ATM14 - ATM29)
 cell_mx16 u_test_ie2 (.Z(test_mux_ie2), .A(test16_ie), .B(test17_ie), .C(test18_ie), .D(test19_ie), .E(test20_ie), .F(test21_ie),  .G(test22_ie),  .H(test23_ie),  .I(test24_ie),
-     				     .J(test25_ie),  .K(test26_ie),  .L(test27_ie),  .M(test28_ie),  .N(test29_ie),  .O(test30_ie),  .P(1'b0),
+     				     .J(test25_ie),  .K(test26_ie),  .L(test27_ie),  .M(test28_ie),  .N(test29_ie),  .O(test30_ie),  .P(test31_ie),
 		   		     .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
 
 assign test_mux_ie = test_sel[4] ? test_mux_ie2 : test_mux_ie1;
@@ -461,7 +469,7 @@ cell_mx16 u_test_oe1 (.Z(test_mux_oe1), .A(test0_oe), .B(test1_oe), .C(test2_oe)
 				     .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
 // (ATM14 - ATM29)
 cell_mx16 u_test_oe2 (.Z(test_mux_oe2), .A(test16_oe), .B(test17_oe), .C(test18_oe), .D(test19_oe), .E(test20_oe), .F(test21_oe),  .G(test22_oe),  .H(test23_oe),  .I(test24_oe),    
- 				     .J(test25_oe),  .K(test26_oe), .L(test27_oe),     .M(test28_oe),      .N(test29_oe),    .O(test30_oe),      .P(1'b0),
+ 				     .J(test25_oe),  .K(test26_oe), .L(test27_oe),     .M(test28_oe),      .N(test29_oe),    .O(test30_oe),      .P(test31_oe),
 				     .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
 
 assign test_mux_oe = test_sel[4] ? test_mux_oe2 : test_mux_oe1;
@@ -472,7 +480,7 @@ cell_mx16 u_test_a1 (.Z(test_mux_a1),  .A(test0_a),  .B(test1_a),  .C(test2_a), 
 				      .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
 // (ATM14 - ATM29)
 cell_mx16 u_test_a2  (.Z(test_mux_a2),  .A(test16_a),  .B(test17_a),  .C(test18_a),  .D(test19_a),  .E(test20_a),  .F(test21_a),   .G(test22_a),   .H(test23_a),   .I(test24_a),  
-    				      .J(test25_a),  .K(test26_a), .L(test27_a),     .M(test28_a),      .N(test29_a),    .O(test30_a),      .P(1'b0),
+    				      .J(test25_a),  .K(test26_a), .L(test27_a),     .M(test28_a),      .N(test29_a),    .O(test30_a),      .P(test31_a),
 				      .S0(test_sel[0]), .S1(test_sel[1]), .S2(test_sel[2]), .S3(test_sel[3]));
 
 assign test_mux_a = test_sel[4] ? test_mux_a2 : test_mux_a1;
@@ -551,6 +559,7 @@ cell_mx2 u_test27_y (.Z(test27_y), .A(test27_def), .B(test27_bufin), .S(test27_e
 cell_mx2 u_test28_y (.Z(test28_y), .A(test28_def), .B(test28_bufin), .S(test28_en));
 cell_mx2 u_test29_y (.Z(test29_y), .A(test29_def), .B(test29_bufin), .S(test29_en));
 cell_mx2 u_test30_y (.Z(test30_y), .A(test30_def), .B(test30_bufin), .S(test30_en));
+cell_mx2 u_test31_y (.Z(test31_y), .A(test31_def), .B(test31_bufin), .S(test31_en));
 
 
 endmodule

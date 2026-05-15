@@ -221,10 +221,10 @@ class `TESTNAME extends soc_base_test;
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 
     //2. Data ready: write the data to spi trim reg
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8;foreach(data[i]) data[i]>8'h0;});
-    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);   
-    //foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] &= top_test_cfg.data[7-i];
-    foreach (top_test_cfg.save_trim_wdata[i]) if(i<8) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[7-i];
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; foreach(data[i]) data[i]>8'h0;});
+    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
+ 
+    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[15-i];
 
     for(int i=0; i<8 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 

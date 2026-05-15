@@ -14,26 +14,28 @@
 //------------------------------------------------------------------------------
 
 module pinmux_rom (
-  output wire [7:0] CONFIG_ROM0 [28:0],  
-  output wire [7:0] CONFIG_ROM1 [28:0],  
-  output wire [7:0] CONFIG_ROM2 [28:0],
-  output wire [7:0] CONFIG_ROM3 [28:0],
-  output wire [7:0] CONFIG_ROM4 [28:0],
-  output wire [7:0] CONFIG_ROM5 [28:0],
-  output wire [7:0] CONFIG_ROM6 [28:0],
-  output wire [7:0] CONFIG_ROM7 [28:0],
-  output wire [7:0] CONFIG_ROM8 [28:0],
-  output wire [7:0] CONFIG_ROM9 [28:0],
-  output wire [7:0] CONFIG_ROM10 [28:0],
-  output wire [7:0] CONFIG_ROM11 [28:0],
-  output wire [7:0] CONFIG_ROM12 [28:0],
-  output wire [7:0] CONFIG_ROM13 [28:0],
-  output wire [7:0] CONFIG_ROM14 [28:0],
-  output wire [7:0] CONFIG_ROM15 [28:0],
-  output wire [7:0] CONFIG_ROM16 [28:0],
-  output wire [7:0] CONFIG_ROM17 [28:0],
-  output wire [7:0] CONFIG_ROM18 [28:0],
-  output wire [7:0] CONFIG_ROM19 [28:0]
+  output wire [7:0] CONFIG_ROM0 [29:0],  
+  output wire [7:0] CONFIG_ROM1 [29:0],  
+  output wire [7:0] CONFIG_ROM2 [29:0],
+  output wire [7:0] CONFIG_ROM3 [29:0],
+  output wire [7:0] CONFIG_ROM4 [29:0],
+  output wire [7:0] CONFIG_ROM5 [29:0],
+  output wire [7:0] CONFIG_ROM6 [29:0],
+  output wire [7:0] CONFIG_ROM7 [29:0],
+  output wire [7:0] CONFIG_ROM8 [29:0],
+  output wire [7:0] CONFIG_ROM9 [29:0],
+  output wire [7:0] CONFIG_ROM10 [29:0],
+  output wire [7:0] CONFIG_ROM11 [29:0],
+  output wire [7:0] CONFIG_ROM12 [29:0],
+  output wire [7:0] CONFIG_ROM13 [29:0],
+  output wire [7:0] CONFIG_ROM14 [29:0],
+  output wire [7:0] CONFIG_ROM15 [29:0],
+  output wire [7:0] CONFIG_ROM16 [29:0],
+  output wire [7:0] CONFIG_ROM17 [29:0],
+  output wire [7:0] CONFIG_ROM18 [29:0],
+  output wire [7:0] CONFIG_ROM19 [29:0],
+  output wire [7:0] CONFIG_ROM20 [29:0],
+  output wire [7:0] CONFIG_ROM21 [29:0]
 );
 
 `include "param_pinmux.vh"
@@ -43,7 +45,7 @@ assign init_enable = 1'b1;
 
 genvar i;
 generate
-  for (i = 0; i < 29; i = i + 1) begin
+  for (i = 0; i < 30; i = i + 1) begin
     assign CONFIG_ROM0[i]  = init_enable ? CONFIG0[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM1[i]  = init_enable ? CONFIG1[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM2[i]  = init_enable ? CONFIG2[7+(8*i):8*i] : {8{1'bz}};
@@ -64,6 +66,8 @@ generate
     assign CONFIG_ROM17[i] = init_enable ? CONFIG17[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM18[i] = init_enable ? CONFIG18[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM19[i] = init_enable ? CONFIG19[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM20[i] = init_enable ? CONFIG20[7+(8*i):8*i] : {8{1'bz}};
+    assign CONFIG_ROM21[i] = init_enable ? CONFIG21[7+(8*i):8*i] : {8{1'bz}};
 
   end
 endgenerate

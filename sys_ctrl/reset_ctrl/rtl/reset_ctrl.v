@@ -23,6 +23,10 @@ input  wire         hfosc_atpg,                 // hfosc base clock input
 //input  wire       fclk,                       // fclk after clock switch
 input  wire         pclk,                       // APB clock
 
+input  wire  stim_monitor_rst_reg, 
+input  wire  stim_monitor_clk_running, 
+output  wire  stim_monitor_rstn, 
+
 input  wire 	    ppg_clk_running,
 output wire         ppg_resetn,
 input  wire         ppg_rst_reg,
@@ -227,6 +231,19 @@ common_rst_sync u_wave_gen_presetn_sync(
   .SE        (atpg_en),
   .RSTBYPASS (atpg_en),
   .RSTOUTn   (wave_gen_presetn)
+);
+
+
+wire stim_monitor_presetn_tmp;
+assign stim_monitor_presetn_tmp = atpg_en? scan_rst_n :  (global_rstn_atpg & (~stim_monitor_rst_reg) & wave_gen_presetn_tmp); 
+
+common_rst_sync u_stim_monitor_presetn_sync(
+  .RSTINn    (stim_monitor_presetn_tmp),
+  .RSTREQ    (1'b0),
+  .CLK       (stim_monitor_clk_running),
+  .SE        (atpg_en),
+  .RSTBYPASS (atpg_en),
+  .RSTOUTn   (stim_monitor_rstn)
 );
 
 wire lead_off_presetn_tmp;

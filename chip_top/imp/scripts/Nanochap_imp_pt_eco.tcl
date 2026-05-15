@@ -7,7 +7,8 @@ print_suppressed_messages
 #set stage postscan_dct
 #set corner max
 set mode functional
-#set scenario S111
+#set bottom_up yes
+#set scenario S111_max
 #set dmsa yes
 
 sh mkdir -p ../reports/synthesis_postscan_pteco_sdf
@@ -59,28 +60,14 @@ set_app_var power_enable_clock_cycle_based_glitch true
 # -----------------------------------------------------------------------------------
 # Read design and sdc
 # -----------------------------------------------------------------------------------
-read_verilog ../data/synthesis_${stage}_sdf/${rm_project_top}.$stage.v
+read_verilog ../data/synthesis_${stage}.BUD=${bottom_up}_sdf/${rm_project_top}.$stage.v
 
 link_design  $rm_project_top
 current_design $rm_project_top
 
-if {$mode == "scan"} {
-	set eco_instance_name_prefix "uScan_"
-	set eco_net_name_prefix "nScan_"
-	source -echo -verbose ../scripts/Nanochap_imp_scan_constraints.tcl
-} else {
-	set eco_instance_name_prefix "uECO_${scenario}"
-	set eco_net_name_prefix "uECO_${scenario}"
-	if {[info exist scenario]} {
-	  source -echo -verbose ../data/synthesis_postscan_dct_sdf/${rm_project_top}.postscan_dct.${scenario}.sdc
-	  #if {$scenario != "S4"} {
-	     #source -echo -verbose ../scripts/Nanochap_imp_constraints_exception.tcl;#these are not written in SDC. Need to reaply in STA
-	  #}
-	} else {
-	  source -echo -verbose ../data/synthesis_postscan_sdf/${rm_project_top}.postscan.sdc
-	  #source -echo -verbose ../scripts/Nanochap_imp_constraints_exception.tcl;#these are not written in SDC. Need to reaply in STA
-	}
-}
+set eco_instance_name_prefix "uECO_${scenario}"
+set eco_net_name_prefix "uECO_${scenario}"
+source -echo -verbose ../data/synthesis_${stage}.BUD=${bottom_up}_sdf/${rm_project_top}.postscan_dct.${scenario}.sdc
 
 set_operating_conditions     -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)]     -min $operating_condition_name($fast_corner_pvt) -min_lib [get_libs $target_library_name($fast_corner_pvt)]     -analysis_type on_chip_variation
 #if {$corner == "max"} {

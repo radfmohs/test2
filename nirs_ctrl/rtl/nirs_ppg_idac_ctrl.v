@@ -8,7 +8,7 @@ module nirs_ppg_idac_ctrl #(
   input  wire        [8:0]  IDAC_MANUAL,
   input  wire               EN,
   input  wire  [WIDTH-1:0]  DOUTF,
-  input  wire     [18:0]    DOUT_AC,      // 16-bit unsigned input data
+  input  wire     [21:0]    DOUT_AC,      // 16-bit unsigned input data
   input  wire     [18:0]    THRESHOLD_H,  // Upper threshold
   input  wire      [7:0]    THRESHOLD_L,  // Lower threshold
 

@@ -16,14 +16,28 @@
 `timescale 1 ns /  1ps
 
 module top_dig #( 
-  parameter EEG_DATA_WIDTH = 24, 
-  parameter EEG_CHN_NUM = 16, 
-  parameter HLF_WV_NO_PTS = 7, 
-  parameter OUT_NO_BITS = 12,
-  parameter NO_OF_WAVEGEN=16,
-  parameter NO_OF_NIRS = 8
+  parameter EEG_DATA_WIDTH  = 24, 
+  parameter EEG_CHN_NUM     = 16, 
+  parameter HLF_WV_NO_PTS   = 7, 
+  parameter OUT_NO_BITS     = 12,
+  parameter NO_OF_WAVEGEN   = 16,
+  parameter NO_OF_NIRS      = 8,
+  parameter TRIM_NUMBER     = 15,
+  parameter EN_SEC_NUMBER   = 2,
+  parameter EN_REG_NUMBER   = 15
 )
 ( 
+
+//tempory connected out for verification
+//=====================
+input [9:0] A2D_ADC_DATA, //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+input  A2D_ADC_DATA_EN,//from analog	
+output[3:0] D2A_STIM_PAD0,    //to analog	
+output[3:0] D2A_STIM_PAD1,    //to analog	
+output D2A_ADC_EN,    //to analog	
+//=====================
+
 //bps imeas
 input  A2D_SDM_OUT0,
 input  A2D_SDM_OUT1,
@@ -45,8 +59,8 @@ input  A2D_SDM_OUT15,
 output D2A_SDM_CLK,
 //===================
   //lead_off
-  input wire A2D_COMP1,   
-  input wire A2D_COMP2,   
+//input wire A2D_COMP1,   
+//input wire A2D_COMP2,   
 //input   wire        A2D_COMP_OUT_STIMU0,
 //input   wire        A2D_COMP_OUT_STIMU1,
 //input   wire        A2D_COMP_OUT_STIMU2,
@@ -192,10 +206,11 @@ output D2A_SDM_CLK,
 
 //  spi_leadoff      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_leadoff();
 spi_anac      #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_anac();
-spi_otp       #(.TRIM_NUMBER(17))               spi_otp();
+spi_otp       #(.TRIM_NUMBER  (TRIM_NUMBER+2))  spi_otp();
 spi_wg        #(.NO_OF_WAVEGEN(NO_OF_WAVEGEN))  spi_wg();
-spi_pinmux_if #(.EN_REG_NUMBER(4))              spi_pinmux_if(); 
-spi_nirs_if                                     spi_nirs_if();
+spi_pinmux_if #(.EN_SEC_NUMBER(EN_SEC_NUMBER),
+                .EN_REG_NUMBER(EN_REG_NUMBER))  spi_pinmux_if(); 
+spi_nirs_if   #(.NO_OF_NIRS(NO_OF_NIRS))        spi_nirs_if();
 
 //bps imeas
 wire [EEG_DATA_WIDTH-1:0]  imeas_chdata_adcclk[EEG_CHN_NUM-1:0];
@@ -216,7 +231,7 @@ wire                    eeg_int_sts;
 wire [15:0]             cic_data_ignore_tar;
 wire [23:0]             hpf_coeff_data;
 wire [17:0]             lpf_coeff_data [27:0];
-wire [19:0]             notch_coeff_data[35:0];
+wire [19:0]             notch_coeff_data[23:0];
 wire                    o_nirs_int;
 
 wire stim_global_en;
@@ -329,7 +344,7 @@ assign  por_resetn = A2D_SW_POWER_POR;    // power on reset, low active
   wire  [7:0] atm_adj_data;
   wire        unlock_gpio;
   wire        atm_adj;
-  wire [13:0] atm_adj_mode;
+  wire [14:0] atm_adj_mode;
 
 //  wire         atpg_en;
 //wire         atpg_en_sw;      //16/04/2024 commented by supriya
@@ -403,7 +418,7 @@ wire         ppg_clk50duty;
   wire                    comp_low_ch1;
 
 //---------------------------------
-  wire        cs_n, miso, mosi, sclk;
+  wire        cs_n, miso, mosi,miso1 , mosi, dual_en, dual_wr, sclk;
   wire        hfosc_atpg;       // hfosc after atpg mux
   //wire        fclk;             // hf free-running clock
 
@@ -701,6 +716,7 @@ gpio u_gpio(
   .o_IO_testmode1_PU      (o_IO_testmode1_PU)
 );
 
+wire o_stim_mon_int;   //to INTB
 
 pinmux u_pinmux (
 
@@ -734,7 +750,12 @@ pinmux u_pinmux (
   .sclk                 (sclk),
   .cs_n                 (cs_n),
   .mosi                 (mosi),
+  .mosi1                (mosi1),
   .miso                 (miso),
+  .mosi1                (mosi1),
+  .dual_en              (dual_en),
+  .dual_wr              (dual_wr),
+
   .o_cpoln              (iopad_cpoln),    
   .o_cpha               (iopad_cpha),
   .o_DAISY_IN           (DAISY_IN_Y),
@@ -760,6 +781,7 @@ pinmux u_pinmux (
   .i_tsc_int            (o_tsc_intb),   
   .i_eeg_int            (o_eeg_int),
   .i_nirs_int            (o_nirs_int),
+  .i_stim_mon_int            (o_stim_mon_int),
 
   .o_OTP_UNLOCK         (unlock_gpio),
   .o_OTP_ATM_MODE_SEL   (atm_mode),
@@ -773,15 +795,15 @@ pinmux u_pinmux (
 //.COMP_OUT_EN          (),
 //.COMP_OUT_SEL         (),
 //.COMP_OUT_SEL_STIM    (),
-  .o_A2D_COMP0            (A2D_COMP1),
-  .o_A2D_COMP1            (A2D_COMP2),
-  .A2D_STIMU0_1             (spi_ana_if.A2D_ANA_GEN_REG[0][1]), //A2D_COMP_OUT_STIMU0
-  .A2D_STIMU2_3             (spi_ana_if.A2D_ANA_GEN_REG[0][2]), //A2D_COMP_OUT_STIMU1
+//.o_A2D_COMP0            (A2D_COMP1),
+//.o_A2D_COMP1            (A2D_COMP2),
+//.A2D_STIMU0_1             (spi_ana_if.A2D_ANA_GEN_REG[0][1]), //A2D_COMP_OUT_STIMU0
+//.A2D_STIMU2_3             (spi_ana_if.A2D_ANA_GEN_REG[0][2]), //A2D_COMP_OUT_STIMU1
 
   .pinmux_if            (pinmux_if),
   .spi_pinmux_if        (spi_pinmux_if),
           
-  .sys_d2a_trim_reg     (spi_otp.trim_read[15:1]),
+  .sys_d2a_trim_reg     (spi_otp.trim_read[TRIM_NUMBER:1]),
   .i_gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl_reg),  
 // TSC
   .d2a_tsc_vdac8b_din_ch1 (d2a_tsc_vdac8b_din_ch1),
@@ -863,8 +885,8 @@ wire        adc_resetn;
 wire        adc_ctrl_resetn;
 wire        imeas_en;
 wire [3:0]  iclk_div ;
-wire [2:0]  iclk_div_pga ;
-wire   iclk_pga_disable ;
+wire [2:0]  iclk_div_ina_pga ;
+wire   iclk_ina_pga_disable ;
 //wire 	    D2A_POWER_EN;
 wire 	    enable_cic;
 wire        imeas_working_sync;
@@ -872,6 +894,86 @@ wire        imeas_working;
 //====================
 wire [4:0]  i_channel_max;
 wire [2:0]  PROD_ID;
+
+ wire adc_en;
+//temporily connected for verification
+ assign D2A_ADC_EN = adc_en;      //to analog	
+ wire adc_mode;
+ wire [15:0] adc_cap_period;
+ wire [3:0] pair_num;
+ wire [15:0] [3:0] stim_pad0_tgt;
+ wire [15:0] [3:0] stim_pad1_tgt;
+ wire [15:0]  A2D_ADC_DATA_TAG;
+ wire [15:0]  A2D_ADC_DELTA_DATA_TAG;
+
+
+//wire         iclk_stim_monitor_enable;               // stim monitor clock enable 
+wire  [3:0]  iclk_div_stim_monitor;               // stim monitor clock divider
+wire        iclk_stim_monitor_inv;               
+wire        stim_monitor_rst_reg;               
+
+wire 	     stim_monitor_ana_clk;
+wire 	     stim_monitor_dig_clk;
+
+wire [3:0] stim_dly_tgt;   //from spi
+wire [1:0] stim_mon_int_en;   //from spi
+wire [1:0] stim_mon_int_topin_en;   //from spi
+wire [1:0] stim_mon_delta_data_sel;   //from spi
+wire stim_mon_int_clr;   //from spi
+wire stim_mon_int_sts;   //to spi
+wire stim_mon_delta_int_clr;   //from spi
+wire stim_mon_delta_int_sts;   //to spi
+wire stim_monitor_rstn;
+wire stim_monitor_clk_running;
+
+adc_cap_ctrl u_adc_cap_ctrl(
+.sysclk(stim_monitor_dig_clk),	
+.presetn(stim_monitor_rstn),
+.scan_mode(atpg_en),
+
+  .o_source_driver           (o_source_driver),//(o_sourcea_driver_a[3:0]),
+  .o_pulldn_driver           (o_pulldn_driver),//(o_pullda_driver_a[3:0]),
+
+  .int_length_slct      (int_length_slct),
+ .stim_mon_int_en(stim_mon_int_en),   //from spi
+ .stim_dly_tgt(stim_dly_tgt),   //from spi
+ .stim_mon_int_topin_en(stim_mon_int_topin_en),   //from spi
+ .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
+
+ .stim_mon_int_clr(stim_mon_int_clr),   //from spi
+ .stim_mon_int_sts(stim_mon_int_sts),   //to spi
+
+ .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
+ .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+
+ .o_stim_mon_int(o_stim_mon_int),   //to INTB
+
+.adc_mode(adc_mode),   //0 is manual mode, 1 is auto mode
+     	//wavegen also need in manual mode if adc_mode is 0, should provide fixed stim waveform and source/pull
+.adc_cap_period(adc_cap_period),	
+.pair_num(pair_num),   //1 means has 2 pair, 2 means has 3 pair, max 16 pair	
+.stim_pad0_tgt(stim_pad0_tgt),	
+.stim_pad1_tgt(stim_pad1_tgt),	
+//temporily connected for verification
+/*
+.A2D_ADC_DATA(), //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+.A2D_ADC_DATA_EN(),//from analog	
+.D2A_STIM_PAD0(),    //to analog	
+.D2A_STIM_PAD1(),    //to analog	
+*/
+.A2D_ADC_DATA(A2D_ADC_DATA), //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
+.D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
+.D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
+
+
+.A2D_ADC_DATA_VLD(),	
+.A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),	
+.A2D_ADC_DELTA_DATA_VLD(),	
+.A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG)	
+);
 
 clk_ctrl u_clk_ctrl
 (
@@ -885,9 +987,16 @@ clk_ctrl u_clk_ctrl
   .imeas_working(imeas_working),
   .en_channels(imeas_en_chn),
 
-.iclk_pga_disable(iclk_pga_disable),               // pga clock divider
-.iclk_div_pga(iclk_div_pga),               // pga clock divider
-.pga_ana_clk(),   //connected to analog or pinmux then analog top
+.iclk_ina_pga_disable(iclk_ina_pga_disable),               // ina_pga clock divider
+.iclk_div_ina_pga(iclk_div_ina_pga),               // ina_pga clock divider
+.ina_pga_ana_clk(),   //before name pga_ana_clk, connected to analog or pinmux then analog top
+
+ .iclk_stim_monitor_enable(adc_en),               // stim monitor clock enable 
+ .iclk_div_stim_monitor(iclk_div_stim_monitor),               // stim monitor clock divider
+.iclk_stim_monitor_inv(iclk_stim_monitor_inv),               
+ .stim_monitor_ana_clk(),    				//connected to analog or pinmux then analog top
+ .stim_monitor_dig_clk(stim_monitor_dig_clk),
+ .stim_monitor_clk_running(stim_monitor_clk_running),
 
   .iclk_div(iclk_div),
   .imeas_adc_inv(imeas_adc_inv),
@@ -998,6 +1107,10 @@ reset_ctrl u_reset_ctrl
   .hfosc_atpg           (hfosc_atpg),
   //.fclk                 (fclk),
   .pclk                 (pclk),
+
+.stim_monitor_rst_reg(stim_monitor_rst_reg), 
+.stim_monitor_rstn(stim_monitor_rstn), 
+.stim_monitor_clk_running(stim_monitor_clk_running), 
 
 //ppg
   .ppg_clk_running	(ppg_clk_running),
@@ -1314,11 +1427,15 @@ u_spi_top (
   .iopad_cpol           (iopad_cpoln),
   .DAISY_IN_Y           (DAISY_IN_Y),
   
-  .i_sclk               (sclk),             // sclk clock for the spi-slave controller and reg block 
-  .i_cs_n               (cs_n),
-  .i_mosi               (mosi),
-  .o_miso               (miso),
-  .o_imeas_intr_clr     (imeas_intr_clr),
+  .i_sclk                (sclk),             // sclk clock for the spi-slave controller and reg block 
+  .i_cs_n                (cs_n),
+  .i_mosi                (mosi),
+  .i_mosi1               (mosi1),
+  .o_miso                (miso),
+  .o_miso1               (miso1),
+  .o_dual_en             (dual_en),
+  .o_dual_wr             (dual_wr),
+  .o_imeas_intr_clr      (imeas_intr_clr),
 
   .i_imeas_done(meas_done_filter),
   .PROD_ID(PROD_ID),
@@ -1337,8 +1454,31 @@ u_spi_top (
   .single_shot        (single_shot),
   .iclk_div             (iclk_div),
 
-.iclk_pga_disable(iclk_pga_disable),               // pga clock divider
-  .iclk_div_pga             (iclk_div_pga),
+.iclk_ina_pga_disable(iclk_ina_pga_disable),               // ina_pga clock divider
+  .iclk_div_ina_pga             (iclk_div_ina_pga),
+
+ .stim_dly_tgt(stim_dly_tgt),   //from spi
+ .stim_mon_int_en(stim_mon_int_en),   //from spi
+ .stim_mon_int_clr(stim_mon_int_clr),   //from spi
+ .stim_mon_int_sts(stim_mon_int_sts),   //to spi
+
+ .stim_mon_int_topin_en(stim_mon_int_topin_en),   //from spi
+ .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
+ .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
+ .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+
+.adc_en(adc_en),
+.adc_mode(adc_mode),
+.adc_cap_period(adc_cap_period),
+.pair_num(pair_num),
+.stim_pad0_tgt(stim_pad0_tgt),
+.stim_pad1_tgt(stim_pad1_tgt),
+.iclk_div_stim_monitor(iclk_div_stim_monitor) ,
+.iclk_stim_monitor_inv(iclk_stim_monitor_inv), 
+.stim_monitor_rst_reg(stim_monitor_rst_reg), 
+.A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),
+.A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG),	
+
 
   .imeas_en             (imeas_en),
   .imeas_reg_0          (imeas_reg_0),
@@ -1427,7 +1567,7 @@ u_spi_top (
   //.dac_en              (dac_en),            //bit0=1 is dac0, , bit1=1 is dac1 
   //.A2D_COMP1            (A2D_COMP1),   
   //.A2D_COMP2            (A2D_COMP2),   
-  .A2D_COMP0_7       ({14'b0,A2D_COMP2,A2D_COMP1}),   
+  //..A2D_COMP0_7       ({14'b0,A2D_COMP2,A2D_COMP1}),   
   
   //.lead_off_result      (lead_off_result),   
   //.lead_off_result1      (lead_off_result1),   
@@ -1703,7 +1843,9 @@ u_anac(
   .o_anac_int        (anac_int)
 );
 
-nirs_ppg_wrapper u_nirs_wrapper (
+nirs_ppg_wrapper #(
+  .NO_OF_NIRS(NO_OF_NIRS)
+) u_nirs_wrapper (
   .scan_mode        (atpg_en),
   .rst_n            (ppg_resetn),  // Temporary - Xin will provide the alternative later
   .clk_ana          (ana_ppgclk_inv),

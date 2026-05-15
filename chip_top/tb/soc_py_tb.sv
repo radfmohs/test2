@@ -538,7 +538,8 @@ assign config_data_imeas = {
      // ---------------------------------------
      // Word-12 for IMEAS Configuration
      // ---------------------------------------
-     32'h00000000,
+     // unstable samples for LPF and notch
+     `SOC_TB.dut_vif.notch_filter_data_gone,
 
      // ---------------------------------------
      // Word-11 for IMEAS Configuration

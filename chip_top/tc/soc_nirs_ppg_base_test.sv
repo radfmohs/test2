@@ -485,6 +485,9 @@ class `TESTNAME extends soc_base_test;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
 
+    //enable nirs_ppg assertion
+    `NIRS_PPG_IF.nirs_sva_enable = 1'b1;
+
     //`DUT_IF.nirs_irefcoarse_iref_delay = top_test_cfg.nirs_irefcoarse_iref_delay;
     //`DUT_IF.en_config_ch0                 =                top_test_cfg.en_config_ch0;
     //`DUT_IF.en_config_ch1                 =                top_test_cfg.en_config_ch1;

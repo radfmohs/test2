@@ -2,7 +2,6 @@ module nirs_ppg_ctrl (
   input  wire   rst_n,
   input  wire   clk,
 
-
   input  wire   EN,
   input  wire   IREF_COARSE,
   input  wire   IREF_FINE,
@@ -23,7 +22,6 @@ module nirs_ppg_ctrl (
   output wire   DOUTC_LATCH_EN,
   output wire   DOUTF_LATCH_EN,
   output wire   DOUT_EN
-
 );
 
   reg        [2:0]  cur, next;
@@ -103,7 +101,6 @@ module nirs_ppg_ctrl (
     endcase
   end
 
-
   wire IREF_COARSE_L, IREF_FINE_L, IREF_COARSE_L_N, IREF_FINE_L_N;
   reg  IREF_COARSE_L_d, IREF_FINE_L_d;
 
@@ -121,7 +118,6 @@ module nirs_ppg_ctrl (
   end
 
   reg EN_d;
-
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       EN_d <= 1'b0;
@@ -154,8 +150,6 @@ module nirs_ppg_ctrl (
   assign IDAC_UPDATE_EN   = (cur != next) && (next == IDLE);
   assign COUNTERS_CLEAR   = (cur != next) && (next == IDLE);
 
-
-
 // FLAGS
   reg IREF_COARSE_ON_NOT_OFF_d;
   reg IREF_COARSE_NOT_ON_d;
@@ -173,7 +167,6 @@ module nirs_ppg_ctrl (
     else
       IREF_COARSE_NOT_ON_d <= IREF_COARSE_NOT_ON_d;
   end
-
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
@@ -208,15 +201,14 @@ module nirs_ppg_ctrl (
       IREF_FINE_ON_NOT_OFF_d <= IREF_FINE_ON_NOT_OFF_d;
   end
 
-    always @(posedge clk or negedge rst_n) begin
-      if (!rst_n)
-        DATA_READY_d <= 1'b0;
-      else if (IDAC_UPDATE_EN && !(IREF_COARSE_ON_NOT_OFF || IREF_COARSE_NOT_ON || IREF_FINE_ON_NOT_OFF || IREF_FINE_NOT_ON))
-        DATA_READY_d <= 1'b1;
-      else 
-        DATA_READY_d <= 1'b0;
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      DATA_READY_d <= 1'b0;
+    else if (IDAC_UPDATE_EN && !(IREF_COARSE_ON_NOT_OFF || IREF_COARSE_NOT_ON || IREF_FINE_ON_NOT_OFF || IREF_FINE_NOT_ON))
+      DATA_READY_d <= 1'b1;
+    else 
+      DATA_READY_d <= 1'b0;
   end
-
 
   assign IREF_COARSE_ON_NOT_OFF = IREF_COARSE_ON_NOT_OFF_d;
   assign IREF_COARSE_NOT_ON     = IREF_COARSE_NOT_ON_d;

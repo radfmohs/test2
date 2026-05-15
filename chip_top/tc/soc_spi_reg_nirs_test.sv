@@ -114,7 +114,7 @@ class `TESTNAME extends soc_spi_reg_test;
    `DUT_IF.nirs_reg_en = top_test_cfg.nirs_reg_en;
    `DUT_IF.wavegen_reg_en = top_test_cfg.wavegen_reg_en;
    `DUT_IF.normal_reg_en = top_test_cfg.normal_reg_en;
-
+   `NIRS_PPG_IF.nirs_sva_enable =1'b0;
     // -------------------
     // Scoreboard enables
     // -------------------

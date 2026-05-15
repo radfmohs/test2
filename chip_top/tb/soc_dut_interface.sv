@@ -542,7 +542,11 @@ interface dut_interface();
   logic         debug_led;
   logic [3:0]   debug_channel;
 
-  logic [15:0]  drive_mode_en;              
+  logic [15:0]  wavegen_drv_mode;              
+  logic [15:0]  wavegen_drv_en;      
+
+  logic         wavegen_reg_all;
+  logic [3:0]   wavegen_reg_num;  
      
 endinterface: dut_interface
 `endif

@@ -98,18 +98,18 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   //                                       stopband_cut_off_freq == imeas_samp_rate/stopband_cut_off; }  
 
   //constraint c_lpf_coeff_index_1_select   {  solve imeas_samp_rate before lpf_coeff_index_1_select ;
-  //                                           (imeas_samp_rate inside {[30:32]})      -> lpf_coeff_index_1_select == 0 ;   // 31.25
-  //                                           (imeas_samp_rate inside {[62:64]})      -> lpf_coeff_index_1_select == 1 ;  // 62.5
-  //                                           (imeas_samp_rate inside {[125:128]})    -> lpf_coeff_index_1_select == 2 ;  
-  //                                           (imeas_samp_rate inside {[250:256]})    -> lpf_coeff_index_1_select == 3 ;  
-  //                                           (imeas_samp_rate inside {[500:512]})    -> lpf_coeff_index_1_select == 4 ;  
-  //                                           (imeas_samp_rate inside {[1000:1024]})  -> lpf_coeff_index_1_select == 5 ;  
-  //                                           (imeas_samp_rate inside {[2000:2048]})  -> lpf_coeff_index_1_select == 6 ;  
-  //                                           (imeas_samp_rate inside {[4000:4096]})  -> lpf_coeff_index_1_select == 7 ;  
-  //                                           (imeas_samp_rate inside {[8000:8192]})  -> lpf_coeff_index_1_select == 8 ;  
-  //                                           (imeas_samp_rate inside {[16000:16384]}) -> lpf_coeff_index_1_select == 9 ;  
-  //                                           (imeas_samp_rate inside {[32000:32768]}) -> lpf_coeff_index_1_select == 10;  
-  //                                           (imeas_samp_rate inside {[64000:65536]}) -> lpf_coeff_index_1_select == 11; 
+  //                                           (imeas_samp_rate inside {[30:32]})        -> lpf_coeff_index_1_select == 0 ;   // 31.25
+  //                                           (imeas_samp_rate inside {[62:64]})        -> lpf_coeff_index_1_select == 1 ;  // 62.5
+  //                                           (imeas_samp_rate inside {[125:128]})      -> lpf_coeff_index_1_select == 2 ;  
+  //                                           (imeas_samp_rate inside {[250:256]})      -> lpf_coeff_index_1_select == 3 ;  
+  //                                           (imeas_samp_rate inside {[500:512]})      -> lpf_coeff_index_1_select == 4 ;  
+  //                                           (imeas_samp_rate inside {[1000:1024]})    -> lpf_coeff_index_1_select == 5 ;  
+  //                                           (imeas_samp_rate inside {[2000:2048]})    -> lpf_coeff_index_1_select == 6 ;  
+  //                                           (imeas_samp_rate inside {[4000:4096]})    -> lpf_coeff_index_1_select == 7 ;  
+  //                                           (imeas_samp_rate inside {[8000:8192]})    -> lpf_coeff_index_1_select == 8 ;  
+  //                                           (imeas_samp_rate inside {[16000:16384]})  -> lpf_coeff_index_1_select == 9 ;  
+  //                                           (imeas_samp_rate inside {[32000:32768]})  -> lpf_coeff_index_1_select == 10;  
+  //                                           (imeas_samp_rate inside {[64000:65536]})  -> lpf_coeff_index_1_select == 11; 
   //                                           (imeas_samp_rate inside {[128000:131072]})-> lpf_coeff_index_1_select == 12; 
   //                                           (imeas_samp_rate inside {[256000:262144]})-> lpf_coeff_index_1_select == 13;} 
 
@@ -145,7 +145,22 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                        else if (imeas_samp_rate == 500) {sine_num_of_period == 200;}
                                        else {sine_num_of_period == 120;} }  
 
-  constraint c_notch_filter_data_gone   {  notch_filter_data_gone inside {[10:15]} ;}  
+  constraint c_notch_filter_data_gone   {  solve imeas_samp_rate before notch_filter_data_gone ; 
+                                           // in ns - converted from ms to ns as per design document 
+                                           (imeas_samp_rate inside {[30:32]})        -> notch_filter_data_gone == (811200000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[62:64]})        -> notch_filter_data_gone == (405600000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[125:128]})      -> notch_filter_data_gone == (204800000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[250:256]})      -> notch_filter_data_gone == (102400000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[500:512]})      -> notch_filter_data_gone == (51200000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[1000:1024]})    -> notch_filter_data_gone == (25600000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[2000:2048]})    -> notch_filter_data_gone == (12800000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[4000:4096]})    -> notch_filter_data_gone == (6400000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[8000:8192]})    -> notch_filter_data_gone == (3200000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[16000:16384]})  -> notch_filter_data_gone == (1600000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[32000:32768]})  -> notch_filter_data_gone == (800000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[64000:65536]})  -> notch_filter_data_gone == (400000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[128000:131072]})-> notch_filter_data_gone == (200000/(1000000000/imeas_samp_rate)) ;
+                                           (imeas_samp_rate inside {[256000:262144]})-> notch_filter_data_gone == (100000/(1000000000/imeas_samp_rate)) ; }
 
   constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[5:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
@@ -288,8 +303,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * 10;//2 sine length
 
     `DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * `DUT_IF.sine_num_of_period;//2 sine length
-    //if(`DUT_IF.no_of_samples > 10000) `DUT_IF.no_of_samples = 10000; // to limit the no of samples for python
-    if(`DUT_IF.no_of_samples > 4000) `DUT_IF.no_of_samples = 4000; // to limit the no of samples for python
+    if(`DUT_IF.no_of_samples > 10000) `DUT_IF.no_of_samples = 10000; // to limit the no of samples for python
     `DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
     `DUT_IF.python_filter_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
 

@@ -14,7 +14,7 @@
 
 `timescale 1ns/1ps
 
-module spi_top#(
+module spi_top #(
   parameter ADDR_WIDTH =8,
   parameter DATA_WIDTH =8,
   parameter HLF_WV_NO_PTS = 6, 
@@ -42,12 +42,36 @@ module spi_top#(
   input                i_sclk,
   input                i_cs_n,
   input                i_mosi,
+  input                i_mosi1,
   output               o_miso,
+  output               o_miso1, 
+  output               o_dual_en,
+  output               o_dual_wr,
+  output wire          stim_eeg_sync_en,
+  output wire[23:0]    filter_dly_tgt,
 
-output wire stim_eeg_sync_en,
-output wire[23:0] filter_dly_tgt,
+  output wire [3:0]    stim_dly_tgt,   //from spi
+  output wire [1:0]    stim_mon_int_en,   //from spi
+  output wire [1:0]    stim_mon_int_topin_en,   //from spi
+  output wire [1:0]    stim_mon_delta_data_sel,   //from spi
+  output wire          stim_mon_int_clr,   //from spi
+  input  wire          stim_mon_int_sts,   //to spi
 
-//bps imeas
+  output wire          stim_mon_delta_int_clr,   //from spi
+  input  wire          stim_mon_delta_int_sts,   //to spi
+  output wire          adc_en,
+  output wire          adc_mode,
+  output wire [15:0]   adc_cap_period,
+  output wire [3:0]    pair_num,
+  output wire [15:0] [3:0] stim_pad0_tgt,
+  output wire [15:0] [3:0] stim_pad1_tgt,
+  output wire [3:0]    iclk_div_stim_monitor,
+  output wire          iclk_stim_monitor_inv, 
+  output wire          stim_monitor_rst_reg, 
+  input  wire [15:0]   A2D_ADC_DATA_TAG,
+  input  wire [15:0]   A2D_ADC_DELTA_DATA_TAG,
+
+  //bps imeas
   input  wire[23:0]    imeas_chdata[EEG_CHN_NUM-1:0],
   input                i_imeas_done,
   output  wire         reset_cmd,
@@ -57,8 +81,8 @@ output wire[23:0] filter_dly_tgt,
 //output  wire         standby_cmd,
   output wire          single_shot,
   output wire [3:0]    iclk_div,
-  output wire [2:0]    iclk_div_pga,
-  output wire 		iclk_pga_disable,
+  output wire [2:0]    iclk_div_ina_pga,
+  output wire 	       iclk_ina_pga_disable,
   output wire          imeas_en,
   output wire [7:0]    imeas_reg_0,
   output wire [15:0]   imeas_en_chn,
@@ -87,7 +111,7 @@ output wire[23:0] filter_dly_tgt,
 
 //input  wire          A2D_COMP1,   
 //input  wire          A2D_COMP2,   
-  input  wire [NO_OF_WAVEGEN-1:0] A2D_COMP0_7,   
+//input  wire [NO_OF_WAVEGEN-1:0] A2D_COMP0_7,   
 
   output wire          otp_rst_reg,
   output wire          dig_rst_reg,
@@ -169,7 +193,7 @@ output wire[23:0] filter_dly_tgt,
 //output               dc_dc_en_otp,
 //output [2:0]         dc_clk_div_otp, 
   input   wire [7:0]   atm_adj_data,
-  input   wire [13:0]  atm_adj_mode,
+  input   wire [14:0]  atm_adj_mode,
   input   wire         atm_adj,
   output  wire         pmuenable,            // pmu enable
   output  wire         hresetreq,            // system reset request
@@ -191,7 +215,7 @@ output wire[23:0] filter_dly_tgt,
   input   wire         busy_doing,
   input   wire [7:0]   VDAC_NOR,
 
-  output  wire  [2:0]     PROD_ID,
+  output  wire  [2:0]  PROD_ID,
 
   output  wire         o_imeas_intr_clr,
 
@@ -209,7 +233,7 @@ output wire[23:0] filter_dly_tgt,
   input   wire         eeg_int_sts,
   output  wire [15:0]  cic_data_ignore_tar,
   output  wire [17:0]  lpf_coeff_data_o[27:0],
-  output  wire [19:0]  notch_coeff_data_o[35:0],
+  output  wire [19:0]  notch_coeff_data_o[23:0],
   output  wire [23:0]  hpf_coeff_data_o,
 
 //output  wire         fclk_sleep_en,
@@ -378,9 +402,13 @@ spi_slv_ctrl_u (
   .mode          (mode), 
 //.atpg_en	 (SCANMODE),
   .i_cs_n        (i_cs_n),
-  .i_mosi        (i_mosi),
+  .i_mosi         (i_mosi),
+  .i_mosi1        (i_mosi1),
   .i_rd_data     (rd_data),
-  .o_miso        (o_miso),
+  .o_miso         (o_miso),
+  .o_miso1        (o_miso1),
+  .o_dual_en     (o_dual_en),
+  .o_dual_wr     (o_dual_wr),
   .o_addr        (addr),
 //.o_addr_vld_for_int_clr(addr_vld_for_int_clr),
   .o_wr          (wr),
@@ -420,8 +448,30 @@ spi_reg_u (
   .i_clk(int_clk),            //clk for reg block same as sclk 
   .i_rst_n(i_rst_n),
 
-.stim_eeg_sync_en(stim_eeg_sync_en),
-.filter_dly_tgt(filter_dly_tgt),
+  .stim_eeg_sync_en(stim_eeg_sync_en),
+  .filter_dly_tgt(filter_dly_tgt),
+
+  .stim_dly_tgt(stim_dly_tgt),   //from spi
+  .stim_mon_int_en(stim_mon_int_en),   //from spi
+  .stim_mon_int_clr(stim_mon_int_clr),   //from spi
+  .stim_mon_int_sts(stim_mon_int_sts),   //to spi
+
+  .stim_mon_int_topin_en(stim_mon_int_topin_en),   //from spi
+  .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
+  .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
+  .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+
+  .adc_en(adc_en),
+  .adc_mode(adc_mode),
+  .adc_cap_period(adc_cap_period),
+  .pair_num(pair_num),
+  .stim_pad0_tgt(stim_pad0_tgt),
+  .stim_pad1_tgt(stim_pad1_tgt),
+  .iclk_div_stim_monitor(iclk_div_stim_monitor) ,
+  .iclk_stim_monitor_inv(iclk_stim_monitor_inv), 
+  .stim_monitor_rst_reg(stim_monitor_rst_reg), 
+  .A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),
+  .A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG),
 
   .atpg_en(SCANMODE),
   .atm_adj_mode(atm_adj_mode),
@@ -454,8 +504,8 @@ spi_reg_u (
 //.standby_cmd(standby_cmd),
   .single_shot(single_shot),
   .iclk_div(iclk_div),
-  .iclk_div_pga(iclk_div_pga),
-  .iclk_pga_disable(iclk_pga_disable),
+  .iclk_div_ina_pga(iclk_div_ina_pga),
+  .iclk_ina_pga_disable(iclk_ina_pga_disable),
   .imeas_en(imeas_en),
   .imeas_reg_0(imeas_reg_0),
   .imeas_en_chn(imeas_en_chn),
@@ -546,7 +596,7 @@ spi_reg_u (
 //.lead_off1_sts_clear(lead_off1_sts_clear),   
 //.dac_en(dac_en),    //bit0=1 is dac0, , bit1=1 is dac1 
 //.comp_reverse(comp_reverse),
-  .A2D_COMP0_7(A2D_COMP0_7),
+//.A2D_COMP0_7(A2D_COMP0_7),
 //.A2D_COMP1(A2D_COMP1),   
 //.A2D_COMP2(A2D_COMP2),   
 //.lead_off_result(lead_off_result),   
@@ -664,7 +714,6 @@ spi_reg_u (
 */
  
 );
-
 endmodule
 
 //------------------------------------------ 

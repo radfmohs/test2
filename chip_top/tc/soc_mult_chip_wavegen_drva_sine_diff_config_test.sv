@@ -129,8 +129,8 @@ class `TESTNAME extends `TESTNAME_BASE;
 
     wavegen_setup(0);//chip 0
 
-    wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE);
-    wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE);
+    wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE, 0);
+    wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE, 1);
 
     // Configure Chip 1 
     assert(top_test_cfg.randomize() with {mult_chip_mode == 2'b10; });
@@ -138,8 +138,8 @@ class `TESTNAME extends `TESTNAME_BASE;
 
     wavegen_setup(1);//chip 1
 
-    wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE);
-    wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE);
+    wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE, 0);
+    wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE, 1);
 
     // Enable 2 chips 
     assert(top_test_cfg.randomize() with {mult_chip_mode == 2'b00; });

@@ -78,19 +78,9 @@ wire   [1:0]            o_wg_driver_source[ELEC_NO_C-1:0];
 wire   [1:0]            o_period_num[ELEC_NO_C-1:0];
 wire   [1:0]            o_wg_driver_int_sts[ELEC_NO_C-1:0];
 
-wire                    wg_driver_in_wave_wr0[ELEC_NO_C-1:0];
-wire   [7:0]            wg_driver_in_wave_data_wr0[ELEC_NO_C-1:0];
-wire   [7:0]            wg_driver_in_wave_addr[ELEC_NO_C-1:0];
-wire   [7:0]            wg_driver_in_wave[ELEC_NO_C-1:0];
-
-assign wg_driver_in_wave_wr0      = spi_wg.wg_driver_in_wave_wr0;
-assign wg_driver_in_wave_data_wr0 = spi_wg.wg_driver_in_wave_data_wr0;
-assign wg_driver_in_wave_addr     = spi_wg.wg_driver_in_wave_addr;
-assign spi_wg.wg_driver_in_wave   = wg_driver_in_wave;
-
 
 assign  spi_wg.i_wg_driver_in_wave_addr      = o_wg_driver_in_wave_addr     ;
-//assign  spi_wg.i_wg_driver_ems_wave_addr     = o_wg_driver_ems_wave_addr     ;
+assign  spi_wg.i_wg_driver_ems_wave_addr     = o_wg_driver_ems_wave_addr     ;
 assign  spi_wg.i_wg_driver_source            = o_wg_driver_source           ;
 //assign  spi_wg.i_hlf_wave_cnt                = o_hlf_wave_cnt               ;
 assign  spi_wg.i_period_num                  = o_period_num                 ;
@@ -102,7 +92,7 @@ assign  spi_wg.i_wg_driver_int_sts           = o_wg_driver_int_sts          ;
 //   wire           	        i_wg_drivera_en_sync[ELEC_NO_C-1:0]       ;   
 //   wire           	        i_wg_driverc_en_sync[ELEC_NO_C-1:0]       ;   
    wire   [7:0]          	i_config_reg_sync[ELEC_NO_C-1:0];
-   wire   [15:0]         	i_wg_driver_rest_t_sync[ELEC_NO_C-1:0] ;
+   wire   [23:0]         	i_wg_driver_rest_t_sync[ELEC_NO_C-1:0] ;
    wire   [31:0]        	i_wg_driver_silent_t_sync[ELEC_NO_C-1:0] ;
    wire   [15:0]         	i_wg_driver_rest_t1_sync[ELEC_NO_C-1:0] ;
    wire   [31:0]        	i_wg_driver_silent_t1_sync[ELEC_NO_C-1:0] ;
@@ -136,7 +126,7 @@ assign  spi_wg.i_wg_driver_int_sts           = o_wg_driver_int_sts          ;
    wire                         i_no_of_num_slient_disable[ELEC_NO_C-1:0];
    wire [15:0]                  i_no_of_num_slient_tar[ELEC_NO_C-1:0];
    wire [7:0]                   i_reg_wg_cal_addr_sync[ELEC_NO_C-1:0];
-
+   wire           	        i_start_with_silent_sync[ELEC_NO_C-1:0]       ;
 
 reg [ELEC_NO_C-1:0]   	o_source_ds_driver_c;
 //reg [ELEC_NO_C-1:0]   	o_sink_ds_driver_c;
@@ -155,6 +145,7 @@ wire [ELEC_NO_C-1:0] [WAVE_NO_BITS-1:0]   o_out_wave_drivera_dac;
 wire [7:0] w_elec_no;
 //reg [ELEC_NO_C-1:0] [2:0] driver_c_ct;
 wire  w_sw[ELEC_NO_C-1:0] ;
+wire  wavegen_clk_gating[ELEC_NO_C-1:0];
 
 
 //assign o_out_wave_drivera_dac0 = o_out_wave_drivera_dac[0];
@@ -197,7 +188,16 @@ assign  o_pulldn_driver[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][2] : o_sw_pu
 //assign  o_pulldb_driver_c[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][3] : o_sw_pullup_driver_c[i];
 assign  o_out_wave_driver_idac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] : spi_wg.dirve[i][4]? spi_wg.dirve[i][17:6] : o_out_wave_drivera_dac_temp[i];
 
-assign drive_en[i] = (spi_wg.global_en | spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
+assign drive_en[i] = (spi_wg.global_en & spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
+
+
+common_clock_gate wavegen_clk_gating (
+  .clk        (i_pclk),
+  .enable     (drive_en[i]),
+  .bypass     (scan_mode),
+  .gated_clk  (wavegen_clk_gating[i])
+);
+
 
 common_sync_bit   u_driver_en_sync (
        .clk(i_fclk),
@@ -278,6 +278,9 @@ assign i_pullba_ctrl_sync[i]          = spi_wg.o_pullba_ctrl[i];
 assign i_no_of_num_slient_disable[i]  = spi_wg.o_no_of_num_slient_disable[i];
 assign i_no_of_num_slient_tar[i]      = spi_wg.o_no_of_num_slient_tar[i];
 
+assign i_start_with_silent_sync[i]    = spi_wg.o_start_with_silent[i];
+
+
 common_rst_sync u_addr0_int_clr_sync(
 .RSTINn    (i_presetn),
 .RSTREQ    (spi_wg.o_addr0_int_clr[i]),
@@ -296,10 +299,12 @@ common_rst_sync u_addr1_int_clr_sync(
 .RSTOUTn   (i_addr1_int_clr_sync[i])
 );
 
-assign w_out_wave_val_adj[i] = ((i_config_reg_sync[i][1] & i_config_reg_sync[i][3] & !i_config_reg_sync[i][7]) | i_config_reg_sync[i][4])? (w_source[i]==2'b01)?  (w_out_wave_val[i] >> 1) +(12'h7f8 >> spi_wg.data_scl[i][2:0] ):
-                                                                                                      (w_source[i]==2'b10)? $signed(-(w_out_wave_val[i] >> 1)) + $signed((12'h7f8 >> spi_wg.data_scl[i][2:0])): 12'h000
-                                                                                                    : w_out_wave_val[i];
+//assign w_out_wave_val_adj[i] = ((i_config_reg_sync[i][1] & i_config_reg_sync[i][3] & !i_config_reg_sync[i][7]) | i_config_reg_sync[i][4])? (w_source[i]==2'b01)?  (w_out_wave_val[i] >> 1) +(12'h7f8 >> spi_wg.data_scl[i][2:0] ):
+//                                                                                                      (w_source[i]==2'b10)? $signed(-(w_out_wave_val[i] >> 1)) + $signed((12'h7f8 >> spi_wg.data_scl[i][2:0])): //12'h000
+//                                                                                                    : w_out_wave_val[i];
 
+
+assign w_out_wave_val_adj[i] = w_out_wave_val[i];
 
 
 
@@ -406,7 +411,7 @@ wg_driver_top_inst
 
 // Digital side interface
 //clock and reset
-  .i_pclk(i_pclk),          // pclk
+  .i_pclk(wavegen_clk_gating),          // pclk
 //  .i_pclkg(i_pclkg),         // gated clock
   .i_presetn(i_presetn),       // reset
  .scan_mode                     (scan_mode),   //tri change
@@ -414,11 +419,6 @@ wg_driver_top_inst
 
  .in_wave_addr  (o_wg_driver_in_wave_addr),
  .ems_wave_addr (o_wg_driver_ems_wave_addr),
- .wg_driver_in_wave_wr0(wg_driver_in_wave_wr0),
- .wg_driver_in_wave_data_wr0(wg_driver_in_wave_data_wr0),
- .wg_driver_in_wave_addr(wg_driver_in_wave_addr),
- .wg_driver_in_wave(wg_driver_in_wave),
-
  .w_source	(o_wg_driver_source),
  //.hlf_wave_cnt  (o_hlf_wave_cnt),
  .period_num    (o_period_num),
@@ -449,6 +449,7 @@ wg_driver_top_inst
  .w_sw_config_reg   (i_wg_driver_sw_config_sync),
  .w_mult_elec       (i_mult_elec_sync),
  .pullba_ctrl       (i_pullba_ctrl_sync),
+ .start_with_silent (i_start_with_silent_sync),
 
  .reg_wg_cal_addr               (i_reg_wg_cal_addr_sync),
  .i_data_scl                    (spi_wg.o_data_scl),

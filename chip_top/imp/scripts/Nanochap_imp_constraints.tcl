@@ -52,8 +52,8 @@ if {[string match S?2*_m?? $i]} {
   # ================================================================================================================================
   # ===== ext_clk  
   # ================================================================================================================================
-  create_clock -name ext_clk {IOBUF_PAD[0]} -period $hfosc_period  -add
-  set_clock_uncertainty -setup   [expr {0.05 * ${hfosc_period}}]     [get_clocks ext_clk]
+  create_clock -name ext_clk {IOBUF_PAD[0]} -period $extclk_period  -add
+  set_clock_uncertainty -setup   [expr {0.05 * ${extclk_period}}]     [get_clocks ext_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks ext_clk]
   #set_case_analysis 0 [get_pins u_top_ana/A2D_EXTERNAL_EN_I]
   #set_case_analysis 0 [get_pins u_top_dig_always_on/u_clk_ctrl_always_on/DNT_ADC_CLK_INV/S0];#No need to create another scenario for this
@@ -107,6 +107,11 @@ if {[string match S12?_m?? $i]} {
          -group [list ext_clk vclk] \
          -group [list spi_clk] \
 }
+
+if {[string match S3_m?? $i]} {
+  set_clock_groups -asynchronous -name async_grp_bist \
+    -group [list mbist_clk mbist_vclk]
+}
   
 #set_sense -type clock -stop_propagation -clocks spi_clk      [get_pins  u_top_dig/u_pinmux/u_gpio4_pinmux/u_altf1_y/DNT_MX2/Y]
 
@@ -128,7 +133,7 @@ if {[string match S3_m?? $i]} {
   set_output_delay -clock mbist_vclk -max [expr {0.20 * ${mbistclk_period}}]    [get_ports IOBUF_PAD[5]] -add_delay
   set_output_delay -clock mbist_vclk -min 0.0                                   [get_ports IOBUF_PAD[5]] -add_delay
   
-  set_false_path -from mbist_vclk -through IOBUF_PAD[1] -to mbist_vclk;#source and destination cannot be both virtual clock
+  #set_false_path -from mbist_vclk -through IOBUF_PAD[1] -to mbist_vclk;#source and destination cannot be both virtual clock
 } 
      
 #if not bist mode    
@@ -225,6 +230,7 @@ if {[string match S3_m?? $i]} {
 
 #this pad always fixed
 set_false_path -from iopad_testmode*
+set_false_path -from [get_ports RESETn]
  
  # --------------------------------------------------------------------------------------------------------------------------------
  #
@@ -256,8 +262,8 @@ if {[string match S22_m?? $i]} {
 if {[string match S4_m?? $i]==0} {
  set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PPROG] ; # OTP Program Enable Mode
  set_multicycle_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
- set_multicycle_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
+ set_multicycle_path -hold  1 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
  set_multicycle_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
- set_multicycle_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
+ set_multicycle_path -hold  1 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
 }
 

@@ -46,14 +46,14 @@ interface spi_wg #(
 
 // wavegen
 wire  [7:0]    i_wg_driver_in_wave_addr[NO_OF_WAVEGEN-1:0];
-//wire  [7:0]    i_wg_driver_ems_wave_addr[NO_OF_WAVEGEN-1:0];
+wire  [7:0]    i_wg_driver_ems_wave_addr[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_wg_driver_source[NO_OF_WAVEGEN-1:0];
 //wire  [7:0]  i_hlf_wave_cnt[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_period_num[NO_OF_WAVEGEN-1:0];
 wire           o_wg_driver_en[NO_OF_WAVEGEN-1:0];    
 wire  [4:0]    o_period_sel[NO_OF_WAVEGEN-1:0];                  
 wire  [7:0]    o_config_reg[NO_OF_WAVEGEN-1:0];
-wire  [15:0]   o_wg_driver_rest_t[NO_OF_WAVEGEN-1:0];
+wire  [23:0]   o_wg_driver_rest_t[NO_OF_WAVEGEN-1:0];
 wire  [31:0]   o_wg_driver_silent_t[NO_OF_WAVEGEN-1:0]; 
 wire  [15:0]   o_wg_driver_rest_t1[NO_OF_WAVEGEN-1:0];
 wire  [31:0]   o_wg_driver_silent_t1[NO_OF_WAVEGEN-1:0];   
@@ -81,10 +81,6 @@ wire           o_addr0_int_clr[NO_OF_WAVEGEN-1:0] ;
 wire           o_addr1_int_clr[NO_OF_WAVEGEN-1:0] ;     
 wire  [7:0]    o_wg_driver_int_cnt[NO_OF_WAVEGEN-1:0];
 wire  [1:0]    i_wg_driver_int_sts[NO_OF_WAVEGEN-1:0];
-wire           wg_driver_in_wave_wr0  [NO_OF_WAVEGEN-1:0];
-wire  [7:0]    wg_driver_in_wave_data_wr0 [NO_OF_WAVEGEN-1:0];
-wire  [7:0]    wg_driver_in_wave_addr [NO_OF_WAVEGEN-1:0];
-wire  [7:0]    wg_driver_in_wave  [NO_OF_WAVEGEN-1:0];
 wire  [7:0]    o_pullba_ctrl[NO_OF_WAVEGEN-1:0];
 wire  [17:0]   dirve[NO_OF_WAVEGEN-1:0];      
 wire           global_en;
@@ -109,6 +105,8 @@ wire [7:0]     wg_driver_neg_scale[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_pos_scale[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_neg_offset[NO_OF_WAVEGEN-1:0];
 wire [7:0]     wg_driver_pos_offset[NO_OF_WAVEGEN-1:0];
+
+wire           o_start_with_silent[NO_OF_WAVEGEN-1:0];
 
 modport master(
   output o_wg_driver_en,          
@@ -156,7 +154,8 @@ modport master(
   output o_reg_wg_driver_neg_offset,
   output o_reg_wg_driver_pos_offset,
   output alt_ems_cnt_tar,
-  
+  output o_start_with_silent,
+
   input  data_scl,
   input  ems_data_ctrl,
   input  wg_driver_neg_scale,
@@ -167,15 +166,11 @@ modport master(
   output w_isel,
 
   input i_wg_driver_in_wave_addr,
-//input i_wg_driver_ems_wave_addr,
+  input i_wg_driver_ems_wave_addr,
   input i_wg_driver_source,
 //input i_hlf_wave_cnt, 
   input i_period_num,
-  input i_wg_driver_int_sts,
-  output wg_driver_in_wave_wr0,
-  output wg_driver_in_wave_data_wr0,
-  output wg_driver_in_wave_addr,
-  input  wg_driver_in_wave
+  input i_wg_driver_int_sts
 );
 
 modport slave (
@@ -215,6 +210,7 @@ modport slave (
   input stop_wavegen,
   input o_no_of_num_slient_disable,
   input o_no_of_num_slient_tar,
+  input o_start_with_silent,
 
   input o_reg_wg_cal_addr,
   input o_data_scl,
@@ -235,16 +231,11 @@ modport slave (
   output  wg_driver_pos_offset,
 
   output i_wg_driver_in_wave_addr,
-//output i_wg_driver_ems_wave_addr,
+  output i_wg_driver_ems_wave_addr,
   output i_wg_driver_source,
 //output i_hlf_wave_cnt, 
   output i_period_num,
-  output i_wg_driver_int_sts,
-
-  input  wg_driver_in_wave_wr0,
-  input  wg_driver_in_wave_data_wr0,
-  input  wg_driver_in_wave_addr,
-  output wg_driver_in_wave
+  output i_wg_driver_int_sts
 );
 
 endinterface
@@ -388,33 +379,35 @@ endinterface
 // Interface between PINMUX and ANA_WRAPPER
 interface pinmux_if #(
   TRIM_NUMBER = 15,
+  EN_SEC_NUMBER = 2,
   EN_REG_NUMBER = 1,
-  ADJ_NUMBER = 14
+  ADJ_NUMBER = 15
 
 //SPARE_NUMBER  = 3
 ) ();
 
-//wire              [7:0] D2A_TRIM_SIG_SPARE [SPARE_NUMBER-1:0];
-wire              [7:0] D2A_ANA_ENABLE_REG [1:0] [15:0];
-wire						  [28:0] D2A_ATM;                        //from pinmux to ana
-//wire            [2:0] ENCODED_ATM;                    //from pinmux to ana
-wire              [7:0] D2A_TRIM_SIG [14:0]; //from pinmux to ana 
-wire              [7:0] D2A_ADJ_IO   [ADJ_NUMBER-1:0]; //from pinmux to ana 
-wire                    ATM_HC_SEL;
-//wire            [1:0] A2D_TRIM_SIG [TRIM_NUMBER-1:0]; //from ana to pinmux 
-wire              [7:0] d2a_tsc_vdac8b_din_ch1; 
-//wire                    d2a_tsc_vdac8b_en_ch1;  
-//wire                    d2a_tsc_comp_en_ch1;    
-wire                    d2a_tsc_en_ch1;       
-wire                    i_ds_driver_en_current;       
-wire                    i_stimu_en;       
-//wire                    D2A_ANA_OUT_SEL1;
-//wire                    D2A_ANA_OUT_SEL2;
-//wire                    D2A_ANA_OUT_SEL3;
-//wire                    D2A_ANA_OUT_SEL4;
-//wire                    D2A_ANA_OUT_SEL5;
-//wire                    D2A_ANA_OUT_SEL6;
-//wire                    D2A_ANA_OUT_SEL7;  
+//wire       [7:0]  D2A_TRIM_SIG_SPARE [SPARE_NUMBER-1:0];
+  wire       [7:0]  D2A_ANA_ENABLE_REG [EN_SEC_NUMBER-1:0] [EN_REG_NUMBER-1:0];
+  wire      [29:0]  D2A_ATM;                        //from pinmux to ana
+//wire       [2:0]  ENCODED_ATM;                    //from pinmux to ana
+  wire       [7:0]  D2A_TRIM_SIG [TRIM_NUMBER-1:0]; //from pinmux to ana 
+  wire       [7:0]  D2A_ADJ_IO   [ADJ_NUMBER-1:0];  //from pinmux to ana 
+  wire              ATM_HC_SEL;
+//wire       [1:0]  A2D_TRIM_SIG [TRIM_NUMBER-1:0]; //from ana to pinmux 
+  wire       [7:0]  d2a_tsc_vdac8b_din_ch1; 
+//wire              d2a_tsc_vdac8b_en_ch1;  
+//wire              d2a_tsc_comp_en_ch1;    
+  wire              d2a_tsc_en_ch1;       
+  wire              i_ds_driver_en_current;       
+  wire              i_stimu_en;     
+  wire							debug_mode_en;  
+//wire              D2A_ANA_OUT_SEL1;
+//wire              D2A_ANA_OUT_SEL2;
+//wire              D2A_ANA_OUT_SEL3;
+//wire              D2A_ANA_OUT_SEL4;
+//wire              D2A_ANA_OUT_SEL5;
+//wire              D2A_ANA_OUT_SEL6;
+//wire              D2A_ANA_OUT_SEL7;  
 
 modport A2D (
 //input  D2A_TRIM_SIG_SPARE,
@@ -430,6 +423,7 @@ modport A2D (
 //input  d2a_tsc_comp_en_ch1,
   input  i_ds_driver_en_current,
   input  i_stimu_en,
+  input  debug_mode_en,
   input  d2a_tsc_en_ch1
 
 
@@ -454,6 +448,7 @@ modport D2A (
   output d2a_tsc_vdac8b_din_ch1,
   output i_ds_driver_en_current,
   output i_stimu_en,
+  output debug_mode_en,
 //output d2a_tsc_vdac8b_en_ch1,
 //output d2a_tsc_comp_en_ch1,
   output d2a_tsc_en_ch1
@@ -470,12 +465,14 @@ endinterface
 
 // Interface between SPI and ANA_WRAPPER
 interface spi_ana_if #(
+  A2D_REG_NUMBER = 8,
+  GEN_SEC_NUMBER = 8,
   REG_NUMBER = 15
 ) ();
 
 //wire       ATM_HC_SEL;
-wire [7:0] D2A_ANA_GEN_REG [7:0][14:0];
-wire [7:0] A2D_ANA_GEN_REG [7:0];
+wire [7:0] D2A_ANA_GEN_REG [GEN_SEC_NUMBER-1:0][REG_NUMBER-1:0];
+wire [7:0] A2D_ANA_GEN_REG [A2D_REG_NUMBER-1:0];
 
 modport spi (
 //output ATM_HC_SEL,
@@ -492,10 +489,11 @@ endinterface
 
 // Interface between SPI and PINMUX
 interface spi_pinmux_if #(
+  EN_SEC_NUMBER = 2,
   EN_REG_NUMBER = 16
 ) ();
 
-wire [7:0] ANA_ENABLE_REG [1:0][14:0];
+wire [7:0] ANA_ENABLE_REG [EN_SEC_NUMBER-1:0][EN_REG_NUMBER-1:0];
 wire       ATM_HC_SEL;
 wire       ANA_BIST_HC_SEL;
 wire       INT_LEVEL_SEL;

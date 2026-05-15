@@ -66,6 +66,10 @@ class `TESTCFG extends soc_spi_reg_test_cfg;
 
   constraint c_normal_reg_en  { normal_reg_en == 1'b0; }
 
+  constraint c_wavegen_reg_all  { wavegen_reg_all == 1'b1;}
+
+  constraint c_wavegen_reg_num  { wavegen_reg_num inside {[0:15]};}
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================

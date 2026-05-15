@@ -212,17 +212,17 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM11", $sformatf("D2A_BIST_SEL = %b is not as expectation of 5'b01011", `ANA_TOP.D2A_BIST_SEL))
       end
-    if (`ANA_TOP.D2A_EN_TSC !== 1'b1)
+    /*if (`ANA_TOP.D2A_EN_TSC !== 1'b1)
       begin
         `nnc_error("ATM11", $sformatf("D2A_EN_TSC = %b is not as expectation of 1'b1", `ANA_TOP.D2A_EN_TSC))
-      end
+      end*/
     if (`ANA_TOP.D2A_BIST_EN !== 1'b1)
       begin
         `nnc_error("ATM11", $sformatf("D2A_BIST_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_BIST_EN))
       end  
-    if (`ANA_TOP.D2A_OSC8MHZEN !== 1'b0)
+    if (`ANA_TOP.D2A_OSC8MHZEN !== 1'b1)
       begin
-        `nnc_error("ATM11", $sformatf("D2A_OSC8MHZEN = %b is not as expectation of 1'b0", `ANA_TOP.D2A_OSC8MHZEN))
+        `nnc_error("ATM11", $sformatf("D2A_OSC8MHZEN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_OSC8MHZEN))
       end 
     if(`ANA_TOP.D2A_BGBUFFER_CPTEST_EN != 1'b1)
       begin

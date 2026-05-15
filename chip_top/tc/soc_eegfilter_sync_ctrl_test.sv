@@ -2,7 +2,7 @@
 // Copyright 2021 Nanochap, Inc.
 // All Rights Reserved Worldwide
 //--------------------------------------------------------------------------------------
-// File Name	: soc_imeas_eegfilter__base_test.sv                                                   
+// File Name	: soc_eegfilter_sync_ctrl_test.sv                                                   
 // Project	: Nanochap ENS2                                  		        
 // Description	: Testcase soc_eegfilter_sync_ctrl_test                                             
 // Designer	: shreeyal@nanochap.com                                                                 
@@ -37,7 +37,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_filter_dly_val       { filter_dly_val inside {['hF:'h3FFF]}; }
 
-  constraint c_filter_sync_en       { filter_sync_en inside {[1:1]}; }
+  constraint c_filter_sync_en       { filter_sync_en inside {[0:1]}; }
 
   // -----------------------------------------------
   // End of adding constraints of randomization

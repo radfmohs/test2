@@ -362,7 +362,7 @@ class `TESTNAME extends soc_wavegen_base_test;
       for (int j = 0; j < 128; j++)
         top_test_cfg.sawtooth_data[i][j] = mem_tmp[j];
 
-      if (`DUT_IF.drive_mode_en === 1'b1) begin
+      if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
         for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin
           top_test_cfg.sawtooth_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
          end

@@ -21,7 +21,7 @@ module arb_wave_gen
 	OUT_NO_BITS = 8 // number of bits for the generated output value (which goes into the DAC)
 )
 ( //arguments
-	input wire [15:0] rest_t, //resting time (in microseconds) between the positive side and the negative side of the wave in a period
+	input wire [23:0] rest_t, //resting time (in microseconds) between the positive side and the negative side of the wave in a period
 	input wire [31:0] silent_t, //silent time (in microseconds) before the next wave period
 	input wire [15:0] rest_t1, //resting time (in microseconds) between the positive side and the negative side of the wave in a period
 	input wire [31:0] silent_t1, //silent time (in microseconds) before the next wave period
@@ -50,6 +50,7 @@ module arb_wave_gen
 	input wire enable,     
         input wire scan_mode,  //tri add
         input wire int_length_slct,
+        input wire start_with_silent, //0: start with pos/neg edge; 1: start with silent
         input wire [4:0] period_sel,
         input wire [7:0] reg_wg_cal_addr,
         input wire [7:0] wg_driver_int_addr0,
@@ -84,6 +85,7 @@ module arb_wave_gen
 	output reg  [1:0] source //bit 0: source a, 1: source b
 );
 
+
 localparam  S0 = 3'h0;
 localparam  S1 = 3'h1;
 localparam  S2 = 3'h2;
@@ -105,7 +107,7 @@ reg [17:0] alt_cnt;
 wire [15:0] nxt_wave_val_lim; // number of clocks for positive value of the wave
 wire [15:0] neg_nxt_wave_val_lim; // number of clocks for negative value of the wave
 reg [15:0] nxt_wave_val_cnt; // count until (2**HLF_WV_NO_PTS)
-wire [15:0] rest_lim; // number of clocks for each rest period
+wire [23:0] rest_lim; // number of clocks for each rest period
 //reg [15:0] rest_cnt;
 wire [31:0] silent_lim; // number of clocks for each silent period
 //reg [15:0] rest_cnt;
@@ -134,28 +136,30 @@ assign config_reg = (!no_of_num_slient_disable)? i_config_reg : i_config_reg & {
 assign o_period_num   = period_num;
 //assign o_hlf_wave_cnt = hlf_wave_cnt[7:0];
 
-assign hlf_wave_cnt_max =(point_config <= 8'd128)?  {8'b0,point_config} :  16'd128;
+//assign hlf_wave_cnt_max =(point_config <= 8'd64)?  {8'b0,point_config} :  16'd64;
 
-//assign hlf_wave_cnt_max =(period_sel[2:0]==3'b000)? (point_config <= 8'd128)?  {24'b0,point_config} :  32'd128;
+assign hlf_wave_cnt_max ={8'b0,point_config};
+
+//assign hlf_wave_cnt_max =(period_sel[2:0]==3'b000)? (point_config <= 8'd64)?  {24'b0,point_config} :  32'd64;
 //                          (period_sel[2:0]==3'b001)? (point_config <= 8'd64) ?  {24'b0,point_config} :  8'd64:
 //                          (period_sel[2:0]==3'b010)? (point_config <= 8'd42) ?  {24'b0,point_config} :  8'd42:                       
-//                                                     (point_config <= 8'd128)?  {24'b0,point_config} :  8'd128;
+//                                                     (point_config <= 8'd64)?  {24'b0,point_config} :  8'd64;
 //assign hlf_wave_cnt_max  = ((!config_reg[7])^config_reg[1])? hlf_wave_cnt_max1 : hlf_wave_cnt_max2;
 
 assign hlf_wave_cnt_max_m1 = hlf_wave_cnt_max-1;
 assign next_addr = (hlf_wave_cnt + 1 < {16'h0,hlf_wave_cnt_max}) ? hlf_wave_cnt[15:0] + 1 : 0;
-assign point_will_overflow_128 = period_sel[4] ? ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state == S3)) && (({1'b0,in_wave_addr}+{1'b0,hlf_wave_cnt_max[7:0]}) > 9'd128):
-                                                 ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state != S0)) && (({1'b0,in_wave_addr}+{1'b0,hlf_wave_cnt_max[7:0]}) > 9'd128);
+assign point_will_overflow_128 = period_sel[4] ? ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state == S3)) && (({1'b0,in_wave_addr}+{1'b0,hlf_wave_cnt_max[7:0]}) > 9'd64):
+                                                 ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state != S0)) && (({1'b0,in_wave_addr}+{1'b0,hlf_wave_cnt_max[7:0]}) > 9'd64);
 
-assign point_will_overflow_max = ((period_sel[2:0]==3'b000) && ((!config_reg[7])^config_reg[1]))? 8'd128:
+assign point_will_overflow_max = ((period_sel[2:0]==3'b000) && ((!config_reg[7])^config_reg[1]))? 8'd64:
                                  ((period_sel[2:0]==3'b001) && ((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<1) :                        
                                  ((period_sel[2:0]==3'b010) && ((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<1) + hlf_wave_cnt_max[7:0]: 
-                                 (({period_sel[4],period_sel[2:0]}==4'b1000) && !((!config_reg[7])^config_reg[1]))? 8'd128:
+                                 (({period_sel[4],period_sel[2:0]}==4'b1000) && !((!config_reg[7])^config_reg[1]))? 8'd64:
                                  (({period_sel[4],period_sel[2:0]}==4'b1001) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<1) :                        
                                  (({period_sel[4],period_sel[2:0]}==4'b1010) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<1) + (hlf_wave_cnt_max[7:0]) :
-                                 (({period_sel[4],period_sel[2:0]}==4'b0000) && !((!config_reg[7])^config_reg[1]))? 8'd128:
+                                 (({period_sel[4],period_sel[2:0]}==4'b0000) && !((!config_reg[7])^config_reg[1]))? 8'd64:
                                  (({period_sel[4],period_sel[2:0]}==4'b0001) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<2) :                        
-                                 (({period_sel[4],period_sel[2:0]}==4'b0010) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<2) + (hlf_wave_cnt_max[7:0]<<1) : 8'd128;
+                                 (({period_sel[4],period_sel[2:0]}==4'b0010) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<2) + (hlf_wave_cnt_max[7:0]<<1) : 8'd64;
 
 assign point_will_overflow = ((in_wave_addr== point_will_overflow_max - 1) && (state != S7)) || point_will_overflow_128;
 
@@ -163,7 +167,7 @@ wire state1_end,state2_end,state3_end,state4_end;
 
 
 assign state1_end = ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && ((nxt_wave_val_cnt == (nxt_wave_val_lim-1)) && (state == S1))); 
-assign state2_end = (((hlf_wave_cnt == {16'h0,(rest_lim-1'b1)}        ) && (state == S2))); 
+assign state2_end = (((hlf_wave_cnt == {8'h0,(rest_lim-1'b1)}        ) && (state == S2))); 
 assign state3_end = ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && ((nxt_wave_val_cnt == (neg_hlf_wave_lim-1)) && (state == S3))); 
 assign state4_end = (((hlf_wave_cnt == (silent_lim-1)      ) && (state == S4))); 
 
@@ -185,8 +189,8 @@ assign neg_hlf_wave_lim = (period_sel[2:0]==3'b000)? neg_hlf_wave_per :
 assign nxt_wave_val_lim = hlf_wave_lim; //hlf_wave_lim >> $clog2((2**HLF_WV_NO_PTS)) OR hlf_wave_lim >> HLF_WV_NO_PTS
 assign neg_nxt_wave_val_lim = neg_hlf_wave_lim; //hlf_wave_lim >> $clog2((2**HLF_WV_NO_PTS)) OR hlf_wave_lim >> HLF_WV_NO_PTS
 assign rest_lim = (period_sel[2:0]==3'b000)? rest_t : 
-                  (period_sel[2:0]==3'b001)? (period_num==2'b00)? rest_t : rest_t1 :           
-                  (period_sel[2:0]==3'b010)? (period_num==2'b00)? rest_t : (period_num==2'b01)? rest_t1 :   rest_t2 : rest_t;
+                  (period_sel[2:0]==3'b001)? (period_num==2'b00)? rest_t : {8'h00,rest_t1} :           
+                  (period_sel[2:0]==3'b010)? (period_num==2'b00)? rest_t : (period_num==2'b01)? {8'h00,rest_t1} :   {8'h00,rest_t2} : rest_t;
 
 assign silent_lim = (period_sel[2:0]==3'b000)? silent_t : 
                     (period_sel[2:0]==3'b001)? (period_num==2'b00)? silent_t : silent_t1 :           
@@ -321,7 +325,7 @@ assign     ams_en           = i_ems_data_ctrl[3];
 assign ems_enable       = enable & (state==S1) & ams_en & config_reg[4] & (|alt_ems_cnt_tar);
 assign alt_ems_cnt_flg  = (alt_cnt == alt_lim + alt_rest_lim + alt_silent_lim -1);
 assign alt_ems_addr_flg = (alt_ems_cnt==alt_ems_cnt_tar-1) & alt_ems_cnt_flg;  
-assign alt_ems_addr_tar = 8'd127-hlf_wave_cnt_max[7:0]; 
+assign alt_ems_addr_tar = 8'd63-hlf_wave_cnt_max[7:0]; 
 
 always @(posedge clk, negedge reset) begin : EMS_CNT
    if (!reset) begin
@@ -447,7 +451,10 @@ always @(posedge clk, negedge reset) begin
 			   if (enable) begin
 				   if ((delay_lim > 16'b0) & (hlf_wave_cnt < {16'b0,delay_lim} - 1)) begin
 					hlf_wave_cnt <= hlf_wave_cnt + 1;
-				   end
+				   end                                   
+				   else if (start_with_silent & ((silent_lim > 32'b0) & (hlf_wave_cnt < silent_lim))) begin
+					hlf_wave_cnt <= hlf_wave_cnt + 1;				       
+                                   end
 				   else begin
 					hlf_wave_cnt <= 0;
                                         if((~(|(config_reg & 8'h80))) && !(&(nxt_wave_val_lim -1))) begin
@@ -497,7 +504,7 @@ always @(posedge clk, negedge reset) begin
 							end
 							else if (alt_cnt < alt_lim + alt_rest_lim-1) begin
 								source[0] <= 0;
-								source[1] <= 1;
+								source[1] <= 0;
 								alt_cnt <= alt_cnt + 1;
 							end
 							else if (alt_cnt < alt_lim + alt_silent_lim + alt_rest_lim- 1) begin
@@ -625,7 +632,7 @@ always @(posedge clk, negedge reset) begin
 			S2: begin //rest period
 		  	   alt_cnt <=  0;
 				if (enable) begin
-					if (hlf_wave_cnt < {16'h0,(rest_lim-1'b1)}) begin
+					if (hlf_wave_cnt < {8'h0,(rest_lim-1'b1)}) begin
 						hlf_wave_cnt <= hlf_wave_cnt + 1;
 						source[0] <= 0;
 						source[1] <= 0;

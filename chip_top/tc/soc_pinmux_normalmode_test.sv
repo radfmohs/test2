@@ -503,7 +503,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `SOC_TOP.IOBUF_PAD[11];
                 end
-
+                /*
                 // ----------------------------------------------------------
                 // Checking A2D_COMP0 output pin- `SOC_TOP.IOBUF_PAD[12]
                 // ----------------------------------------------------------
@@ -529,7 +529,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.o_A2D_COMP1;
                 end
-
+                */
                 // ----------------------------------------------------------
                 // Checking NIRS_LED_ON1 output pin- `SOC_TOP.IOBUF_PAD[14]
                 // ----------------------------------------------------------

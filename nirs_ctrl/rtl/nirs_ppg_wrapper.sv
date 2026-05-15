@@ -30,10 +30,13 @@ module nirs_ppg_wrapper #(
   spi_nirs_if.nirs        spi_nirs_if
 );
 
-  wire   [5:0]  NIRS_PGG_MODE_SEL [NO_OF_NIRS-1:0];
+  wire   [5:0]  NIRS_PPG_MODE_SEL [NO_OF_NIRS-1:0];
 
   wire  [NO_OF_NIRS-1:0] NIRS_PPG_EN, NIRS_PPG_MEAS;
   wire  [NO_OF_NIRS-1:0] NIRS_SINGLE;
+
+  wire   [1:0]  AVG_SEL_0       [NO_OF_NIRS-1:0];
+  wire   [1:0]  AVG_SEL_1       [NO_OF_NIRS-1:0];
 
   wire   [7:0]  RATIO_MANUAL_0  [NO_OF_NIRS-1:0];   // Value for manual mode
   wire   [2:0]  RATIO_CTRL_0    [NO_OF_NIRS-1:0];   // ratio[1:0], manual_en for Ratio
@@ -99,7 +102,7 @@ module nirs_ppg_wrapper #(
   wire    [8:0] IDAC              [NO_OF_NIRS-1:0];
   wire   [12:0] DOUTC             [NO_OF_NIRS-1:0];
   wire   [12:0] DOUTF             [NO_OF_NIRS-1:0];
-  wire   [18:0] DOUT              [NO_OF_NIRS-1:0];
+  wire   [21:0] DOUT              [NO_OF_NIRS-1:0];
 
   wire          IREF_COARSE       [NO_OF_NIRS-1:0];
   wire          IREF_FINE         [NO_OF_NIRS-1:0];
@@ -112,6 +115,7 @@ generate
     assign LED_OFF_CTRL_0     [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][7:6];
     assign RESET_CTRL_0       [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][5:3];
     assign LED_STABLE_CTRL_0  [i]  =  spi_nirs_if.NIRS_CTRL[i][0][1][2:0];
+    assign AVG_SEL_0          [i]  =  spi_nirs_if.NIRS_CTRL[i][0][2][7:6];
     assign IDAC_MANUAL_0      [i]  = {spi_nirs_if.NIRS_CTRL[i][0][2][5:0], spi_nirs_if.NIRS_CTRL[i][0][3][7:5]};
     assign IDAC_MANUAL_EN_0   [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][4];
     assign IDAC_IDAC_EN_0     [i]  =  spi_nirs_if.NIRS_CTRL[i][0][3][3];
@@ -128,6 +132,7 @@ generate
     assign LED_OFF_CTRL_1     [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][7:6];
     assign RESET_CTRL_1       [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][5:3];
     assign LED_STABLE_CTRL_1  [i]  =  spi_nirs_if.NIRS_CTRL[i][1][1][2:0];
+    assign AVG_SEL_1          [i]  =  spi_nirs_if.NIRS_CTRL[i][1][2][7:6];
     assign IDAC_MANUAL_1      [i]  = {spi_nirs_if.NIRS_CTRL[i][1][2][5:0], spi_nirs_if.NIRS_CTRL[i][1][3][7:5]};
     assign IDAC_MANUAL_EN_1   [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][4];
     assign IDAC_IDAC_EN_1     [i]  =  spi_nirs_if.NIRS_CTRL[i][1][3][3];
@@ -138,13 +143,13 @@ generate
     assign RATIO_CTRL_1       [i] =   spi_nirs_if.NIRS_CTRL[i][1][7][2:0];
     assign RATIO_MANUAL_1     [i] =   spi_nirs_if.NIRS_CTRL[i][1][8];
 
-    assign NIRS_PGG_MODE_SEL  [i]  =  spi_nirs_if.NIRS_CTRL_MODE[i][5:0];
-    assign NIRS_SINGLE        [i]  = (NIRS_PGG_MODE_SEL[i][3] == 1'b1) || (NIRS_PGG_MODE_SEL[i][0] == 1'b1);
+    assign NIRS_PPG_MODE_SEL  [i]  =  spi_nirs_if.NIRS_CTRL_MODE[i][5:0];
+    assign NIRS_SINGLE        [i]  = (NIRS_PPG_MODE_SEL[i][3] == 1'b1) || (NIRS_PPG_MODE_SEL[i][0] == 1'b1);
     assign NIRS_PPG_INT_SEL   [i]  =  spi_nirs_if.NIRS_CTRL_INT[i];
     assign INT_CLR            [i]  =  spi_nirs_if.NIRS_INT_CLR[i];
     assign spi_nirs_if.NIRS_INT[i] =  INT[i];
 
-    assign CMD[i] = spi_nirs_if. NIRS_CTRL_CMD[i];
+    assign CMD[i] = spi_nirs_if.NIRS_CTRL_CMD[i];
 
     assign spi_nirs_if.NIRS_DEBUG[i][0] = {3'b0, DOUTF[i][12:8]};
     assign spi_nirs_if.NIRS_DEBUG[i][1] = DOUTF[i][7:0];
@@ -166,7 +171,7 @@ generate
     assign IREF_FINE    [i] = ana_nirs_if.A2D_NIRS_IREFFINE[i];
 
 
-    assign spi_nirs_if.NIRS_DOUT[i][0]  = {4'b0, DOUT[i][18:15]};
+    assign spi_nirs_if.NIRS_DOUT[i][0]  = {1'b0, DOUT[i][21:15]};
     assign spi_nirs_if.NIRS_DOUT[i][1]  = {DOUT[i][14:7]};
     assign spi_nirs_if.NIRS_DOUT[i][2]  = {DOUT[i][6:0], IDAC[i][8]};
     assign spi_nirs_if.NIRS_DOUT[i][3]  = IDAC[i][7:0];
@@ -200,9 +205,13 @@ nirs_ppg_ctrl_top u_nirs_ctrl_top [NO_OF_NIRS-1:0] (
   .clk_ppg                (clk_ppg),
   .clk_sys                (clk_sys),
 
-  .NIRS_PGG_MODE_SEL_spi  (NIRS_PGG_MODE_SEL),
+  .NIRS_PPG_MODE_SEL_spi  (NIRS_PPG_MODE_SEL),
   .NIRS_PPG_EN_spi        (NIRS_PPG_EN),
   .NIRS_PPG_MEAS_spi      (NIRS_PPG_MEAS),
+
+// AVG SEL for DOUT 
+  .AVG_SEL_spi_0          (AVG_SEL_0),
+  .AVG_SEL_spi_1          (AVG_SEL_1),
 
 // RATIO for DOUT - OPTIONAL for MANUAL MODE
   .RATIO_MANUAL_spi_0     (RATIO_MANUAL_0),

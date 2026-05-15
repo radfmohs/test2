@@ -34,12 +34,12 @@ source -echo -verbose ../scripts/Nanochap_imp_tech.tcl
 
 set_app_var synthetic_library dw_foundation.sldb
 
-set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_search_path $ana_search_path $sram_search_path $search_path]
+set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_search_path $ana_search_path $search_path]
 set_app_var symbol_library $stdcell_sdb
 
 set_app_var target_library [concat $stdcell_library(db,$slow_corner_pvt) $stdcell_library(db,$fast_corner_pvt)]
 
-set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $sram_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library $sram_min_library];# $synthetic_library]
+set_app_var link_library [concat * $stdcell_library(db,$slow_corner_pvt) $otp_max_library $io_max_library $ana_max_library $stdcell_library(db,$fast_corner_pvt) $otp_min_library $io_min_library $ana_min_library];# $synthetic_library]
 
 
 # Set any dont use lists
@@ -256,8 +256,6 @@ set_scan_configuration -style multiplexed_flip_flop  \
                        -test_mode internal_scan \
                        -replace false
 
-set_dft_insertion_configuration -synthesis_optimization none
-
 # ------------------------------------------------------------------------------
 # 4. Scan Path Define (top-level chains)
 # ------------------------------------------------------------------------------
@@ -269,15 +267,15 @@ set_scan_path chain2 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[5]  -scan_data_out IOBUF_PAD[14]
 set_scan_path chain3 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[6]  -scan_data_out IOBUF_PAD[15]
-set_scan_path chain3 -view spec -test_mode internal_scan \
+set_scan_path chain4 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[7]  -scan_data_out IOBUF_PAD[16]
-set_scan_path chain3 -view spec -test_mode internal_scan \
+set_scan_path chain5 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[8]  -scan_data_out IOBUF_PAD[17]
-set_scan_path chain3 -view spec -test_mode internal_scan \
+set_scan_path chain6 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[9]  -scan_data_out IOBUF_PAD[18]
-set_scan_path chain3 -view spec -test_mode internal_scan \
+set_scan_path chain7 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[10]  -scan_data_out IOBUF_PAD[19]
-set_scan_path chain3 -view spec -test_mode internal_scan \
+set_scan_path chain8 -view spec -test_mode internal_scan \
     -scan_data_in IOBUF_PAD[11]  -scan_data_out IOBUF_PAD[20]
 
 # ==============================================================================
@@ -388,7 +386,7 @@ set_scan_path chain3 -view spec -test_mode internal_scan \
 #set_scan_state test_ready
 
 set_dft_insertion_configuration -preserve_design_name true
-set_dft_insertion_configuration -synthesis_optimization none
+set_dft_insertion_configuration -synthesis_optimization incremental
 
 set_app_var power_cg_auto_identify true
 

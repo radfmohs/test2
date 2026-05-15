@@ -17,7 +17,21 @@
 // NETLIST TIME: Oct 26 16:31:54 2022
 `timescale 1ns / 1ns 
 
-module ENS2_ANA_CHIP_wrapper ( 
+module ENS2_ANA_CHIP_wrapper #(
+  parameter EN_SEC_NUMBER       = 2,
+  parameter EN_REG_NUMBER       = 15,
+  parameter A2D_REG_NUMBER      = 8,
+  parameter GEN_SEC_NUMBER      = 8,
+  parameter GEN_REG_NUMBER      = 15
+) ( 
+
+//temprily connected for verification
+output wire [9:0] A2D_ADC_DATA, //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+output wire  A2D_ADC_DATA_EN,//from analog	
+input wire[3:0] D2A_STIM_PAD0,    //to analog	
+input wire[3:0] D2A_STIM_PAD1,    //to analog	
+input wire D2A_ADC_EN,    //to analog	
 
 `ifdef FPGA
   input clk_in1;
@@ -47,8 +61,6 @@ input  wire  D2A_SDM_CLK,
   // CURRENT
   output  A2D_CLK2MHZ,
   output  A2D_POR_DVDD,
-  output  A2D_COMP_OUT_CH1,
-  output  A2D_COMP_OUT_CH2,
   inout   VDDIO,
   inout   VDD_DIG,
   inout   VSS_DIG,
@@ -79,41 +91,7 @@ wire  [7:0] A2D_ANA_GEN_REG_4;
 
 wire  [7:0] A2D_SPARE_RO_REG_0;
 wire  [7:0] A2D_SPARE_RO_REG_0_tmp;
-wire        A2D_COMP_OUT_CH1_tmp;
-wire        A2D_COMP_OUT_CH2_tmp;
 wire        A2D_TSC_COMP_OUT_CH1_tmp;
-
-wire        D2A_ATM0;
-wire        D2A_ATM1;
-wire        D2A_ATM2;
-wire        D2A_ATM3;
-wire        D2A_ATM4;
-wire        D2A_ATM5;
-wire        D2A_ATM6;
-wire        D2A_ATM7;
-wire        D2A_ATM8;
-wire        D2A_ATM9;
-wire        D2A_ATM10;
-wire        D2A_ATM11;
-wire        D2A_ATM12;
-wire        D2A_ATM13;
-wire        D2A_ATM14;
-wire        D2A_ATM15;
-wire        D2A_ATM16;
-wire        D2A_ATM17;
-wire        D2A_ATM18;
-wire        D2A_ATM19;
-wire        D2A_ATM20;
-wire        D2A_ATM21;
-wire        D2A_ATM22;
-wire        D2A_ATM23;
-wire        D2A_ATM24;
-wire        D2A_ATM25;
-wire        D2A_ATM26;
-wire        D2A_ATM27;
-wire        D2A_ATM28;
-wire        D2A_ATM29;
-wire        D2A_ATM30;
 
 wire  [7:0] D2A_TRIM0_SIG_SPARE;
 wire  [7:0] D2A_TRIM1_SIG_SPARE;
@@ -131,6 +109,7 @@ wire  [7:0] D2A_TRIM4_SIG;
 wire  [7:0] D2A_TRIM5_SIG;
 wire  [7:0] D2A_TRIM6_SIG;
 wire  [7:0] D2A_ADJ0_IO;
+wire  [7:0] D2A_ADJ0_14_IO;
 wire  [7:0] D2A_ADJ1_IO;
 wire  [7:0] D2A_ADJ2_IO;
 wire  [7:0] D2A_ADJ1_2_IO;
@@ -147,6 +126,7 @@ wire  [7:0] D2A_ADJ10_IO;
 wire  [7:0] D2A_ADJ11_IO;
 wire  [7:0] D2A_ADJ12_IO;
 wire  [7:0] D2A_ADJ13_IO;
+wire  [7:0] D2A_ADJ14_IO;
 wire  [7:0] DC_LOFF_SEL;
 wire  [7:0] NIRS_IREF_SEL;
 wire  [7:0] EEGLNA8_SEL;
@@ -177,7 +157,7 @@ wire        D2A_BIST_EN;
 wire  [4:0] D2A_BIST_SEL;
 
 //DC LEAD OFF
-wire        D2A_DCLOFFEN;
+wire [15:0] D2A_DCLOFFEN;
 wire  [2:0] D2A_LOFF_COMP_TH;
 wire  [3:0] D2A_LOFF_ISEL_ADJ;
 wire        D2A_LOFF_IPOL;
@@ -348,13 +328,13 @@ wire [7:0]   D2A_DRIVER_CUR_TRIM;
 wire [15:0]  D2A_PULLD;           
 wire [15:0]  D2A_SOURCE;          
 wire         D2A_STIMU_EN; 
-wire         D2A_LEAD_OFF_EN;  
-wire [3:0]   D2A_LEAD_OFF_INSEL; 
-wire         D2A_SHORT_DET_EN;
-wire [4:0]   D2A_SHORT_DET_VINSEL;
-wire [4:0]   D2A_SHORT_DET_VIPSEL;
-wire	       A2D_LEAD_OFF_OUT;
-wire	       A2D_SHORT_DET_OUT;
+wire         D2A_DRIVERC_LEAD_OFF_EN;  
+wire [3:0]   D2A_DRIVERC_LEAD_OFF_INSEL; 
+wire         D2A_DRIVERC_SHORT_DET_EN;
+wire [4:0]   D2A_DRIVERC_SHORT_DET_VINSEL;
+wire [4:0]   D2A_DRIVERC_SHORT_DET_VIPSEL;
+wire	       A2D_DRIVERC_LEAD_OFF_OUT;
+wire	       A2D_DRIVERC_SHORT_DET_OUT;
 
 
 wire [15:0] D2A_SDMEN;
@@ -419,56 +399,19 @@ wire        D2A_DRIVERA_PULLDA_CH2;
 wire        D2A_DRIVERA_PULLDB_CH2;
 wire [11:0] D2A_IDAC_DIN_CH2;
 
-wire [7:0] ANA_ENABLE_REG [1:0][15:0];
-wire [7:0] ANA_GEN_REG [7:0][14:0];
-wire [7:0] A2D_ANA_GEN_REG [7:0];
+wire [7:0] ANA_ENABLE_REG   [EN_SEC_NUMBER-1:0][EN_REG_NUMBER-1:0];
+wire [7:0] ANA_GEN_REG      [GEN_SEC_NUMBER-1:0][GEN_REG_NUMBER-1:0];
+wire [7:0] A2D_ANA_GEN_REG  [A2D_REG_NUMBER-1:0];
 
 
 //assign A2D_ANA_GEN_REG_0    = atpg_en ? 8'b0 : {4'b0, A2D_TSC_COMP_OUT_CH1, A2D_COMP_OUT_STIMU2_3, A2D_COMP_OUT_STIMU0_1, A2D_LVD};
-assign A2D_ANA_GEN_REG[0]    = atpg_en ? 8'b0 : {4'b0, A2D_SHORT_DET_OUT, A2D_LEAD_OFF_OUT, A2D_TSC_COMP_OUT, A2D_LVD};
-assign A2D_ANA_GEN_REG[1]    = atpg_en ? 8'b0 : A2D_LOFF_STATP[7:0];
-assign A2D_ANA_GEN_REG[2]    = atpg_en ? 8'b0 : A2D_LOFF_STATP[15:8];
-assign A2D_ANA_GEN_REG[3]    = atpg_en ? 8'b0 : A2D_LOFF_STATN[7:0];
-assign A2D_ANA_GEN_REG[4]    = atpg_en ? 8'b0 : A2D_LOFF_STATN[15:8];
+assign A2D_ANA_GEN_REG_0     = atpg_en ? 8'b0 : {4'b0, A2D_DRIVERC_SHORT_DET_OUT, A2D_DRIVERC_LEAD_OFF_OUT, A2D_TSC_COMP_OUT, A2D_LVD};
+assign A2D_ANA_GEN_REG_1     = atpg_en ? 8'b0 : A2D_LOFF_STATP[7:0];
+assign A2D_ANA_GEN_REG_2     = atpg_en ? 8'b0 : A2D_LOFF_STATP[15:8];
+assign A2D_ANA_GEN_REG_3     = atpg_en ? 8'b0 : A2D_LOFF_STATN[7:0];
+assign A2D_ANA_GEN_REG_4     = atpg_en ? 8'b0 : A2D_LOFF_STATN[15:8];
 assign A2D_SPARE_RO_REG_0    = atpg_en ? 8'b0 : A2D_SPARE_RO_REG_0_tmp;
-assign A2D_COMP_OUT_CH1      = atpg_en ? 1'b0 : A2D_COMP_OUT_CH1_tmp; 
-assign A2D_COMP_OUT_CH2      = atpg_en ? 1'b0 : A2D_COMP_OUT_CH2_tmp; 
 assign A2D_TSC_COMP_OUT      = atpg_en ? 1'b0 : A2D_TSC_COMP_OUT_CH1_tmp; 
-
-
-//assign ATM            = pinmux_if.ENCODED_ATM;
-assign D2A_ATM0        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[0]  || (D2A_BIST_SEL ==  5'b00000)) : 1'b0;
-assign D2A_ATM1        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[1]  || (D2A_BIST_SEL ==  5'b00001)) : 1'b0;
-assign D2A_ATM2        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[2]  || (D2A_BIST_SEL ==  5'b00010)) : 1'b0;
-assign D2A_ATM3        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[3]  || (D2A_BIST_SEL ==  5'b00011)) : 1'b0;
-assign D2A_ATM4        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[4]  || (D2A_BIST_SEL ==  5'b00100)) : 1'b0;
-assign D2A_ATM5        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[5]  || (D2A_BIST_SEL ==  5'b00101)) : 1'b0;
-assign D2A_ATM6        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[6]  || (D2A_BIST_SEL ==  5'b00110)) : 1'b0;
-assign D2A_ATM7        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[7]  || (D2A_BIST_SEL ==  5'b00111)) : 1'b0;
-assign D2A_ATM8        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[8]  || (D2A_BIST_SEL ==  5'b01000)) : 1'b0;
-assign D2A_ATM9        = D2A_BIST_EN ? (pinmux_if.D2A_ATM[9]  || (D2A_BIST_SEL ==  5'b01001)) : 1'b0;
-assign D2A_ATM10       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[10] || (D2A_BIST_SEL ==  5'b01010)) : 1'b0;
-assign D2A_ATM11       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[11] || (D2A_BIST_SEL ==  5'b01011)) : 1'b0;
-assign D2A_ATM12       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[12] || (D2A_BIST_SEL ==  5'b01100)) : 1'b0;
-assign D2A_ATM13       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[13] || (D2A_BIST_SEL ==  5'b01101)) : 1'b0;
-assign D2A_ATM14       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[14] || (D2A_BIST_SEL ==  5'b01110)) : 1'b0;
-assign D2A_ATM15       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[15] || (D2A_BIST_SEL ==  5'b01111)) : 1'b0;
-assign D2A_ATM16       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[16] || (D2A_BIST_SEL ==  5'b10000)) : 1'b0;
-assign D2A_ATM17       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[17] || (D2A_BIST_SEL ==  5'b10001)) : 1'b0;
-assign D2A_ATM18       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[18] || (D2A_BIST_SEL ==  5'b10010)) : 1'b0;
-assign D2A_ATM19       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[19] || (D2A_BIST_SEL ==  5'b10011)) : 1'b0;
-assign D2A_ATM20       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[20] || (D2A_BIST_SEL ==  5'b10100)) : 1'b0;
-assign D2A_ATM21       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[21] || (D2A_BIST_SEL ==  5'b10101)) : 1'b0;
-assign D2A_ATM22       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[22] || (D2A_BIST_SEL ==  5'b10110)) : 1'b0;
-assign D2A_ATM23       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[23] || (D2A_BIST_SEL ==  5'b10111)) : 1'b0;
-assign D2A_ATM24       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[24] || (D2A_BIST_SEL ==  5'b11000)) : 1'b0;
-assign D2A_ATM25       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[25] || (D2A_BIST_SEL ==  5'b11001)) : 1'b0;
-assign D2A_ATM26       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[26] || (D2A_BIST_SEL ==  5'b11010)) : 1'b0;
-assign D2A_ATM27       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[27] || (D2A_BIST_SEL ==  5'b11011)) : 1'b0;
-assign D2A_ATM28       = D2A_BIST_EN ? (pinmux_if.D2A_ATM[28] || (D2A_BIST_SEL ==  5'b11100)) : 1'b0;
-
-
-
 
 assign D2A_TRIM0_SIG  = pinmux_if.D2A_TRIM_SIG[0];
 assign D2A_TRIM1_SIG  = pinmux_if.D2A_TRIM_SIG[1];
@@ -487,20 +430,21 @@ assign D2A_TRIM5_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[12];
 assign D2A_TRIM6_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[13];
 assign D2A_TRIM7_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[14];
 
-assign D2A_ADJ0_IO   = D2A_ATM15 ?  pinmux_if.D2A_ADJ_IO[0]  : ANA_GEN_REG[0][14];
-assign D2A_ADJ1_2_IO = D2A_ATM16 ?  pinmux_if.D2A_ADJ_IO[1]  : (D2A_ATM17 ?  pinmux_if.D2A_ADJ_IO[2] : ANA_GEN_REG[1][14]);
+
+assign D2A_ADJ0_14_IO = pinmux_if.D2A_ATM[15] ?  pinmux_if.D2A_ADJ_IO[0]  : (pinmux_if.D2A_ATM[29] ?  pinmux_if.D2A_ADJ_IO[14] : ANA_GEN_REG[0][14]);
+assign D2A_ADJ1_2_IO  = pinmux_if.D2A_ATM[16] ?  pinmux_if.D2A_ADJ_IO[1]  : (pinmux_if.D2A_ATM[17] ?  pinmux_if.D2A_ADJ_IO[2] : ANA_GEN_REG[1][14]);
 
 assign D2A_ADJ3_IO   = pinmux_if.D2A_ADJ_IO[3];//NIRS
 assign D2A_ADJ4_IO   = pinmux_if.D2A_ADJ_IO[4];//NIRS
 assign D2A_ADJ5_IO   = pinmux_if.D2A_ADJ_IO[5];//NIRS
-assign D2A_ADJ6_7_IO = D2A_ATM21 ?  pinmux_if.D2A_ADJ_IO[6] :  (D2A_ATM22 ?  pinmux_if.D2A_ADJ_IO[7] : ANA_GEN_REG[2][14]);
+assign D2A_ADJ6_7_IO = pinmux_if.D2A_ATM[21] ?  pinmux_if.D2A_ADJ_IO[6] :  (pinmux_if.D2A_ATM[22] ?  pinmux_if.D2A_ADJ_IO[7] : ANA_GEN_REG[2][14]);
 
-assign D2A_ADJ8_9_IO = D2A_ATM23 ?  pinmux_if.D2A_ADJ_IO[8]  : (D2A_ATM24 ?  pinmux_if.D2A_ADJ_IO[9] : ANA_GEN_REG[3][14]);
+assign D2A_ADJ8_9_IO = pinmux_if.D2A_ATM[23] ?  pinmux_if.D2A_ADJ_IO[8]  : (pinmux_if.D2A_ATM[24] ?  pinmux_if.D2A_ADJ_IO[9] : ANA_GEN_REG[3][14]);
 
-assign D2A_ADJ10_IO  = D2A_ATM25 ?  pinmux_if.D2A_ADJ_IO[10]  : ANA_GEN_REG[4][14];
-assign D2A_ADJ11_IO  = D2A_ATM26 ?  pinmux_if.D2A_ADJ_IO[11]  : ANA_GEN_REG[5][14];
-assign D2A_ADJ12_IO  = D2A_ATM27 ?  pinmux_if.D2A_ADJ_IO[12]  : ANA_GEN_REG[6][14];
-assign D2A_ADJ13_IO  = D2A_ATM28 ?  pinmux_if.D2A_ADJ_IO[13]  : ANA_GEN_REG[7][14];
+assign D2A_ADJ10_IO  = pinmux_if.D2A_ATM[25] ?  pinmux_if.D2A_ADJ_IO[10]  : ANA_GEN_REG[4][14];
+assign D2A_ADJ11_IO  = pinmux_if.D2A_ATM[26] ?  pinmux_if.D2A_ADJ_IO[11]  : ANA_GEN_REG[5][14];
+assign D2A_ADJ12_IO  = pinmux_if.D2A_ATM[27] ?  pinmux_if.D2A_ADJ_IO[12]  : ANA_GEN_REG[6][14];
+assign D2A_ADJ13_IO  = pinmux_if.D2A_ATM[28] ?  pinmux_if.D2A_ADJ_IO[13]  : ANA_GEN_REG[7][14];
 
 assign ANA_ENABLE_REG = pinmux_if.D2A_ANA_ENABLE_REG;
 assign ANA_GEN_REG    = spi_ana_if.D2A_ANA_GEN_REG;
@@ -556,7 +500,7 @@ assign D2A_OSC8MHZEN	           = ANA_ENABLE_REG[0][1][1];
 
 //TSC
 assign D2A_TSC_TRIM              = D2A_TRIM5_SIG;
-assign D2A_VDAC8B_DIN            = D2A_ATM15 ? pinmux_if.D2A_ADJ_IO[0] : pinmux_if.d2a_tsc_vdac8b_din_ch1;//pending
+assign D2A_VDAC8B_DIN            = pinmux_if.debug_mode_en ? D2A_ADJ0_14_IO : pinmux_if.d2a_tsc_vdac8b_din_ch1;
 assign D2A_EN_TSC                = pinmux_if.d2a_tsc_en_ch1;
 
 //BIST
@@ -564,7 +508,7 @@ assign D2A_BIST_EN               = ANA_ENABLE_REG[0][0][0];
 assign D2A_BIST_SEL              = ANA_ENABLE_REG[0][0][5:1];
 
 //LEAD OFF
-assign D2A_DCLOFFEN              = ANA_ENABLE_REG[0][1][4];
+assign D2A_DCLOFFEN              = {ANA_ENABLE_REG[1][6],ANA_ENABLE_REG[1][5]}; 
 
 //RECORDING
 assign D2A_BIAS_MEAS             = ANA_ENABLE_REG[0][3][1];
@@ -721,11 +665,11 @@ assign D2A_PULLD             = i_pulldn_driver;         // {ANA_GEN_REG[6][6],AN
 assign D2A_SOURCE            = i_source_driver;         // {ANA_GEN_REG[6][8],ANA_GEN_REG[6][7]};
 //assign D2A_STIMU_EN          = i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
 assign D2A_STIMU_EN          = pinmux_if.i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
-assign D2A_LEAD_OFF_EN       = ANA_ENABLE_REG[0][3][3];
-assign D2A_LEAD_OFF_INSEL    = ANA_GEN_REG[6][9][3:0];
-assign D2A_SHORT_DET_EN      = ANA_ENABLE_REG[0][3][4];
-assign D2A_SHORT_DET_VINSEL  = {ANA_GEN_REG[6][10][0],ANA_GEN_REG[6][9][7:4]};
-assign D2A_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
+assign D2A_DRIVERC_LEAD_OFF_EN       = ANA_ENABLE_REG[0][3][3];
+assign D2A_DRIVERC_LEAD_OFF_INSEL    = ANA_GEN_REG[6][9][3:0];
+assign D2A_DRIVERC_SHORT_DET_EN      = ANA_ENABLE_REG[0][3][4];
+assign D2A_DRIVERC_SHORT_DET_VINSEL  = {ANA_GEN_REG[6][10][0],ANA_GEN_REG[6][9][7:4]};
+assign D2A_DRIVERC_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
 
 //NIRS
 //assign D2A_NIRS4_EN          = ANA_ENABLE_REG[0][1][5];
@@ -792,14 +736,14 @@ assign D2A_PDBIAS_ADJ           = ana_nirs_if.D2A_PDBIAS_ADJ;
 assign D2A_CLK_NIRS             = ana_nirs_if.D2A_CLK_NIRS;
 assign D2A_NIRS_CHOPPER_EN      = ana_nirs_if.D2A_CHOPPER_EN;
 assign D2A_NIRS_FCHOP_ADJ       = ana_nirs_if.D2A_FCHOP_ADJ;
-assign D2A_NIRS_TEST_EN         = ((D2A_ATM18 || D2A_ATM19 || D2A_ATM20) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_TEST_EN;
+assign D2A_NIRS_TEST_EN         = ((pinmux_if.D2A_ATM[18] || pinmux_if.D2A_ATM[19] || pinmux_if.D2A_ATM[20]) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_TEST_EN;
 
 assign D2A_NIRS_EN[3:0]         = ana_nirs_if.D2A_NIRS_EN[3:0];
-assign D2A_NIRS_EN[4]           = ((D2A_ATM18 || D2A_ATM19 || D2A_ATM20) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_NIRS_EN[4];
+assign D2A_NIRS_EN[4]           = ((pinmux_if.D2A_ATM[18] || pinmux_if.D2A_ATM[19] || pinmux_if.D2A_ATM[20]) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_NIRS_EN[4];
 assign D2A_NIRS_EN[7:5]         = ana_nirs_if.D2A_NIRS_EN[7:5];
 
 assign D2A_NIRS_IDAC_EN[3:0]    = ana_nirs_if.D2A_IDAC_EN[3:0];
-assign D2A_NIRS_IDAC_EN[4]      = (D2A_ATM20  && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_IDAC_EN[4];
+assign D2A_NIRS_IDAC_EN[4]      = (pinmux_if.D2A_ATM[20]  && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_IDAC_EN[4];
 assign D2A_NIRS_IDAC_EN[7:5]    = ana_nirs_if.D2A_IDAC_EN[7:5];
 
 assign D2A_NIRS_RESET_SW        = ana_nirs_if.D2A_NIRS_RESET_SW;
@@ -807,16 +751,16 @@ assign D2A_NIRS_IPD_SW          = ana_nirs_if.D2A_NIRS_IPD_SW;
 assign D2A_NIRS_IIN_SW          = ana_nirs_if.D2A_NIRS_IIN_SW;
 assign D2A_NIRS_IPDMIRROR_ADJ   = ana_nirs_if.D2A_IPDMIRROR_ADJ;
 assign D2A_NIRS_IREFC_ADJ[3:0]  = ana_nirs_if.D2A_IREFC_ADJ[3:0];
-assign D2A_NIRS_IREFC_ADJ[4]    = D2A_ATM18 ? pinmux_if.D2A_ADJ_IO[3][1:0] : D2A_ATM19 ? pinmux_if.D2A_ADJ_IO[4][1:0] : ana_nirs_if.D2A_IREFC_ADJ[4];
+assign D2A_NIRS_IREFC_ADJ[4]    = pinmux_if.D2A_ATM[18] ? pinmux_if.D2A_ADJ_IO[3][1:0] : pinmux_if.D2A_ATM[19] ? pinmux_if.D2A_ADJ_IO[4][1:0] : ana_nirs_if.D2A_IREFC_ADJ[4];
 assign D2A_NIRS_IREFC_ADJ[7:5]  = ana_nirs_if.D2A_IREFC_ADJ[7:5];
 assign D2A_NIRS_IDAC_ADJ[3:0]   = ana_nirs_if.D2A_NIRS_IDAC[3:0];
-assign D2A_NIRS_IDAC_ADJ[4]     = D2A_ATM20 ? {1'b0, pinmux_if.D2A_ADJ_IO[5]} : ana_nirs_if.D2A_NIRS_IDAC[4];
+assign D2A_NIRS_IDAC_ADJ[4]     = pinmux_if.D2A_ATM[20] ? {1'b0, pinmux_if.D2A_ADJ_IO[5]} : ana_nirs_if.D2A_NIRS_IDAC[4];
 assign D2A_NIRS_IDAC_ADJ[7:5]   = ana_nirs_if.D2A_NIRS_IDAC[7:5];
 assign D2A_NIRS_CFRATE_ADJ0     = ana_nirs_if.D2A_NIRS_RATIO[0];
 assign D2A_NIRS_CFRATE_ADJ1     = ana_nirs_if.D2A_NIRS_RATIO[1];
 assign D2A_NIRS_CFRATE_ADJ2     = ana_nirs_if.D2A_NIRS_RATIO[2];
 assign D2A_NIRS_CFRATE_ADJ3     = ana_nirs_if.D2A_NIRS_RATIO[3];
-assign D2A_NIRS_CFRATE_ADJ4     = D2A_ATM18 ? pinmux_if.D2A_ADJ_IO[3][7:2] : D2A_ATM19 ? pinmux_if.D2A_ADJ_IO[4][7:2] : {4'b0, ana_nirs_if.D2A_NIRS_RATIO[4]};
+assign D2A_NIRS_CFRATE_ADJ4     = pinmux_if.D2A_ATM[18] ? pinmux_if.D2A_ADJ_IO[3][7:2] : pinmux_if.D2A_ATM[19] ? pinmux_if.D2A_ADJ_IO[4][7:2] : {4'b0, ana_nirs_if.D2A_NIRS_RATIO[4]};
 assign D2A_NIRS_CFRATE_ADJ5     = ana_nirs_if.D2A_NIRS_RATIO[5];
 assign D2A_NIRS_CFRATE_ADJ6     = ana_nirs_if.D2A_NIRS_RATIO[6];
 assign D2A_NIRS_CFRATE_ADJ7     = ana_nirs_if.D2A_NIRS_RATIO[7];
@@ -826,6 +770,15 @@ assign ana_nirs_if.A2D_NIRS_IREFFINE    = A2D_NIRS_IREFFINE;
 
 
 ENS2_ANA_CHIP u_top_ana (
+
+//temprily connected for verification
+.A2D_ADC_DATA(A2D_ADC_DATA), //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
+.D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
+.D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
+.D2A_ADC_EN(D2A_ADC_EN),    //to analog	
+
 `ifdef FPGA
   .clk_in1              (clk_in1)
 `endif
@@ -958,6 +911,7 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_EEGPGA14B_GAIN     (D2A_EEGPGA14B_GAIN),
   .D2A_EEGPGA15A_GAIN     (D2A_EEGPGA15A_GAIN),
   .D2A_EEGPGA15B_GAIN     (D2A_EEGPGA15B_GAIN),
+  .D2A_INA_CLK            (),
   .D2A_EEGPGA0A_IADJ      (D2A_EEGPGA0A_IADJ), 
   .D2A_EEGPGA0B_IADJ      (D2A_EEGPGA0B_IADJ), 
   .D2A_EEGPGA1A_IADJ      (D2A_EEGPGA1A_IADJ), 
@@ -1015,13 +969,13 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_PULLD              (D2A_PULLD), 
   .D2A_SOURCE             (D2A_SOURCE),
   .D2A_STIMU_EN           (D2A_STIMU_EN), 
-  .D2A_LEAD_OFF_EN        (D2A_LEAD_OFF_EN),
-  .D2A_LEAD_OFF_INSEL     (D2A_LEAD_OFF_INSEL),
-  .D2A_SHORT_DET_EN       (D2A_SHORT_DET_EN),
-  .D2A_SHORT_DET_VINSEL   (D2A_SHORT_DET_VINSEL),
-  .D2A_SHORT_DET_VIPSEL   (D2A_SHORT_DET_VIPSEL),
-  .A2D_LEAD_OFF_OUT       (A2D_LEAD_OFF_OUT),
-  .A2D_SHORT_DET_OUT      (A2D_SHORT_DET_OUT),
+  .D2A_DRIVERC_LEAD_OFF_EN        (D2A_DRIVERC_LEAD_OFF_EN),
+  .D2A_DRIVERC_LEAD_OFF_INSEL     (D2A_DRIVERC_LEAD_OFF_INSEL),
+  .D2A_DRIVERC_SHORT_DET_EN       (D2A_DRIVERC_SHORT_DET_EN),
+  .D2A_DRIVERC_SHORT_DET_VINSEL   (D2A_DRIVERC_SHORT_DET_VINSEL),
+  .D2A_DRIVERC_SHORT_DET_VIPSEL   (D2A_DRIVERC_SHORT_DET_VIPSEL),
+  .A2D_DRIVERC_LEAD_OFF_OUT       (A2D_DRIVERC_LEAD_OFF_OUT),
+  .A2D_DRIVERC_SHORT_DET_OUT      (A2D_DRIVERC_SHORT_DET_OUT),
 
 // NIRS
   .D2A_PDBIAS_EN          (D2A_PDBIAS_EN),

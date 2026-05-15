@@ -662,6 +662,8 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG3);
   `SET_CFG_REG(`REG4);
   `SET_CFG_REG(`REG5);
+  `SET_CFG_REG(`REG5_1);
+  `SET_CFG_REG(`REG5_2);
   `SET_CFG_REG(`REG6);
   `SET_CFG_REG(`REG7);
   `SET_CFG_REG(`REG8);
@@ -690,8 +692,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG31);
   `SET_CFG_REG(`REG32);
   `SET_CFG_REG(`REG33);
-/*
-  `SET_CFG_REG(`REG33);
+
   `SET_CFG_REG(`REG34);
   `SET_CFG_REG(`REG35);
   `SET_CFG_REG(`REG36);
@@ -702,14 +703,15 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG41);
   `SET_CFG_REG(`REG42);
   `SET_CFG_REG(`REG43);
-*/
+
+//* Registers ANA is relocated
   `SET_CFG_REG(`REG44);
   `SET_CFG_REG(`REG45);
   `SET_CFG_REG(`REG46);
   `SET_CFG_REG(`REG47);
   `SET_CFG_REG(`REG48);
   `SET_CFG_REG(`REG49);
-  `SET_CFG_REG(`REG50);
+ /* `SET_CFG_REG(`REG50);
   `SET_CFG_REG(`REG51);
   `SET_CFG_REG(`REG52);
   `SET_CFG_REG(`REG53);
@@ -718,8 +720,9 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG56);
   `SET_CFG_REG(`REG57);
   `SET_CFG_REG(`REG58);
+// */  
   `SET_CFG_REG(`REG59);
-/*
+  /* Lead off and short registers
   `SET_CFG_REG(`REG60);
   `SET_CFG_REG(`REG61);
   `SET_CFG_REG(`REG62);
@@ -791,7 +794,9 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG125);
   `SET_CFG_REG(`REG126);
   `SET_CFG_REG(`REG127);
+  // ANA ENABLE SELETION
   `SET_CFG_REG(`REG128);
+  // Section 0 of ANA ENA
   `SET_CFG_REG(`REG129);
   `SET_CFG_REG(`REG130);
   `SET_CFG_REG(`REG131);
@@ -807,6 +812,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG141);
   `SET_CFG_REG(`REG142);
   `SET_CFG_REG(`REG143);
+  // Section 1 of ANA ENA
   `SET_CFG_REG(`REG144);
   `SET_CFG_REG(`REG145);
   `SET_CFG_REG(`REG146);
@@ -822,11 +828,170 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG156);
   `SET_CFG_REG(`REG157);
   `SET_CFG_REG(`REG158);
+  // ANA GEN SELECTION
   `SET_CFG_REG(`REG159);
+  // Section 0 of ANA GEN
   `SET_CFG_REG(`REG160);
   `SET_CFG_REG(`REG161);
   `SET_CFG_REG(`REG162);
   `SET_CFG_REG(`REG163);
+  `SET_CFG_REG(`REG164);
+  // Filters and Stim
+  `SET_CFG_REG(`REG165);
+  `SET_CFG_REG(`REG166);
+  `SET_CFG_REG(`REG167);
+  `SET_CFG_REG(`REG168);
+  `SET_CFG_REG(`REG168_1);
+  `SET_CFG_REG(`REG168_2);
+  `SET_CFG_REG(`REG169);
+  `SET_CFG_REG(`REG170);
+  `SET_CFG_REG(`REG171);
+  `SET_CFG_REG(`REG172);
+  `SET_CFG_REG(`REG173);
+  `SET_CFG_REG(`REG174);
+  `SET_CFG_REG(`REG175);
+  `SET_CFG_REG(`REG176);
+  // Section 0 of ANA GEN
+  `SET_CFG_REG(`REG298);
+  `SET_CFG_REG(`REG299);
+  `SET_CFG_REG(`REG300);
+  `SET_CFG_REG(`REG301);
+  `SET_CFG_REG(`REG302);
+  `SET_CFG_REG(`REG303);
+  `SET_CFG_REG(`REG304);
+  `SET_CFG_REG(`REG305);
+  `SET_CFG_REG(`REG306);
+  `SET_CFG_REG(`REG307);
+  // Section 1 of ANA GEN
+  `SET_CFG_REG(`REG177);
+  `SET_CFG_REG(`REG178);
+  `SET_CFG_REG(`REG179);
+  `SET_CFG_REG(`REG180);
+  `SET_CFG_REG(`REG181);
+  `SET_CFG_REG(`REG182);
+  `SET_CFG_REG(`REG183);
+  `SET_CFG_REG(`REG184);
+  `SET_CFG_REG(`REG185);
+  `SET_CFG_REG(`REG186);
+  `SET_CFG_REG(`REG187);
+  `SET_CFG_REG(`REG188);
+  `SET_CFG_REG(`REG189);
+  `SET_CFG_REG(`REG190);
+  `SET_CFG_REG(`REG191);
+  // Section 2 of ANA GEN
+  `SET_CFG_REG(`REG192);
+  `SET_CFG_REG(`REG193);
+  `SET_CFG_REG(`REG194);
+  `SET_CFG_REG(`REG195);
+  `SET_CFG_REG(`REG196);
+  `SET_CFG_REG(`REG197);
+  `SET_CFG_REG(`REG198);
+  `SET_CFG_REG(`REG199);
+  `SET_CFG_REG(`REG200);
+  `SET_CFG_REG(`REG201);
+  `SET_CFG_REG(`REG202);
+  `SET_CFG_REG(`REG203);
+  `SET_CFG_REG(`REG204);
+  `SET_CFG_REG(`REG205);
+  `SET_CFG_REG(`REG206);
+  // Section 3 of ANA GEN
+  `SET_CFG_REG(`REG207);
+  `SET_CFG_REG(`REG208);
+  `SET_CFG_REG(`REG209);
+  `SET_CFG_REG(`REG210);
+  `SET_CFG_REG(`REG211);
+  `SET_CFG_REG(`REG212);
+  `SET_CFG_REG(`REG213);
+  `SET_CFG_REG(`REG214);
+  `SET_CFG_REG(`REG215);
+  `SET_CFG_REG(`REG216);
+  `SET_CFG_REG(`REG217);
+  `SET_CFG_REG(`REG218);
+  `SET_CFG_REG(`REG219);
+  `SET_CFG_REG(`REG220);
+  `SET_CFG_REG(`REG221);
+  // Section 4 of ANA GEN
+  `SET_CFG_REG(`REG222);
+  `SET_CFG_REG(`REG223);
+  `SET_CFG_REG(`REG224);
+  `SET_CFG_REG(`REG225);
+  `SET_CFG_REG(`REG226);
+  `SET_CFG_REG(`REG227);
+  `SET_CFG_REG(`REG228);
+  `SET_CFG_REG(`REG229);
+  `SET_CFG_REG(`REG230);
+  `SET_CFG_REG(`REG231);
+  `SET_CFG_REG(`REG232);
+  `SET_CFG_REG(`REG233);
+  `SET_CFG_REG(`REG234);
+  `SET_CFG_REG(`REG235);
+  `SET_CFG_REG(`REG236);
+  // Section 5 of ANA GEN
+  `SET_CFG_REG(`REG237);
+  `SET_CFG_REG(`REG238);
+  `SET_CFG_REG(`REG239);
+  `SET_CFG_REG(`REG240);
+  `SET_CFG_REG(`REG241);
+  `SET_CFG_REG(`REG242);
+  `SET_CFG_REG(`REG243);
+  `SET_CFG_REG(`REG244);
+  `SET_CFG_REG(`REG245);
+  `SET_CFG_REG(`REG246);
+  `SET_CFG_REG(`REG247);
+  `SET_CFG_REG(`REG248);
+  `SET_CFG_REG(`REG249);
+  `SET_CFG_REG(`REG250);
+  `SET_CFG_REG(`REG251);
+  // Section 6 of ANA GEN
+  `SET_CFG_REG(`REG252);
+  `SET_CFG_REG(`REG253);
+  `SET_CFG_REG(`REG254);
+  `SET_CFG_REG(`REG255);
+  `SET_CFG_REG(`REG256);
+  `SET_CFG_REG(`REG257);
+  `SET_CFG_REG(`REG258);
+  `SET_CFG_REG(`REG259);
+  `SET_CFG_REG(`REG260);
+  `SET_CFG_REG(`REG261);
+  `SET_CFG_REG(`REG262);
+  `SET_CFG_REG(`REG263);
+  `SET_CFG_REG(`REG264);
+  `SET_CFG_REG(`REG265);
+  `SET_CFG_REG(`REG266);
+  // Section 7 of ANA GEN
+  `SET_CFG_REG(`REG267);
+  `SET_CFG_REG(`REG268);
+  `SET_CFG_REG(`REG269);
+  `SET_CFG_REG(`REG270);
+  `SET_CFG_REG(`REG271);
+  `SET_CFG_REG(`REG272);
+  `SET_CFG_REG(`REG273);
+  `SET_CFG_REG(`REG274);
+  `SET_CFG_REG(`REG275);
+  `SET_CFG_REG(`REG276);
+  `SET_CFG_REG(`REG277);
+  `SET_CFG_REG(`REG278);
+  `SET_CFG_REG(`REG279);
+  `SET_CFG_REG(`REG280);
+  `SET_CFG_REG(`REG281);
+  // A2D_ANA_REG
+  `SET_CFG_REG(`REG282);
+  `SET_CFG_REG(`REG283);
+  `SET_CFG_REG(`REG284);
+  `SET_CFG_REG(`REG285);
+  `SET_CFG_REG(`REG286);
+  `SET_CFG_REG(`REG287);
+  `SET_CFG_REG(`REG288);
+  `SET_CFG_REG(`REG289);
+  `SET_CFG_REG(`REG290);
+  `SET_CFG_REG(`REG291);
+  `SET_CFG_REG(`REG292);
+  `SET_CFG_REG(`REG293);
+  `SET_CFG_REG(`REG294);
+  `SET_CFG_REG(`REG295);
+  `SET_CFG_REG(`REG296);
+  `SET_CFG_REG(`REG297);
+//Continue with `REG307 of Section 0 of ANA REG
  
 // ****************************** 
 // Setting for NIRS
@@ -872,6 +1037,20 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_NIRS_REG(`REG_NIRS38);
   `SET_CFG_NIRS_REG(`REG_NIRS39);
   `SET_CFG_NIRS_REG(`REG_NIRS40);
+  `SET_CFG_NIRS_REG(`REG_NIRS41);
+  `SET_CFG_NIRS_REG(`REG_NIRS42);
+  `SET_CFG_NIRS_REG(`REG_NIRS43);
+  `SET_CFG_NIRS_REG(`REG_NIRS44);
+  `SET_CFG_NIRS_REG(`REG_NIRS45);
+  `SET_CFG_NIRS_REG(`REG_NIRS46);
+  `SET_CFG_NIRS_REG(`REG_NIRS47);
+  `SET_CFG_NIRS_REG(`REG_NIRS48);
+  `SET_CFG_NIRS_REG(`REG_NIRS49);
+  `SET_CFG_NIRS_REG(`REG_NIRS50);
+  `SET_CFG_NIRS_REG(`REG_NIRS51);
+  `SET_CFG_NIRS_REG(`REG_NIRS52);
+  `SET_CFG_NIRS_REG(`REG_NIRS53);
+  `SET_CFG_NIRS_REG(`REG_NIRS54);
 
 // ******************************
 // For Wavegen registers
@@ -940,7 +1119,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
     `SET_CFG_WG_REG(`REG_WG60);
     `SET_CFG_WG_REG(`REG_WG61);
     `SET_CFG_WG_REG(`REG_WG62);
-    `SET_CFG_WG_REG(`REG_WG63);
+
   end
 
   `nnc_info("build_phase", "Exiting...", NNC_HIGH)
@@ -1646,7 +1825,7 @@ class nnc_register;
           `WR_RD_CHK_WAVEGEN_REG(address, wr_data, pads, mask_value);
         end
         else if(nirs_reg)begin
-          `nnc_info("SOC_TEST", $sformatf("write_read WR :: nirs reg address %0h", address),NNC_MEDIUM);
+          `nnc_info("SOC_TEST", $sformatf("write_read WR :: nirs reg address %0h, wr_data %0h, pads %0h, mask_value %0h", address,wr_data, pads, mask_value),NNC_MEDIUM);
           `WR_RD_CHK_NIRS_REG(address, wr_data, pads, mask_value);
         end
         else begin

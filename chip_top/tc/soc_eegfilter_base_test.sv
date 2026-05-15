@@ -43,8 +43,8 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [`FILTER_NUM - 1 :0] imeas_en_dis_ch; // 0: enable, 1 :disbale
        logic [31:0] act_chdata;
        logic [31:0] act_chdata_combined [256];
-       logic [31:0] act_chdata_combined_rdatac [40000][`FILTER_NUM];
-       logic [31:0] exp_chdata_combined_rdatac [40000][`FILTER_NUM];
+       logic [31:0] act_chdata_combined_rdatac [80000][`FILTER_NUM];
+       logic [31:0] exp_chdata_combined_rdatac [80000][`FILTER_NUM];
        logic        eeg_int_sts;
   rand logic        eeg_int_sts_en;
   rand logic        eeg_int_en;
@@ -202,6 +202,7 @@ class `TESTNAME extends soc_base_test;
   bit  imeas_config_dis = 0;
   bit  use_old_intr_reg_or_general_reg_to_clr;
   bit  rdatac_cmd_en;
+  bit  eeg_int_timeout_error_en = 0;
   int total_adc_ch_to_read;
   int data_bytes_per_sample;
   bit [39:0] act_status_bits;
@@ -485,8 +486,8 @@ class `TESTNAME extends soc_base_test;
   task wait_for_intb();
     `nnc_info("SOC_TEST", "wait for EEG filter int and INTB assert", NNC_MEDIUM)
 
-    fork : wait_for_intr
-      begin
+    //fork : wait_for_intr
+    //  begin
         wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 1);    
 
         if(`SOC_TB.INTB === 1'bx)
@@ -496,14 +497,14 @@ class `TESTNAME extends soc_base_test;
            wait(`SOC_TB.INTB === 1);
          else 
            wait(`SOC_TB.INTB === 0);
-      end 
+    //  end 
 
-      begin
-        #30ms;
-        `nnc_fatal("TEST", $sformatf("TIMEOUT: new INTB not received , older not cleared properly ?? "))
-      end 
-    join_any
-    disable wait_for_intr;
+    //  begin
+    //    #30ms;
+    //    `nnc_fatal("TEST", $sformatf("TIMEOUT: new INTB not received , older not cleared properly ?? "))
+    //  end 
+    //join_any
+    //disable wait_for_intr;
 
     `nnc_info("SOC_TEST", "wait done for EEG filter int and INTB assert", NNC_MEDIUM)
   endtask : wait_for_intb

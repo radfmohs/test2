@@ -61,12 +61,12 @@ module notch_filter
 //  input          [3:0]  osr_sel;
   input   signed [23:0] filter_in; //sfix33
   output  signed [23:0] filter_out; //sfix33
-  input   wire  [5:0]  cur_count;
-
-  input wire  signed [19:0] notch_coeff_data[35:0];
+  input   wire  [4:0]  cur_count;
+  input wire  signed [19:0] notch_coeff_data[23:0];
   input wire  signed [62:0] prod;
   output wire signed [42:0] inputmux_section_1;
-  output wire signed [19:0] coeffmux_section_1;
+  output wire signed [19:0] coeffmux_section_1;   
+
 
 
 ////////////////////////////////////////////////////////////////
@@ -100,19 +100,6 @@ wire signed [19:0] coeff_b2_section4;
 wire signed [19:0] coeff_b3_section4; 
 wire signed [19:0] coeff_a2_section4; 
 wire signed [19:0] coeff_a3_section4; 
-wire signed [19:0] scaleconst5      ; 
-wire signed [19:0] coeff_b1_section5; 
-wire signed [19:0] coeff_b2_section5; 
-wire signed [19:0] coeff_b3_section5; 
-wire signed [19:0] coeff_a2_section5; 
-wire signed [19:0] coeff_a3_section5; 
-wire signed [19:0] scaleconst6      ; 
-wire signed [19:0] coeff_b1_section6; 
-wire signed [19:0] coeff_b2_section6; 
-wire signed [19:0] coeff_b3_section6; 
-wire signed [19:0] coeff_a2_section6; 
-wire signed [19:0] coeff_a3_section6; 
- 
 
 
 assign scaleconst1       = notch_coeff_data[0]; //sfix20_En18
@@ -139,23 +126,9 @@ assign coeff_b2_section4 = notch_coeff_data[20]; //sfix20_En18
 assign coeff_b3_section4 = notch_coeff_data[21]; //sfix20_En18
 assign coeff_a2_section4 = notch_coeff_data[22]; //sfix20_En18
 assign coeff_a3_section4 = notch_coeff_data[23]; //sfix20_En18
-assign scaleconst5       = notch_coeff_data[24]; //sfix20_En18
-assign coeff_b1_section5 = notch_coeff_data[25]; //sfix20_En18
-assign coeff_b2_section5 = notch_coeff_data[26]; //sfix20_En18
-assign coeff_b3_section5 = notch_coeff_data[27]; //sfix20_En18
-assign coeff_a2_section5 = notch_coeff_data[28]; //sfix20_En18
-assign coeff_a3_section5 = notch_coeff_data[29]; //sfix20_En18
-assign scaleconst6       = notch_coeff_data[30]; //sfix20_En18
-assign coeff_b1_section6 = notch_coeff_data[31]; //sfix20_En18
-assign coeff_b2_section6 = notch_coeff_data[32]; //sfix20_En18
-assign coeff_b3_section6 = notch_coeff_data[33]; //sfix20_En18
-assign coeff_a2_section6 = notch_coeff_data[34]; //sfix20_En18
-assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
-
 
   // Signals
-  reg  signed [24:0] input_register; // sfix25_En25
-//  reg  [5:0] cur_count; // ufix6
+  wire  signed [24:0] input_register; // sfix25_En24
   wire phase_0; // boolean
   wire phase_2; // boolean
   wire phase_3; // boolean
@@ -172,161 +145,93 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
   wire phase_20; // boolean
   wire phase_21; // boolean
   wire phase_23; // boolean
-  wire phase_24; // boolean
-  wire phase_26; // boolean
-  wire phase_27; // boolean
-  wire phase_29; // boolean
-  wire phase_30; // boolean
-  wire phase_32; // boolean
-  wire phase_33; // boolean
-  wire phase_35; // boolean
-  wire signed [24:0] sectionipconvert; // sfix25_En25
-  wire signed [41:0] storagetypeconvert; // sfix42_En24
-  reg  signed [24:0] prev_stg_op1; // sfix25_En25
-  reg  signed [24:0] prev_stg_op2; // sfix25_En25
-  reg  signed [24:0] prev_stg_op3; // sfix25_En25
-  reg  signed [24:0] prev_stg_op4; // sfix25_En25
-  reg  signed [24:0] prev_stg_op5; // sfix25_En25
-  reg  signed [41:0] storage_state_in1; // sfix42_En24
-  reg  signed [41:0] delay_section1 [0:1] ; // sfix42_En24
-  reg  signed [41:0] storage_state_in2; // sfix42_En24
-  reg  signed [41:0] delay_section2 [0:1] ; // sfix42_En24
-  reg  signed [41:0] storage_state_in3; // sfix42_En24
-  reg  signed [41:0] delay_section3 [0:1] ; // sfix42_En24
-  reg  signed [41:0] storage_state_in4; // sfix42_En24
-  reg  signed [41:0] delay_section4 [0:1] ; // sfix42_En24
-  reg  signed [41:0] storage_state_in5; // sfix42_En24
-  reg  signed [41:0] delay_section5 [0:1] ; // sfix42_En24
-  reg  signed [41:0] storage_state_in6; // sfix42_En24
-  reg  signed [41:0] delay_section6 [0:1] ; // sfix42_En24
-  wire signed [42:0] input_section1_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section1_cast; // sfix43_En25
-  wire signed [42:0] delay_section11_cast; // sfix43_En25
-  wire signed [42:0] delay_section12_cast; // sfix43_En25
-  wire signed [42:0] input_section2_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section2_cast; // sfix43_En25
-  wire signed [42:0] delay_section21_cast; // sfix43_En25
-  wire signed [42:0] delay_section22_cast; // sfix43_En25
-  wire signed [42:0] input_section3_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section3_cast; // sfix43_En25
-  wire signed [42:0] delay_section31_cast; // sfix43_En25
-  wire signed [42:0] delay_section32_cast; // sfix43_En25
-  wire signed [42:0] input_section4_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section4_cast; // sfix43_En25
-  wire signed [42:0] delay_section41_cast; // sfix43_En25
-  wire signed [42:0] delay_section42_cast; // sfix43_En25
-  wire signed [42:0] input_section5_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section5_cast; // sfix43_En25
-  wire signed [42:0] delay_section51_cast; // sfix43_En25
-  wire signed [42:0] delay_section52_cast; // sfix43_En25
-  wire signed [42:0] input_section6_cast; // sfix43_En25
-  wire signed [42:0] storage_in_section6_cast; // sfix43_En25
-  wire signed [42:0] delay_section61_cast; // sfix43_En25
-  wire signed [42:0] delay_section62_cast; // sfix43_En25
-//  wire signed [42:0] inputmux_section_1; // sfix43_En25
-//  wire signed [19:0] coeffmux_section_1; // sfix20_En18
-//  wire signed [62:0] prod; // sfix63_En43
-  wire signed [61:0] prod_den; // sfix62_En42
-  wire signed [63:0] prod_den_cast_temp; // sfix64_En42
-  wire signed [63:0] prod_den_cast; // sfix64_En42
-  wire signed [63:0] prod_den_cast_neg; // sfix64_En42
-  wire signed [64:0] unaryminus_temp; // sfix65_En42
-  wire signed [61:0] prod_num; // sfix62_En42
-  wire signed [63:0] prod_num_cast_temp; // sfix64_En42
-  wire signed [63:0] prod_num_cast; // sfix64_En42
-  wire signed [63:0] accum_mux_in1; // sfix64_En42
-  wire signed [63:0] accum_mux_in2; // sfix64_En42
-  wire signed [63:0] accum_mux_out; // sfix64_En42
-  wire signed [63:0] accum_mux_in1_temp; // sfix64_En42
-  wire signed [63:0] sectionipconvert_cast; // sfix64_En42
+  wire signed [24:0] sectionipconvert; // sfix25_En24
+  wire signed [41:0] storagetypeconvert; // sfix42_En23
+  reg  signed [24:0] prev_stg_op1; // sfix25_En24
+  reg  signed [24:0] prev_stg_op2; // sfix25_En24
+  reg  signed [24:0] prev_stg_op3; // sfix25_En24
+  reg  signed [41:0] storage_state_in1; // sfix42_En23
+  reg  signed [41:0] delay_section1 [0:1] ; // sfix42_En23
+  reg  signed [41:0] storage_state_in2; // sfix42_En23
+  reg  signed [41:0] delay_section2 [0:1] ; // sfix42_En23
+  reg  signed [41:0] storage_state_in3; // sfix42_En23
+  reg  signed [41:0] delay_section3 [0:1] ; // sfix42_En23
+  reg  signed [41:0] storage_state_in4; // sfix42_En23
+  reg  signed [41:0] delay_section4 [0:1] ; // sfix42_En23
+  wire signed [42:0] input_section1_cast; // sfix43_En24
+  wire signed [42:0] storage_in_section1_cast; // sfix43_En24
+  wire signed [42:0] delay_section11_cast; // sfix43_En24
+  wire signed [42:0] delay_section12_cast; // sfix43_En24
+  wire signed [42:0] input_section2_cast; // sfix43_En24
+  wire signed [42:0] storage_in_section2_cast; // sfix43_En24
+  wire signed [42:0] delay_section21_cast; // sfix43_En24
+  wire signed [42:0] delay_section22_cast; // sfix43_En24
+  wire signed [42:0] input_section3_cast; // sfix43_En24
+  wire signed [42:0] storage_in_section3_cast; // sfix43_En24
+  wire signed [42:0] delay_section31_cast; // sfix43_En24
+  wire signed [42:0] delay_section32_cast; // sfix43_En24
+  wire signed [42:0] input_section4_cast; // sfix43_En24
+  wire signed [42:0] storage_in_section4_cast; // sfix43_En24
+  wire signed [42:0] delay_section41_cast; // sfix43_En24
+  wire signed [42:0] delay_section42_cast; // sfix43_En24
+  wire signed [61:0] prod_den; // sfix62_En41
+  wire signed [63:0] prod_den_cast_temp; // sfix64_En41
+  wire signed [63:0] prod_den_cast; // sfix64_En41
+  wire signed [63:0] prod_den_cast_neg; // sfix64_En41
+  wire signed [64:0] unaryminus_temp; // sfix65_En41
+  wire signed [61:0] prod_num; // sfix62_En41
+  wire signed [63:0] prod_num_cast_temp; // sfix64_En41
+  wire signed [63:0] prod_num_cast; // sfix64_En41
+  wire signed [63:0] accum_mux_in1; // sfix64_En41
+  wire signed [63:0] accum_mux_in2; // sfix64_En41
+  wire signed [63:0] accum_mux_out; // sfix64_En41
+  wire signed [63:0] accum_mux_in1_temp; // sfix64_En41
+  wire signed [63:0] sectionipconvert_cast; // sfix64_En41
   wire final_phase; // boolean
   wire section_phase; // boolean
-  reg  signed [63:0] accum_reg; // sfix64_En42
-  wire signed [63:0] add_cast; // sfix64_En42
-  wire signed [63:0] add_cast_1; // sfix64_En42
-  wire signed [64:0] add_temp; // sfix65_En42
-  wire signed [63:0] acc_out_cast_numacc; // sfix64_En42
-  wire signed [24:0] sectionopconvert; // sfix25_En25
-  wire signed [24:0] output_typeconvert; // sfix25_En25
-  reg  signed [24:0] output_register; // sfix25_En25
+  reg  signed [63:0] accum_reg; // sfix64_En41
+  wire signed [63:0] add_cast; // sfix64_En41
+  wire signed [63:0] add_cast_1; // sfix64_En41
+  wire signed [64:0] add_temp; // sfix65_En41
+  wire signed [63:0] acc_out_cast_numacc; // sfix64_En41
+  wire signed [24:0] sectionopconvert; // sfix25_En24
+  wire signed [24:0] output_typeconvert; // sfix25_En24
+  reg  signed [24:0] output_register; // sfix25_En24
 
-  // Block Statements
-  always @ (posedge clk or negedge reset)
-    begin: input_reg_process
-      if (reset == 1'b0) begin
-        input_register <= 0;
-      end
-      else begin
-        if (clk_enable == 1'b1) begin
-          input_register <= ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
-        end
-      end
-    end // input_reg_process
+assign          input_register = ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
 
-//  always @ (posedge clk or negedge reset)
-//    begin: Counter_process
-//      if (reset == 1'b0) begin
-//        cur_count <= 6'b000000;
-//      end
-//      else begin
-//        if (clk_enable == 1'b1) begin
-//          if (cur_count >= 6'b100011) begin
-//            cur_count <= 6'b000000;
-//          end
-//          else begin
-//            cur_count <= cur_count + 6'b000001;
-//          end
-//        end
-//      end
-//    end // Counter_process
 
-  assign  phase_0 = (cur_count == 6'b000000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_0 = (cur_count == 5'b00000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_2 = (cur_count == 6'b000010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_2 = (cur_count == 5'b00010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_3 = (cur_count == 6'b000011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_3 = (cur_count == 5'b00011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_5 = (cur_count == 6'b000101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_5 = (cur_count == 5'b00101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_6 = (cur_count == 6'b000110 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_6 = (cur_count == 5'b00110 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_8 = (cur_count == 6'b001000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_8 = (cur_count == 5'b01000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_9 = (cur_count == 6'b001001 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_9 = (cur_count == 5'b01001 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_11 = (cur_count == 6'b001011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_11 = (cur_count == 5'b01011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_12 = (cur_count == 6'b001100 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_12 = (cur_count == 5'b01100 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_14 = (cur_count == 6'b001110 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_14 = (cur_count == 5'b01110 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_15 = (cur_count == 6'b001111 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_15 = (cur_count == 5'b01111 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_17 = (cur_count == 6'b010001 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_17 = (cur_count == 5'b10001 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_18 = (cur_count == 6'b010010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_18 = (cur_count == 5'b10010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_20 = (cur_count == 6'b010100 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_20 = (cur_count == 5'b10100 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_21 = (cur_count == 6'b010101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_21 = (cur_count == 5'b10101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
-  assign  phase_23 = (cur_count == 6'b010111 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_24 = (cur_count == 6'b011000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_26 = (cur_count == 6'b011010 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_27 = (cur_count == 6'b011011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_29 = (cur_count == 6'b011101 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_30 = (cur_count == 6'b011110 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_32 = (cur_count == 6'b100000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_33 = (cur_count == 6'b100001 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
-
-  assign  phase_35 = (cur_count == 6'b100011 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
+  assign  phase_23 = (cur_count == 5'b10111 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
 
   // Next stage input = Previous stage output. Storing Previous stage output
@@ -365,30 +270,6 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
         end
       end
     end // prev_stg_op3_process
-
-  always @ (posedge clk or negedge reset)
-    begin: prev_stg_op4_process
-      if (reset == 1'b0) begin
-        prev_stg_op4 <= 0;
-      end
-      else begin
-        if (phase_23 == 1'b1) begin
-          prev_stg_op4 <= sectionopconvert;
-        end
-      end
-    end // prev_stg_op4_process
-
-  always @ (posedge clk or negedge reset)
-    begin: prev_stg_op5_process
-      if (reset == 1'b0) begin
-        prev_stg_op5 <= 0;
-      end
-      else begin
-        if (phase_29 == 1'b1) begin
-          prev_stg_op5 <= sectionopconvert;
-        end
-      end
-    end // prev_stg_op5_process
 
   always @ (posedge clk or negedge reset)
     begin: delay_process_section1
@@ -446,34 +327,6 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
       end
     end // delay_process_section4
 
-  always @ (posedge clk or negedge reset)
-    begin: delay_process_section5
-      if (reset == 1'b0) begin
-        delay_section5[0] <= 42'h00000000000;
-        delay_section5[1] <= 42'h00000000000;
-      end
-      else begin
-        if (phase_0 == 1'b1) begin
-          delay_section5[1] <= delay_section5[0];
-          delay_section5[0] <= storage_state_in5;
-        end
-      end
-    end // delay_process_section5
-
-  always @ (posedge clk or negedge reset)
-    begin: delay_process_section6
-      if (reset == 1'b0) begin
-        delay_section6[0] <= 42'h00000000000;
-        delay_section6[1] <= 42'h00000000000;
-      end
-      else begin
-        if (phase_0 == 1'b1) begin
-          delay_section6[1] <= delay_section6[0];
-          delay_section6[0] <= storage_state_in6;
-        end
-      end
-    end // delay_process_section6
-
   // Making common precision for input and state 
   assign input_section1_cast = $signed({{18{input_register[24]}}, input_register});
 
@@ -507,95 +360,55 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
 
   assign storage_in_section4_cast = $signed({storage_state_in4, 1'b0});
 
-  assign input_section5_cast = $signed({{18{prev_stg_op4[24]}}, prev_stg_op4});
+  assign inputmux_section_1 = (cur_count == 5'b00000) ? input_section1_cast :
+                             (cur_count == 5'b00001) ? delay_section11_cast :
+                             (cur_count == 5'b00010) ? delay_section12_cast :
+                             (cur_count == 5'b00011) ? storage_in_section1_cast :
+                             (cur_count == 5'b00100) ? delay_section11_cast :
+                             (cur_count == 5'b00101) ? delay_section12_cast :
+                             (cur_count == 5'b00110) ? input_section2_cast :
+                             (cur_count == 5'b00111) ? delay_section21_cast :
+                             (cur_count == 5'b01000) ? delay_section22_cast :
+                             (cur_count == 5'b01001) ? storage_in_section2_cast :
+                             (cur_count == 5'b01010) ? delay_section21_cast :
+                             (cur_count == 5'b01011) ? delay_section22_cast :
+                             (cur_count == 5'b01100) ? input_section3_cast :
+                             (cur_count == 5'b01101) ? delay_section31_cast :
+                             (cur_count == 5'b01110) ? delay_section32_cast :
+                             (cur_count == 5'b01111) ? storage_in_section3_cast :
+                             (cur_count == 5'b10000) ? delay_section31_cast :
+                             (cur_count == 5'b10001) ? delay_section32_cast :
+                             (cur_count == 5'b10010) ? input_section4_cast :
+                             (cur_count == 5'b10011) ? delay_section41_cast :
+                             (cur_count == 5'b10100) ? delay_section42_cast :
+                             (cur_count == 5'b10101) ? storage_in_section4_cast :
+                             (cur_count == 5'b10110) ? delay_section41_cast :
+                             delay_section42_cast;
 
-  assign delay_section51_cast = $signed({delay_section5[0], 1'b0});
-
-  assign delay_section52_cast = $signed({delay_section5[1], 1'b0});
-
-  assign storage_in_section5_cast = $signed({storage_state_in5, 1'b0});
-
-  assign input_section6_cast = $signed({{18{prev_stg_op5[24]}}, prev_stg_op5});
-
-  assign delay_section61_cast = $signed({delay_section6[0], 1'b0});
-
-  assign delay_section62_cast = $signed({delay_section6[1], 1'b0});
-
-  assign storage_in_section6_cast = $signed({storage_state_in6, 1'b0});
-
-  assign inputmux_section_1 = (cur_count == 6'b000000) ? input_section1_cast :
-                             (cur_count == 6'b000001) ? delay_section11_cast :
-                             (cur_count == 6'b000010) ? delay_section12_cast :
-                             (cur_count == 6'b000011) ? storage_in_section1_cast :
-                             (cur_count == 6'b000100) ? delay_section11_cast :
-                             (cur_count == 6'b000101) ? delay_section12_cast :
-                             (cur_count == 6'b000110) ? input_section2_cast :
-                             (cur_count == 6'b000111) ? delay_section21_cast :
-                             (cur_count == 6'b001000) ? delay_section22_cast :
-                             (cur_count == 6'b001001) ? storage_in_section2_cast :
-                             (cur_count == 6'b001010) ? delay_section21_cast :
-                             (cur_count == 6'b001011) ? delay_section22_cast :
-                             (cur_count == 6'b001100) ? input_section3_cast :
-                             (cur_count == 6'b001101) ? delay_section31_cast :
-                             (cur_count == 6'b001110) ? delay_section32_cast :
-                             (cur_count == 6'b001111) ? storage_in_section3_cast :
-                             (cur_count == 6'b010000) ? delay_section31_cast :
-                             (cur_count == 6'b010001) ? delay_section32_cast :
-                             (cur_count == 6'b010010) ? input_section4_cast :
-                             (cur_count == 6'b010011) ? delay_section41_cast :
-                             (cur_count == 6'b010100) ? delay_section42_cast :
-                             (cur_count == 6'b010101) ? storage_in_section4_cast :
-                             (cur_count == 6'b010110) ? delay_section41_cast :
-                             (cur_count == 6'b010111) ? delay_section42_cast :
-                             (cur_count == 6'b011000) ? input_section5_cast :
-                             (cur_count == 6'b011001) ? delay_section51_cast :
-                             (cur_count == 6'b011010) ? delay_section52_cast :
-                             (cur_count == 6'b011011) ? storage_in_section5_cast :
-                             (cur_count == 6'b011100) ? delay_section51_cast :
-                             (cur_count == 6'b011101) ? delay_section52_cast :
-                             (cur_count == 6'b011110) ? input_section6_cast :
-                             (cur_count == 6'b011111) ? delay_section61_cast :
-                             (cur_count == 6'b100000) ? delay_section62_cast :
-                             (cur_count == 6'b100001) ? storage_in_section6_cast :
-                             (cur_count == 6'b100010) ? delay_section61_cast :
-                             delay_section62_cast;
-
-  assign coeffmux_section_1 = (cur_count == 6'b000000) ? scaleconst1 :
-                             (cur_count == 6'b000001) ? coeff_a2_section1 :
-                             (cur_count == 6'b000010) ? coeff_a3_section1 :
-                             (cur_count == 6'b000011) ? coeff_b1_section1 :
-                             (cur_count == 6'b000100) ? coeff_b2_section1 :
-                             (cur_count == 6'b000101) ? coeff_b3_section1 :
-                             (cur_count == 6'b000110) ? scaleconst2 :
-                             (cur_count == 6'b000111) ? coeff_a2_section2 :
-                             (cur_count == 6'b001000) ? coeff_a3_section2 :
-                             (cur_count == 6'b001001) ? coeff_b1_section2 :
-                             (cur_count == 6'b001010) ? coeff_b2_section2 :
-                             (cur_count == 6'b001011) ? coeff_b3_section2 :
-                             (cur_count == 6'b001100) ? scaleconst3 :
-                             (cur_count == 6'b001101) ? coeff_a2_section3 :
-                             (cur_count == 6'b001110) ? coeff_a3_section3 :
-                             (cur_count == 6'b001111) ? coeff_b1_section3 :
-                             (cur_count == 6'b010000) ? coeff_b2_section3 :
-                             (cur_count == 6'b010001) ? coeff_b3_section3 :
-                             (cur_count == 6'b010010) ? scaleconst4 :
-                             (cur_count == 6'b010011) ? coeff_a2_section4 :
-                             (cur_count == 6'b010100) ? coeff_a3_section4 :
-                             (cur_count == 6'b010101) ? coeff_b1_section4 :
-                             (cur_count == 6'b010110) ? coeff_b2_section4 :
-                             (cur_count == 6'b010111) ? coeff_b3_section4 :
-                             (cur_count == 6'b011000) ? scaleconst5 :
-                             (cur_count == 6'b011001) ? coeff_a2_section5 :
-                             (cur_count == 6'b011010) ? coeff_a3_section5 :
-                             (cur_count == 6'b011011) ? coeff_b1_section5 :
-                             (cur_count == 6'b011100) ? coeff_b2_section5 :
-                             (cur_count == 6'b011101) ? coeff_b3_section5 :
-                             (cur_count == 6'b011110) ? scaleconst6 :
-                             (cur_count == 6'b011111) ? coeff_a2_section6 :
-                             (cur_count == 6'b100000) ? coeff_a3_section6 :
-                             (cur_count == 6'b100001) ? coeff_b1_section6 :
-                             (cur_count == 6'b100010) ? coeff_b2_section6 :
-                             coeff_b3_section6;
+  assign coeffmux_section_1 = (cur_count == 5'b00000) ? scaleconst1 :
+                             (cur_count == 5'b00001) ? coeff_a2_section1 :
+                             (cur_count == 5'b00010) ? coeff_a3_section1 :
+                             (cur_count == 5'b00011) ? coeff_b1_section1 :
+                             (cur_count == 5'b00100) ? coeff_b2_section1 :
+                             (cur_count == 5'b00101) ? coeff_b3_section1 :
+                             (cur_count == 5'b00110) ? scaleconst2 :
+                             (cur_count == 5'b00111) ? coeff_a2_section2 :
+                             (cur_count == 5'b01000) ? coeff_a3_section2 :
+                             (cur_count == 5'b01001) ? coeff_b1_section2 :
+                             (cur_count == 5'b01010) ? coeff_b2_section2 :
+                             (cur_count == 5'b01011) ? coeff_b3_section2 :
+                             (cur_count == 5'b01100) ? scaleconst3 :
+                             (cur_count == 5'b01101) ? coeff_a2_section3 :
+                             (cur_count == 5'b01110) ? coeff_a3_section3 :
+                             (cur_count == 5'b01111) ? coeff_b1_section3 :
+                             (cur_count == 5'b10000) ? coeff_b2_section3 :
+                             (cur_count == 5'b10001) ? coeff_b3_section3 :
+                             (cur_count == 5'b10010) ? scaleconst4 :
+                             (cur_count == 5'b10011) ? coeff_a2_section4 :
+                             (cur_count == 5'b10100) ? coeff_a3_section4 :
+                             (cur_count == 5'b10101) ? coeff_b1_section4 :
+                             (cur_count == 5'b10110) ? coeff_b2_section4 :
+                             coeff_b3_section4;
 
 //  assign prod = inputmux_section_1 * coeffmux_section_1;
 
@@ -616,46 +429,34 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
 
   assign prod_num_cast = prod_num_cast_temp;
 
-  assign accum_mux_in1 = (cur_count == 6'b000000) ? prod_num_cast :
-                        (cur_count == 6'b000001) ? prod_den_cast_neg :
-                        (cur_count == 6'b000010) ? prod_den_cast_neg :
-                        (cur_count == 6'b000011) ? prod_num_cast :
-                        (cur_count == 6'b000100) ? prod_num_cast :
-                        (cur_count == 6'b000101) ? prod_num_cast :
-                        (cur_count == 6'b000110) ? prod_num_cast :
-                        (cur_count == 6'b000111) ? prod_den_cast_neg :
-                        (cur_count == 6'b001000) ? prod_den_cast_neg :
-                        (cur_count == 6'b001001) ? prod_num_cast :
-                        (cur_count == 6'b001010) ? prod_num_cast :
-                        (cur_count == 6'b001011) ? prod_num_cast :
-                        (cur_count == 6'b001100) ? prod_num_cast :
-                        (cur_count == 6'b001101) ? prod_den_cast_neg :
-                        (cur_count == 6'b001110) ? prod_den_cast_neg :
-                        (cur_count == 6'b001111) ? prod_num_cast :
-                        (cur_count == 6'b010000) ? prod_num_cast :
-                        (cur_count == 6'b010001) ? prod_num_cast :
-                        (cur_count == 6'b010010) ? prod_num_cast :
-                        (cur_count == 6'b010011) ? prod_den_cast_neg :
-                        (cur_count == 6'b010100) ? prod_den_cast_neg :
-                        (cur_count == 6'b010101) ? prod_num_cast :
-                        (cur_count == 6'b010110) ? prod_num_cast :
-                        (cur_count == 6'b010111) ? prod_num_cast :
-                        (cur_count == 6'b011000) ? prod_num_cast :
-                        (cur_count == 6'b011001) ? prod_den_cast_neg :
-                        (cur_count == 6'b011010) ? prod_den_cast_neg :
-                        (cur_count == 6'b011011) ? prod_num_cast :
-                        (cur_count == 6'b011100) ? prod_num_cast :
-                        (cur_count == 6'b011101) ? prod_num_cast :
-                        (cur_count == 6'b011110) ? prod_num_cast :
-                        (cur_count == 6'b011111) ? prod_den_cast_neg :
-                        (cur_count == 6'b100000) ? prod_den_cast_neg :
-                        (cur_count == 6'b100001) ? prod_num_cast :
-                        (cur_count == 6'b100010) ? prod_num_cast :
+  assign accum_mux_in1 = (cur_count == 5'b00000) ? prod_num_cast :
+                        (cur_count == 5'b00001) ? prod_den_cast_neg :
+                        (cur_count == 5'b00010) ? prod_den_cast_neg :
+                        (cur_count == 5'b00011) ? prod_num_cast :
+                        (cur_count == 5'b00100) ? prod_num_cast :
+                        (cur_count == 5'b00101) ? prod_num_cast :
+                        (cur_count == 5'b00110) ? prod_num_cast :
+                        (cur_count == 5'b00111) ? prod_den_cast_neg :
+                        (cur_count == 5'b01000) ? prod_den_cast_neg :
+                        (cur_count == 5'b01001) ? prod_num_cast :
+                        (cur_count == 5'b01010) ? prod_num_cast :
+                        (cur_count == 5'b01011) ? prod_num_cast :
+                        (cur_count == 5'b01100) ? prod_num_cast :
+                        (cur_count == 5'b01101) ? prod_den_cast_neg :
+                        (cur_count == 5'b01110) ? prod_den_cast_neg :
+                        (cur_count == 5'b01111) ? prod_num_cast :
+                        (cur_count == 5'b10000) ? prod_num_cast :
+                        (cur_count == 5'b10001) ? prod_num_cast :
+                        (cur_count == 5'b10010) ? prod_num_cast :
+                        (cur_count == 5'b10011) ? prod_den_cast_neg :
+                        (cur_count == 5'b10100) ? prod_den_cast_neg :
+                        (cur_count == 5'b10101) ? prod_num_cast :
+                        (cur_count == 5'b10110) ? prod_num_cast :
                         prod_num_cast;
 
-  assign final_phase =  phase_0 | phase_3 | phase_6 | phase_9 | phase_12 | phase_15 | phase_18 | phase_21 | phase_24 | phase_27 | phase_30 | phase_33;
+  assign final_phase =  phase_0 | phase_3 | phase_6 | phase_9 | phase_12 | phase_15 | phase_18 | phase_21;
 
-  assign section_phase =  phase_0 | phase_6 | phase_12 | phase_18 | phase_24 | phase_30;
+  assign section_phase =  phase_0 | phase_6 | phase_12 | phase_18;
 
   assign accum_mux_in1_temp = (section_phase == 1'b1) ? sectionipconvert_cast :
                              accum_mux_in1;
@@ -751,44 +552,28 @@ assign coeff_a3_section6 = notch_coeff_data[35]; //sfix20_En18
     end // storage_reg4_process
 
   always @ (posedge clk or negedge reset)
-    begin: storage_reg5_process
-      if (reset == 1'b0) begin
-        storage_state_in5 <= 0;
-      end
-      else begin
-        if (phase_26 == 1'b1) begin
-          storage_state_in5 <= storagetypeconvert;
-        end
-      end
-    end // storage_reg5_process
-
-  always @ (posedge clk or negedge reset)
-    begin: storage_reg6_process
-      if (reset == 1'b0) begin
-        storage_state_in6 <= 0;
-      end
-      else begin
-        if (phase_32 == 1'b1) begin
-          storage_state_in6 <= storagetypeconvert;
-        end
-      end
-    end // storage_reg6_process
-
-  always @ (posedge clk or negedge reset)
     begin: Output_Register_process
       if (reset == 1'b0) begin
         output_register <= 0;
       end
       else begin
-        if (phase_35 == 1'b1) begin
+        if (phase_23 == 1'b1) begin
           output_register <= output_typeconvert;
         end
       end
     end // Output_Register_process
-
-
    wire [23:0] output_register_temp; 
  assign output_register_temp = (output_register[24:23]==2'b10)? 24'h80_0000 : (output_register[24:23]==2'b01)? 24'h7f_ffff : output_register[23:0];
  assign filter_out = bypass? filter_in : ~sign_en? output_register_temp[23:0] + 24'h80_0000 : output_register_temp[23:0];
 
 endmodule  // filter_notch
+
+
+
+
+
+
+
+
+
+

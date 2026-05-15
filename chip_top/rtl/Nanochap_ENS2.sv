@@ -14,26 +14,39 @@
 
 `timescale 1 ns /  1ps
 
-module Nanochap_ENS2  (
+module Nanochap_ENS2 #(
+  parameter SOC_GPIO_NUM        = 22,
+  parameter SOC_NO_OF_WAVEGEN   = 16,
+  parameter SOC_NO_OF_NIRS      = 8,
+  parameter SOC_EEG_CHN_NUM     = 16,
+  parameter SOC_HLF_WV_NO_PTS   = 7,
+  parameter SOC_OUT_NO_BITS     = 12,
+  parameter SOC_EEG_DATA_WIDTH  = 24,
+  parameter TRIM_NUMBER         = 15,
+  parameter EN_SEC_NUMBER       = 2,
+  parameter EN_REG_NUMBER       = 15,
+  parameter ADJ_NUMBER          = 15,
+  parameter A2D_REG_NUMBER      = 8,
+  parameter GEN_SEC_NUMBER      = 8,
+  parameter GEN_REG_NUMBER      = 15
+)
+
+(
   // digital power ground pads
 `ifdef FPGA 
   input wire        clk_in1,
-  inout wire [21:0] IOBUF_PAD     //xin might change
+  inout wire [SOC_GPIO_NUM-1:0] IOBUF_PAD
 `else
-  inout wire        VPP,          //Supriya:22/03/2024:ENS2 pending to check with Xin
-  inout wire        VDDIO,        //Supriya:22/03/2024:ENS2 pending to check with Xin
-  inout wire        VSSIO,        //Supriya:22/03/2024:ENS2 pending to check with Xin
-  inout wire        VDD_DIG,      //Supriya:22/03/2024:ENS2 pending to check with Xin
-//inout wire        VDD_DIG_SW,   //Supriya:22/03/2024:ENS2 pending to check with Xin 
+  inout wire        VPP,          
+  inout wire        VDDIO,        
+  inout wire        VSSIO,        
+  inout wire        VDD_DIG,      
 //inout wire        DVSS_1P5_ANA,
-//inout wire        VDD_DIG_AO,   //Supriya:22/03/2024:ENS2 pending to check with Xin
-  inout wire        VSS_DIG,      //Supriya:22/03/2024:ENS2 pending to check with Xin
-//inout wire        VSS_DIG_AO,   //Supriya:22/03/2024:ENS2 pending to check with Xin  
+  inout wire        VSS_DIG,      
 // digital data/clk pads
-  inout wire [21:0] IOBUF_PAD,
-//inout wire        CLK,          //Supriya:22/03/2024:ENS2 pending to check with Xin
+  inout wire [SOC_GPIO_NUM-1:0] IOBUF_PAD,
+//inout wire        CLK,          
   input wire        CLKSEL,
-//added by supriya
   input wire        iopad_testmode0,
   input wire        iopad_testmode1,
   input wire        RESETn   
@@ -41,8 +54,8 @@ module Nanochap_ENS2  (
 );
 
 //wire        AVDD;
-  wire        A2D_COMP1;
-  wire        A2D_COMP2;
+//wire        A2D_COMP1;
+//wire        A2D_COMP2;
 //wire        A2D_COMP_OUT_STIMU0;
 //wire        A2D_COMP_OUT_STIMU1;
 //wire        A2D_COMP_OUT_STIMU2;
@@ -60,16 +73,16 @@ module Nanochap_ENS2  (
 //with PMU
   wire        A2D_SW_POWER_POR;    //??? //V
   wire        A2D_VDDI_POR;  //V
-  wire [21:0] IOBUF_CS;
-  wire [21:0] IOBUF_SR;
-  wire [21:0] IOBUF_IE;
-  wire [21:0] IOBUF_OE;
-  wire [21:0] IOBUF_PU;
-  wire [21:0] IOBUF_PD;
-  wire [21:0] IOBUF_A;
-  wire [21:0] IOBUF_PDRV0;
-  wire [21:0] IOBUF_PDRV1;
-  wire [21:0] IOBUF_Y;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_CS;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_SR;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_IE;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_OE;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_PU;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_PD;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_A;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_PDRV0;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_PDRV1;
+  wire [SOC_GPIO_NUM-1:0] IOBUF_Y;
   
   wire        IO_clksel_PU;
   wire        IO_exresetn_PU;
@@ -166,20 +179,25 @@ module Nanochap_ENS2  (
   wire        A2D_SDM_OUT15;
   wire        D2A_SDM_CLK;
  
-  pinmux_if  #(.TRIM_NUMBER(8), .EN_REG_NUMBER(4))  pinmux_if();
-  spi_ana_if #(.REG_NUMBER(9))                      spi_ana_if(); 
-  ana_nirs_if                                       ana_nirs_if();
+  pinmux_if  #( .TRIM_NUMBER    (TRIM_NUMBER),   
+                .EN_SEC_NUMBER  (EN_SEC_NUMBER),
+                .EN_REG_NUMBER  (EN_REG_NUMBER), 
+                .ADJ_NUMBER     (ADJ_NUMBER))       pinmux_if();
+
+  spi_ana_if #( .A2D_REG_NUMBER (A2D_REG_NUMBER),
+                .GEN_SEC_NUMBER (GEN_SEC_NUMBER),
+                .REG_NUMBER     (GEN_REG_NUMBER))   spi_ana_if(); 
+
+  ana_nirs_if #(.NO_OF_NIRS     (SOC_NO_OF_NIRS))   ana_nirs_if();
 
   // WG
-  wire [11:0] out_wave_driver_idac[15:0];
-  wire [15:0] ds_driver_en_driver;
-  wire 	      ds_driver_en_current;
-  wire [15:0] driver_en_sw;
-  wire 	      stimu_en;    
-  wire [15:0] source_driver;
-//wire [15:0] sourceb_driver_a;
-  wire [15:0] pulldn_driver;
-//wire [15:0] pulldb_driver_a;
+  wire [SOC_OUT_NO_BITS-1:0]   out_wave_driver_idac[SOC_NO_OF_WAVEGEN-1:0];
+  wire [SOC_NO_OF_WAVEGEN-1:0] ds_driver_en_driver;
+  wire 	                       ds_driver_en_current;
+  wire [SOC_NO_OF_WAVEGEN-1:0] driver_en_sw;
+  wire 	                       stimu_en;    
+  wire [SOC_NO_OF_WAVEGEN-1:0] source_driver;
+  wire [SOC_NO_OF_WAVEGEN-1:0] pulldn_driver;
 
 `ifdef FPGA
 fpga_behavior u_fpga_hehavior(
@@ -195,9 +213,36 @@ fpga_behavior u_fpga_hehavior(
 );
 `endif
 
+//temprily connected for verification
+wire [9:0] A2D_ADC_DATA; //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+wire  A2D_ADC_DATA_EN;//from analog	
+wire[3:0] D2A_STIM_PAD0;    //to analog	
+wire[3:0] D2A_STIM_PAD1;    //to analog	
+wire D2A_ADC_EN;    //to analog	
+
 wire atpg_en;
 // instaniate top_dig
-top_dig u_top_dig (
+top_dig #(
+  .EEG_DATA_WIDTH (SOC_EEG_DATA_WIDTH),
+  .EEG_CHN_NUM    (SOC_EEG_CHN_NUM),
+  .HLF_WV_NO_PTS  (SOC_HLF_WV_NO_PTS),
+  .OUT_NO_BITS    (SOC_OUT_NO_BITS),
+  .NO_OF_WAVEGEN  (SOC_NO_OF_WAVEGEN),
+  .NO_OF_NIRS     (SOC_NO_OF_NIRS),
+  .TRIM_NUMBER    (TRIM_NUMBER),
+  .EN_SEC_NUMBER  (EN_SEC_NUMBER),
+  .EN_REG_NUMBER  (EN_REG_NUMBER)
+)
+u_top_dig
+(
+//temprily connected for verification
+.A2D_ADC_DATA(A2D_ADC_DATA), //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
+.D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
+.D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
+.D2A_ADC_EN(D2A_ADC_EN),    //to analog	
 
   // bps imeas
   .A2D_SDM_OUT0(A2D_SDM_OUT0),
@@ -218,8 +263,6 @@ top_dig u_top_dig (
   .A2D_SDM_OUT15(A2D_SDM_OUT15),
   .D2A_SDM_CLK(D2A_SDM_CLK),
 
-  .A2D_COMP1        (A2D_COMP1),
-  .A2D_COMP2        (A2D_COMP2),
   .A2D_OSC_OUT      (A2D_OSC_OUT),
   .CLKSEL_Y         (CLKSEL_Y),       //from analog IO cells
 
@@ -342,6 +385,16 @@ GF_CI_DVSS u_dvss(
   .POCB       (POCB)        //come from analog model
 );
 
+// 5V I/O ground cell
+GF_CI_DVSS u_dvss1(
+  .DVDD       (VDDIO),
+  .DVSS       (VSSIO),      //this is for IO Ring Power
+  .VDD        (VDD_DIG), 
+  .VSS        (VSS_DIG),
+  .POC        (POC),        //come from analog model
+  .POCB       (POCB)        //come from analog model
+);
+
 // 1.8V Core ground
 GF_CI_VSS  u_iopad_plvss0(
   .DVDD       (VDDIO),
@@ -428,7 +481,21 @@ GF_CI_BI_T_POC  u_iopad_gpio[21:0]
 `endif
   
 
-ENS2_ANA_CHIP_wrapper u_top_ana_wrapper ( 
+ENS2_ANA_CHIP_wrapper #(
+  .EN_SEC_NUMBER  (EN_SEC_NUMBER),
+  .EN_REG_NUMBER  (EN_REG_NUMBER),
+  .A2D_REG_NUMBER (A2D_REG_NUMBER),
+  .GEN_SEC_NUMBER (GEN_SEC_NUMBER),
+  .GEN_REG_NUMBER (GEN_REG_NUMBER)
+) u_top_ana_wrapper ( 
+//temprily connected for verification
+.A2D_ADC_DATA(A2D_ADC_DATA), //from analog //ADC use posedge of sysclk to output data, 
+		//digital use negedge to capture, so we have half sysclk cycle margin for it	
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
+.D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
+.D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
+.D2A_ADC_EN(D2A_ADC_EN),    //to analog	
+
 `ifdef FPGA
   .clk_in1              (clk_in1),  
 `endif
@@ -455,9 +522,7 @@ ENS2_ANA_CHIP_wrapper u_top_ana_wrapper (
   .A2D_CLK2MHZ              (A2D_OSC_OUT),
 //.A2D_LVD                  (),
   .A2D_POR_DVDD             (A2D_SW_POWER_POR),
-  .A2D_COMP_OUT_CH1         (A2D_COMP1),
-  .A2D_COMP_OUT_CH2         (A2D_COMP2),
-  .VDDIO                  (VDDIO),
+  .VDDIO                    (VDDIO),
   .VDD_DIG                  (VDD_DIG),
   .VSS_DIG                  (VSS_DIG),
   //.AVDD                     (AVDD),

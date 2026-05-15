@@ -91,7 +91,7 @@ input wire         eeg_int_clr,
 input wire [15:0]  cic_data_ignore_tar,
 input wire [23:0]  hpf_coeff_data, 
 input wire [17:0]  lpf_coeff_data [27:0],
-input wire [19:0]  notch_coeff_data[35:0],
+input wire [19:0]  notch_coeff_data[23:0],
 
 
 input wire [CHN_NUM-1:0] notch_filter_bypass,

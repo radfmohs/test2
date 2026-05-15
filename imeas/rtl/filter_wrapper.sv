@@ -56,7 +56,7 @@ input  wire         cic_data_ok,
 
 input wire [23:0]  hpf_coeff_data, 
 input wire [17:0]  lpf_coeff_data [27:0],
-input wire [19:0]  notch_coeff_data[35:0],
+input wire [19:0]  notch_coeff_data[23:0],
 
 output wire    notch_clk_gtg_en,
 output wire    lpf_clk_gtg_en,
@@ -85,7 +85,7 @@ wire lpf_filter_enable;
 wire hpf_filter_enable;
 
 wire [4:0] lpf_filter_enable_cnt;
-wire [5:0] notch_filter_enable_cnt;
+wire [4:0] notch_filter_enable_cnt;
 wire [2:0] hpf_filter_enable_cnt;
 
 wire lpf_filter_out_en;
@@ -117,6 +117,8 @@ wire signed [23:0] coeffmux_section_hpf;
 wire signed [69:0] prod;
 wire signed [45:0] inputmux_section;
 wire signed [23:0] coeffmux_section;
+
+
 
 assign  inputmux_section = lpf_filter_enable?   {{21{inputmux_section_lpf[24]}},inputmux_section_lpf} : 
                            notch_filter_enable? {{3{inputmux_section_nf[42]}}  ,inputmux_section_nf } : inputmux_section_hpf;
@@ -153,10 +155,6 @@ filter_ctrl u_filter_ctrl(
 .lpf_fsm(lpf_filter_enable),
 .nf_fsm(notch_filter_enable) 
 );
-
-
-
-
 
 
 
@@ -287,7 +285,7 @@ common_pulse_rising u_chdata_en_pulse(
 //end
 
 //notch
-assign lpf_filter_out_en = lpf_filter_bypass_temp? hpf_chdata_en : lpf_filter_out_en_temp;
+assign lpf_filter_out_en = lpf_filter_bypass_temp? notch_chdata_en : lpf_filter_out_en_temp;
 //always @ (posedge clk or negedge cic_rst_n)begin
 //    if (cic_rst_n == 1'b0) begin
 //        notch_filter_enable <= 1'b0;
@@ -328,7 +326,7 @@ assign lpf_clk_gtg_en      = !lpf_filter_bypass_temp & lpf_filter_enable;
 
 assign notch_clk_gtg_en    = !notch_filter_bypass_temp & nf_sw_flg;
 
-assign notch_chdata_en     = notch_filter_bypass_temp? lpf_filter_out_en : notch_chdata_en_temp;
+assign notch_chdata_en     = notch_filter_bypass_temp? hpf_chdata_en : notch_chdata_en_temp;
 
 assign hpf_clk_gtg_en      = !hpf_filter_bypass_temp & (hpf_filter_enable);
 
@@ -340,15 +338,15 @@ common_pulse_sync u_chdata_en_sync(
 .i_a_rst_n(cic_rst_n),
 .i_b_rst_n(cic_rst_n),
 .i_test_mode(atpg_en), 
-.i_a_pulse(notch_chdata_en),  
+.i_a_pulse(lpf_filter_out_en),  
 .o_a_ready(),   
 .o_b_pulse(filter_chdata_en)    
 ); 
 
 assign    filter1                = imeas_chdata_adcclk;
-assign    filter5                = filter2;
-assign    imeas_chdata_out_temp  = filter4;
-assign    filter3  = filter6;
+assign    filter3                = filter2;
+assign    imeas_chdata_out_temp  = filter6;
+assign    filter5  = filter4;
 
 
 

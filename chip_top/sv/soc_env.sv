@@ -135,7 +135,6 @@ class soc_env extends nnc_env;
         nnc_config_db#(virtual nnc_nirs_ppg_interface)::set(this, "nirs_ppg_env.*", "nirs_ppg_vif", nirs_ppg_vif);
 
         
-
         //if (!nnc_config_db#(virtual spi_master_if)::get(this, "", "m_spiif", m_spiif))
         //  `nnc_fatal("ENS2_CHIP_ENV", "Can't get m_spiif")
 

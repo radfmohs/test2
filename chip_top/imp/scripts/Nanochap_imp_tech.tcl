@@ -143,7 +143,7 @@ set ana_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_in
 set pad_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/GF018bcdlite_icpio_5p0_75_wp_6lm_9TM.mw]
 set otp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/otp.mw]
 set vpp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/GF_CI_VPP.mw]
-set vpp_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/SRAM_SP.mw]
+set sram_mw_library [list /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/lib_inputs/mw/SRAM_SP.mw]
 
 # -----------------------------------------------------------------------------
 # Library search path and Milkyway locations

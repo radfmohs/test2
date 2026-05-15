@@ -6,9 +6,13 @@ module nirs_ppg_ctrl_top #(
   input  wire             clk_ppg, // for counters and latch final counting values - Should match with ppg clock
   input  wire             clk_sys, // a stable 2Mhz to control pulses with pre-set widths
 
-  input  wire      [5:0]  NIRS_PGG_MODE_SEL_spi,
+  input  wire      [5:0]  NIRS_PPG_MODE_SEL_spi,
   input  wire             NIRS_PPG_EN_spi,    // NIRS/PPG enable
   input  wire             NIRS_PPG_MEAS_spi,
+
+// AVG SEL for DOUT 
+  input  wire      [1:0] AVG_SEL_spi_0,
+  input  wire      [1:0] AVG_SEL_spi_1,
 
 // RATIO for DOUT - OPTIONAL for MANUAL MODE
   input  wire      [7:0]  RATIO_MANUAL_spi_0,   // Value for manual mode
@@ -79,7 +83,7 @@ module nirs_ppg_ctrl_top #(
   output wire       [8:0] IDAC,
   output wire [WIDTH-1:0] DOUTC, // Coarse counter
   output wire [WIDTH-1:0] DOUTF, // Fine counter
-  output wire      [18:0] DOUT,  // Coarse + Fine
+  output wire      [21:0] DOUT,  // Coarse + Fine
 
 // From Analog
   input  wire             IREF_COARSE,
@@ -92,13 +96,16 @@ module nirs_ppg_ctrl_top #(
   wire DOUTC_LATCH_EN, DOUTF_LATCH_EN, DOUT_EN;
   wire sync_bypass_sys, sync_bypass_ppg;
 
-  wire   [5:0]  NIRS_PGG_MODE_SEL;
+  wire   [5:0]  NIRS_PPG_MODE_SEL;
   wire          NIRS_PPG_EN;
-  wire          NIRS_PGG_MEAS;
+  wire          NIRS_PPG_MEAS;
+  wire   [1:0]  AVG_SEL;
   wire   [7:0]  RATIO_MANUAL;             // Value for manual mode
   wire   [2:0]  RATIO_CTRL;               // ratio[1:0], manual_en for Ratio
+  wire   [1:0]  AVG_SEL_0;
   wire   [7:0]  RATIO_MANUAL_0;       
-  wire   [2:0]  RATIO_CTRL_0;     
+  wire   [2:0]  RATIO_CTRL_0;   
+  wire   [1:0]  AVG_SEL_1;  
   wire   [7:0]  RATIO_MANUAL_1;       
   wire   [2:0]  RATIO_CTRL_1;    
 
@@ -127,9 +134,10 @@ module nirs_ppg_ctrl_top #(
   wire   [7:0]  NIRS_PPG_INT_SEL;
   wire          int_length_slct;
 
-  assign NIRS_PGG_MODE_SEL  = NIRS_PGG_MODE_SEL_spi;
+  assign NIRS_PPG_MODE_SEL  = NIRS_PPG_MODE_SEL_spi;
   assign NIRS_PPG_EN        = NIRS_PPG_EN_spi;
-  assign NIRS_PGG_MEAS      = NIRS_PPG_MEAS_spi;
+  assign NIRS_PPG_MEAS      = NIRS_PPG_MEAS_spi;
+  assign AVG_SEL_0          = AVG_SEL_spi_0;
   assign RATIO_MANUAL_0     = RATIO_MANUAL_spi_0;
   assign RATIO_CTRL_0       = RATIO_CTRL_spi_0;
   assign THRESHOLD_H_0      = THRESHOLD_H_spi_0;
@@ -143,6 +151,7 @@ module nirs_ppg_ctrl_top #(
   assign RESET_ctrl_0       = RESET_CTRL_spi_0;
   assign OTS_ctrl_0         = OTS_CTRL_spi_0;
 
+  assign AVG_SEL_1          = AVG_SEL_spi_1;
   assign RATIO_MANUAL_1     = RATIO_MANUAL_spi_1;
   assign RATIO_CTRL_1       = RATIO_CTRL_spi_1;
   assign THRESHOLD_H_1      = THRESHOLD_H_spi_1;
@@ -199,6 +208,7 @@ module nirs_ppg_ctrl_top #(
     .en           (DOUT_EN),
     .DOUTF        (DOUTF),
     .DOUTC        (DOUTC),
+    .AVG_SEL      (AVG_SEL),
     .RATIO_MANUAL (RATIO_MANUAL),
     .RATIO_CTRL   (RATIO_CTRL),
     .DOUT         (DOUT)
@@ -237,6 +247,7 @@ module nirs_ppg_ctrl_top #(
   assign IDAC_MIN       = LED[1] ? IDAC_MIN_tmp[1] : IDAC_MIN_tmp[0];
   assign LED_ON         = LED[0] ? 1'b0 : LED_ON_tmp;
 
+  assign AVG_SEL        = LED[1] ? AVG_SEL_1      : AVG_SEL_0;
   assign RATIO_MANUAL   = LED[1] ? RATIO_MANUAL_1 : RATIO_MANUAL_0;
   assign RATIO_CTRL     = LED[1] ? RATIO_CTRL_1 : RATIO_CTRL_0;
   assign D2A_RATIO_CTRL = RATIO_CTRL[2:1];
@@ -343,9 +354,9 @@ module nirs_ppg_ctrl_top #(
     .rst_n            (rst_n),
     .clk              (clk_sys),
 
-    .MODE_SEL         (NIRS_PGG_MODE_SEL),
+    .MODE_SEL         (NIRS_PPG_MODE_SEL),
     .NIRS_EN          (NIRS_PPG_EN),
-    .NIRS_MEAS        (NIRS_PGG_MEAS),
+    .NIRS_MEAS        (NIRS_PPG_MEAS),
     .LED              (LED),
 
     .LED_stable_ctrl_0  (LED_stable_ctrl_0),

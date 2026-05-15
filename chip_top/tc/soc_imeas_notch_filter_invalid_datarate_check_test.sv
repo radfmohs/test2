@@ -32,8 +32,8 @@ class `TESTCFG extends soc_imeas_notch_filter_base_test_cfg;
   constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
 
   constraint c_iclk_sel            { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[0:3]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[0:2]};
+                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[0:11]};
+                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[0:11]};
                                      (imeas_cic_rate == 2)  ->  iclk_sel inside {[0:1]};
                                      (imeas_cic_rate == 3)  ->  iclk_sel inside {0,11};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[10:11]};
