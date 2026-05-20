@@ -438,12 +438,21 @@ ext_hfosc u_ext_hfosc (
 // ==============================
 // External Reset Generation
 // ==============================
-//initial
-//  begin
-//  ext_resetn = 0;
-//  #10000;
-//  ext_resetn = 1;
-//  end
+  initial
+  begin
+  ext_resetn = 0;
+  #10000;
+  ext_resetn = 1;
+  end
+
+// ==============================
+// External Reset Generation
+// ==============================
+  initial
+  begin
+  UNLOCK = 0;
+  #10000;
+  end
 
 // ==============================
 // ALTF Decoder for SOC
@@ -461,7 +470,7 @@ assign spi_miso_conn = (dut_vif.altf_gpio_sel === 2'b00) ? (((dut_vif.mult_chip_
 // Connecting to PADs of SOC
 // ==============================
 assign scan_rst_n = 1'b1;
-assign iopad_resetn = (dut_vif.testmode_sel === 2'b11) ? ext_resetn : (dut_vif.testmode_sel === 2'b10) ? RESETb : (dut_vif.testmode_sel === 2'b01) ? scan_rst_n : (dut_vif.gpio_pu_en[14] === 1'b1) ? 1'bz : ext_resetn;               // Checked
+assign iopad_resetn = (dut_vif.testmode_sel === 2'b11) ? ext_resetn  : (dut_vif.testmode_sel === 2'b10) ? RESETb : (dut_vif.testmode_sel === 2'b01) ? scan_rst_n : (dut_vif.gpio_pu_en[14] === 1'b1) ? 1'bz : ext_resetn;               // Checked
 
 // INT_OSC_OUT_EN
 assign IOBUF_PAD[11]= ((dut_vif.testmode_sel === 2'b00) || (dut_vif.testmode_sel === 2'b10))      ? ((dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'bz) : 1'bz;

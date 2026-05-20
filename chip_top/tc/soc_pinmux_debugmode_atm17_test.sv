@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------
 // File Name	: soc_pinmux_debugmode_atm_test.sv                                                   
 // Project	: Nanochap ENS2                                  		        
-// Description	: Testcase soc_pinmux_debugmode_atm16_test                                             
+// Description	: Testcase soc_pinmux_debugmode_atm17_test                                             
 // Designer	: ddang@nanochap.com                                                                 
 // Date		: 29-11-1623                                                                     
 // Revision	: 0.1 Initial version created by script                                 
@@ -214,9 +214,9 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ATM17", $sformatf("D2A_BIST_SEL = %b is not as expectation of 5'b10001", `ANA_TOP.D2A_BIST_SEL))
       end
    
-    if (`ANA_TOP.D2A_DCLOFFEN !== 1'b1)
+    if (`ANA_TOP.D2A_DCLOFFEN[8] !== 1'b1)
       begin
-        `nnc_error("ATM17", $sformatf("D2A_DCLOFFEN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_DCLOFFEN))
+        `nnc_error("ATM17", $sformatf("D2A_DCLOFFEN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_DCLOFFEN[8]))
       end
     if (`ANA_TOP.D2A_BIST_EN !== 1'b1)
       begin

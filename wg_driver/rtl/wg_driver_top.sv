@@ -76,6 +76,7 @@ parameter ADDR_WIDTH = 12,
 //  input wire  [2:0] w_isel[ELEC_NO-1:0],
   input wire        i_wg_driver_en[ELEC_NO-1:0],
   input wire  [4:0] i_period_sel[ELEC_NO-1:0],
+  input wire        mul_wave_repeat[ELEC_NO-1:0],
 
   input wire       no_of_num_slient_disable[ELEC_NO-1:0],
   input wire [15:0] no_of_num_slient_tar[ELEC_NO-1:0],
@@ -139,7 +140,7 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
 		.neg_hlf_wave_per2	(neg_hlf_wave_per2[i]), //half of the period of the arbitrary (e.g. sine or square) wave (in microseconds); h1f4=500 us = 2 KHz               
                 .point_config           (point_config[i]),
 		.alt_lim		(alter_lim[i]), //
-		.alt_silent_lim		(alter_silent_lim[i]), //
+		.i_alt_silent_lim       (alter_silent_lim[i]), //
 		.alt_rest_lim		(alter_rest_lim[i]), //
 		.delay_lim		(delay_lim[i]), 
 //		.clk_freq		(clk_freq[i]), //clock frequency in MHz
@@ -162,7 +163,7 @@ for(i=0; i<ELEC_NO; i=i+1) begin : WG_SUB_BLOCK
 		.o_in_wave_addr	      (in_wave_addr[i]),
 		.o_ems_wave_addr      (ems_wave_addr[i]),
                 .start_with_silent    (start_with_silent[i]),
-
+                .mul_wave_repeat      (mul_wave_repeat[i]),
                 .i_data_scl                    (i_data_scl[i]),
                 .i_ems_data_ctrl               (i_ems_data_ctrl[i]),
                 .i_reg_wg_driver_neg_scale     (i_reg_wg_driver_neg_scale[i]),

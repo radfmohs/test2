@@ -5,8 +5,8 @@
 // File Name	: soc_wavegen_drva_sine_test.sv                                                   
 // Project	: Nanochap ENS2                                  		        
 // Description	: Testcase soc_wavegen_drva_sine_test                                             
-// Designer	: ophina@nanochap.com                                                                 
-// Date		: 18-03-2024                                                                   
+// Designer	: ddang@nanochap.com                                                                 
+// Date		: 19-05-2026                                                                   
 // Revision	: 0.1 Initial version created by script                                 
 // ====================================================================================*/
 
@@ -50,7 +50,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   logic [12:0]      snk_half_period2[2];
   logic [31:0]     hlf_wave_lim; // number of clocks for positive half wave
   logic [31:0]     neg_hlf_wave_lim; // number of clocks for negative half wave
-  logic [15:0]     rest_lim; // number of clocks for each rest period
+  logic [31:0]     rest_lim; // number of clocks for each rest period
   logic [31:0]     silent_lim; // number of clocks for each silent period
   rand logic [1:0] preload_sel;     // preload selection : 11 or 00
   rand logic       neg_ena;
@@ -159,7 +159,6 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   // constraint c_pos_dis         { ((neg_ena == 1'b0)/* || (load_points_sel == 1'b1)*/ || (pos_neg_diff_sel == 1'b1) || (python_check_en == 1'b1)) -> pos_dis == 1'b0;}
   constraint c_pos_dis         { pos_dis == 1'b0; }
 
-
   /*
   Normal waveform:  
   - If 1 waveform used and either pos or neg enabled, then max value is 64. 
@@ -186,8 +185,8 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
                                  //((waveform_sel == 3'b001) && (neg_ena == 1'b1) && (pos_dis == 1'b0) && (pos_neg_diff_sel == 1'b1)) -> points_sel inside {[0:6]};
                                  //((waveform_sel == 3'b010) && (neg_ena == 1'b1) && (pos_dis == 1'b0) && (pos_neg_diff_sel == 1'b0)) -> points_sel inside {[2:6]};
                                  //((waveform_sel == 3'b010) && (neg_ena == 1'b1) && (pos_dis == 1'b0) && (pos_neg_diff_sel == 1'b1)) -> points_sel inside {[1:6]};
-                                 ((waveform_sel == 3'b000) && ((neg_ena == 1'b0) || (pos_dis == 1'b1))) -> points_sel inside {[0:6]};
-                                 ((waveform_sel == 3'b001) && ((neg_ena == 1'b0) || (pos_dis == 1'b1))) -> points_sel inside {[0:5]};
+                                 ((waveform_sel == 3'b000) && ((neg_ena == 1'b0) || (pos_dis == 1'b1))) -> points_sel inside {[0:7]};
+                                 ((waveform_sel == 3'b001) && ((neg_ena == 1'b0) || (pos_dis == 1'b1))) -> points_sel inside {[0:6]};
                                  ((waveform_sel == 3'b010) && ((neg_ena == 1'b0) || (pos_dis == 1'b1))) -> points_sel inside {[1:6]};
                                }
 
@@ -231,7 +230,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   //PULLAB_lim - Rest-Time_en - bit[0]
   constraint c_PULLAB_lim      { PULLAB_lim != 0;}
 
-  constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0002;} // 0 is Source and 1 is Sink 
+  constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0001;} // 0 is Source and 1 is Sink 
 
   constraint c_wavegen_drv_en {wavegen_drv_en == 16'h0003;} // 0 and 1 is enabled
 
@@ -262,7 +261,7 @@ class `TESTNAME extends soc_wavegen_base_test;
   // -----------------------------------------
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    `nnc_top.set_timeout(5s);
+    `nnc_top.set_timeout(500ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -333,6 +332,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     wavegen_setup(0);//chip 0
 
     if (|`DUT_IF.wavegen_drv_en[3:0] === 1'b1) begin 
+      $display("## **************************************************************************** ##");
+      $display("##         PROGRAM FOR GLOBAL to change DRV Select                              ##");   
+      $display("## **************************************************************************** ##");
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h00<<1);});
       `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -341,6 +343,9 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 2: Do the configuration for Wavegen 0
         wavegen_drv_config(2'b00, `WAVEGEN_0_ADDR_BASE, 0);
    
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_0_ADDR_BASE, 8'h02, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_0_ADDR_BASE, 8'h00, 8'h00);
       end
@@ -349,6 +354,9 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 3: Do the configuration for Wavegen 1
         wavegen_drv_config(2'b00, `WAVEGEN_1_ADDR_BASE, 1);
 
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_1_ADDR_BASE, 8'h01, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_1_ADDR_BASE, 8'h00, 8'h00);
       end
@@ -357,7 +365,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 4: Do the configuration for Wavegen 2
         wavegen_drv_config(2'b00, `WAVEGEN_2_ADDR_BASE, 2);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_2_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_2_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_2_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -365,12 +376,18 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 5: Do the configuration for Wavegen 3
         wavegen_drv_config(2'b00, `WAVEGEN_3_ADDR_BASE, 3);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_3_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_3_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_3_ADDR_BASE, 8'h00, 8'h00);
       end
     end
 
     if (|`DUT_IF.wavegen_drv_en[7:4] === 1'b1) begin 
+      $display("## **************************************************************************** ##");
+      $display("##         PROGRAM FOR GLOBAL to change DRV Select                              ##");   
+      $display("## **************************************************************************** ##");
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h01<<1);});
       `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -379,7 +396,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 6: Do the configuration for Wavegen 4
         wavegen_drv_config(2'b01, `WAVEGEN_4_ADDR_BASE, 4);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_4_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_4_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_4_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -387,7 +407,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 7: Do the configuration for Wavegen 5
         wavegen_drv_config(2'b01, `WAVEGEN_5_ADDR_BASE, 5);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_5_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_5_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_5_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -395,7 +418,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 8: Do the configuration for Wavegen 6
         wavegen_drv_config(2'b01, `WAVEGEN_6_ADDR_BASE, 6);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_6_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_6_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_6_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -403,7 +429,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 9: Do the configuration for Wavegen 7
         wavegen_drv_config(2'b01, `WAVEGEN_7_ADDR_BASE, 7);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_7_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_7_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_7_ADDR_BASE, 8'h00, 8'h00);
       end
     end
@@ -411,13 +440,19 @@ class `TESTNAME extends soc_wavegen_base_test;
     if (|`DUT_IF.wavegen_drv_en[11:8] === 1'b1) begin 
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h02<<1);});
       `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+      $display("## **************************************************************************** ##");
+      $display("##         PROGRAM FOR GLOBAL to change DRV Select                              ##");   
+      $display("## **************************************************************************** ##");
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
       if (|`DUT_IF.wavegen_drv_en[8] === 1'b1) begin 
         // Step 10: Do the configuration for Wavegen 8
         wavegen_drv_config(2'b10, `WAVEGEN_8_ADDR_BASE, 8);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_8_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_8_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_8_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -425,7 +460,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 11: Do the configuration for Wavegen 9
         wavegen_drv_config(2'b10, `WAVEGEN_9_ADDR_BASE, 9);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_9_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_9_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_9_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -433,7 +471,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 12: Do the configuration for Wavegen 10
         wavegen_drv_config(2'b10, `WAVEGEN_10_ADDR_BASE, 10);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_10_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_10_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_10_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -441,7 +482,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 13: Do the configuration for Wavegen 11
         wavegen_drv_config(2'b10, `WAVEGEN_11_ADDR_BASE, 11);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_11_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_11_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_11_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -450,13 +494,19 @@ class `TESTNAME extends soc_wavegen_base_test;
     if (|`DUT_IF.wavegen_drv_en[15:12] === 1'b1) begin 
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == (8'h03<<1);});
       `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+      $display("## **************************************************************************** ##");
+      $display("##         PROGRAM FOR GLOBAL to change DRV Select                              ##");   
+      $display("## **************************************************************************** ##");
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
       if (|`DUT_IF.wavegen_drv_en[12] === 1'b1) begin 
         // Step 14: Do the configuration for Wavegen 12
         wavegen_drv_config(2'b11, `WAVEGEN_12_ADDR_BASE, 12);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_12_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_12_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_12_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -464,7 +514,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 15: Do the configuration for Wavegen 13
         wavegen_drv_config(2'b11, `WAVEGEN_13_ADDR_BASE, 13);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_13_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_13_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_13_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -472,7 +525,10 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 16: Do the configuration for Wavegen 14
         wavegen_drv_config(2'b11, `WAVEGEN_14_ADDR_BASE, 14);
 
-        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_14_ADDR_BASE, 8'h02, 8'h00);
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
+        `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_14_ADDR_BASE, 8'h00, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_14_ADDR_BASE, 8'h00, 8'h00);
       end
 
@@ -480,6 +536,9 @@ class `TESTNAME extends soc_wavegen_base_test;
         // Step 17: Do the configuration for Wavegen 15
         wavegen_drv_config(2'b11, `WAVEGEN_15_ADDR_BASE, 15);
 
+        $display("## **************************************************************************** ##");
+        $display("##         PROGRAM FOR SOC_AWG_DRIVEC_SW_CFG0_REG (set SRC and SINK)            ##");   
+        $display("## **************************************************************************** ##");
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG0_REG+`WAVEGEN_15_ADDR_BASE, 8'h02, 8'h00);
         `WR_WAVEGEN_REG(`SOC_AWG_DRIVEC_SW_CFG1_REG+`WAVEGEN_15_ADDR_BASE, 8'h00, 8'h00);
       end
@@ -489,9 +548,25 @@ class `TESTNAME extends soc_wavegen_base_test;
     wavegen_drv_enable;
 
     // Step 5: Waiting for Wave generated successfully
-    $display("## --------------------------------------------------------------------------- ##");
-    $display("##         WAITING FOR SIMULATION TO COMPLETE WAVEFORM GENERATION              ##");      
-    $display("## --------------------------------------------------------------------------- ##");
+    $display("## **************************************************************************** ##");
+    $display("##         WAITING FOR SIMULATION TO COMPLETE WAVEFORM GENERATION               ##");      
+    $display("## **************************************************************************** ##");
+
+    for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
+      if (`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
+        $display("## **************************************************************************** ##");
+        $display("##         Driver No: %2d, is enabled and configured a SINK mode                 ##", i);      
+        $display("## **************************************************************************** ##");
+      end else if (!`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
+        $display("## **************************************************************************** ##");
+        $display("##         Driver No: %2d, is enabled configured as SOURCE mode                  ##", i);      
+        $display("## **************************************************************************** ##"); 
+      end else begin 
+        $display("## **************************************************************************** ##");
+        $display("##         Driver No: %2d, is disabled                                           ##", i);      
+        $display("## **************************************************************************** ##"); 
+      end 
+    end
 
     // --------------------------------------------------------
     // End of test and add any needed delay time 
@@ -565,7 +640,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     for (int i=0; i<16; i++) begin
       case(top_test_cfg.points_sel)
 
-         3'b000:begin
+         3'b000:begin // 64
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
@@ -590,7 +665,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 */
 		end
 
-         3'b001:begin
+         3'b001:begin // 32
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/2;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", mem_tmp);
@@ -614,8 +689,8 @@ class `TESTNAME extends soc_wavegen_base_test;
                     end 
 */
 		end
-
-         3'b010:begin
+ 
+         3'b010:begin // 16
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/4;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", mem_tmp);
@@ -640,8 +715,8 @@ class `TESTNAME extends soc_wavegen_base_test;
 */
 		end
 
-         3'b011:begin
-		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/6;
+         3'b011:begin // 8
+		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/8;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", mem_tmp);
 		    else
@@ -666,7 +741,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 */
 		end
 
-         3'b100:begin
+         3'b100:begin // 4
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/16;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", mem_tmp);
@@ -692,7 +767,7 @@ class `TESTNAME extends soc_wavegen_base_test;
 */
 		end
 
-         3'b101:begin
+         3'b101:begin // 2
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/32;
 		    if(top_test_cfg.LOAD_POINTS === 0)
 		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", mem_tmp);
@@ -718,12 +793,12 @@ class `TESTNAME extends soc_wavegen_base_test;
 */
 		end
 
-         3'b110:begin
+         3'b110:begin // 1
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/64;
 		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y1", mem_tmp);
 		end
 
-         3'b111:begin
+         3'b111:begin // 64
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT;
 		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
 
@@ -999,6 +1074,9 @@ class `TESTNAME extends soc_wavegen_base_test;
   input [4:0] drv_num; 
 
   begin
+    $display("## **************************************************************************** ##");
+    $display("##         PROGRAM FOR DRIVER: %2d                                              ##", drv_num);   
+    $display("## **************************************************************************** ##");
 
     // Decode Base Address to know which selected driver
     if (WG_BASE === `WAVEGEN_0_ADDR_BASE)
@@ -1032,6 +1110,20 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     `nnc_info("SOC_TEST", "Set drive reg ctrl1-2", NNC_LOW)
 
+    $display("## **************************************************************************** ##");
+    $display("##         PROGRAM FOR SOC_ADDR_WG_DRV_CTRL1_REG ( DRV Control)                 ##"); 
+    $display("## **************************************************************************** ##");
+    $display("##    DRIVE_REG_CTRL0: Offset:0x34                                              ##");
+    $display("##    - bit-5: data_output_mode - 0: 8-bit, 1: 12-bit                           ##");
+    $display("##    - bit-4: mode_sel 1: Manual, 0: Auto                                      ##");
+    $display("##    - bit-2: driverA_pullDA - DRIVERA_PULLDA (applicable only in manual mode) ##");
+    $display("##    - bit-0: driverA_sourceA - DRIVERA_SOURCEA applicable only in manual mode)##");    
+    $display("## **************************************************************************** ##");
+    $display("##    DRIVE_REG_CTRL2: Offset:0x35                                              ##");
+    $display("##    - bit7: multi_argo_ctrl - 0: use right shift, 1: use a multiplier         ##");
+    $display("##    - bit[6:4]: - 8-bit_location_sel (0 -> 4) to scale up                     ##");
+    $display("##    - bit[3:0] - IDAC_DIN_MSB                                                 ##");
+    $display("## **************************************************************************** ##");
     if (WG_BASE === `WAVEGEN_0_ADDR_BASE) begin // Driver 0
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac0_msb_sel, top_test_cfg.dac0_data_h}; wr_data[1] == top_test_cfg.dac0_data_l;});
       // 2 registers
@@ -1042,11 +1134,11 @@ class `TESTNAME extends soc_wavegen_base_test;
       // 2 registers
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
     end
-    else if(WG_BASE === `WAVEGEN_2_ADDR_BASE) begin  // Driver 1
+    else if(WG_BASE === `WAVEGEN_2_ADDR_BASE) begin  // Driver 2
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac2_msb_sel, top_test_cfg.dac2_data_h}; wr_data[1] == top_test_cfg.dac2_data_l;});
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
     end
-    else if(WG_BASE === `WAVEGEN_3_ADDR_BASE) begin  // Driver 1
+    else if(WG_BASE === `WAVEGEN_3_ADDR_BASE) begin  // Driver 3
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL1_REG + WG_BASE); no_of_bytes == 2; wr_data[0] == {1'b0, top_test_cfg.dac3_msb_sel, top_test_cfg.dac3_data_h}; wr_data[1] == top_test_cfg.dac3_data_l;});
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
     end
@@ -1054,28 +1146,40 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     // Write burst starting from ADDR_WG_DRV_REST_T_REG01 (Rest Time) (2 registers)
     // --------------------------------------------------------
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_REST_T_REG01 + WG_BASE); no_of_bytes == 2;  wr_data[0] == `DUT_IF.wg_rest_wave0_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_rest_wave0_lim[drv_num][7:0];});
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_REST_T_REG01 + WG_BASE); no_of_bytes == 3;  wr_data[0] == `DUT_IF.wg_rest_wave0_lim[drv_num][23:15]; wr_data[1] == `DUT_IF.wg_rest_wave0_lim[drv_num][15:8]; wr_data[2] == `DUT_IF.wg_rest_wave0_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set 0 rest period", NNC_LOW)
+    $display("## **************************************************************************** ##");
+    $display("##         PROGRAM FOR ADDR_WG_DRV_REST_T_REG01 (Rest Time) = %h                ##", `DUT_IF.wg_rest_wave0_lim[drv_num][23:0]);      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // --------------------------------------------------------
     // Write burst starting from ADDR_WG_DRV_SILENT_T_REG01 (Silent Time) (3 registers)
     // --------------------------------------------------------
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_SILENT_T_REG01 + WG_BASE); no_of_bytes == 3; wr_data[0] == `DUT_IF.wg_silent_wave0_lim[drv_num][23:16]; wr_data[1] == `DUT_IF.wg_silent_wave0_lim[drv_num][15:8]; wr_data[2] == `DUT_IF.wg_silent_wave0_lim[drv_num][7:0];});
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_SILENT_T_REG01 + WG_BASE); no_of_bytes == 4; wr_data[0] == `DUT_IF.wg_silent_wave0_lim[drv_num][31:24]; wr_data[1] == `DUT_IF.wg_silent_wave0_lim[drv_num][23:16]; wr_data[2] == `DUT_IF.wg_silent_wave0_lim[drv_num][15:8]; wr_data[3] == `DUT_IF.wg_silent_wave0_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set 0 silent time", NNC_LOW)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR SOC_ADDR_WG_DRV_SILENT_T_REG01 (Silent Time): %h              ##", `DUT_IF.wg_silent_wave0_lim[drv_num][31:0]);      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // --------------------------------------------------------
     // Write to SOC_ADDR_WG_DRV_SILENT_T_REG04 (1 register)
     // --------------------------------------------------------
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_SILENT_T_REG04 + WG_BASE); wr_data[0] == `DUT_IF.wg_silent_wave0_lim[drv_num][31:24];});
-    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    //assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_SILENT_T_REG04 + WG_BASE); wr_data[0] == `DUT_IF.wg_silent_wave0_lim[drv_num][31:24];});
+    //$display("## **************************************************************************** ##");
+    //$display("##         PROGRAM FOR SOC_ADDR_WG_DRV_SILENT_T_REG04                          ##");      
+    //$display("## **************************************************************************** ##");
+    //`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write burst starting from ADDR_WG_DRV_HLF_WAVE_PRD_REG01 (2 registers)
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_HLF_WAVE_PRD_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_hlf_wave0_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_hlf_wave0_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set positive half wave0 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##   PROGRAM FOR SOC_ADDR_WG_DRV_HLF_WAVE_PRD_REG01 (1stWave Pos Clk): %h       ##",  `DUT_IF.wg_hlf_wave0_lim[drv_num][15:0]);      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // --------------------------------------------------------
@@ -1083,6 +1187,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_HLF_WAVE_PRD_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_neg_hlf_wave0_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_neg_hlf_wave0_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set negative half wave0 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR SOC_ADDR_WG_DRV_NEG_HLF_WAVE_PRD_REG01 (1stWave Neg Clk): %h", `DUT_IF.wg_neg_hlf_wave0_lim[drv_num][15:8]);      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // -------------------------------------------------------------
@@ -1090,6 +1197,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // -------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_hlf_wave1_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_hlf_wave1_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set positive half wave1 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR SOC_ADDR_WG_DRV_HLF_WAVE_CLK_PNT1_REG01 (2ndWave Pos Clk)     ##");      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // -----------------------------------------------------------------
@@ -1097,6 +1207,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // -----------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_neg_hlf_wave1_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_neg_hlf_wave1_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set negative half wave1 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR SOC_ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT1_REG01 (2ndWave Neg Clk) ##");      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // -------------------------------------------------------------
@@ -1104,6 +1217,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // -------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_hlf_wave2_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_hlf_wave2_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set positive half wave2 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR ADDR_WG_DRV_HLF_WAVE_CLK_PNT2_REG01 (3rdWave Pos Clk)         ##");      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // -----------------------------------------------------------------
@@ -1111,6 +1227,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // -----------------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG01 + WG_BASE); no_of_bytes == 2; wr_data[0] == `DUT_IF.wg_neg_hlf_wave2_lim[drv_num][15:8]; wr_data[1] == `DUT_IF.wg_neg_hlf_wave2_lim[drv_num][7:0];});
     `nnc_info("SOC_TEST", "Set negative half wave2 period", NNC_LOW)//0x0000_01F4 (500us)
+    $display("## **************************************************************************** ##");
+    $display("##    PROGRAM FOR ADDR_WG_DRV_NEG_HLF_WAVE_CLK_PNT2_REG01 (3rdWave Neg clk)     ##");      
+    $display("## **************************************************************************** ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
 
     // --------------------------------------------------------
@@ -1118,6 +1237,17 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b1, top_test_cfg.NEG_ON, 1'b1};});
     `nnc_info("SOC_TEST", "Set driver configuration register", NNC_LOW)
+    $display("## **************************************************************************** ##");
+    $display("##     PROGRAM FOR ADDR_WG_DRV_CONFIG_REG0 (Config for Driver)                  ##");   
+    $display("##       bit 0:rest enable                                                      ##");
+    $display("##       bit 1: negative enable                                                 ##");
+    $display("##       bit 2: silent enable                                                   ##");
+    $display("##       bit 3: source B enable                                                 ##");
+    $display("##       bit 4: alternate                                                       ##");
+    $display("##       bit 5: continue mode                                                   ##");
+    $display("##       bit 6: multi-electrode 0: SOURCE. 1: SINK                              ##");
+    $display("##       bit 7: positive disable                                                ##");
+    $display("## **************************************************************************** ##");
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
     
     `nnc_info("SOC_TEST", $sformatf("Configure %d points", top_test_cfg.NO_OF_POINTS), NNC_LOW)
@@ -1125,6 +1255,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // Write to ADDR_WG_DRV_POINT_CONFIG
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_POINT_CONFIG + WG_BASE); wr_data[0] == top_test_cfg.NO_OF_POINTS;});
+    $display("## **************************************************************************** ##");
+    $display("##      PROGRAM FOR ADDR_WG_DRV_POINT_CONFIG (No of Point per Phase)            ##");      
+    $display("## **************************************************************************** ##");
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // Save all points to internal Mem of Wavegen Controller 
@@ -1143,20 +1276,33 @@ class `TESTNAME extends soc_wavegen_base_test;
     	// Write to ADDR_WG_DRV_IN_WAVE_ADDR_REG0
     	// --------------------------------------------------------
         // Save addresss of Mem to Register
-    	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 + WG_BASE); wr_data[0] == i;});
-    	`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    	//assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 + WG_BASE); wr_data[0] == i;});
+    	//`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 	// --------------------------------------------------------
     	// Write to ADDR_WG_DRV_IN_WAVE_REG01
     	// --------------------------------------------------------
         // Save data of Mem to Register
 	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sine_data[m][i][7:0];});
-    	`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    	//`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
       end
 */
+      // Save data of Mem to Register
       top_test_cfg.reg_addr = (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE);
       top_test_cfg.no_of_bytes = top_test_cfg.NO_OF_LOAD_POINTS;
+      for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
+        top_test_cfg.wr_data[i] = top_test_cfg.sine_data[drv_num][i][7:0];
+      end
+      $display("## **************************************************************************** ##");
+      $display("##      PROGRAM FOR AWG_IN_WAVE_REG (Indirect register to Shape Buffer)         ##");      
+      $display("## **************************************************************************** ##");
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
     //end
+
+    // Clear burst mode for Wavegen Shape register (set bit-4 to 1)
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
+    top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] & 8'hEF;
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // *******************************************************************************
     // Write to ADDR_WG_DRV_NEG_SCALE_REG0 (By default it is 1) - AWG_NEG_SCALE_REG: 0x25
@@ -1166,6 +1312,14 @@ class `TESTNAME extends soc_wavegen_base_test;
     // 1: Scale down the negative side of the waveform by the value of bit[6:0] (shift right by this value) 
     // For scale-up function of section 9.9.6 DRIVE_REG_CTRL2 is 1
     // --------------------------------------------------------
+    $display("## **************************************************************************** ##");
+    $display("##      PROGRAM FOR AWG_NEG_SCALE_REG                                           ##");  
+    $display("## **************************************************************************** ##");
+    $display("## Bit 7:                                                                       ##");  
+    $display("## 0: Scale up the negative side of the waveform by the value of bit[6:0] (multiply by this value) ##");  
+    $display("## 1: Scale down the negative side of the waveform by the value of bit[6:0] (shift right by this value) ##");
+    $display("## For scale-up function of section 9.9.6 DRIVE_REG_CTRL2 is 1                  ##");   
+    $display("## **************************************************************************** ##");
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_NEG_SCALE_REG0 + WG_BASE); wr_data[0] == 8'h01;});
     `nnc_info("SOC_TEST", "Scale negative side", NNC_LOW)
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -1190,6 +1344,13 @@ class `TESTNAME extends soc_wavegen_base_test;
     // Bit[7]: enable PULLB & PULLA can be 1 at the same time before next pos side
     // {top_test_cfg.PULLAB_pos_en[7], top_test_cfg.PULLAB_neg_en[6], top_test_cfg.PULLAB_lim[5:0]}
     // -------------------------------------------------------------------------------
+    $display("## **************************************************************************** ##");
+    $display("##     PROGRAM FOR AWG_DEBOUNCE_REG                                             ##");  
+    $display("## **************************************************************************** ##"); 
+    $display("## Bit[5:0]: the number of clocks during which PULLB & PULLA is 1               ##");
+    $display("## Bit[6]: enable PULLB & PULLA can be 1 at the same time before next neg side  ##");
+    $display("## Bit[7]: enable PULLB & PULLA can be 1 at the same time before next pos side  ##");
+    $display("## **************************************************************************** ##");
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_PULLBA_REG + WG_BASE); wr_data[0] == top_test_cfg.PULLAB_CTRL;});
     `nnc_info("SOC_TEST", "Set pullab reg", NNC_LOW)
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -1210,6 +1371,15 @@ class `TESTNAME extends soc_wavegen_base_test;
     // bit[5:3]: waveform_num_sel - top_test_cfg.NO_OF_WAVEFORMS
     // bit[2:1]:  waveform_sel - top_test_cfg.PRELOAD
     // Bit[0]: Wavegen_En - 1'b1
+    $display("## **************************************************************************** ##");
+    $display("##         PROGRAM FOR AWG_CTRL_REG0                                            ##");   
+    $display("## **************************************************************************** ##");
+    $display("## bit[7]: resolution_ctrl - top_test_cfg.POS_NEG_DIFF                          ##");
+    $display("## bit[6]: sym_or_asymmetrical_wave_en - top_test_cfg.LOAD_POINTS               ##");
+    $display("## bit[5:3]: waveform_num_sel - 001 (2 waves), 010(3 waves), 000 (1 wave)       ##");
+    $display("## bit[2:1]: waveform_sel - 00: Preload SINE, 01: Triangle, 10: pulse , 11: SPI ##");
+    $display("## Bit[0]: Wavegen_En                                                           ##");
+    $display("## **************************************************************************** ##");
     assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF, top_test_cfg.LOAD_POINTS, top_test_cfg.NO_OF_WAVEFORMS, top_test_cfg.PRELOAD, `DUT_IF.wavegen_drv_en[drv_num]};});
     if(top_test_cfg.PRELOAD === 2'b00) // because this test is sine wave
     	`nnc_info("SOC_TEST", "Config driver control register with preloaded sine values", NNC_LOW)
@@ -1246,6 +1416,9 @@ class `TESTNAME extends soc_wavegen_base_test;
     // --------------------------------------------------------
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG; wr_data[0] == 8'h01;});
     `nnc_info("SOC_TEST", "Enable drivers using global register", NNC_LOW)
+    $display("## **************************************************************************** ##");
+    $display("##         PROGRAM FOR GLOBAL ENABLE                                            ##");   
+    $display("## **************************************************************************** ##");
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
   end
   endtask

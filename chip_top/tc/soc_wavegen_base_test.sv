@@ -53,7 +53,7 @@ class `TESTCFG extends soc_base_test_cfg;
   // at the time
     constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
-    constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0002;} // 0 is Source and 1 is Sink 
+    constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0001;} // 0 is Source and 1 is Sink 
 
     constraint c_wavegen_drv_en {wavegen_drv_en == 16'h0003;} // 0 and 1 is enabled
   // -----------------------------------------------

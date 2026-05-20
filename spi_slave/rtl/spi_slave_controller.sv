@@ -140,7 +140,7 @@ wire [7:0]              imeas_1st_byte;
 //--------------------------------------------------//
 //        dual control    													//
 //--------------------------------------------------//
-reg cmd_dual_reg;
+reg dual_cmd_reg;
 reg  dual_en;
 assign o_dual_en = dual_en;
 assign o_dual_wr = (dual_en && !rd_data_rdy);
@@ -149,7 +149,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
     dual_en <= 1'b0;
   else if (cs_n_d)
-    if (cmd_dual_reg)
+    if (dual_cmd_reg)
       dual_en <= 1'b1;
 end
 
@@ -321,41 +321,54 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end
 end
 
-//-------------------Command type (RD/WR)-----------/
+//--------------------------------------------------//
+//                 CMD                              //
+//--------------------------------------------------//
+
+reg cmd_reg_0, cmd_reg_1, cmd_reg_2, cmd_reg_3; 
+reg cmd_reg_4, cmd_reg_5, cmd_reg_6, cmd_reg_7;
+
+assign dual_cmd_reg     =  cmd_reg_0;
+assign burst_cmd_reg    =  cmd_reg_1 ;
+assign nirs_cmd_reg     = (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
+assign wavegen_cmd_reg  = (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
+assign rdatac_cmd       = (cmd_reg_6 && (!cmd_reg_5 &&  cmd_reg_4));
+assign rdata_cmd        = (cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd;
+assign cmd_reg          =  cmd_reg_7;
+
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    cmd_reg <= 1'b0;
+    cmd_reg_7 <= 1'b0;
   end else if (cs_n_d == 1'b1) begin
-    cmd_reg <= 1'b0;
+    cmd_reg_7 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
-    cmd_reg <= 1'b0;
+    cmd_reg_7 <= 1'b0;
   //end else if (bit_cnt == 6'h0b )begin        // 9th bit is the command bit(9+2 =11)
   end else if(dual_en) begin
     if (bit_cnt == 6'h0c ) // 9th bit is the command bit(9+1 =10)
-    cmd_reg <= rx_buf[1];  
+    cmd_reg_7 <= rx_buf[1];  
   end else begin
     if (bit_cnt == 6'h0a )  //single       // 9th bit is the command bit(9+1 =10)
-    cmd_reg <= rx_buf[0];
+    cmd_reg_7 <= rx_buf[0];
   end
 end
 
-///-------------Burst_CMD-------------------//
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    burst_cmd_reg <= 1'b0;
+    cmd_reg_6 <= 1'b0;
   end else if (cs_n_d == 1'b1) begin
-    burst_cmd_reg <= 1'b0;
+    cmd_reg_6 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
-    burst_cmd_reg <= 1'b0;
+    cmd_reg_6 <= 1'b0;
 //end else if (bit_cnt == 6'h0d )begin        // 11th bit is the command bit(11+2=13)
   end else if (dual_en) begin
     if (bit_cnt == 6'h0c)         // dual mode: command bit arrives 1 cycle earlier
-      burst_cmd_reg <= rx_buf[0];
+      cmd_reg_6 <= rx_buf[0];
   end else begin
     if (bit_cnt == 6'h0b)
-      burst_cmd_reg <= rx_buf[0];
+      cmd_reg_6 <= rx_buf[0];
   end
 end
 
@@ -363,78 +376,96 @@ end
 //-------------RDATA_CMD------------------//
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    rdata_cmd <= 1'b0;
+    cmd_reg_5 <= 1'b0;
   end else if(cs_n_d == 1'b1) begin
-    rdata_cmd <= 1'b0;
+    cmd_reg_5 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
-    rdata_cmd <= 1'b0;
+    cmd_reg_5 <= 1'b0;
   end else if (dual_en) begin
     if(bit_cnt == 6'h0e)
-      rdata_cmd <= rx_buf[1];
+      cmd_reg_5 <= rx_buf[1];
   end else begin
     if(bit_cnt == 6'h0c)  //single 
-      rdata_cmd <= rx_buf[0];
+      cmd_reg_5 <= rx_buf[0];
   end
 end
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    rdatac_cmd <= 1'b0;
+    cmd_reg_4 <= 1'b0;
   end else if(cs_n_d == 1'b1) begin
-    rdatac_cmd <= 1'b0;
+    cmd_reg_4 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
-    rdatac_cmd <= 1'b0;
+    cmd_reg_4 <= 1'b0;
   end else if (dual_en) begin   // dual mode: command bit arrives 1 cycle earlier
     if (bit_cnt == 6'h0e)
-      rdatac_cmd <= rx_buf[0];
+      cmd_reg_4 <= rx_buf[0];
   end else begin
     if (bit_cnt == 6'h0d)
-      rdatac_cmd <= rx_buf[0];
+      cmd_reg_4 <= rx_buf[0];
   end
 end
 
-//-------------WAVEGEN_CMD---------------------//
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    wavegen_cmd_reg <= 1'b0;
+    cmd_reg_3 <= 1'b0;
   end else if (cs_n_d == 1'b1) begin
-    wavegen_cmd_reg <= 1'b0;
+    cmd_reg_3 <= 1'b0;
 //end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)
   end else if (dual_en) begin
     if (bit_cnt == 6'h10 )       
-    wavegen_cmd_reg <= rx_buf[1]; 
+    cmd_reg_3 <= rx_buf[1]; 
   end else begin
     if (bit_cnt == 6'h0e )       //single 
-    wavegen_cmd_reg <= rx_buf[0];           
+    cmd_reg_3 <= rx_buf[0];           
   end
 end
 
-//-------------WAVEGEN_CMD---------------------//
+
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    nirs_cmd_reg <= 1'b0;
+    cmd_reg_2 <= 1'b0;
   end else if (cs_n_d == 1'b1) begin
-    nirs_cmd_reg <= 1'b0;
+    cmd_reg_2 <= 1'b0;
 //end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)  
   end else if (dual_en) begin
     if (bit_cnt == 6'h10)
-      nirs_cmd_reg <= rx_buf[0];  // dual mode: command bit arrives 1 cycle earlier
+      cmd_reg_2 <= rx_buf[0];  // dual mode: command bit arrives 1 cycle earlier
   end else begin
     if(bit_cnt == 6'h0f)
-      nirs_cmd_reg <= rx_buf[0];  
+      cmd_reg_2 <= rx_buf[0];  
   end
 end
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
-  if(!i_rst_n) begin
-    cmd_dual_reg <= 1'b0;   //active low
+  if (!i_rst_n) begin
+    cmd_reg_1 <= 1'b0;
   end else if (cs_n_d == 1'b1) begin
-    cmd_dual_reg <= cmd_dual_reg; 
+    cmd_reg_1 <= 1'b0;
+//end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)
+  end else if (dual_en) begin
+    if (bit_cnt == 6'h12 )       
+    cmd_reg_1 <= rx_buf[1]; 
+  end else begin
+    if (bit_cnt == 6'h10 )       //single 
+    cmd_reg_1 <= rx_buf[0];           
+  end
+end
+
+
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if(!i_rst_n) begin
+    cmd_reg_0 <= 1'b0;   //active low
+  end else if (cs_n_d == 1'b1) begin
+    cmd_reg_0 <= cmd_reg_0; 
+  end else if (dual_en) begin
+    if (bit_cnt == 6'h12)
+      cmd_reg_0 <= rx_buf[0];
   end else begin
     if (bit_cnt == 6'h11)
-    cmd_dual_reg <= rx_buf[0];
+      cmd_reg_0 <= rx_buf[0];
   end
 end
 
@@ -543,7 +574,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h0)begin
     o_wavegen_rd <=1'b0;
   end else if (dual_en) begin
-    if ((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && !wavegen_cmd_reg && !nirs_cmd_reg) begin
+    if ((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && wavegen_cmd_reg && !nirs_cmd_reg) begin
       o_wavegen_rd <= 1'b1;
     end else begin
       o_wavegen_rd <= 1'b0;
@@ -565,7 +596,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h0)begin
     o_nirs_rd <=1'b0;
   end else if (dual_en) begin
-    if((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && !wavegen_cmd_reg && !nirs_cmd_reg) begin    //can be latch_state
+    if((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && nirs_cmd_reg && !wavegen_cmd_reg) begin    //can be latch_state
       o_nirs_rd <= 1'b1;
     end else begin
       o_nirs_rd <= 1'b0;

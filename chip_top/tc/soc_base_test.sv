@@ -812,8 +812,8 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG141);
   `SET_CFG_REG(`REG142);
   `SET_CFG_REG(`REG143);
-  // Section 1 of ANA ENA
-  `SET_CFG_REG(`REG144);
+  // Section 1 of ANA ENA - Not tested in spi reg normal
+ /* `SET_CFG_REG(`REG144);
   `SET_CFG_REG(`REG145);
   `SET_CFG_REG(`REG146);
   `SET_CFG_REG(`REG147);
@@ -827,7 +827,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG155);
   `SET_CFG_REG(`REG156);
   `SET_CFG_REG(`REG157);
-  `SET_CFG_REG(`REG158);
+  `SET_CFG_REG(`REG158);*/   
   // ANA GEN SELECTION
   `SET_CFG_REG(`REG159);
   // Section 0 of ANA GEN
@@ -1063,6 +1063,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
     `SET_CFG_WG_REG(`REG_WG4);
     `SET_CFG_WG_REG(`REG_WG5);
     `SET_CFG_WG_REG(`REG_WG6);
+    `SET_CFG_WG_REG(`REG_WG6_1); // New
     `SET_CFG_WG_REG(`REG_WG7);
     `SET_CFG_WG_REG(`REG_WG8);
     `SET_CFG_WG_REG(`REG_WG9);

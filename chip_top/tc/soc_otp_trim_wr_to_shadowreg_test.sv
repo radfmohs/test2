@@ -32,10 +32,10 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
   logic [7:0]      normal_rd_data;
-  logic [7:0] save_trim_wdata[11] = '{default : 8'h0};
-  logic [7:0] prev_wdata[11];
-  logic [7:0] cur_wdata[11];   
-  logic [7:0] trim_wdata[11] = '{default : 8'h0};
+  logic [7:0] save_trim_wdata[15] = '{default : 8'h0};
+  logic [7:0] prev_wdata[15];
+  logic [7:0] cur_wdata[15];   
+  logic [7:0] trim_wdata[15] = '{default : 8'h0};
   rand logic [7:0] otp_wdata[512];
   rand logic [8:0] otp_data_addr;
   logic [8:0] otp_addr[512];
@@ -224,9 +224,9 @@ class `TESTNAME extends soc_base_test;
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; foreach(data[i]) data[i]>8'h0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
  
-    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[15-i];
+    foreach (top_test_cfg.save_trim_wdata[i]) if(i<15) top_test_cfg.save_trim_wdata[i] = top_test_cfg.data[14-i];
 
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<15 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
     
@@ -322,29 +322,29 @@ class `TESTNAME extends soc_base_test;
 
   endtask 
 
-  task read_and_compare_trim_shadowreg_data(logic [7:0] cur_wdata_1[11]);
+  task read_and_compare_trim_shadowreg_data(logic [7:0] cur_wdata_1[15]);
 
-    top_test_cfg.rd_data = new[8];
+    top_test_cfg.rd_data = new[15];
     `nnc_info("SOC_TEST", $sformatf("READ SPI TRIM SHADOW REG DATA"), UVM_LOW)
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 8; });
-    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:7]); 
-    for(int i=0; i<8 ; i++) begin
-        if(cur_wdata_1[i] !== top_test_cfg.rd_data[7-i]) `nnc_error("SOC_TEST", $sformatf("READ SHADOW REG DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[7-i]))
-        else `nnc_info("SOC_TEST", $sformatf("READ SHADOW REG DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[7-i]), UVM_LOW) 
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_1_REG; no_of_bytes == 15; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:14]); 
+    for(int i=0; i<15 ; i++) begin
+        if(cur_wdata_1[i] !== top_test_cfg.rd_data[14-i]) `nnc_error("SOC_TEST", $sformatf("READ SHADOW REG DATA ERROR!!! expected_data %8h !== rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[14-i]))
+        else `nnc_info("SOC_TEST", $sformatf("READ SHADOW REG DATA MATCH!! expected_wdata %8h === rd_data %8h!!!", cur_wdata_1[i], top_test_cfg.rd_data[14-i]), UVM_LOW) 
     end
 
   endtask
 
-  task read_trims_dbg_reg(logic [7:0] cur_wdata_1[11]);
-    top_test_cfg.rd_data = new[8];
-    for(int i=0; i<9 ; i++) begin
+  task read_trims_dbg_reg(logic [7:0] cur_wdata_1[15]);
+    top_test_cfg.rd_data = new[1];
+    for(int i=0; i<16 ; i++) begin
 
        `nnc_info("SOC_TEST", $sformatf("READ SPI DBG TRIM REG which loads shadow register values"), UVM_LOW)
        assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIMS_DBG_SEL_REG; no_of_bytes == 1; data[0] == i /*8'hF*/;});
        `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
        assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIMS_DBG_DATA_REG; no_of_bytes == 1; });
        `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr,top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
-       if(i>0 && i<9)begin
+       if(i>0 && i<16)begin
          if(cur_wdata_1[i-1] !== top_test_cfg.rd_data[0]) `nnc_error("SOC_TEST", $sformatf("READ DBG_TRIM_DATA_REG for SHADOW REG, addr_loc =%h, DATA READ ERROR!!! expected_data %8h !== rd_data %8h!!!", i, cur_wdata_1[i-1], top_test_cfg.rd_data[0]))
          else begin
             `nnc_info("SOC_TEST", $sformatf("READ DBG_TRIM_DATA_REG for SHADOW REG, READ DATA MATCH!! addr_loc =%h, expected_wdata %8h === rd_data %8h!!!", i, cur_wdata_1[i-1], top_test_cfg.rd_data[0]), UVM_LOW) 
@@ -444,32 +444,25 @@ class `TESTNAME extends soc_base_test;
 
  endtask
 
- task check_trimreg(logic [7:0] exp_value[11]);
-    //for(int i=0; i<8 ; i++) begin
-    //    `nnc_info("SOC_TEST", $sformatf("exp_val %8h ", exp_value[i]), UVM_LOW) 
-    //end
+ task check_trimreg(logic [7:0] exp_value[15]);
 
-        if(`ANA_TOP.D2A_BG_TRIM         !==   (exp_value[0] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_BG_TRIM        : %8h != exp_value:%8h", `ANA_TOP.D2A_BG_TRIM,  exp_value[0]));
-        if(`ANA_TOP.D2A_IREF_TRIM[7:0]  !==   (exp_value[1] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_IREF_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_IREF_TRIM[7:0],  exp_value[1]));
-        //if(`ANA_TOP.D2A_IREF_TRIM[6]    !==   (exp_value[1][6] & 1'b1 ))            `nnc_error("ana_check", $sformatf("D2A_IREF_TRIM[6]   : %8h != exp_value:%8h", `ANA_TOP.D2A_IREF_TRIM[6]   ,  exp_value[1][6]));
+     if(`ANA_TOP.D2A_BG_TRIM         !==   (exp_value[0] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_BG_TRIM        : %8h != exp_value:%8h", `ANA_TOP.D2A_BG_TRIM,  exp_value[0]));
+     if(`ANA_TOP.D2A_BGBUFFER_TRIM  !==   (exp_value[1] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_BGBUFFER_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_BGBUFFER_TRIM[7:0],  exp_value[1]));
+     if(`ANA_TOP.D2A_IREF_TRIM  !==   (exp_value[2] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_IREF_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_IREF_TRIM[7:0],  exp_value[2]));
+     if(`ANA_TOP.D2A_CLDO1P8_TRIM  !==   (exp_value[3] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_CLDO1P8_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_CLDO1P8_TRIM[7:0],  exp_value[3]));
+     if(`ANA_TOP.D2A_OSC8MHZ_TRIM  !==   (exp_value[4] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_OSC8MHZ_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_OSC8MHZ_TRIM[7:0],  exp_value[4]));
+     if(`ANA_TOP.D2A_TSC_TRIM  !==   (exp_value[5] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_TSC_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_TSC_TRIM[7:0],  exp_value[5]));
+     if(`ANA_TOP.D2A_DRIVER_CUR_TRIM  !==   (exp_value[6] & 8'b1111_1111 ))       `nnc_error("ana_check", $sformatf("D2A_DRIVER_CUR_TRIM : %8h != exp_value:%8h", `ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0],  exp_value[6]));
+     if(`ANA_TOP.D2A_TRIM0_SIG_SPARE         !==   (exp_value[7] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM0_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM0_SIG_SPARE,  exp_value[7]));
+     if(`ANA_TOP.D2A_TRIM1_SIG_SPARE         !==   (exp_value[8] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM1_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM1_SIG_SPARE,  exp_value[8]));
+     if(`ANA_TOP.D2A_TRIM2_SIG_SPARE         !==   (exp_value[9] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM2_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM2_SIG_SPARE,  exp_value[9]));
+     if(`ANA_TOP.D2A_TRIM3_SIG_SPARE         !==   (exp_value[10] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM3_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM3_SIG_SPARE,  exp_value[10]));
+     if(`ANA_TOP.D2A_TRIM4_SIG_SPARE         !==   (exp_value[11] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM4_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM4_SIG_SPARE,  exp_value[11]));
+     if(`ANA_TOP.D2A_TRIM5_SIG_SPARE         !==   (exp_value[12] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM5_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM5_SIG_SPARE,  exp_value[12]));
+     if(`ANA_TOP.D2A_TRIM6_SIG_SPARE         !==   (exp_value[13] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM6_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM6_SIG_SPARE,  exp_value[13]));   
+     if(`ANA_TOP.D2A_TRIM7_SIG_SPARE         !==   (exp_value[14] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_TRIM7_SIG_SPARE        : %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM7_SIG_SPARE,  exp_value[14]));
 
-        if(({`ANA_TOP.D2A_CLDO1P8_TRIM[4],`ANA_TOP.D2A_CS_PGA_CLK_TRIM, `ANA_TOP.D2A_LDO2P8_PUMP_TRIM_CH1[1:0],`ANA_TOP.D2A_CLDO1P8_TRIM[3:0]})    !==   (exp_value[2] & 8'b1111_1111 )) `nnc_error("ana_check", $sformatf("{D2A_CLDO1P8_TRIM[4],D2A_CS_PGA_CLK_TRIM,D2A_LDO2P8_PUMP_TRIM_CH1[1:0],D2A_CLDO1P8_TRIM[3:0]}   : %8h != exp_value:%8h", {`ANA_TOP.D2A_CLDO1P8_TRIM[4],`ANA_TOP.D2A_CS_PGA_CLK_TRIM,`ANA_TOP.D2A_LDO2P8_PUMP_TRIM_CH1[1:0],`ANA_TOP.D2A_CLDO1P8_TRIM[3:0]},  exp_value[2]));
-
-
-        if(`ANA_TOP.D2A_OSC2MHZ_TRIM    !==   (exp_value[3] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("D2A_OSC2MHZ_TRIM   : %8h != exp_value:%8h", `ANA_TOP.D2A_OSC2MHZ_TRIM   ,  exp_value[3]));  
-        if(({`ANA_TOP.D2A_CS_TRIM_CH1[2],`ANA_TOP.D2A_PUMP_CLK_TRIM_CH2, `ANA_TOP.D2A_PUMP_CLK_TRIM_CH1, `ANA_TOP.D2A_CS_TRIM_CH1[1:0],`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0]})  !==   (exp_value[4] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("{D2A_CS_TRIM_CH1[2],D2A_PUMP_CLK_TRIM_CH2,D2A_PUMP_CLK_TRIM_CH1,D2A_CS_TRIM_CH1,D2A_VDAC_VTRIM_CH1[2:0]) : %8h != exp_value:%8h", {`ANA_TOP.D2A_CS_TRIM_CH1[7],`ANA_TOP.D2A_PUMP_CLK_TRIM_CH2, `ANA_TOP.D2A_PUMP_CLK_TRIM_CH1, `ANA_TOP.D2A_CS_TRIM_CH1[1:0],`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0]} ,  exp_value[4]));
-        //if(`ANA_TOP.D2A_CS_TRIM_CH1     !==   ((exp_value[4] & 8'b1111_1000 ) >> 3))`nnc_error("ana_check", $sformatf("D2A_VDAC_RTRIM_CH1 : %8h != exp_value:%8h", `ANA_TOP.D2A_CS_TRIM_CH1 ,  exp_value[4]));        
-        if(({`ANA_TOP.D2A_CS_TRIM_CH2[2],`ANA_TOP.D2A_LDO2P8_PUMP_TRIM_CH2[1:0],`ANA_TOP.D2A_CS_TRIM_CH2[1:0],`ANA_TOP.D2A_VDAC_VTRIM_CH2[2:0]})  !==   (exp_value[5] & 8'b1111_1111 ))	    `nnc_error("ana_check", $sformatf("{D2A_CS_TRIM_CH2[2],D2A_LDO2P8_PUMP_TRIM_CH2[1:0],D2A_CS_TRIM_CH2[1:0],D2A_VDAC_VTRIM_CH2[2:0]} : %8h != exp_value:%8h", `ANA_TOP.D2A_VDAC_VTRIM_CH2 ,  exp_value[5]));
-        //if(`ANA_TOP.D2A_CS_TRIM_CH2     !==   ((exp_value[5] & 8'b1111_1000 ) >> 3))`nnc_error("ana_check", $sformatf("D2A_VDAC_RTRIM_CH1 : %8h != exp_value:%8h", `ANA_TOP.D2A_CS_TRIM_CH2 ,  exp_value[4]));
-        if(({`ANA_TOP.D2A_IBIAS_IDAC_TRIM[3],`ANA_TOP.D2A_TSC_TRIM_CH1[3:0],`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0]}) !==   (exp_value[6] & 8'b1111_1111 )) begin
-           `nnc_error("ana_check", $sformatf("{D2A_IBIAS_IDAC_TRIM[3].D2A_TSC_TRIM_CH1[3:0],D2A_IBIAS_IDAC_TRIM[2:0]}: %8h != exp_value:%8h", {`ANA_TOP.D2A_IBIAS_IDAC_TRIM[3],`ANA_TOP.D2A_TSC_TRIM_CH1[3:0],`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0]},  exp_value[6]));  
-        end
-        //else `nnc_info("ana_check", $sformatf("{D2A_IBIAS_IDAC_TRIM[4:3].D2A_TSC_TRIM_CH1[2:0],D2A_IBIAS_IDAC_TRIM[2:0]}: %8h != exp_value:%8h", {`ANA_TOP.D2A_IBIAS_IDAC_TRIM[4:3],`ANA_TOP.D2A_TSC_TRIM_CH1[2:0],`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0]},  exp_value[6]), UVM_LOW)
-
-        if(`ANA_TOP.D2A_TRIM0_SIG_SPARE !==   (exp_value[7] & 8'b1111_1111 ))begin
- 	    `nnc_error("ana_check", $sformatf("D2A_TRIM0_SIG_SPARE: %8h != exp_value:%8h", `ANA_TOP.D2A_TRIM0_SIG_SPARE,  exp_value[7]));
-        end
-        //else  `nnc_info("ana_check", $sformatf("D2A_TRIM0_SIG_SPARE: %8h == exp_value:%8h", `ANA_TOP.D2A_TRIM0_SIG_SPARE,  exp_value[7]), UVM_LOW)
+ 
       
  endtask
 

@@ -220,6 +220,7 @@ wire  A2D_ADC_DATA_EN;//from analog
 wire[3:0] D2A_STIM_PAD0;    //to analog	
 wire[3:0] D2A_STIM_PAD1;    //to analog	
 wire D2A_ADC_EN;    //to analog	
+wire D2A_ADC_CLK;    //to analog	
 
 wire atpg_en;
 // instaniate top_dig
@@ -243,6 +244,7 @@ u_top_dig
 .D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
 .D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
 .D2A_ADC_EN(D2A_ADC_EN),    //to analog	
+.D2A_ADC_CLK(D2A_ADC_CLK),    //to analog	
 
   // bps imeas
   .A2D_SDM_OUT0(A2D_SDM_OUT0),
@@ -495,6 +497,7 @@ ENS2_ANA_CHIP_wrapper #(
 .D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
 .D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
 .D2A_ADC_EN(D2A_ADC_EN),    //to analog	
+.D2A_ADC_CLK(D2A_ADC_CLK),    //to analog	
 
 `ifdef FPGA
   .clk_in1              (clk_in1),  

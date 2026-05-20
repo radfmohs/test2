@@ -214,9 +214,9 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ATM16", $sformatf("D2A_BIST_SEL = %b is not as expectation of 5'b10000", `ANA_TOP.D2A_BIST_SEL))
       end
    
-    if (`ANA_TOP.D2A_DCLOFFEN !== 1'b1)
+    if (`ANA_TOP.D2A_DCLOFFEN[8] !== 1'b1)
       begin
-        `nnc_error("ATM16", $sformatf("D2A_DCLOFFEN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_DCLOFFEN))
+        `nnc_error("ATM16", $sformatf("D2A_DCLOFFEN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_DCLOFFEN[8]))
       end
     if (`ANA_TOP.D2A_BIST_EN !== 1'b1)
       begin

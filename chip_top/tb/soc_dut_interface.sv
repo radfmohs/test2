@@ -205,11 +205,11 @@ interface dut_interface();
   logic [31:0] wg_neg_hlf_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave1
   logic [31:0] wg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave2
   logic [31:0] wg_neg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave2
-  logic [15:0] wg_rest_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave0
+  logic [31:0] wg_rest_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave0
   logic [31:0] wg_silent_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave0
-  logic [15:0] wg_rest_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave1
+  logic [31:0] wg_rest_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave1
   logic [31:0] wg_silent_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave1
-  logic [15:0] wg_rest_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave2
+  logic [31:0] wg_rest_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave2
   logic [31:0] wg_silent_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave2
   logic [7:0]  wg_drv_ctrl;
   logic [7:0]  wg_drv_cfg;

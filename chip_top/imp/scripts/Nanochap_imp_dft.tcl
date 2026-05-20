@@ -108,6 +108,11 @@ set_app_var report_default_significant_digits 3
 
 read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
 
+remove_attribute [get_cells u_top_dig/u_imeas_wrapper] dont_touch
+remove_attribute [get_designs imeas_wrapper] dont_touch
+set_boundary_optimization [get_cells u_top_dig/u_imeas_wrapper] true
+remove_attribute [get_designs filter_wrapper] dont_touch
+
 # ------------------------------------------------------------------------------
 # Function clock and constraints AND Power Intent
 # ------------------	
@@ -419,8 +424,8 @@ dft_drc -v > $out_rep/${rm_project_top}.insert_dft_drc
 # This allows a fanout of 1 on tie cells to be set:
 set_auto_disable_drc_nets -constant false
 
-# prevent add new cells at top level 
-set_app_var compile_no_new_cells_at_top_level true
+# new cells at top level 
+set_app_var compile_no_new_cells_at_top_level false
 
 remove_attribute [get_cells {DNT*} -hierarchical] dont_touch
 remove_attribute [get_nets IOBUF_PD] dont_touch
@@ -522,8 +527,13 @@ foreach i $scenarios {
       remove_clock_transition [all_clocks]
     }
 
-    report_clock -skew
     write_sdc -version 2.0 -nosplit ${out_data}/${rm_project_top}.${stage}.scre_[current_scenario].sdc
+}
+foreach i $scenarios { 
+
+    current_scenario $i
+    
+    report_clock -skew
     source -echo -verbose ../scripts/Nanochap_imp_reports.tcl
 }
 current_scenario S111_max
@@ -539,13 +549,11 @@ analyze_rtl_congestion > $out_rep/${rm_project_top}.congestion
 # Insert scan chains and report estimated scan coverage
 # ------------------------------------------------------------------------------
 
+current_scenario S4_max
+
 dft_drc -verbose -coverage_estimate > \
   $out_rep/${rm_project_top}.scan_estimate
 
-# ------------------------------------------------------------------------------
-# Write final reports
-# ------------------------------------------------------------------------------
-source -echo -verbose ../scripts/Nanochap_imp_reports.tcl
 
 # ------------------------------------------------------------------------------
 # Report message summary and quit

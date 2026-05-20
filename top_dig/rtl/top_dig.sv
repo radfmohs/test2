@@ -35,7 +35,8 @@ input [9:0] A2D_ADC_DATA, //from analog //ADC use posedge of sysclk to output da
 input  A2D_ADC_DATA_EN,//from analog	
 output[3:0] D2A_STIM_PAD0,    //to analog	
 output[3:0] D2A_STIM_PAD1,    //to analog	
-output D2A_ADC_EN,    //to analog	
+output wire D2A_ADC_EN,    //to analog	
+output wire D2A_ADC_CLK,    //to analog	
 //=====================
 
 //bps imeas
@@ -418,7 +419,7 @@ wire         ppg_clk50duty;
   wire                    comp_low_ch1;
 
 //---------------------------------
-  wire        cs_n, miso, mosi,miso1 , mosi, dual_en, dual_wr, sclk;
+  wire        cs_n, miso, mosi,miso1 , mosi1, dual_en, dual_wr, sclk;
   wire        hfosc_atpg;       // hfosc after atpg mux
   //wire        fclk;             // hf free-running clock
 
@@ -752,7 +753,7 @@ pinmux u_pinmux (
   .mosi                 (mosi),
   .mosi1                (mosi1),
   .miso                 (miso),
-  .mosi1                (mosi1),
+  .miso1                (miso1),
   .dual_en              (dual_en),
   .dual_wr              (dual_wr),
 
@@ -915,16 +916,31 @@ wire        stim_monitor_rst_reg;
 wire 	     stim_monitor_ana_clk;
 wire 	     stim_monitor_dig_clk;
 
+wire  bypass_adc_data_en;   //from spi
+wire  bypass_ignore_first;   //from spi
 wire [3:0] stim_dly_tgt;   //from spi
-wire [1:0] stim_mon_int_en;   //from spi
-wire [1:0] stim_mon_int_topin_en;   //from spi
+wire [4:0] stim_mon_int_en;   //from spi
+wire [4:0] stim_mon_int_topin_en;   //from spi
 wire [1:0] stim_mon_delta_data_sel;   //from spi
 wire stim_mon_int_clr;   //from spi
 wire stim_mon_int_sts;   //to spi
 wire stim_mon_delta_int_clr;   //from spi
 wire stim_mon_delta_int_sts;   //to spi
+wire stim_mon_cycle_int_clr;   //from spi
+wire stim_mon_cycle_int_sts;   //to spi
+
+ wire[15:0]  stim_mon_leadoff_int_clr;   //from spi
+wire[15:0] stim_mon_leadoff_int_sts;   //to spi
+ wire [15:0] stim_mon_short_int_clr;   //from spi
+wire[15:0] stim_mon_short_int_sts;   //to spi
+
+ wire [9:0] threshold_leadoff;  	
+ wire [9:0] threshold_short;  	
+ wire [7:0] threshold_tgt;
+
 wire stim_monitor_rstn;
 wire stim_monitor_clk_running;
+wire [255:0] one_cycle_data;
 
 adc_cap_ctrl u_adc_cap_ctrl(
 .sysclk(stim_monitor_dig_clk),	
@@ -936,6 +952,8 @@ adc_cap_ctrl u_adc_cap_ctrl(
 
   .int_length_slct      (int_length_slct),
  .stim_mon_int_en(stim_mon_int_en),   //from spi
+ .bypass_adc_data_en(bypass_adc_data_en),   //from spi
+ .bypass_ignore_first(bypass_ignore_first),   //from spi
  .stim_dly_tgt(stim_dly_tgt),   //from spi
  .stim_mon_int_topin_en(stim_mon_int_topin_en),   //from spi
  .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
@@ -945,6 +963,17 @@ adc_cap_ctrl u_adc_cap_ctrl(
 
  .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
  .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+ .stim_mon_cycle_int_clr(stim_mon_cycle_int_clr),   //from spi
+ .stim_mon_cycle_int_sts(stim_mon_cycle_int_sts),   //to spi
+
+.stim_mon_leadoff_int_clr(stim_mon_leadoff_int_clr),   //from spi
+.stim_mon_leadoff_int_sts(stim_mon_leadoff_int_sts),   //to spi
+.stim_mon_short_int_clr(stim_mon_short_int_clr),   //from spi
+.stim_mon_short_int_sts(stim_mon_short_int_sts),   //to spi
+
+.threshold_leadoff(threshold_leadoff),  	
+.threshold_short(threshold_short),  	
+.threshold_tgt(threshold_tgt),
 
  .o_stim_mon_int(o_stim_mon_int),   //to INTB
 
@@ -972,7 +1001,9 @@ adc_cap_ctrl u_adc_cap_ctrl(
 .A2D_ADC_DATA_VLD(),	
 .A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),	
 .A2D_ADC_DELTA_DATA_VLD(),	
-.A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG)	
+.A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG),	
+.one_cycle_data_vld(),
+.one_cycle_data(one_cycle_data)
 );
 
 clk_ctrl u_clk_ctrl
@@ -994,7 +1025,7 @@ clk_ctrl u_clk_ctrl
  .iclk_stim_monitor_enable(adc_en),               // stim monitor clock enable 
  .iclk_div_stim_monitor(iclk_div_stim_monitor),               // stim monitor clock divider
 .iclk_stim_monitor_inv(iclk_stim_monitor_inv),               
- .stim_monitor_ana_clk(),    				//connected to analog or pinmux then analog top
+ .stim_monitor_ana_clk(D2A_ADC_CLK),    				//connected to analog or pinmux then analog top
  .stim_monitor_dig_clk(stim_monitor_dig_clk),
  .stim_monitor_clk_running(stim_monitor_clk_running),
 
@@ -1457,6 +1488,8 @@ u_spi_top (
 .iclk_ina_pga_disable(iclk_ina_pga_disable),               // ina_pga clock divider
   .iclk_div_ina_pga             (iclk_div_ina_pga),
 
+ .bypass_adc_data_en(bypass_adc_data_en),   //from spi
+ .bypass_ignore_first(bypass_ignore_first),   //from spi
  .stim_dly_tgt(stim_dly_tgt),   //from spi
  .stim_mon_int_en(stim_mon_int_en),   //from spi
  .stim_mon_int_clr(stim_mon_int_clr),   //from spi
@@ -1466,6 +1499,19 @@ u_spi_top (
  .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
  .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
  .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+ .stim_mon_cycle_int_clr(stim_mon_cycle_int_clr),   //from spi
+ .stim_mon_cycle_int_sts(stim_mon_cycle_int_sts),   //to spi
+
+.stim_mon_leadoff_int_clr(stim_mon_leadoff_int_clr),   //from spi
+.stim_mon_leadoff_int_sts(stim_mon_leadoff_int_sts),   //to spi
+.stim_mon_short_int_clr(stim_mon_short_int_clr),   //from spi
+.stim_mon_short_int_sts(stim_mon_short_int_sts),   //to spi
+
+.threshold_leadoff(threshold_leadoff),  	
+.threshold_short(threshold_short),  	
+.threshold_tgt(threshold_tgt),
+
+.one_cycle_data(one_cycle_data),
 
 .adc_en(adc_en),
 .adc_mode(adc_mode),

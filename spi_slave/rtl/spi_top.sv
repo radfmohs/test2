@@ -50,15 +50,31 @@ module spi_top #(
   output wire          stim_eeg_sync_en,
   output wire[23:0]    filter_dly_tgt,
 
+  output wire     bypass_adc_data_en,   //from spi
+  output wire     bypass_ignore_first,   //from spi
   output wire [3:0]    stim_dly_tgt,   //from spi
-  output wire [1:0]    stim_mon_int_en,   //from spi
-  output wire [1:0]    stim_mon_int_topin_en,   //from spi
+  output wire [4:0]    stim_mon_int_en,   //from spi
+  output wire [4:0]    stim_mon_int_topin_en,   //from spi
   output wire [1:0]    stim_mon_delta_data_sel,   //from spi
   output wire          stim_mon_int_clr,   //from spi
   input  wire          stim_mon_int_sts,   //to spi
 
+  input  wire [255:0] one_cycle_data,
+
   output wire          stim_mon_delta_int_clr,   //from spi
   input  wire          stim_mon_delta_int_sts,   //to spi
+  output wire          stim_mon_cycle_int_clr,   //from spi
+  input  wire          stim_mon_cycle_int_sts,   //to spi
+
+output wire[15:0]  stim_mon_leadoff_int_clr,   //from spi
+input wire[15:0] stim_mon_leadoff_int_sts,   //to spi
+output wire [15:0] stim_mon_short_int_clr,   //from spi
+input wire[15:0] stim_mon_short_int_sts,   //to spi
+
+output wire [9:0] threshold_leadoff,  	
+output wire [9:0] threshold_short,  	
+output wire [7:0] threshold_tgt,
+
   output wire          adc_en,
   output wire          adc_mode,
   output wire [15:0]   adc_cap_period,
@@ -451,6 +467,8 @@ spi_reg_u (
   .stim_eeg_sync_en(stim_eeg_sync_en),
   .filter_dly_tgt(filter_dly_tgt),
 
+  .bypass_adc_data_en(bypass_adc_data_en),   //from spi
+  .bypass_ignore_first(bypass_ignore_first),   //from spi
   .stim_dly_tgt(stim_dly_tgt),   //from spi
   .stim_mon_int_en(stim_mon_int_en),   //from spi
   .stim_mon_int_clr(stim_mon_int_clr),   //from spi
@@ -460,6 +478,19 @@ spi_reg_u (
   .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
   .stim_mon_delta_int_clr(stim_mon_delta_int_clr),   //from spi
   .stim_mon_delta_int_sts(stim_mon_delta_int_sts),   //to spi
+  .stim_mon_cycle_int_clr(stim_mon_cycle_int_clr),   //from spi
+  .stim_mon_cycle_int_sts(stim_mon_cycle_int_sts),   //to spi
+
+.stim_mon_leadoff_int_clr(stim_mon_leadoff_int_clr),   //from spi
+.stim_mon_leadoff_int_sts(stim_mon_leadoff_int_sts),   //to spi
+.stim_mon_short_int_clr(stim_mon_short_int_clr),   //from spi
+.stim_mon_short_int_sts(stim_mon_short_int_sts),   //to spi
+
+.threshold_leadoff(threshold_leadoff),  	
+.threshold_short(threshold_short),  	
+.threshold_tgt(threshold_tgt),
+
+  .one_cycle_data(one_cycle_data),
 
   .adc_en(adc_en),
   .adc_mode(adc_mode),

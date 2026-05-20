@@ -45,11 +45,11 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
-  constraint c_iclk_sel      { iclk_sel inside {2,2};} // osr 2 to 13 supported
+  constraint c_iclk_sel      { iclk_sel inside {0,0};} // osr 2 to 13 supported
 
   constraint c_imeas_cic_rate        { solve iclk_sel before imeas_cic_rate;
                                      (iclk_sel == 0)  ->  imeas_cic_rate inside {[5:11]};
-                                     (iclk_sel == 2)  ->  imeas_cic_rate inside {[3:9]};}
+                                     /*(iclk_sel == 2)  ->  imeas_cic_rate inside {[3:9]};*/}
 
   //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:13]};} // osr 2 to 13 supported
   //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:2]};} // osr 2 to 13 supported

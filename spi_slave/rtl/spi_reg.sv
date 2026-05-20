@@ -192,6 +192,19 @@
 // anac
 `define  ANA_SHORT_BASE_ADDR             8'h50
 `define  ANAC_LVD_INT_EN                 `ANA_SHORT_BASE_ADDR+8'h00//50
+
+`define  STIM_MON_LOFF_INT_STS0               `ANA_SHORT_BASE_ADDR+8'h01//51
+`define  STIM_MON_LOFF_INT_STS1               `ANA_SHORT_BASE_ADDR+8'h02//52
+`define  STIM_MON_SHORT_INT_STS0               `ANA_SHORT_BASE_ADDR+8'h03//53
+`define  STIM_MON_SHORT_INT_STS1               `ANA_SHORT_BASE_ADDR+8'h04//54
+`define  STIM_MON_LOFF_SHORT_INT_CTRL           `ANA_SHORT_BASE_ADDR+8'h05//55
+`define  STIM_MON_LOFF_TH0           		`ANA_SHORT_BASE_ADDR+8'h06//56
+`define  STIM_MON_LOFF_TH1           		`ANA_SHORT_BASE_ADDR+8'h07//57
+`define  STIM_MON_SHORT_TH0           		`ANA_SHORT_BASE_ADDR+8'h08//58
+`define  STIM_MON_SHORT_TH1           		`ANA_SHORT_BASE_ADDR+8'h09//59
+`define  STIM_MON_TH_TGT           		`ANA_SHORT_BASE_ADDR+8'h0A//5A
+
+
 //`define  ANAC_COMP_INT_EN                `ANA_SHORT_BASE_ADDR+8'h01//51
 //`define  ANAC_COMP_INT_TRANS_SEL         `ANA_SHORT_BASE_ADDR+8'h02//52
 //`define  ANA_INT_SOTP_WAVEGEN            `ANA_SHORT_BASE_ADDR+8'h03//53
@@ -354,15 +367,31 @@ module spi_reg #(
        
   output  reg  	          o_clk_sel,
 
+  output wire        bypass_adc_data_en,   //from spi
+  output wire        bypass_ignore_first,   //from spi
   output wire [3:0]       stim_dly_tgt,   //from spi
-  output wire [1:0]       stim_mon_int_en,   //from spi
-  output reg  [1:0]       stim_mon_int_topin_en,   //from spi
+  output wire [4:0]       stim_mon_int_en,   //from spi
+  output wire [4:0]       stim_mon_int_topin_en,   //from spi
   output reg  [1:0]       stim_mon_delta_data_sel,   //from spi
   output reg              stim_mon_int_clr,   //from spi
   input  wire             stim_mon_int_sts,   //to spi
 
+  input  wire [255:0] one_cycle_data,
+
   output reg              stim_mon_delta_int_clr,   //from spi
   input  wire             stim_mon_delta_int_sts,   //to spi
+  output reg              stim_mon_cycle_int_clr,   //from spi
+  input  wire             stim_mon_cycle_int_sts,   //to spi
+
+output reg[15:0]  stim_mon_leadoff_int_clr,   //from spi
+input wire[15:0] stim_mon_leadoff_int_sts,   //to spi
+output reg [15:0] stim_mon_short_int_clr,   //from spi
+input wire[15:0] stim_mon_short_int_sts,   //to spi
+
+output reg [9:0] threshold_leadoff,  	
+output reg [9:0] threshold_short,  	
+output reg [7:0] threshold_tgt,
+
 
   output wire             adc_en,
   output wire             adc_mode,
@@ -738,7 +767,7 @@ end
 
 //for stim_mon_adc
 reg [7:0] stim_pad_ctrl;
-reg [3:0] stim_pad_ctrl1;
+reg [7:0] stim_pad_ctrl1;
 reg [7:0] stim_mon_period_l;
 reg [7:0] stim_mon_period_h;
 reg [5:0] stim_mon_clk_rst_ctrl;
@@ -759,10 +788,18 @@ reg [7:0] stim_pad1_tgt2_h;
 reg [7:0] stim_pad1_tgt3_l;
 reg [7:0] stim_pad1_tgt3_h;
 
+reg[7:0] stim_mon_loff_short_int_ctrl; //3:0 is for int en
+					//5:4 
+wire read_adc_data_en;
+assign bypass_adc_data_en = stim_pad_ctrl1[7];
+assign read_adc_data_en = stim_pad_ctrl1[6];
+assign bypass_ignore_first = stim_pad_ctrl1[5];
+assign adc_en = stim_pad_ctrl1[4];
+assign stim_dly_tgt = stim_pad_ctrl1[3:0];
 
-assign stim_dly_tgt = stim_pad_ctrl1;
-assign stim_mon_int_en = stim_pad_ctrl[7:6];   //from spi
-assign adc_en = stim_pad_ctrl[5];
+reg[2:0] stim_mon_int_topin_en_reg;
+assign stim_mon_int_topin_en = {stim_mon_loff_short_int_ctrl[3:2],stim_mon_int_topin_en_reg} ;   //from spi
+assign stim_mon_int_en = {stim_mon_loff_short_int_ctrl[1:0],stim_pad_ctrl[7:5]};   //from spi
 assign adc_mode = stim_pad_ctrl[4];
 assign pair_num = stim_pad_ctrl[3:0];
 assign adc_cap_period = {stim_mon_period_h,stim_mon_period_l};
@@ -814,12 +851,41 @@ assign stim_pad1_tgt = {stim_pad1_tgt3_h,stim_pad1_tgt3_l,
                         stim_pad1_tgt1_h,stim_pad1_tgt1_l,
                         stim_pad1_tgt0_h,stim_pad1_tgt0_l};
 */
+genvar g_i;
+generate
+    for (g_i = 0; g_i < 8; g_i = g_i + 1) begin : gen_bit_ctrl
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n)begin
-	stim_mon_int_topin_en <= 2'b0;   //from spi
+	stim_mon_leadoff_int_clr[g_i] <= 8'b0;   //from spi
+	stim_mon_leadoff_int_clr[8+g_i] <= 8'b0;   //from spi
+	stim_mon_short_int_clr[g_i] <= 8'b0;   //from spi
+	stim_mon_short_int_clr[8+g_i] <= 8'b0;   //from spi
+   end else begin
+     case (i_addr[7:0])
+	`STIM_MON_LOFF_INT_STS0  : begin
+				 stim_mon_leadoff_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[g_i] & i_rd) : 1'b0;
+			   end             
+`STIM_MON_LOFF_INT_STS1  : begin
+				 stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[8+g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd) : 1'b0;
+			   end             
+`STIM_MON_SHORT_INT_STS0 : begin
+				 stim_mon_short_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[g_i] & i_rd) : 1'b0;
+			   end             
+`STIM_MON_SHORT_INT_STS1 : begin
+				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[8+g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
+			   end             
+    endcase
+  end
+end
+end
+endgenerate
+
+always @(posedge i_clk or negedge i_rst_n) begin
+  if (!i_rst_n)begin
+	stim_mon_int_topin_en_reg <= 3'b0;   //from spi
 	stim_mon_delta_data_sel <= 2'b0;   //from spi
 	stim_pad_ctrl        <= 8'hF;
-	stim_pad_ctrl1        <= 4'h0;
+	stim_pad_ctrl1        <= 8'h20;
 	stim_mon_period_l    <= 8'h0;
 	stim_mon_period_h    <= 8'h0;
 	stim_mon_clk_rst_ctrl<= 6'h04;
@@ -840,21 +906,28 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	stim_pad1_tgt3_l     <= 8'hCD;
 	stim_pad1_tgt3_h     <= 8'hEF;
         stim_mon_delta_int_clr <= 1'b0;
+        stim_mon_cycle_int_clr <= 1'b0;
 	stim_mon_int_clr <= 1'b0;
+	threshold_leadoff <= 10'b0;  	
+	threshold_short <= 10'b0;  	
+	threshold_tgt <= 8'b0;
    end else begin
      case (i_addr[7:0])
        `STIM_PAD_CTRL       :   stim_pad_ctrl <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl;        
-       `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[3:0] : stim_pad_ctrl1;        
+       `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl1;        
        `STIM_MON_PERIOD_L   :   stim_mon_period_l <= i_wr ? i_wr_data : stim_mon_period_l;     
        `STIM_MON_PERIOD_H   :   stim_mon_period_h <= i_wr ? i_wr_data : stim_mon_period_h;      
        `STIM_MON_CLK_RST_CTRL:  stim_mon_clk_rst_ctrl <= i_wr ? i_wr_data[5:0] : stim_mon_clk_rst_ctrl;      
 
        `STIM_MON_INT_STS    : begin  
-				 stim_mon_int_topin_en <= i_wr ? i_wr_data[7:6] : stim_mon_int_topin_en;
-				 stim_mon_delta_data_sel <= i_wr ? i_wr_data[5:4] : stim_mon_delta_data_sel;
+				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
+				 stim_mon_delta_data_sel <= i_wr ? i_wr_data[4:3] : stim_mon_delta_data_sel;
+				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
 				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
-				 stim_mon_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
+				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
        end
+
+
        `STIM_PAD0_TGT0_L    :   stim_pad0_tgt0_l <= i_wr ? i_wr_data : stim_pad0_tgt0_l; 
        `STIM_PAD0_TGT0_H    :   stim_pad0_tgt0_h <= i_wr ? i_wr_data : stim_pad0_tgt0_h; 
        `STIM_PAD0_TGT1_L    :   stim_pad0_tgt1_l <= i_wr ? i_wr_data : stim_pad0_tgt1_l; 
@@ -871,6 +944,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_PAD1_TGT2_H    :   stim_pad1_tgt2_h <= i_wr ? i_wr_data : stim_pad1_tgt2_h; 
        `STIM_PAD1_TGT3_L    :   stim_pad1_tgt3_l <= i_wr ? i_wr_data : stim_pad1_tgt3_l; 
        `STIM_PAD1_TGT3_H    :   stim_pad1_tgt3_h <= i_wr ? i_wr_data : stim_pad1_tgt3_h; 
+
+`STIM_MON_LOFF_SHORT_INT_CTRL   :  stim_mon_loff_short_int_ctrl <=  i_wr ? i_wr_data : stim_mon_loff_short_int_ctrl;    
+`STIM_MON_LOFF_TH0           	:     threshold_leadoff[7:0] <=  i_wr ? i_wr_data : threshold_leadoff[7:0]; 
+`STIM_MON_LOFF_TH1           	:      threshold_leadoff[9:8] <=  i_wr ? i_wr_data[1:0] : threshold_leadoff[9:8];
+`STIM_MON_SHORT_TH0           	:      threshold_short[7:0] <=  i_wr ? i_wr_data : threshold_short[7:0];
+`STIM_MON_SHORT_TH1           	:      threshold_short[9:8] <=  i_wr ? i_wr_data[1:0] : threshold_short[9:8];
+`STIM_MON_TH_TGT           	:      threshold_tgt <=  i_wr ? i_wr_data : threshold_tgt;
+
     endcase
   end
 end
@@ -1731,6 +1812,7 @@ assign wavegen_reg_acc_addr[i] = wavegen_reg_acc[i]?   ({2'b00,i_addr} + 10'h40 
    .o_wg_driver_en		(spi_wg.o_wg_driver_en[i]),
    .o_period_sel              (spi_wg.o_period_sel[i]),
    .w_isel                    (spi_wg.w_isel[i]),
+   .o_mul_wave_repeat         (spi_wg.mul_wave_repeat[i]),
    .o_config_reg              (spi_wg.o_config_reg[i]),
    .o_wg_driver_sw_config     (spi_wg.o_wg_driver_sw_config[i]),
    .o_wg_driver_rest_t	(spi_wg.o_wg_driver_rest_t[i]), 
@@ -1923,11 +2005,23 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 
       // stim mon 
       `STIM_PAD_CTRL       :  reg_rd_data  <=  {stim_pad_ctrl}    ;        
-      `STIM_PAD_CTRL1       :  reg_rd_data  <=  {4'b0,stim_pad_ctrl1}    ;        
+      `STIM_PAD_CTRL1       :  reg_rd_data  <=  {stim_pad_ctrl1}    ;        
       `STIM_MON_PERIOD_L   :  reg_rd_data  <=  stim_mon_period_l;     
       `STIM_MON_PERIOD_H   :  reg_rd_data  <=  stim_mon_period_h;      
       `STIM_MON_CLK_RST_CTRL    :  reg_rd_data  <=  {2'b0,stim_mon_clk_rst_ctrl} ;      
-      `STIM_MON_INT_STS    :  reg_rd_data  <= {stim_mon_int_topin_en,stim_mon_delta_data_sel,2'b0,stim_mon_int_sts,stim_mon_delta_int_sts};
+      `STIM_MON_INT_STS    :  reg_rd_data  <= {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
+
+`STIM_MON_LOFF_INT_STS0        :   reg_rd_data  <= stim_mon_leadoff_int_sts[7:0]; 
+`STIM_MON_LOFF_INT_STS1        :   reg_rd_data  <= stim_mon_leadoff_int_sts[15:8];
+`STIM_MON_SHORT_INT_STS0       :   reg_rd_data  <= stim_mon_short_int_sts[7:0];
+`STIM_MON_SHORT_INT_STS1       :   reg_rd_data  <= stim_mon_short_int_sts[15:8];
+
+`STIM_MON_LOFF_SHORT_INT_CTRL   :  reg_rd_data  <= stim_mon_loff_short_int_ctrl;    
+`STIM_MON_LOFF_TH0           	:  reg_rd_data  <=    threshold_leadoff[7:0]; 
+`STIM_MON_LOFF_TH1           	:  reg_rd_data  <=     {6'b0,threshold_leadoff[9:8]};
+`STIM_MON_SHORT_TH0           	:  reg_rd_data  <=     threshold_short[7:0];  
+`STIM_MON_SHORT_TH1           	:  reg_rd_data  <=     {6'b0,threshold_short[9:8]};  
+`STIM_MON_TH_TGT           	:  reg_rd_data  <=     threshold_tgt;         
 
       `STIM_PAD0_TGT0_L    :  reg_rd_data  <=  stim_pad0_tgt0_l ; 
       `STIM_PAD0_TGT0_H    :  reg_rd_data  <=  stim_pad0_tgt0_h ; 
@@ -1954,39 +2048,39 @@ always @ (posedge i_clk or negedge i_rst_n) begin
 
       // analog register
       // My add
-      `ANA_EN_SECTION_SEL    :  reg_rd_data  <= {7'b0, ana_en_sec_reg};
-      `ANA_ENABLE_REG_0      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][0];
-      `ANA_ENABLE_REG_1      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][1];
-      `ANA_ENABLE_REG_2      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][2];
-      `ANA_ENABLE_REG_3      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][3];
-      `ANA_ENABLE_REG_4      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][4];
-      `ANA_ENABLE_REG_5      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][5];
-      `ANA_ENABLE_REG_6      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][6];
-      `ANA_ENABLE_REG_7      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][7];
-      `ANA_ENABLE_REG_8      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][8];
-      `ANA_ENABLE_REG_9      :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][9];
-      `ANA_ENABLE_REG_10     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][10];
-      `ANA_ENABLE_REG_11     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][11];
-      `ANA_ENABLE_REG_12     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][12];
-      `ANA_ENABLE_REG_13     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][13];
-      `ANA_ENABLE_REG_14     :  reg_rd_data  <= ana_enable_reg[ana_en_sec_reg][14];
+      `ANA_EN_SECTION_SEL    :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[1*8-1  : 0*8]  :   {7'b0, ana_en_sec_reg}            ;
+      `ANA_ENABLE_REG_0      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[2*8-1  : 1*8]  :   ana_enable_reg[ana_en_sec_reg][0] ;
+      `ANA_ENABLE_REG_1      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[3*8-1  : 2*8]  :   ana_enable_reg[ana_en_sec_reg][1] ;
+      `ANA_ENABLE_REG_2      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[4*8-1  : 3*8]  :   ana_enable_reg[ana_en_sec_reg][2] ;
+      `ANA_ENABLE_REG_3      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[5*8-1  : 4*8]  :   ana_enable_reg[ana_en_sec_reg][3] ;
+      `ANA_ENABLE_REG_4      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[6*8-1  : 5*8]  :   ana_enable_reg[ana_en_sec_reg][4] ;
+      `ANA_ENABLE_REG_5      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[7*8-1  : 6*8]  :   ana_enable_reg[ana_en_sec_reg][5] ;
+      `ANA_ENABLE_REG_6      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[8*8-1  : 7*8]  :   ana_enable_reg[ana_en_sec_reg][6] ;
+      `ANA_ENABLE_REG_7      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[9*8-1  : 8*8]  :   ana_enable_reg[ana_en_sec_reg][7] ;
+      `ANA_ENABLE_REG_8      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[10*8-1 : 9*8]  :   ana_enable_reg[ana_en_sec_reg][8] ;
+      `ANA_ENABLE_REG_9      :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[11*8-1 : 10*8] :   ana_enable_reg[ana_en_sec_reg][9] ;
+      `ANA_ENABLE_REG_10     :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[12*8-1 : 11*8] :   ana_enable_reg[ana_en_sec_reg][10] ;
+      `ANA_ENABLE_REG_11     :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[13*8-1 : 12*8] :   ana_enable_reg[ana_en_sec_reg][11] ;
+      `ANA_ENABLE_REG_12     :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[14*8-1 : 13*8] :   ana_enable_reg[ana_en_sec_reg][12] ;
+      `ANA_ENABLE_REG_13     :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[15*8-1 : 14*8] :   ana_enable_reg[ana_en_sec_reg][13] ;
+      `ANA_ENABLE_REG_14     :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[16*8-1 : 15*8] :   ana_enable_reg[ana_en_sec_reg][14] ;
 
-      `ANA_GEN_SECTION_SEL   :  reg_rd_data  <= {5'b0, ana_gen_sec_reg};
-      `ANA_GEN_REG_1         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][0];
-      `ANA_GEN_REG_2         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][1];
-      `ANA_GEN_REG_3         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][2];
-      `ANA_GEN_REG_4         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][3];
-      `ANA_GEN_REG_5         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][4];
-      `ANA_GEN_REG_6         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][5];
-      `ANA_GEN_REG_7         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][6];
-      `ANA_GEN_REG_8         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][7];
-      `ANA_GEN_REG_9         :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][8];
-      `ANA_GEN_REG_10        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][9];  
-      `ANA_GEN_REG_11        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][10];  
-      `ANA_GEN_REG_12        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][11];  
-      `ANA_GEN_REG_13        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][12];
-      `ANA_GEN_REG_14        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][13];
-      `ANA_GEN_REG_15        :  reg_rd_data  <= ana_gen_reg[ana_gen_sec_reg][14];
+      `ANA_GEN_SECTION_SEL   :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[17*8-1 : 16*8] :   {5'b0, ana_gen_sec_reg}          ;
+      `ANA_GEN_REG_1         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[18*8-1 : 17*8] :   ana_gen_reg[ana_gen_sec_reg][0]  ;
+      `ANA_GEN_REG_2         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[19*8-1 : 18*8] :   ana_gen_reg[ana_gen_sec_reg][1]  ;
+      `ANA_GEN_REG_3         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[20*8-1 : 19*8] :   ana_gen_reg[ana_gen_sec_reg][2]  ;
+      `ANA_GEN_REG_4         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[21*8-1 : 20*8] :   ana_gen_reg[ana_gen_sec_reg][3]  ;
+      `ANA_GEN_REG_5         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[22*8-1 : 21*8] :   ana_gen_reg[ana_gen_sec_reg][4]  ;
+      `ANA_GEN_REG_6         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[23*8-1 : 22*8] :   ana_gen_reg[ana_gen_sec_reg][5]  ;
+      `ANA_GEN_REG_7         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[24*8-1 : 23*8] :   ana_gen_reg[ana_gen_sec_reg][6]  ;
+      `ANA_GEN_REG_8         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[25*8-1 : 24*8] :   ana_gen_reg[ana_gen_sec_reg][7]  ;
+      `ANA_GEN_REG_9         :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[26*8-1 : 25*8] :   ana_gen_reg[ana_gen_sec_reg][8]  ;
+      `ANA_GEN_REG_10        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[27*8-1 : 26*8] :   ana_gen_reg[ana_gen_sec_reg][9]  ;  
+      `ANA_GEN_REG_11        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[28*8-1 : 27*8] :   ana_gen_reg[ana_gen_sec_reg][10] ;  
+      `ANA_GEN_REG_12        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[29*8-1 : 28*8] :   ana_gen_reg[ana_gen_sec_reg][11] ;  
+      `ANA_GEN_REG_13        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[30*8-1 : 29*8] :   ana_gen_reg[ana_gen_sec_reg][12] ;
+      `ANA_GEN_REG_14        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[31*8-1 : 30*8] :   ana_gen_reg[ana_gen_sec_reg][13] ;
+      `ANA_GEN_REG_15        :  reg_rd_data  <= read_adc_data_en ? one_cycle_data[32*8-1 : 31*8] :   ana_gen_reg[ana_gen_sec_reg][14] ;
 
       `A2D_ANA_GEN_REG_0     :  reg_rd_data <= A2D_ANA_GEN_REG_0 ;
       `A2D_ANA_GEN_REG_1     :  reg_rd_data <= A2D_ANA_GEN_REG_1 ;

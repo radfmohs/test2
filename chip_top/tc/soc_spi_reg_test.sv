@@ -499,7 +499,7 @@ class `TESTNAME extends soc_base_test;
     end
 
     // ******************************************************* 
-    // check write/read to all bits as 0 to wavegen registers
+    // check write/read to all bits as 1 to wavegen registers
     // *******************************************************
     if ((`DUT_IF.wavegen_reg_en == 1'b1) && (`DUT_IF.default_only_en !== 1'b1)) begin // 1
     `nnc_info("SOC_TEST", $sformatf("*************************************************************"), NNC_LOW)
@@ -515,7 +515,9 @@ class `TESTNAME extends soc_base_test;
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
         top_test_cfg.wr_data[0] = 8'hFF;
         // if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 || i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 +`WAVEGEN_DRIVER_OFFSET) top_test_cfg.wr_data[0] = 8'h7F; 
-        if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0) top_test_cfg.wr_data[0] = 8'h7F;
+        if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0) begin
+           top_test_cfg.wr_data[0] = 8'h3F;
+        end
         //nnc_wavegen_reg[i].write_read(top_test_cfg.wr_data[0]);
         nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].write_read(top_test_cfg.wr_data[0]);
       end
@@ -524,7 +526,7 @@ class `TESTNAME extends soc_base_test;
     end
 
     // ---------------------------------------------------------------------------
-    // Checking Write 0 to registers
+    // Checking Write random to registers
     // ---------------------------------------------------------------------------
 
     // ************************************************
@@ -601,7 +603,10 @@ class `TESTNAME extends soc_base_test;
       // for(int i=0 ; i<nnc_wavegen_reg.size();i++)begin
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
         top_test_cfg.wr_data[0] = $random();
-        if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 || i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 +`WAVEGEN_DRIVER_OFFSET) top_test_cfg.wr_data[0] = $urandom_range(0,8'h7F); //max addr supported is 'd127
+        //if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 || i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 +`WAVEGEN_DRIVER_OFFSET) top_test_cfg.wr_data[0] = $urandom_range(0,8'h7F); //max addr supported is 'd127
+        if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0) begin
+          top_test_cfg.wr_data[0] = $urandom_range(0, 8'h3F);
+        end
         //nnc_wavegen_reg[i].write_read(top_test_cfg.wr_data[0]);
         nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].write_read(top_test_cfg.wr_data[0]);
       end

@@ -37,7 +37,7 @@ module arb_wave_gen
 	input wire [15:0] alt_lim, //number of clocks for a period of alt period
 	//input wire [15:0] alter_per, //period of alternating frequency (in nanoseconds); ensure it is larger than a clock period
 	//input wire [15:0] alter_silent_t, //period of time after the alternating for no signal (in nanoseconds); ensure it is larger than a clock period
-	input wire [15:0] alt_silent_lim, //number of clocks for each silent period
+	input wire [15:0] i_alt_silent_lim, //number of clocks for each silent period
 	input wire [15:0] alt_rest_lim,
 	//input wire [15:0] delay_t, //delay after enable before the wave generation starts (in nanoseconds); ensure it is larger than a clock period
 	input wire [15:0] delay_lim, //number of clocks for initial delay before wave is generated
@@ -71,6 +71,7 @@ module arb_wave_gen
         input wire [7:0]   i_reg_wg_driver_pos_offset, 
         input wire [5:0]   i_ems_data_ctrl,
         input wire [7:0]   alt_ems_cnt_tar,
+        input wire         mul_wave_repeat,
 
         output reg [3:0] data_scl,  
         output reg [3:0] ems_data_ctrl,                 
@@ -95,6 +96,10 @@ localparam  S5 = 3'h5;
 localparam  S6 = 3'h6;
 localparam  S7 = 3'h7;
 
+
+wire  mul_wave_repeat_valid;
+wire [15:0] mul_wave_repeat_tar;
+
 reg [7:0] in_wave_addr;
 
 reg [2:0] state;
@@ -111,9 +116,12 @@ wire [23:0] rest_lim; // number of clocks for each rest period
 //reg [15:0] rest_cnt;
 wire [31:0] silent_lim; // number of clocks for each silent period
 //reg [15:0] rest_cnt;
-//wire [15:0] alt_silent_lim; // number of clocks for each silent period
+wire [15:0] alt_silent_lim; // number of clocks for each silent period
 //wire [15:0] delay_lim; // number of clocks for initial delay before wave is generated
 //reg [15:0] silent_cnt;
+assign alt_silent_lim = 16'h0000;
+
+
 
 wire gclk; //gated clock
 reg [1:0]   period_num;
@@ -130,8 +138,9 @@ reg [15:0]  no_of_num_before_slient;
 wire[7:0] config_reg;
 wire no_of_num_slient_valid;
       
-assign no_of_num_slient_valid = (no_of_num_before_slient==no_of_num_slient_tar);
-assign config_reg = (!no_of_num_slient_disable)? i_config_reg : i_config_reg & {5'b11111,no_of_num_slient_valid,2'b11};
+assign no_of_num_slient_valid = (no_of_num_before_slient==no_of_num_slient_tar) & no_of_num_slient_disable;
+//assign config_reg = (!no_of_num_slient_disable)? i_config_reg : i_config_reg & {5'b11111,no_of_num_slient_valid,2'b11};
+assign config_reg = i_config_reg;
 
 assign o_period_num   = period_num;
 //assign o_hlf_wave_cnt = hlf_wave_cnt[7:0];
@@ -161,7 +170,7 @@ assign point_will_overflow_max = ((period_sel[2:0]==3'b000) && ((!config_reg[7])
                                  (({period_sel[4],period_sel[2:0]}==4'b0001) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<2) :                        
                                  (({period_sel[4],period_sel[2:0]}==4'b0010) && !((!config_reg[7])^config_reg[1]))? (hlf_wave_cnt_max[7:0]<<2) + (hlf_wave_cnt_max[7:0]<<1) : 8'd64;
 
-assign point_will_overflow = ((in_wave_addr== point_will_overflow_max - 1) && (state != S7)) || point_will_overflow_128;
+assign point_will_overflow = mul_wave_repeat? (((in_wave_addr== point_will_overflow_max - 1) && (state != S7)) || point_will_overflow_128) & mul_wave_repeat_valid :  ((in_wave_addr== point_will_overflow_max - 1) && (state != S7)) || point_will_overflow_128;
 
 wire state1_end,state2_end,state3_end,state4_end;
 
@@ -196,7 +205,11 @@ assign silent_lim = (period_sel[2:0]==3'b000)? silent_t :
                     (period_sel[2:0]==3'b001)? (period_num==2'b00)? silent_t : silent_t1 :           
                     (period_sel[2:0]==3'b010)? (period_num==2'b00)? silent_t : (period_num==2'b01)? silent_t1 :   silent_t2 : silent_t;
 
+assign mul_wave_repeat_tar = (period_sel[2:0]==3'b000)? no_of_num_slient_tar : 
+                    (period_sel[2:0]==3'b001)? (period_num==2'b00)? no_of_num_slient_tar : {8'h00,i_alt_silent_lim[7:0]}:           
+                    (period_sel[2:0]==3'b010)? (period_num==2'b00)? no_of_num_slient_tar : (period_num==2'b01)? {8'h00,i_alt_silent_lim[7:0]} :   {8'h00,i_alt_silent_lim[15:8]} : no_of_num_slient_tar;
 
+assign mul_wave_repeat_valid = (no_of_num_before_slient==mul_wave_repeat_tar) & mul_wave_repeat;
 
 reg [7:0] in_wave_addr_temp;
 always @(posedge clk, negedge reset) begin
@@ -205,6 +218,7 @@ always @(posedge clk, negedge reset) begin
         end
         else begin
           if(enable) begin
+            if(!mul_wave_repeat)  begin
               if(!period_sel[3] || point_will_overflow && !(period_sel[4] && ((state == S1) || (state == S2) || (state == S6) || (state == S7)))) begin
                 in_wave_addr_temp <= 8'h00;
               end    
@@ -216,6 +230,15 @@ always @(posedge clk, negedge reset) begin
               else if ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state != S0) && (state != S6) && (state != S7)) begin
                    in_wave_addr_temp <= in_wave_addr + 1;
               end
+            end
+            else begin
+              if(!period_sel[3] || point_will_overflow && !(period_sel[4] && ((state == S1) || (state == S2) || (state == S6) || (state == S7)))) begin
+                in_wave_addr_temp <= 8'h00;
+              end 
+              else if ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && (state != S0) && (state != S6) && (state != S7) & mul_wave_repeat_valid) begin
+                   in_wave_addr_temp <= in_wave_addr + 1;
+              end
+            end
           end
           else begin
                    in_wave_addr_temp <= 8'h00;
@@ -229,6 +252,7 @@ always @(posedge clk, negedge reset) begin
         end
         else begin 
             if(enable) begin
+               if(!mul_wave_repeat)  begin
                    if(period_sel[2:0]==3'b000) begin
                    period_num <= 2'b00;
                    end
@@ -243,11 +267,29 @@ always @(posedge clk, negedge reset) begin
                            period_num <= 2'b00;
                          else
                            period_num <= period_num + 1'b1;       
-                   end
-             end
-             else begin
+                   end 
+              end
+              else begin
+                   if(period_sel[2:0]==3'b000) begin
                    period_num <= 2'b00;
-             end
+                   end
+                   else if((period_sel[2:0]==3'b001) && waveform_change_flag && mul_wave_repeat_valid) begin
+                         if(period_num==2'b01)
+                           period_num <= 2'b00;
+                         else
+                           period_num <= period_num + 1'b1;
+                   end
+                   else if((period_sel[2:0]==3'b010) && waveform_change_flag && mul_wave_repeat_valid) begin
+                         if(period_num==2'b10)
+                           period_num <= 2'b00;
+                         else
+                           period_num <= period_num + 1'b1;       
+                   end 
+              end
+            end
+            else begin
+                   period_num <= 2'b00;
+            end
         end
 end
 
@@ -256,7 +298,8 @@ always @(posedge clk, negedge reset) begin
         no_of_num_before_slient <= 16'h00;
         end
         else begin 
-           if(enable) begin
+          if(enable) begin
+            if(!mul_wave_repeat)  begin
                if(!no_of_num_slient_disable)begin
                  no_of_num_before_slient <= 16'h00;
                end
@@ -266,13 +309,22 @@ always @(posedge clk, negedge reset) begin
                else if((state==S3) & ((hlf_wave_cnt[15:0] == 16'h0000) && (nxt_wave_val_cnt == (nxt_wave_val_lim-1))) && !((!config_reg[7])^config_reg[1]))begin
                  no_of_num_before_slient  <= no_of_num_before_slient + 16'b1;
                end
-               else if((state==S4) & (hlf_wave_cnt == (silent_lim-1)))begin
+               else if((state==S4) & (hlf_wave_cnt == (silent_lim-1)) & no_of_num_slient_valid)begin
                  no_of_num_before_slient <= 16'h00;
                end
-           end
-           else begin
+            end
+            else begin
+                if((state==S1) & ((hlf_wave_cnt[15:0] == 16'h0000) && (nxt_wave_val_cnt == (nxt_wave_val_lim-1))))begin
+                 no_of_num_before_slient <= no_of_num_before_slient + 16'b1;
+                end
+               else if((state==S4) & (hlf_wave_cnt == (silent_lim-1)) & mul_wave_repeat_valid)begin
+                 no_of_num_before_slient <= 16'h00;
+               end
+            end
+          end
+          else begin
               no_of_num_before_slient <= 16'h00;           
-           end
+          end         
         end
 end
 
@@ -704,8 +756,8 @@ always @(posedge clk, negedge reset) begin
 		  	   alt_cnt <=  0;
 				if (enable) begin
 					if (nxt_wave_val_cnt < (neg_nxt_wave_val_lim-1) | hlf_wave_cnt[15:0] < hlf_wave_cnt_max_m1) begin
-						source[|(config_reg & 8'h08)] <= 1;
-						source[1'b1-|(config_reg & 8'h08)] <= 0;
+						source[|(config_reg & 8'h08)] <= no_of_num_slient_disable? 1'b0 : 1'b1;
+						source[1'b1-|(config_reg & 8'h08)] <= 1'b0;
 						if (nxt_wave_val_cnt < neg_nxt_wave_val_lim-1) begin //clock is faster than wave resolution; wait neg_nxt_wave_val_lim clocks until next wave value
 							nxt_wave_val_cnt <= nxt_wave_val_cnt + 1;
 						end
@@ -713,7 +765,10 @@ always @(posedge clk, negedge reset) begin
 							nxt_wave_val_cnt <= 0;
 							if (hlf_wave_cnt[15:0] < hlf_wave_cnt_max_m1) begin // counting wave points for the positive side
 								hlf_wave_cnt <= {16'h0,next_addr};
-                                                                if(!period_sel[3]) begin
+                                                                if(no_of_num_slient_disable) begin
+								  in_wave_addr <= 0;
+                                                                end                                                                
+                                                                else if(!period_sel[3]) begin
 								  in_wave_addr <= next_addr[7:0];
                                                                 end
                                                                 else begin
@@ -725,7 +780,14 @@ always @(posedge clk, negedge reset) begin
 					else begin
 						hlf_wave_cnt <= 0;
 						nxt_wave_val_cnt <= 0;
-						if (|(config_reg & 8'h04) && !(&(silent_lim -1)) && !pnnp_flag) begin //if silent enabled
+                                                if(no_of_num_slient_disable) begin
+						   state <= S1;
+						   hlf_wave_cnt <= 0;
+						   source[0] <= 0;
+						   source[1] <= 0;                                                   
+					   	   in_wave_addr <= 0;
+                                                end                                                 
+						else if (|(config_reg & 8'h04) && !(&(silent_lim -1)) && !pnnp_flag) begin //if silent enabled
 							source[|(config_reg & 8'h08)] <= 0;
 							source[1'b1-|(config_reg & 8'h08)] <= 0;
 							state <= S4;
@@ -786,6 +848,18 @@ always @(posedge clk, negedge reset) begin
 						source[0] <= 0;
 						source[1] <= 0;
 				   end
+                                   else if(no_of_num_slient_disable & no_of_num_slient_valid) begin
+						state <= S3;
+						hlf_wave_cnt <= 0;
+						source[|(config_reg & 8'h08)] <= 0;
+						source[1'b1-|(config_reg & 8'h08)] <= 0;
+                                                if(!period_sel[3] || point_will_overflow) begin
+					   	  in_wave_addr <= 0;
+                                                end
+                                                else begin
+					   	in_wave_addr <= in_wave_addr + 1;                                                  
+                                                end	
+                                   end
 				   else if ((|(config_reg & 8'h80)) && (|(config_reg & 8'h01)) && !(&(rest_lim -1))) begin//if rest enabled
 					        source[0] <= 0;
 					        source[1] <= 0;
@@ -860,6 +934,9 @@ always @(posedge clk, negedge reset) begin
                                                 if(!period_sel[3] || point_will_overflow) begin
 						  in_wave_addr <= 0;
                                                 end	
+                                                else if (mul_wave_repeat) begin
+						  in_wave_addr <= in_wave_addr_temp; 
+                                                end
                                                 else begin
 					          in_wave_addr <= in_wave_addr + 1;                                                  
                                                 end									

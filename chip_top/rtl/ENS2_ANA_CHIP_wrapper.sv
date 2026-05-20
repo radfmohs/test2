@@ -32,6 +32,7 @@ output wire  A2D_ADC_DATA_EN,//from analog
 input wire[3:0] D2A_STIM_PAD0,    //to analog	
 input wire[3:0] D2A_STIM_PAD1,    //to analog	
 input wire D2A_ADC_EN,    //to analog	
+input wire D2A_ADC_CLK,    //to analog	
 
 `ifdef FPGA
   input clk_in1;
@@ -778,6 +779,7 @@ ENS2_ANA_CHIP u_top_ana (
 .D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
 .D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
 .D2A_ADC_EN(D2A_ADC_EN),    //to analog	
+.D2A_ADC_CLK(D2A_ADC_CLK),    //to analog	
 
 `ifdef FPGA
   .clk_in1              (clk_in1)

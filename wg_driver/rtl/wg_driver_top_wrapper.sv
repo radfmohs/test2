@@ -191,7 +191,7 @@ assign  o_out_wave_driver_idac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] 
 assign drive_en[i] = (spi_wg.global_en & spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
 
 
-common_clock_gate wavegen_clk_gating (
+common_clock_gate u_wavegen_clk_gating (
   .clk        (i_pclk),
   .enable     (drive_en[i]),
   .bypass     (scan_mode),
@@ -304,7 +304,7 @@ common_rst_sync u_addr1_int_clr_sync(
 //                                                                                                    : w_out_wave_val[i];
 
 
-assign w_out_wave_val_adj[i] = w_out_wave_val[i];
+assign w_out_wave_val_adj[i] = (w_source[i]==2'b00)? 12'h000 : w_out_wave_val[i];
 
 
 
@@ -465,6 +465,7 @@ wg_driver_top_inst
  .wg_driver_pos_scale           (spi_wg.wg_driver_pos_scale),
  .wg_driver_neg_offset          (spi_wg.wg_driver_neg_offset),
  .wg_driver_pos_offset          (spi_wg.wg_driver_pos_offset), 
+ .mul_wave_repeat               (spi_wg.mul_wave_repeat),
 
 // .w_interrupt       (i_wg_driver_interrupt_sync),
  .wg_driver_int_addr0  (i_wg_driver_int_addr0_sync),

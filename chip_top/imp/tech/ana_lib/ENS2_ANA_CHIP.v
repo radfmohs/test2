@@ -11,6 +11,7 @@ A2D_ADC_DATA_EN,//from analog
 D2A_STIM_PAD0,    //to analog	
 D2A_STIM_PAD1,    //to analog	
 D2A_ADC_EN,    //to analog	
+D2A_ADC_CLK,    //to analog	
 
 `ifdef FPGA
   clk_in1,
@@ -83,12 +84,13 @@ VDDIO
 
 );
 //temprily connected for verification
-output wire [9:0] A2D_ADC_DATA; //from analog //ADC use posedge of sysclk to output data, 
+output [9:0] A2D_ADC_DATA; //from analog //ADC use posedge of sysclk to output data, 
 		//digital use negedge to capture, so we have half sysclk cycle margin for it	
-output wire  A2D_ADC_DATA_EN;//from analog	
-input wire[3:0] D2A_STIM_PAD0;    //to analog	
-input wire[3:0] D2A_STIM_PAD1;    //to analog	
-input wire D2A_ADC_EN;    //to analog	
+output  A2D_ADC_DATA_EN;//from analog	
+input [3:0] D2A_STIM_PAD0;    //to analog	
+input [3:0] D2A_STIM_PAD1;    //to analog	
+input D2A_ADC_EN;    //to analog	
+input  D2A_ADC_CLK;    //to analog	
 
 // PMU
 input    [7:0]  D2A_BG_TRIM;

@@ -90,6 +90,7 @@ wire           o_no_of_num_slient_disable[NO_OF_WAVEGEN-1:0];
 wire  [15:0]   o_no_of_num_slient_tar[NO_OF_WAVEGEN-1:0];
 
 wire w_isel[NO_OF_WAVEGEN-1:0];
+wire mul_wave_repeat[NO_OF_WAVEGEN-1:0];
 
 wire [7:0]     o_reg_wg_cal_addr[NO_OF_WAVEGEN-1:0];
 wire [3:0]     o_data_scl[NO_OF_WAVEGEN-1:0];
@@ -164,7 +165,7 @@ modport master(
   input  wg_driver_pos_offset,
 
   output w_isel,
-
+  output mul_wave_repeat,
   input i_wg_driver_in_wave_addr,
   input i_wg_driver_ems_wave_addr,
   input i_wg_driver_source,
@@ -222,6 +223,7 @@ modport slave (
   input alt_ems_cnt_tar,
 
   input w_isel,
+  input mul_wave_repeat,
 
   output  data_scl,
   output  ems_data_ctrl,
