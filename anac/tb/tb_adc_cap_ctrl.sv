@@ -25,7 +25,7 @@
 //  TC18: pair_cnt wrap at pair_num boundary
 //  TC19: A2D_ADC_DATA_TAG format (pair bits vs data bits)
 //  TC20: BUG — spurious clear pulse from common_pulse_async_clr after reset
-//  TC21: Cycle interrupt (stim_mon_cycle_int_sts) after full pair scan
+//  TC21: Cycle interrupt (stim_mon_cycle_int_sts) after 2-pair scan
 //
 // BUGS FOUND:
 //  BUG-1 (TC11): leadoff/short threshold count is impossible to accumulate
@@ -295,8 +295,8 @@ task set_defaults;
         stim_mon_cycle_int_clr  = 0;
         stim_mon_leadoff_int_clr= 16'b0;
         stim_mon_short_int_clr  = 16'b0;
-        threshold_leadoff        = 10'd100;
-        threshold_short          = 10'd50;
+        threshold_leadoff       = 10'd100;
+        threshold_short         = 10'd50;
         threshold_tgt            = 8'd2;
         int_length_slct         = 0;
         adc_mode                = 0;
