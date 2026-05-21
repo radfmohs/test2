@@ -129,6 +129,8 @@ always @ (posedge sysclk or negedge presetn) begin
 end
 */
 assign real_latch = bypass_ignore_first ? 1'b1 : real_latch_reg & final_active_stim;
+wire sample_cap_now;
+assign sample_cap_now = latch_ind & real_latch;
 
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) 
@@ -235,16 +237,36 @@ wire is_leadoff_condition;
 assign is_leadoff_condition = (comp_high >= threshold_leadoff) || (comp_low >= threshold_leadoff);
 */
 wire [9:0] adc_abs_delta;
+wire [9:0] adc_abs_delta_now;
+wire is_short_condition_now;
+wire is_leadoff_condition_now;
+wire [7:0] leadoff_cnt_eff;
+wire [7:0] short_cnt_eff;
 
 assign adc_abs_delta =
     (A2D_ADC_DATA_CAP >= 10'h200) ?
     (A2D_ADC_DATA_CAP - 10'h200) :
     (10'h200 - A2D_ADC_DATA_CAP);
+assign adc_abs_delta_now =
+    (A2D_ADC_DATA >= 10'h200) ?
+    (A2D_ADC_DATA - 10'h200) :
+    (10'h200 - A2D_ADC_DATA);
 assign is_short_condition =
     (adc_abs_delta <= threshold_short);
-
+assign is_short_condition_now =
+    (adc_abs_delta_now <= threshold_short);
+ 
 assign is_leadoff_condition =
     (adc_abs_delta >= threshold_leadoff);
+assign is_leadoff_condition_now =
+    (adc_abs_delta_now >= threshold_leadoff);
+
+assign leadoff_cnt_eff =
+    (sample_cap_now && is_leadoff_condition_now && (leadoff_cnt < threshold_tgt)) ?
+    (leadoff_cnt + 8'b1) : leadoff_cnt;
+assign short_cnt_eff =
+    (sample_cap_now && is_short_condition_now && (short_cnt < threshold_tgt)) ?
+    (short_cnt + 8'b1) : short_cnt;
 
 
 always @ (posedge sysclk or negedge presetn) begin
@@ -252,8 +274,8 @@ always @ (posedge sysclk or negedge presetn) begin
  	leadoff_cnt <= 8'b0;  	
   end else if(check_pulse) begin
  	leadoff_cnt <= 8'b0;  	
-  end else if (A2D_ADC_DATA_VLD && is_leadoff_condition && (leadoff_cnt < threshold_tgt)) begin
- 	leadoff_cnt <= leadoff_cnt + 8'b1;  	
+  end else if (sample_cap_now && is_leadoff_condition_now && (leadoff_cnt < threshold_tgt)) begin
+  	leadoff_cnt <= leadoff_cnt + 8'b1;  	
   end 
 end
 
@@ -267,7 +289,7 @@ always @ (posedge sysclk or negedge presetn) begin
         short_cnt   <= 8'b0;
   end else if(check_pulse) begin
         short_cnt   <= 8'b0;
-  end else if (A2D_ADC_DATA_VLD && is_short_condition && (short_cnt < threshold_tgt)) begin
+  end else if (sample_cap_now && is_short_condition_now && (short_cnt < threshold_tgt)) begin
         short_cnt <= short_cnt + 8'b1;
   end
 end
@@ -316,8 +338,8 @@ always @(posedge sysclk or negedge presetn) begin
 	leadoff_pulse_pair <= 16'b0;
 	short_pulse_pair   <= 16'b0;
   end else if(check_pulse) begin
-	leadoff_pulse_pair <=  (leadoff_cnt >= threshold_tgt) ? (16'b1 << previous_pair_cnt) : 16'b0;
-	short_pulse_pair <=  (short_cnt >= threshold_tgt) ?(16'b1 << previous_pair_cnt) : 16'b0;
+	leadoff_pulse_pair <=  (leadoff_cnt_eff >= threshold_tgt) ? (16'b1 << previous_pair_cnt) : 16'b0;
+	short_pulse_pair <=  (short_cnt_eff >= threshold_tgt) ?(16'b1 << previous_pair_cnt) : 16'b0;
   end else begin
 	leadoff_pulse_pair <= 16'b0;
 	short_pulse_pair   <= 16'b0;
@@ -442,6 +464,14 @@ reg [9:0] A2D_ADC_DATA_delta;
 reg [9:0] A2D_ADC_DATA_max_cap;  	
 reg [9:0] A2D_ADC_DATA_min_cap;  	
 reg [9:0] A2D_ADC_DATA_last_cap;  	
+wire [9:0] A2D_ADC_DATA_max_eff;
+wire [9:0] A2D_ADC_DATA_min_eff;
+assign A2D_ADC_DATA_max_eff =
+    (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? A2D_ADC_DATA :
+    ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max);
+assign A2D_ADC_DATA_min_eff =
+    (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? A2D_ADC_DATA :
+    ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min);
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	A2D_ADC_DATA_max <= 10'h0;  	
@@ -449,8 +479,8 @@ always @ (posedge sysclk or negedge presetn) begin
   else if(check_pulse)   //check_pulse has higher priority, if check_pulse happen at same time with A2D_ADC_DATA_VLD,
 			//then A2D_ADC_DATA_VLD data will be ignored 
 	A2D_ADC_DATA_max <= 10'h0;  	
-  else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP >= A2D_ADC_DATA_max)) 
-	A2D_ADC_DATA_max <= A2D_ADC_DATA_CAP;  	
+  else if(sample_cap_now) 
+	A2D_ADC_DATA_max <= A2D_ADC_DATA_max_eff;  	
 end
 
 always @ (posedge sysclk or negedge presetn) begin
@@ -459,24 +489,24 @@ always @ (posedge sysclk or negedge presetn) begin
   //else if(check_pulse_d1) 
   else if(check_pulse) 
 	A2D_ADC_DATA_min <= 10'h3ff;  	
-  else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP <= A2D_ADC_DATA_min)) 
-	A2D_ADC_DATA_min <= A2D_ADC_DATA_CAP;  	
+  else if(sample_cap_now) 
+	A2D_ADC_DATA_min <= A2D_ADC_DATA_min_eff;  	
 end
 
 reg[3:0] A2D_ADC_TAG_CAP_delta;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) begin 
 	A2D_ADC_DATA_delta <= 10'h0;  	
- 	A2D_ADC_TAG_CAP_delta <= 4'b0;
- 	A2D_ADC_DATA_max_cap <= 10'h0;  	
- 	A2D_ADC_DATA_min_cap <= 10'h0;  	
- 	A2D_ADC_DATA_last_cap <= 10'h0;  	
+  	A2D_ADC_TAG_CAP_delta <= 4'b0;
+  	A2D_ADC_DATA_max_cap <= 10'h0;  	
+  	A2D_ADC_DATA_min_cap <= 10'h0;  	
+  	A2D_ADC_DATA_last_cap <= 10'h0;  	
   end else if(check_pulse) begin 
-	A2D_ADC_DATA_delta <= (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? 10'h0: (A2D_ADC_DATA_max - A2D_ADC_DATA_min);  	
- 	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
- 	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max;  	
- 	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min;  	
- 	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA_CAP;  	
+	A2D_ADC_DATA_delta <= (A2D_ADC_DATA_max_eff < A2D_ADC_DATA_min_eff) ? 10'h0: (A2D_ADC_DATA_max_eff - A2D_ADC_DATA_min_eff);  	
+  	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
+  	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max_eff;  	
+  	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min_eff;  	
+  	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA;  	
   end
 end
 wire [9:0] A2D_ADC_DATA_delta_final;  	
@@ -646,4 +676,3 @@ end
 
 
 endmodule
-

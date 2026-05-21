@@ -358,6 +358,39 @@ module adc_cap_ctrl_tb;
     end
   endtask
 
+  task automatic test_delta_select_modes;
+    begin
+      $display("TEST: delta selector modes and single-sample period");
+      do_reset();
+      adc_mode = 1'b1;
+      bypass_ignore_first = 1'b1;
+      adc_cap_period = 16'd0;
+      pair_num = 4'd0;
+      o_source_driver = 16'h0003;
+
+      stim_mon_delta_data_sel = 2'b00;
+      send_sample(10'd341, 1'b1);
+      wait_for_delta_vld();
+      expect_true(A2D_ADC_DELTA_DATA_VLD, "single-sample delta valid");
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd0}, "single-sample delta should be zero");
+
+      stim_mon_delta_data_sel = 2'b01;
+      send_sample(10'd111, 1'b1);
+      wait_for_delta_vld();
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd111}, "min selector should return minimum sample");
+
+      stim_mon_delta_data_sel = 2'b10;
+      send_sample(10'd222, 1'b1);
+      wait_for_delta_vld();
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd222}, "max selector should return maximum sample");
+
+      stim_mon_delta_data_sel = 2'b11;
+      send_sample(10'd333, 1'b1);
+      wait_for_delta_vld();
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd333}, "last-sample selector should return captured sample");
+    end
+  endtask
+
   task automatic test_leadoff_status;
     begin
       $display("TEST: leadoff threshold across full capture window");
@@ -377,6 +410,7 @@ module adc_cap_ctrl_tb;
       idle_cycles(2);
 
       expect_true(stim_mon_leadoff_int_sts[0], "last leadoff sample should count toward pair status");
+      idle_cycles(1);
       expect_true(o_stim_mon_int, "leadoff interrupt should reach pin");
     end
   endtask
@@ -400,6 +434,7 @@ module adc_cap_ctrl_tb;
       idle_cycles(2);
 
       expect_true(stim_mon_short_int_sts[0], "last short sample should count toward pair status");
+      idle_cycles(1);
       expect_true(o_stim_mon_int, "short interrupt should reach pin");
     end
   endtask
@@ -410,6 +445,7 @@ module adc_cap_ctrl_tb;
     test_bypass_adc_data_en();
     test_stim_delay();
     test_delta_and_cycle();
+    test_delta_select_modes();
     test_leadoff_status();
     test_short_status();
 
