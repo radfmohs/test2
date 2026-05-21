@@ -168,7 +168,7 @@ module adc_cap_ctrl_tb;
       A2D_ADC_DATA_EN = 1'b0;
       for (idx = 0; idx < 16; idx = idx + 1) begin
         stim_pad0_tgt[idx] = idx[3:0];
-        stim_pad1_tgt[idx] = (idx + 1) & 4'hf;
+        stim_pad1_tgt[idx] = idx + 1;
       end
     end
   endtask
@@ -393,6 +393,7 @@ module adc_cap_ctrl_tb;
 
       stim_mon_delta_data_sel = 2'b11;
       send_sample(10'd333, 1'b1);
+      A2D_ADC_DATA = 10'd444;
       wait_for_delta_vld();
       expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd333}, "last-sample selector should return captured sample");
     end

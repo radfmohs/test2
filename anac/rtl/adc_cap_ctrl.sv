@@ -469,11 +469,15 @@ wire [9:0] A2D_ADC_DATA_max_eff;
 wire [9:0] A2D_ADC_DATA_min_eff;
 assign delta_accumulators_invalid = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
 assign A2D_ADC_DATA_max_eff =
-    delta_accumulators_invalid ? A2D_ADC_DATA :
-    ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max);
+    sample_cap_now ?
+    (delta_accumulators_invalid ? A2D_ADC_DATA :
+    ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max)) :
+    A2D_ADC_DATA_max;
 assign A2D_ADC_DATA_min_eff =
-    delta_accumulators_invalid ? A2D_ADC_DATA :
-    ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min);
+    sample_cap_now ?
+    (delta_accumulators_invalid ? A2D_ADC_DATA :
+    ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min)) :
+    A2D_ADC_DATA_min;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	A2D_ADC_DATA_max <= 10'h0;  	
@@ -508,7 +512,7 @@ always @ (posedge sysclk or negedge presetn) begin
 	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
 	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max_eff;  	
 	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min_eff;  	
-	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA;  	
+	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA_CAP;  	
   end
 end
 wire [9:0] A2D_ADC_DATA_delta_final;  	
