@@ -1,0 +1,32 @@
+===============================================
+ADC CAP CTRL Testbench - Diagnostic Run
+===============================================
+
+--- Test 1: Simple ADC Data Capture ---
+Step 1: First stimulus, should ignore first sample
+  A2D_ADC_DATA_VLD = 0 (expected 0)
+  A2D_ADC_DELTA_DATA_VLD = 0 (expected 0)
+Step 2: Second sample for first pair
+  A2D_ADC_DATA_VLD = 0 (expected 1)
+  A2D_ADC_DELTA_DATA_VLD = 0
+Step 3: First sample for second pair
+  A2D_ADC_DATA_VLD = 0
+  A2D_ADC_DELTA_DATA_VLD = 0 (expected 1)
+
+--- Test 2: Lead-off Detection ---
+Sending ADC sample at 50 (delta from 512 = 462, > 200)
+  leadoff_int_sts[0] = 0 (expected 0 - still counting)
+Sending second sample with ADC at 50
+  leadoff_int_sts[0] = 0 (expected 1 - threshold_tgt=1)
+
+--- Test 3: Short Detection ---
+Sending ADC sample at 512 (delta = 0, < 30)
+  short_int_sts[0] = 0 (expected 0 - still counting)
+Sending second sample with ADC at 512
+  short_int_sts[0] = 0 (expected 1 - threshold_tgt=1)
+
+===============================================
+Diagnostic Tests Complete
+===============================================
+
+anac/tb/adc_cap_ctrl_tb_diag.sv:266: $finish called at 760000 (1ps)

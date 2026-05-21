@@ -105,8 +105,6 @@ reg [15:0] adc_cap_period_cnt;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) 
  	real_latch_reg <= 1'b0;
-  else if(bypass_ignore_first)
- 	real_latch_reg <= 1'b0;
   else begin 
 	if(!final_active_stim)
  		real_latch_reg <= 1'b0;

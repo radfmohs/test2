@@ -1,0 +1,35 @@
+===============================================
+ADC CAP CTRL Final Test Suite
+===============================================
+
+--- Test 1: Basic ADC Data Capture ---
+[PASS] Test  1: ADC capture with single pair
+[PASS] Test  2: ADC data captured after stimulus
+
+--- Test 2: Lead-off Detection ---
+[FAIL] Test  3: Lead-off detection triggered
+
+--- Test 3: Short Detection ---
+[FAIL] Test  4: Short detection triggered
+
+--- Test 4: Delta Data Calculation ---
+[FAIL] Test  5: Delta data calculation
+
+--- Test 5: Multiple Pairs ---
+[PASS] Test  6: Multiple pairs data capture
+
+--- Test 6: Interrupt Clearing ---
+[PASS] Test  7: Interrupt set
+[FAIL] Test  8: Interrupt cleared
+
+===============================================
+Test Summary
+===============================================
+Total Tests:           8
+Passed:                4
+Failed:                4
+
+✗ SOME TESTS FAILED
+===============================================
+
+anac/tb/adc_cap_ctrl_tb_final.sv:350: $finish called at 1205000 (1ps)
