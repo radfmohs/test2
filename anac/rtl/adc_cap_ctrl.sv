@@ -464,13 +464,15 @@ reg [9:0] A2D_ADC_DATA_delta;
 reg [9:0] A2D_ADC_DATA_max_cap;  	
 reg [9:0] A2D_ADC_DATA_min_cap;  	
 reg [9:0] A2D_ADC_DATA_last_cap;  	
+wire is_first_delta_sample;
 wire [9:0] A2D_ADC_DATA_max_eff;
 wire [9:0] A2D_ADC_DATA_min_eff;
+assign is_first_delta_sample = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
 assign A2D_ADC_DATA_max_eff =
-    (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? A2D_ADC_DATA :
+    is_first_delta_sample ? A2D_ADC_DATA :
     ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max);
 assign A2D_ADC_DATA_min_eff =
-    (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? A2D_ADC_DATA :
+    is_first_delta_sample ? A2D_ADC_DATA :
     ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min);
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
@@ -497,16 +499,16 @@ reg[3:0] A2D_ADC_TAG_CAP_delta;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) begin 
 	A2D_ADC_DATA_delta <= 10'h0;  	
-  	A2D_ADC_TAG_CAP_delta <= 4'b0;
-  	A2D_ADC_DATA_max_cap <= 10'h0;  	
-  	A2D_ADC_DATA_min_cap <= 10'h0;  	
-  	A2D_ADC_DATA_last_cap <= 10'h0;  	
+	A2D_ADC_TAG_CAP_delta <= 4'b0;
+	A2D_ADC_DATA_max_cap <= 10'h0;  	
+	A2D_ADC_DATA_min_cap <= 10'h0;  	
+	A2D_ADC_DATA_last_cap <= 10'h0;  	
   end else if(check_pulse) begin 
 	A2D_ADC_DATA_delta <= (A2D_ADC_DATA_max_eff < A2D_ADC_DATA_min_eff) ? 10'h0: (A2D_ADC_DATA_max_eff - A2D_ADC_DATA_min_eff);  	
-  	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
-  	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max_eff;  	
-  	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min_eff;  	
-  	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA;  	
+	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
+	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max_eff;  	
+	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min_eff;  	
+	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA;  	
   end
 end
 wire [9:0] A2D_ADC_DATA_delta_final;  	

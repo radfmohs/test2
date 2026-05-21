@@ -256,6 +256,13 @@ module adc_cap_ctrl_tb;
       expect_true(o_stim_mon_int, "sample interrupt should reach pin");
       expect_false(A2D_ADC_DELTA_DATA_VLD, "manual mode should not emit delta data");
       expect_false(one_cycle_data_vld, "manual mode should not emit cycle data");
+
+      stim_mon_int_clr = 1'b1;
+      idle_cycles(1);
+      stim_mon_int_clr = 1'b0;
+      idle_cycles(4);
+      expect_false(stim_mon_int_sts, "sample interrupt status should clear");
+      expect_false(o_stim_mon_int, "sample interrupt pin should clear");
     end
   endtask
 
