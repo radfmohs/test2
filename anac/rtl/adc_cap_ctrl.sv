@@ -255,7 +255,7 @@ assign is_short_condition =
     (adc_abs_delta <= threshold_short);
 assign is_short_condition_now =
     (adc_abs_delta_now <= threshold_short);
- 
+
 assign is_leadoff_condition =
     (adc_abs_delta >= threshold_leadoff);
 assign is_leadoff_condition_now =
@@ -464,15 +464,15 @@ reg [9:0] A2D_ADC_DATA_delta;
 reg [9:0] A2D_ADC_DATA_max_cap;  	
 reg [9:0] A2D_ADC_DATA_min_cap;  	
 reg [9:0] A2D_ADC_DATA_last_cap;  	
-wire is_first_delta_sample;
+wire delta_accumulators_invalid;
 wire [9:0] A2D_ADC_DATA_max_eff;
 wire [9:0] A2D_ADC_DATA_min_eff;
-assign is_first_delta_sample = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
+assign delta_accumulators_invalid = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
 assign A2D_ADC_DATA_max_eff =
-    is_first_delta_sample ? A2D_ADC_DATA :
+    delta_accumulators_invalid ? A2D_ADC_DATA :
     ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max);
 assign A2D_ADC_DATA_min_eff =
-    is_first_delta_sample ? A2D_ADC_DATA :
+    delta_accumulators_invalid ? A2D_ADC_DATA :
     ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min);
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  

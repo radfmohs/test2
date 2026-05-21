@@ -341,7 +341,7 @@ module adc_cap_ctrl_tb;
       expect_true(A2D_ADC_DATA_VLD, "pair0 sample1 valid");
       wait_for_delta_vld();
       expect_true(A2D_ADC_DELTA_DATA_VLD, "pair0 delta should become valid");
-      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd200}, "pair0 delta should include both samples");
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd200}, "pair0 delta should be 200 (max-min)");
 
       expect_u4(D2A_STIM_PAD0, 4'd1, "auto mode should advance to pair1 after pair0");
       expect_u4(D2A_STIM_PAD1, 4'd2, "auto mode pad1 should advance to pair1");
@@ -352,7 +352,7 @@ module adc_cap_ctrl_tb;
       expect_true(A2D_ADC_DATA_VLD, "pair1 sample1 valid");
       wait_for_delta_vld();
       expect_true(A2D_ADC_DELTA_DATA_VLD, "pair1 delta should become valid");
-      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd1, 2'b00, 10'd10}, "pair1 delta should include both samples");
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd1, 2'b00, 10'd10}, "pair1 delta should be 10 (max-min)");
 
       wait_for_cycle_vld();
       expect_true(one_cycle_data_vld, "full cycle should become valid");
