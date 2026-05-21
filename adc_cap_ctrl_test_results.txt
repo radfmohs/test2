@@ -1,0 +1,55 @@
+===============================================
+ADC CAP CTRL Testbench - Starting Tests
+===============================================
+
+--- Test 1: Reset and Initialization ---
+[PASS] Test           1: Reset clears outputs
+
+--- Test 2: Simple ADC Data Capture (Manual Mode) ---
+[PASS] Test           2: First sample correctly ignored in manual mode
+
+--- Test 3: Multi-Pair Auto Mode (2 pairs) ---
+[FAIL] Test           3: Delta interrupt triggered - No delta interrupt after 2 pairs
+
+--- Test 4: Lead-off Detection ---
+[FAIL] Test           4: Lead-off detection - Lead-off not detected for extreme ADC value
+
+--- Test 5: Short Detection ---
+[FAIL] Test           5: Short detection - Short not detected for ADC=512
+
+--- Test 6: Stimulus Delay ---
+[PASS] Test           6: Stimulus delay prevents early capture
+
+--- Test 7: Bypass ADC Enable ---
+[FAIL] Test           7: Bypass ADC enable - Data not captured with bypass enabled
+
+--- Test 8: Delta Data Calculation (Max-Min) ---
+[FAIL] Test           8: Delta data calculation - No delta data output
+
+--- Test 9: Interrupt Clearing ---
+[PASS] Test           9: Interrupt triggered
+[FAIL] Test           9: Interrupt clearing - Interrupt not cleared
+
+--- Test 10: Multiple Stimulus Pads ---
+[FAIL] Test          10: Multiple pairs - Cycle not completed for 4 pairs
+
+--- Test 11: ADC Data at Boundaries ---
+[FAIL] Test          11: ADC boundary - ADC=0 not handled
+[FAIL] Test          11: ADC boundary - ADC=1023 not handled
+
+--- Test 12: Pair Counter Wraparound ---
+[FAIL] Test          12: Pair counter wraparound - Counter didn't wrap at 16 pairs
+
+--- Test 13: High ADC Capture Period ---
+[PASS] Test          13: High ADC capture period handled
+
+===============================================
+Test Summary
+===============================================
+Total Tests:           13
+Passed:                 5
+Failed:                10
+Result: SOME TESTS FAILED!
+===============================================
+
+anac/tb/adc_cap_ctrl_tb.sv:621: $finish called at 2395000 (1ps)
