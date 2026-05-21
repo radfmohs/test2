@@ -124,6 +124,7 @@ module spi_reg_wavegen #(
   output  wire [4:0]          o_period_sel,
   output  wire                w_isel,
   output  wire                o_mul_wave_repeat,
+  output  wire                o_dds_mode,
 //output  wire	              o_wg_drivera_en,              // wg_driver enable
 //output  wire	              o_wg_driverc_en,              // wg_driver enable
   output  wire [7:0]          o_config_reg, 
@@ -1201,18 +1202,19 @@ assign o_dirve = {drive_ctrl_reg2[3:0],drive_ctrl_reg1[7:0],drive_ctrl_reg0[5:0]
 
 reg  w_isel_reg;
 reg  mul_wave_repeat;
-
+reg  dds_mode;
 //slient time with specify waveform
 always@(posedge i_clk or negedge i_rst_n) begin
   if(!i_rst_n)begin
   o_no_of_num_slient_disable   <= 1'b0; 
   w_isel_reg                   <= 1'b0;
   mul_wave_repeat              <= 1'b0;
+  dds_mode                     <= 1'b0;
   o_no_of_num_slient_tar       <= 16'h0005; 
   end
   else begin
 	  case (i_addr[ADDR_WIDTH-1:0])
-            `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN  :  {mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}  <= i_wr? i_wr_data[2:0] : {mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
+            `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN  :  {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}  <= i_wr? i_wr_data[3:0] : {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
             `NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[7:0]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
             `NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[15:8]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
      endcase
@@ -1221,7 +1223,7 @@ end
 
 assign w_isel = w_isel_reg;
 assign o_mul_wave_repeat = mul_wave_repeat;
-
+assign o_dds_mode = dds_mode;
 
 //for the address that scale/offset/MSB_SEL take effect 
 wire       reg_wg_cal_addr_wr;
@@ -1381,7 +1383,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `DRIVE_REG_CTRL1                     :  reg_rd_data  <=    drive_ctrl_reg1;
         `DRIVE_REG_CTRL2                     :  reg_rd_data  <=    drive_ctrl_reg2;
 
-        `NO_OF_NUM_SLIENT_CTR0               :  reg_rd_data  <=  {5'b0,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
+        `NO_OF_NUM_SLIENT_CTR0               :  reg_rd_data  <=  {4'b0,dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
         `NO_OF_NUM_SLIENT_TAR0               :  reg_rd_data  <=  o_no_of_num_slient_tar[7:0];
         `NO_OF_NUM_SLIENT_TAR1               :  reg_rd_data  <=  o_no_of_num_slient_tar[15:8];
         `ADDR_IS_VALID_FOR_CAL               :  reg_rd_data  <= reg_wg_cal_addr;

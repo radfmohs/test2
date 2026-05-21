@@ -748,6 +748,16 @@ ppg_nirs_top_model ppg_nirs_top(
 );
 // End of this
 
+// Instance or SAR ADC	
+nnc_sar_adc_vip_top sar_adc_vip(
+.A2D_DATA(A2D_ADC_DATA),
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),
+.D2A_STIM_PAD0(D2A_STIM_PAD0),
+.D2A_STIM_PAD1(D2A_STIM_PAD1),
+.D2A_ADC_EN(D2A_ADC_EN),      //to analog      
+.D2A_ADC_CLK(D2A_ADC_CLK)     //to analog
+);
+
  // --------------------------------------------------------------------------------
  // imeas analog
  // --------------------------------------------------------------------------------

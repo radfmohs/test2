@@ -32,24 +32,58 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
 
-  logic [7:0]  clk_freq;
-  rand logic       lead_off_rst=0;
+  logic [7:0]      clk_freq;
+
+  //
+  //rand logic       lead_off_rst=0;
   rand logic       wave_gen_rst=0;
+  //
+  rand  logic      dig_rst_reg=0;
   rand logic       otp_rst_reg=0;
+  //
   rand logic       anac_rst_reg=0;
   rand logic       tsc_rst_reg=0;
-   logic       lead_off_rst_l=0;
-   logic       wave_gen_rst_l=0;
-   logic       otp_rst_reg_l =0;
-   logic       anac_rst_reg_l =0;
-   logic       tsc_rst_reg_l=0;
-  rand  logic       dig_rst_reg=0;
+  //
+  rand logic       nirs_rst_reg=0;  
+  //
+  rand logic       imeas_rst_reg=0;
+  //
+  rand logic       adc_cap_ctrl_rst_reg=0;  //stimulator
+
+  //  
+  //logic           lead_off_rst_l=0;
+  logic           wave_gen_rst_l=0;
+  //
+  logic           otp_rst_reg_l =0;
+  //
+  logic           anac_rst_reg_l =0;
+  logic           tsc_rst_reg_l=0;
+  //
+  //
+  rand logic       nirs_rst_reg_l=0;  
+  //
+  rand logic       imeas_rst_reg_l=0;
+  //
+  rand logic       adc_cap_ctrl_rst_reg_l=0;  //stimulator
   
   rand logic [7:0] pmu_reg0;
   rand logic [7:0] pmu_reg1;    
   rand logic [7:0] anac_ctrl;
-   rand logic         slp_en = 0;   
-  logic         slp_en_1 = 0;  
+  rand logic [7:0] nirs_clk_ctrl;   //0x0E 
+  rand logic [7:0] imeas_reg_0;     //0x90
+rand logic [7:0]   stim_mon_clk_rst_ctrl; //0x43
+  // 
+  rand logic      slp_en = 0;   
+  logic           slp_en_1 = 0;  
+
+ //
+ logic       exp_wave_gen_rst_reg;  
+ logic       exp_otp_rst_reg;       
+ logic       exp_anac_rst_reg;      
+ logic       exp_tsc_rst_reg;       
+ logic       exp_stimu_rst_reg;     
+ logic       exp_eeg_filter_rst_reg;
+ logic       exp_nirs_rst_reg;      
   
   // -----------------------------------------------
   // End of decalration of new variables 
@@ -79,32 +113,47 @@ class `TESTCFG extends soc_base_test_cfg;
   // mask values
   constraint c_mask        { soft mask == 8'hff; }
 
-  constraint c_pmu_reg0     { pmu_reg0[7] == lead_off_rst;
-                              pmu_reg0[5] == wave_gen_rst;}; 
+  constraint c_pmu_reg0     { /*pmu_reg0[7] == lead_off_rst;*/ pmu_reg0[5] == wave_gen_rst;}; 
   constraint c_pmu_reg1     { pmu_reg1[0] == otp_rst_reg;
                               pmu_reg1[1] == dig_rst_reg;}
   constraint c_anac_ctrl    { anac_ctrl[1] == anac_rst_reg;
                               anac_ctrl[2] == tsc_rst_reg;  }
+
+  constraint c_nirs_ctrl    { anac_ctrl[1] == anac_rst_reg;
+                              anac_ctrl[2] == tsc_rst_reg;  }
+
+  constraint c_nirs_clk_ctrl    { nirs_clk_ctrl[5] == nirs_rst_reg;}
+
+  constraint c_imeas_reg_0      { imeas_reg_0[0] == 1'b0; imeas_reg_0[1] == imeas_rst_reg;} //imeas_reg0[0]=1 means manually controlled by user
+
+  constraint c_stim_mon_clk_rst_ctrl  { stim_mon_clk_rst_ctrl[5] == adc_cap_ctrl_rst_reg;}
   
-    constraint  c_slp_en                {if(pmu_reg0[2]) {slp_en == 1'b0;}
-                                         else if((!pmu_reg0[2] && pmu_reg0[1] && pmu_reg0[0])==1) {slp_en == 1'b1;}
+  //added by supriya because reset of individual block doesn;t deped on pmu_enable, sleep deep and hresetreq(these arr used ot gate the clock) , just keep this logic as it is if anyother test extended by this test
+  constraint  c_slp_en                {if(pmu_reg0[2]) {slp_en == 1'b0;}
+                                        else if((!pmu_reg0[2] && pmu_reg0[1] && pmu_reg0[0])==1) {slp_en == 1'b1;}
                                         else {slp_en == slp_en_1;}
-    }
-    
-    function void pre_randomize();
-        slp_en_1.rand_mode(0);
-        slp_en_1 = slp_en;
-       lead_off_rst_l.rand_mode(0);
+                                      }
+   
+  function void pre_randomize();
+       slp_en_1.rand_mode(0);
+       slp_en_1 = slp_en;
+       //lead_off_rst_l.rand_mode(0);
        wave_gen_rst_l.rand_mode(0);
        otp_rst_reg_l.rand_mode(0);
        anac_rst_reg_l.rand_mode(0);
        tsc_rst_reg_l.rand_mode(0);
-       lead_off_rst_l = slp_en ? (lead_off_rst ? lead_off_rst : lead_off_rst_l):lead_off_rst;
-       wave_gen_rst_l = slp_en ? (wave_gen_rst ? wave_gen_rst : wave_gen_rst_l):wave_gen_rst;
-       otp_rst_reg_l  = slp_en ? (otp_rst_reg ? otp_rst_reg : otp_rst_reg_l):otp_rst_reg ;
-       anac_rst_reg_l  = slp_en ? (anac_rst_reg ? anac_rst_reg : anac_rst_reg_l):anac_rst_reg ;
-       tsc_rst_reg_l  = slp_en ? (tsc_rst_reg ? tsc_rst_reg : tsc_rst_reg_l):tsc_rst_reg ;         
-    endfunction
+       nirs_rst_reg_l.rand_mode(0);
+       imeas_rst_reg_l.rand_mode(0);
+       adc_cap_ctrl_rst_reg_l.rand_mode(0);
+       //lead_off_rst_l  = slp_en ? (lead_off_rst    ?  lead_off_rst  : lead_off_rst_l ):  lead_off_rst;
+       wave_gen_rst_l  = slp_en ? (wave_gen_rst    ?  wave_gen_rst  : wave_gen_rst_l ):  wave_gen_rst;
+       otp_rst_reg_l   = slp_en ? (otp_rst_reg     ?  otp_rst_reg   : otp_rst_reg_l  ):  otp_rst_reg ;
+       anac_rst_reg_l  = slp_en ? (anac_rst_reg    ?  anac_rst_reg  : anac_rst_reg_l ):  anac_rst_reg ;
+       tsc_rst_reg_l   = slp_en ? (tsc_rst_reg     ?  tsc_rst_reg   : tsc_rst_reg_l  ):  tsc_rst_reg ; 
+       nirs_rst_reg_l  = slp_en ? ( nirs_rst_reg   ?  nirs_rst_reg  : nirs_rst_reg_l ) : nirs_rst_reg;
+       imeas_rst_reg_l = slp_en ? ( imeas_rst_reg  ?  imeas_rst_reg : imeas_rst_reg_l) : imeas_rst_reg;
+      adc_cap_ctrl_rst_reg_l = slp_en ? (adc_cap_ctrl_rst_reg ? adc_cap_ctrl_rst_reg : adc_cap_ctrl_rst_reg_l) : adc_cap_ctrl_rst_reg;
+   endfunction
                
 
 
@@ -183,16 +232,36 @@ class `TESTNAME extends soc_base_test;
         //set reg
 
 
-        repeat(15) begin
-        assert(top_test_cfg.randomize() with {reg_addr == `SOC_CLK_CTRL_REG; no_of_bytes == 8'h01; dig_rst_reg == 1'b1; wr_data[0][2:0] != 3'h7;} );
+      repeat(15) begin
+
+        assert(top_test_cfg.randomize() with {reg_addr == `SOC_CLK_CTRL_REG; no_of_bytes == 8'h01; dig_rst_reg == 1'b1; wr_data[0][2:0] != 3'h7;} ); //21/05/2026: supriya, keep this same as previous code
         `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
-        
+       
+        //save rst_reg_value
+        top_test_cfg.exp_wave_gen_rst_reg     =    top_test_cfg.pmu_reg0[5];
+        top_test_cfg.exp_otp_rst_reg          =    top_test_cfg.pmu_reg1[0]; 
+        top_test_cfg.exp_anac_rst_reg         =    top_test_cfg.anac_ctrl[1]; 
+        top_test_cfg.exp_tsc_rst_reg          =    top_test_cfg.anac_ctrl[2];  
+        top_test_cfg.exp_stimu_rst_reg        =    top_test_cfg.anac_ctrl[5];
+        top_test_cfg.exp_eeg_filter_rst_reg   =    top_test_cfg.imeas_reg_0[1];  //sync with wavegen reg
+        top_test_cfg.exp_nirs_rst_reg         =    top_test_cfg.nirs_clk_ctrl[5]; 
+    
+         
         `WR_NORMAL_REG(`SOC_PMU_REG, top_test_cfg.pmu_reg0, top_test_cfg.pads);
 
         `WR_NORMAL_REG(`SOC_PMU_REG1, top_test_cfg.pmu_reg1, top_test_cfg.pads);
+
         `WR_NORMAL_REG(`SOC_ANAC_CTRL_REG, top_test_cfg.anac_ctrl, top_test_cfg.pads);
 
+        `WR_NIRS_REG(`SOC_NIRS_CTRL_CLK_REG, top_test_cfg.nirs_clk_ctrl, top_test_cfg.pads);
+
+        `WR_NORMAL_REG(`SOC_IMEAS_REG_0, top_test_cfg.imeas_reg_0, top_test_cfg.pads);
+
+        `WR_NORMAL_REG(`SOC_STIM_MON_CLK_RST_CTRL, top_test_cfg.adc_cap_ctrl_rst_reg, top_test_cfg.pads);
+        
+
         #200us;
+        // PMUCTRL_TOP and CLK-CTRL_TOP are on main HFCLOCK
         `ifdef POSTLAYOUT
         if(/*`SPI_TOP.i_rst_n &&*/ `PMU_CTRL_TOP.poresetn_hf  /*&& `CLK_CTRL_TOP.presetn*/ && `CLK_CTRL_TOP.poresetn  /*&& `ANAC_TOP.presetn*/ && `EPROM_TOP.RESETb && `RST_CTRL_TOP.presetn);
         `else
@@ -200,35 +269,94 @@ class `TESTNAME extends soc_base_test;
         `endif
         else  `nnc_error("SOC_TEST", "RESETn error!!!");
 
-        `nnc_info("",$sformatf("slp_en %h %h, wave %h %h, lead %h %h , otp %h  %h, anac %h %h",top_test_cfg.slp_en_1, top_test_cfg.slp_en, top_test_cfg.wave_gen_rst_l, top_test_cfg.wave_gen_rst, top_test_cfg.lead_off_rst_l, top_test_cfg.lead_off_rst, top_test_cfg.otp_rst_reg_l,  top_test_cfg.otp_rst_reg, top_test_cfg.anac_rst_reg_l,  top_test_cfg.anac_rst_reg), NNC_LOW);
+        `nnc_info("",$sformatf("slp_en_1 %h slp_en %h, wave_gen_rst_l %h wave_gen_rst %h, otp_rst_reg_l %h  otp_rst_reg %h, anac_rst_reg_l %h anac_rst_reg %h",top_test_cfg.slp_en_1, top_test_cfg.slp_en, top_test_cfg.wave_gen_rst_l, top_test_cfg.wave_gen_rst, top_test_cfg.otp_rst_reg_l,  top_test_cfg.otp_rst_reg, top_test_cfg.anac_rst_reg_l,  top_test_cfg.anac_rst_reg), NNC_LOW);
+
+        `nnc_info("",$sformatf("slp_en_1 %h slp_en %h, nirs_rst_reg_l %h nirs_rst_reg %h, imeas_rst_reg_l %h  imeas_rst_reg %h, adc_cap_ctrl_rst_reg_l %h adc_cap_ctrl_rst_reg %h",top_test_cfg.slp_en_1, top_test_cfg.slp_en, top_test_cfg.nirs_rst_reg_l, top_test_cfg.nirs_rst_reg, top_test_cfg.imeas_rst_reg_l,  top_test_cfg.imeas_rst_reg, top_test_cfg.adc_cap_ctrl_rst_reg_l,  top_test_cfg.adc_cap_ctrl_rst_reg), NNC_LOW);  
 
 
         // when slp_en =1, ignore reg reset;
         if(/*(top_test_cfg.slp_en_1 &&*/ top_test_cfg.slp_en  !== 1) begin
-            if(`WG_DRIVER_TOP.i_presetn === top_test_cfg.wave_gen_rst )
+            `nnc_info("SYSC_TEST","SLP_EN==0", NNC_LOW);
+            `nnc_info("SYSC_TEST",$sformatf("wave_gen_rst=%0h, otp_rst_reg=%0h, anac_rst_reg=%0h, tsc_rst_reg=%0h", top_test_cfg.wave_gen_rst, top_test_cfg.otp_rst_reg, top_test_cfg.anac_rst_reg,top_test_cfg.tsc_rst_reg), NNC_LOW);
+            `nnc_info("SYSC_TEST",$sformatf("nirs_rst_reg=%0h, imeas_rst_reg=%0h, adc_cap_ctrl_rst_reg=%0h, ", top_test_cfg.nirs_rst_reg, top_test_cfg.imeas_rst_reg, top_test_cfg.adc_cap_ctrl_rst_reg), NNC_LOW);
+
+            if(`WG_DRIVER_TOP.i_presetn === top_test_cfg.exp_wave_gen_rst_reg ) 
                 `nnc_error("SOC_TEST", "WAVEGEN RESETn error!!!");        
-            //if(`LEADOFF_WRAPPER_TOP.i_presetn === top_test_cfg.lead_off_rst)
-            //    `nnc_error("SOC_TEST", "LEADOFF RESETn error!!!");        
-            if(`EPROM_TOP.rst_n === top_test_cfg.otp_rst_reg)
-                `nnc_error("SOC_TEST", "OTP RESETn error!!!");
-            if(`ANAC_TOP.presetn === top_test_cfg.anac_rst_reg)
+                                                                        
+            if(`EPROM_TOP.rst_n === top_test_cfg.exp_otp_rst_reg)           
+                `nnc_error("SOC_TEST", "OTP RESETn error!!!");        
+  
+            if(`ANAC_TOP.presetn === top_test_cfg.exp_anac_rst_reg)
                 `nnc_error("SOC_TEST", "ANAC RESETn error!!!");
-            if(`TSC_TOP.presetn === top_test_cfg.tsc_rst_reg)
+
+            if(`TSC_TOP.presetn === top_test_cfg.exp_tsc_rst_reg)
                 `nnc_error("SOC_TEST", "TSC RESETn error!!!");
+
+            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === ( top_test_cfg.exp_stimu_rst_reg && top_test_cfg.exp_wave_gen_rst_reg) )
+              `nnc_error("SOC_TEST", "adc_cap_ctrl.presetn error!!!");
+
+           if(`IMEAS_WRAPPER_TOP.filter_rstn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
+
+           if(`IMEAS_WRAPPER_TOP.cic_rst_n  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! IMEAS_WRAPPER_TOP.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`IMEAS_WRAPPER_TOP.adc_resetn === top_test_cfg.exp_eeg_filter_rst_reg )   
+              `nnc_error("reset_check", $sformatf("  adc_reset error!!! IMEAS_WRAPPER_TOP.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! IMEAS_WRAPPER_TOP.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`NIRS_PPG_TOP.rst_n === top_test_cfg.exp_nirs_rst_reg )   	
+              `nnc_error("reset_check", "  rst_n error!!!  ");
+
+ 
         end
         else begin
-        //    if(`WG_DRIVER_TOP.i_presetn === (top_test_cfg.wave_gen_rst_l || top_test_cfg.wave_gen_rst))
-        //        `nnc_error("SOC_TEST", "WAVEGEN RESETn error!!!");        
-        //    if(`LEADOFF_WRAPPER_TOP.i_presetn === (top_test_cfg.lead_off_rst_l || top_test_cfg.lead_off_rst))
-        //        `nnc_error("SOC_TEST", "LEADOFF RESETn error!!!");        
-        //    if(`EPROM_TOP.rst_n === (top_test_cfg.otp_rst_reg_l || top_test_cfg.otp_rst_reg))
-        //        `nnc_error("SOC_TEST", "OTP RESETn error!!!");
+            `nnc_info("SYSC_TEST","SLP_EN==1", NNC_LOW);      //fclk (clock) is gated
+            if(`WG_DRIVER_TOP.i_presetn === (top_test_cfg.wave_gen_rst_l || top_test_cfg.wave_gen_rst))
+                `nnc_error("SOC_TEST", "WAVEGEN RESETn error!!!");        
+            //if(`LEADOFF_WRAPPER_TOP.i_presetn === (top_test_cfg.lead_off_rst_l || top_test_cfg.lead_off_rst))
+                //`nnc_error("SOC_TEST", "LEADOFF RESETn error!!!");        
+            if(`EPROM_TOP.rst_n === (top_test_cfg.otp_rst_reg_l || top_test_cfg.otp_rst_reg))   
+                `nnc_error("SOC_TEST", "OTP RESETn error!!!");                                                       
+                                                                                              
+            if(`ANAC_TOP.presetn === (top_test_cfg.anac_rst_reg_l|| top_test_cfg.exp_anac_rst_reg)) 
+                `nnc_error("SOC_TEST", "ANAC RESETn error!!!");                               
+
+            if(`TSC_TOP.presetn === ( top_test_cfg.tsc_rst_reg_l || top_test_cfg.exp_tsc_rst_reg))
+                `nnc_error("SOC_TEST", "TSC RESETn error!!!");
+
+            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === ( top_test_cfg.adc_cap_ctrl_rst_reg_l || (top_test_cfg.exp_stimu_rst_reg && top_test_cfg.exp_wave_gen_rst_reg) ))
+              `nnc_error("SOC_TEST", "adc_cap_ctrl.presetn error!!!");
+
+            if(`IMEAS_WRAPPER_TOP.filter_rstn  === ( top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
+             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
+
+           if(`IMEAS_WRAPPER_TOP.cic_rst_n  === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
+              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! IMEAS_WRAPPER_TOP.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`IMEAS_WRAPPER_TOP.adc_resetn === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   
+              `nnc_error("reset_check", $sformatf("  adc_reset error!!! IMEAS_WRAPPER_TOP.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg/*(top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg )*/)   //HFOSC clock	
+              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! IMEAS_WRAPPER_TOP.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`NIRS_PPG_TOP.rst_n === ( top_test_cfg.nirs_rst_reg_l || top_test_cfg.exp_nirs_rst_reg ))   	
+              `nnc_error("reset_check", "  rst_n error!!!  ");
         end
+        #1ms;
+   end
 
-
-        end
-
-  
+ 
+    //if have time , otherwise randomly thi scenario will be checked in above case
+    //pending to check from reset to unreset state when reset_reg is set 0 after clock is ungated 
+    //appy reset using rst_reg
+    //enter deep sleep
+    // and then disable reset vis reset_reg
+    //then check resert shouldn;t be back becuase in deep sleep mode (this whole thing checked in else part of above case)
+    // now enter to normal state(idle state from)or get out deepsleep mode
+    // then check reset is back or not particular block, we can this part in above else condition
 
     // --------------------------------------------------------
     // End of test and add any needed delay time 

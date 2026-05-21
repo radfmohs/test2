@@ -265,18 +265,51 @@ initial
 logic [1000000:0] wr_data;
 bit  [1000000:0] rd_data;
 
-logic [7:0] wavegen_addr0;
-logic [7:0] wavegen_addr1;
+logic [7:0] wavegen_addr_src;
+logic [7:0] wavegen_addr_snk;
 
-logic [7:0] wavegen_addr0_buff;
-logic [7:0] wavegen_addr1_buff;
+logic [7:0] wavegen_addr_src_buff;
+logic [7:0] wavegen_addr_snk_buff;
 
 `ifndef BEHAVIORAL
-assign wavegen_addr0 = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[7:0];
-assign wavegen_addr1 = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[15:8];
+  assign wavegen_addr_src = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[7:0];
+  assign wavegen_addr_snk = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[15:8];
 `else
-assign wavegen_addr0 = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[dut_vif.DRIVE_SLCT*4+0][7:0];
-assign wavegen_addr1 = `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[dut_vif.DRIVE_SLCT*4+1][7:0];
+  assign wavegen_addr_snk = !dut_vif.python_wavegen_en ? 0: 
+                            dut_vif.wavegen_drv_mode[0] & dut_vif.wavegen_drv_en[0] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[0][7:0] :
+                            dut_vif.wavegen_drv_mode[1] & dut_vif.wavegen_drv_en[1] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[1][7:0] :
+                            dut_vif.wavegen_drv_mode[2] & dut_vif.wavegen_drv_en[2] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[2][7:0] :
+                            dut_vif.wavegen_drv_mode[3] & dut_vif.wavegen_drv_en[3] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[3][7:0] :
+                            dut_vif.wavegen_drv_mode[4] & dut_vif.wavegen_drv_en[4] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[4][7:0] :
+                            dut_vif.wavegen_drv_mode[5] & dut_vif.wavegen_drv_en[5] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[5][7:0] :
+                            dut_vif.wavegen_drv_mode[6] & dut_vif.wavegen_drv_en[6] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[6][7:0] :
+                            dut_vif.wavegen_drv_mode[7] & dut_vif.wavegen_drv_en[7] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[7][7:0] :
+                            dut_vif.wavegen_drv_mode[8] & dut_vif.wavegen_drv_en[8] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[8][7:0] :
+                            dut_vif.wavegen_drv_mode[9] & dut_vif.wavegen_drv_en[9] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[9][7:0] :
+                            dut_vif.wavegen_drv_mode[10] & dut_vif.wavegen_drv_en[10] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[10][7:0] :
+                            dut_vif.wavegen_drv_mode[11] & dut_vif.wavegen_drv_en[11] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[11][7:0] :
+                            dut_vif.wavegen_drv_mode[12] & dut_vif.wavegen_drv_en[12] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[12][7:0] :
+                            dut_vif.wavegen_drv_mode[13] & dut_vif.wavegen_drv_en[13] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[13][7:0] :
+                            dut_vif.wavegen_drv_mode[14] & dut_vif.wavegen_drv_en[14] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[14][7:0] :
+                            dut_vif.wavegen_drv_mode[15] & dut_vif.wavegen_drv_en[15] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[15][7:0] : 0;
+
+  assign wavegen_addr_src = !dut_vif.python_wavegen_en ? 0: 
+                            dut_vif.wavegen_drv_mode[0] & !dut_vif.wavegen_drv_en[0] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[0][7:0] :
+                            dut_vif.wavegen_drv_mode[1] & !dut_vif.wavegen_drv_en[1] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[1][7:0] :
+                            dut_vif.wavegen_drv_mode[2] & !dut_vif.wavegen_drv_en[2] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[2][7:0] :
+                            dut_vif.wavegen_drv_mode[3] & !dut_vif.wavegen_drv_en[3] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[3][7:0] :
+                            dut_vif.wavegen_drv_mode[4] & !dut_vif.wavegen_drv_en[4] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[4][7:0] :
+                            dut_vif.wavegen_drv_mode[5] & !dut_vif.wavegen_drv_en[5] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[5][7:0] :
+                            dut_vif.wavegen_drv_mode[6] & !dut_vif.wavegen_drv_en[6] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[6][7:0] :
+                            dut_vif.wavegen_drv_mode[7] & !dut_vif.wavegen_drv_en[7] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[7][7:0] :
+                            dut_vif.wavegen_drv_mode[8] & !dut_vif.wavegen_drv_en[8] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[8][7:0] :
+                            dut_vif.wavegen_drv_mode[9] & !dut_vif.wavegen_drv_en[9] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[9][7:0] :
+                            dut_vif.wavegen_drv_mode[10] & !dut_vif.wavegen_drv_en[10] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[10][7:0] :
+                            dut_vif.wavegen_drv_mode[11] & !dut_vif.wavegen_drv_en[11] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[11][7:0] :
+                            dut_vif.wavegen_drv_mode[12] & !dut_vif.wavegen_drv_en[12] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[12][7:0] :
+                            dut_vif.wavegen_drv_mode[13] & !dut_vif.wavegen_drv_en[13] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[13][7:0] :
+                            dut_vif.wavegen_drv_mode[14] & !dut_vif.wavegen_drv_en[14] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[14][7:0] :
+                            dut_vif.wavegen_drv_mode[15] & !dut_vif.wavegen_drv_en[15] ? `WG_DRIVER_TOP.wg_driver_top_inst.in_wave_addr[15][7:0] : 0;
 `endif
 
 always @(negedge `WG_DRIVER_TOP.i_pclk)  
@@ -302,45 +335,45 @@ always @(negedge `WG_DRIVER_TOP.i_pclk)
 wire match_pos_dac0 = (`WG_DRIVER_TOP.o_source_driver[0] === 1'b1) && (`WG_DRIVER_TOP.o_source_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b1);
 wire match_neg_dac0 = (`WG_DRIVER_TOP.o_source_driver[0] === 1'b1) && (`WG_DRIVER_TOP.o_source_driver[0] === 1'b1) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b1) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0);
 wire match_dac0 = (`WG_DRIVER_TOP.o_source_driver[dut_vif.DRIVE_SLCT*4+0] === 1'b1) ;//match_pos_dac0 || match_neg_dac0;
-wire special_match_dac0 = (`WG_DRIVER_TOP.o_source_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_source_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0) && ((wavegen_addr0 % 4) === 0);
+wire special_match_dac0 = (`WG_DRIVER_TOP.o_source_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_source_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[0] === 1'b0) && ((wavegen_addr_src % 4) === 0);
 
 wire match_pos_dac1 = (`WG_DRIVER_TOP.o_source_driver[1] === 1'b1) && (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b1);
 wire match_neg_dac1 = (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_source_driver[1] === 1'b1) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b1) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0);
 wire match_dac1 = (`WG_DRIVER_TOP.o_source_driver[dut_vif.DRIVE_SLCT*4+0] === 1'b1) ;//match_pos_dac1 || match_neg_dac1;
-wire special_match_dac1 = (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0) && ((wavegen_addr1 % 4) === 0);
+wire special_match_dac1 = (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_source_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0) && (`WG_DRIVER_TOP.o_pulldn_driver[1] === 1'b0) && ((wavegen_addr_snk % 4) === 0);
 
-always @(wavegen_addr0)
+always @(wavegen_addr_src)
 begin
   if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_0 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
  
     if (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1) begin
-       if (wavegen_addr0 == 0) begin
+       if (wavegen_addr_src == 0) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
-         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
-         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag; 
+         if ((wavegen_addr_src == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag; 
          #1;
          if (pos_stick1 == 1) begin
            python_data_num_0++;
            `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {3'b110, dac0_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[0][11:0]};
          end
-       end else if (wavegen_addr0 == 1)  begin
+       end else if (wavegen_addr_src == 1)  begin
          if (pos_stick1 == 0) begin
            #1;
-           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
-           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr_src == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
          end else begin
-           if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
-           if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr_src == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+           if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
            @(negedge `WG_DRIVER_TOP.i_pclk);
            #1;
            python_data_num_0++;
            `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {3'b110, dac0_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[0][11:0]};
          end
-       end else if (wavegen_addr0 > 1) begin
+       end else if (wavegen_addr_src > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
          #1;
-         if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
-         if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr_src == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+         if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
          if ((pos_stick1 == 1) && (special_match_dac0 === 1'b0)) begin
            wait (match_dac0);
            python_data_num_0++;
@@ -354,8 +387,8 @@ begin
     end else begin
        @(posedge `WG_DRIVER_TOP.i_pclk);
        @(negedge `WG_DRIVER_TOP.i_pclk);
-       if ((wavegen_addr0 == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
-       if ((wavegen_addr0 == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
+       if ((wavegen_addr_src == 0) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b0)) dac0_tag = !dac0_tag;
+       if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
        wait (match_dac0); 
        python_data_num_0++;
        if (match_pos_dac0) `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {3'b110, dac0_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[0][11:0]};
@@ -369,38 +402,38 @@ begin
   end
 end
 
-always @(wavegen_addr1)
+always @(wavegen_addr_snk)
 begin
   if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_1 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
 
     if (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1) begin
-       if (wavegen_addr1 == 0) begin
+       if (wavegen_addr_snk == 0) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
          #1;
-         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
-         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag; 
+         if ((wavegen_addr_snk == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag; 
          if (pos_stick2 == 1) begin
            python_data_num_1++;
            `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};
          end
-       end else if (wavegen_addr1 == 1)  begin
+       end else if (wavegen_addr_snk == 1)  begin
          if (pos_stick2 == 0) begin
            #1;
-           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
-           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr_snk == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
          end
          else begin
            @(negedge `WG_DRIVER_TOP.i_pclk);
-           if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
-           if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr_snk == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+           if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
            #1;
            python_data_num_1++;
            `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};
          end
-       end else if (wavegen_addr1 > 1) begin
+       end else if (wavegen_addr_snk > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
-         if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
-         if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr_snk == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+         if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
          #1;
          if ((pos_stick2 == 1) && (special_match_dac1 === 1'b0)) begin
              wait (match_dac1);
@@ -415,8 +448,8 @@ begin
     end else begin
        @(posedge `WG_DRIVER_TOP.i_pclk);
        @(negedge `WG_DRIVER_TOP.i_pclk);
-       if ((wavegen_addr1 == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
-       if ((wavegen_addr1 == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
+       if ((wavegen_addr_snk == 0) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b0)) dac1_tag = !dac1_tag;
+       if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[1] === 1'b1)) dac1_tag = !dac1_tag;
        wait (match_dac1); 
        python_data_num_1++;
        if (match_pos_dac1) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[1][11:0]};

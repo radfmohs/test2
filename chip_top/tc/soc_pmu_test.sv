@@ -185,8 +185,8 @@ class `TESTNAME extends soc_base_test;
 		`nnc_error("SOC_TEST", "Error! Unexpected otp_pclk running!!!");
 	  if(`CLK_CTRL_TOP.wave_gen_pclk !== 0)
 		`nnc_error("SOC_TEST", "Error! Unexpected wave_gen_pclk running!!!");
-	  if(`CLK_CTRL_TOP.lead_off_pclk !== 0)
-		`nnc_error("SOC_TEST", "Error! Unexpected lead_off_pclk running!!!");
+	  //if(`CLK_CTRL_TOP.lead_off_pclk !== 0)
+          //		`nnc_error("SOC_TEST", "Error! Unexpected lead_off_pclk running!!!");
 	  if(`CLK_CTRL_TOP.anac_pclk !== 0)
 		`nnc_error("SOC_TEST", "Error! Unexpected anac_pclk running!!!");
 	  if(`CLK_CTRL_TOP.temp_sar_pclk !== 0)
@@ -227,7 +227,7 @@ class `TESTNAME extends soc_base_test;
         `nnc_info("SOC_TEST", "Apply leadoff reset 0!", NNC_LOW)
         `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
-	wait(`RST_CTRL_TOP.lead_off_presetn === 1'b0);
+	//wait(`RST_CTRL_TOP.lead_off_presetn === 1'b0);
 	#1us;
 
 	assert(top_test_cfg.randomize() with {reg_addr == `SOC_PMU_REG; wr_data[0] == `INIT_SOC_PMU_REG;});

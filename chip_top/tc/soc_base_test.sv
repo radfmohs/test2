@@ -247,6 +247,12 @@ class `TESTCFG extends nnc_object;
     rand  bit [2:0]      no_of_adc_dev2;             // 2/4/6/8/10/12/14/16  
     rand  bit [2:0]      dump_level;
 
+    rand  bit            sar_adc_sine_wave_en;   // 1: Enable sine wave to SAR ADC with amplitude: sar_adc_vin - 0: get DC from sar_adc_vin 
+    rand  integer        sar_adc_sine_wave_freq; // Unit Hz 
+    rand  integer        sar_adc_vin;            // unit mV from WG Drivers to ADC  
+    rand  integer        sar_adc_data_timing_t1; // unit ns (timing to assert A2D_ADC_DATA_EN after the falling of D2A_ADC_CLK) (5ns < t1 < 75% of ADC_CLK Period)
+    rand  integer        sar_adc_data_timing_t2; // unit ns (timing to de-assert A2D_ADC_DATA_EN after the rising of D2A_ADC_CLK) (5ns < t2 < 25% of ADC_CLK Period)
+
     bit A2D_comp0_in = 0;
     bit A2D_comp1_in = 0;
     bit A2D_comp_stim0_1_in = 0;
@@ -262,6 +268,16 @@ class `TESTCFG extends nnc_object;
     //--------------------------------------------------------
     // Declare constraints for each of randomized variables
     //--------------------------------------------------------
+
+    constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b1; } // Sine is enable
+
+    constraint c_sar_adc_sine_wave_freq   { sar_adc_sine_wave_freq == 10000; } // 10Khz
+
+    constraint c_sar_adc_vin              { sar_adc_vin == 1000; } // 1000mV
+
+    constraint c_sar_adc_data_timing_t1   { sar_adc_data_timing_t1 inside {[5: 250*75/100 -5]};} // 75% of 4Mhz = 250*0.75 (margin 5ns)
+
+    constraint c_sar_adc_data_timing_t2   { sar_adc_data_timing_t2 inside {[5: 250*25/100 -5]};} // 25% of 4Mhz = 250*0.25 (margin 5ns)
 
     constraint c_dump_level               { dump_level == 3'b000; }
 
@@ -721,7 +737,17 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG57);
   `SET_CFG_REG(`REG58);
 // */  
-  `SET_CFG_REG(`REG59);
+/*  `SET_CFG_REG(`REG59);
+  `SET_CFG_REG(`REG59_1);
+  `SET_CFG_REG(`REG59_2);
+  `SET_CFG_REG(`REG59_3);
+  `SET_CFG_REG(`REG59_4);
+  `SET_CFG_REG(`REG59_5);
+  `SET_CFG_REG(`REG59_6);
+  `SET_CFG_REG(`REG59_7);
+  `SET_CFG_REG(`REG59_8);
+  `SET_CFG_REG(`REG59_9);
+  `SET_CFG_REG(`REG59_10);*/
   /* Lead off and short registers
   `SET_CFG_REG(`REG60);
   `SET_CFG_REG(`REG61);
@@ -862,6 +888,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG305);
   `SET_CFG_REG(`REG306);
   `SET_CFG_REG(`REG307);
+  /*
   // Section 1 of ANA GEN
   `SET_CFG_REG(`REG177);
   `SET_CFG_REG(`REG178);
@@ -974,6 +1001,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG279);
   `SET_CFG_REG(`REG280);
   `SET_CFG_REG(`REG281);
+  */
   // A2D_ANA_REG
   `SET_CFG_REG(`REG282);
   `SET_CFG_REG(`REG283);
@@ -1063,7 +1091,6 @@ function void `TESTNAME::build_phase(nnc_phase phase);
     `SET_CFG_WG_REG(`REG_WG4);
     `SET_CFG_WG_REG(`REG_WG5);
     `SET_CFG_WG_REG(`REG_WG6);
-    `SET_CFG_WG_REG(`REG_WG6_1); // New
     `SET_CFG_WG_REG(`REG_WG7);
     `SET_CFG_WG_REG(`REG_WG8);
     `SET_CFG_WG_REG(`REG_WG9);
@@ -1212,7 +1239,9 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
     // Disable scoreboard of analog
     `ANALOG_SCOREBOARD_EN = 1'b0;
     */
+    `DUT_IF.sar_adc_data_timing_t1 = top_test_cfg.sar_adc_data_timing_t1;
 
+    `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
     // Start ramdomization
     assert(top_test_cfg.randomize());
 
@@ -1392,7 +1421,18 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
     `DUT_IF.nirs_ireffine_length = top_test_cfg.nirs_ireffine_length;
    
     `DUT_IF.dump_level = top_test_cfg.dump_level;
+
     `DUT_IF.mult_master_inf_en = top_test_cfg.mult_master_inf_en;
+
+    `DUT_IF.sar_adc_sine_wave_en = top_test_cfg.sar_adc_sine_wave_en;
+
+    `DUT_IF.sar_adc_sine_wave_freq = top_test_cfg.sar_adc_sine_wave_freq;
+
+    `DUT_IF.sar_adc_vin = top_test_cfg.sar_adc_vin;
+
+    `DUT_IF.sar_adc_data_timing_t1 = top_test_cfg.sar_adc_data_timing_t1;
+
+    `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
 
     phase.drop_objection(this);
 endtask : pre_reset_phase

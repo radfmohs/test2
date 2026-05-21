@@ -64,6 +64,8 @@ output wire stop_sample,
 output wire start_sample_pclk,
 output wire stop_sample_pclk,
 */
+input wire         dds_mode[15:0],
+input wire [31:0]  dds_step_spi[15:0],
 
 input wire [2:0]    PROD_ID,
 
@@ -113,12 +115,13 @@ output wire         pclk,                   // periperal clock free-running
 input  wire         otp_dpstb_en,
 input  wire         anac_clock_en,
 input  wire         temp_sar_clock_dis,
-input  wire         lead_off_en,
 output wire         otp_pclk,   
 output wire         anac_pclk,
 output wire         temp_sar_pclk,
-output wire         lead_off_pclk,
+//input  wire         lead_off_en,
+//output wire         lead_off_pclk,
 output wire         wave_gen_pclk,          // for wave gen pclk
+output wire         wave_gen_dds_clk[15:0],
 output wire         wave_gen_fclk,          // for wave gen pclk
 output wire         hfosc_out
 );
@@ -475,6 +478,11 @@ common_clock_gate u_cmsdk_clock_gate_sys_ppg (
 ); 
 
 //wave gen pclk/pclkg gating
+reg  [31 : 0] dds_acc[15:0];
+wire [32 : 0] dds_sum[15:0];
+wire          dds_carry[15:0];
+wire [31 : 0] dds_step[15:0];
+wire          wavegen_clk_en[15:0];
 
 common_clock_gate u_cmsdk_clock_gate_wave_gen_pclk (
   .clk(pclk),
@@ -483,6 +491,43 @@ common_clock_gate u_cmsdk_clock_gate_wave_gen_pclk (
   .gated_clk(wave_gen_pclk)
 ); 
 
+
+genvar i;
+for(i=0; i<16; i=i+1) begin : dds_clk_gen	
+
+      assign wavegen_clk_en[i] = dds_mode[i]? dds_carry[i] & ~wave_gen_dis_sync : ~wave_gen_dis_sync;           
+      common_clock_gate u_cmsdk_clock_gate_wave_gen_dds_clk (
+        .clk(pclk),
+        .enable(wavegen_clk_en[i]), 
+        .bypass(scan_enable), 
+        .gated_clk(wave_gen_dds_clk[i])
+      ); 
+      
+      assign        dds_step[i] = dds_mode[i]? dds_step_spi[i] : 32'h0;
+      assign        dds_sum[i]  = {1'b0,dds_acc[i]} + {1'b0,dds_step[i]};
+      assign        dds_carry[i] = dds_mode[i] & dds_sum[i][32];
+      
+      
+      
+      always @(posedge pclk or negedge poresetn) begin
+      	if (!poresetn) begin
+              dds_acc[i] <= 32'b0;
+              end
+              else if (!dds_mode[i]) begin
+              dds_acc[i] <= 32'b0;
+              end
+              else if (dds_mode[i] & ~wave_gen_dis_sync) begin
+              dds_acc[i] <= dds_sum[i][31 :0];
+              end
+              else begin
+              dds_acc[i]<= 32'b0;
+              end        
+      end
+
+end
+
+////////
+
 common_clock_gate u_cmsdk_clock_gate_wave_gen_fclk (
   .clk(fclk),
   .enable(~wave_gen_dis_sync), 
@@ -490,20 +535,20 @@ common_clock_gate u_cmsdk_clock_gate_wave_gen_fclk (
   .gated_clk(wave_gen_fclk)
 );
 
-wire lead_off_en_sync;
-common_sync_bit common_bit_sync_lead_off(
-  .async_in(lead_off_en),
-  .clk(pclk),
-  .rst_(presetn),      
-  .sync_out(lead_off_en_sync)
-);
+//wire lead_off_en_sync;
+//common_sync_bit common_bit_sync_lead_off(
+//  .async_in(lead_off_en),
+//  .clk(pclk),
+//  .rst_(presetn),      
+//  .sync_out(lead_off_en_sync)
+//);
 
-common_clock_gate u_cmsdk_clock_gate_lead_off_pclk (
-  .clk(pclk),
-  .enable(lead_off_en_sync), 
-  .bypass(scan_enable), 
-  .gated_clk(lead_off_pclk)
-); 
+//common_clock_gate u_cmsdk_clock_gate_lead_off_pclk (
+//  .clk(pclk),
+//  .enable(lead_off_en_sync), 
+//  .bypass(scan_enable), 
+//  .gated_clk(lead_off_pclk)
+//); 
 
 common_clock_gate u_cmsdk_clock_gate_otp_pclk (
   .clk(pclk),

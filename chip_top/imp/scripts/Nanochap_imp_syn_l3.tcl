@@ -93,7 +93,7 @@ set_app_var hdlin_check_no_latch true
 
 # Setup RTL files and paths
 define_design_lib work -path elab
-set_app_var compile_no_new_cells_at_top_level true
+set_app_var compile_no_new_cells_at_top_level flase
 
 #set_host_options -max_cores 8
 

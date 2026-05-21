@@ -547,6 +547,12 @@ interface dut_interface();
 
   logic         wavegen_reg_all;
   logic [3:0]   wavegen_reg_num;  
+
+  logic         sar_adc_sine_wave_en;
+  integer       sar_adc_sine_wave_freq;
+  integer       sar_adc_vin;
+  integer       sar_adc_data_timing_t1;
+  integer       sar_adc_data_timing_t2;
      
 endinterface: dut_interface
 `endif

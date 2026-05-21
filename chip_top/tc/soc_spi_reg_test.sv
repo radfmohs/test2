@@ -450,17 +450,22 @@ class `TESTNAME extends soc_base_test;
     for(int i=1 ; i<nnc_normal_reg.size();i++)begin
       top_test_cfg.wr_data[0] = 8'hFF;
       if(i== `SOC_GPIO_PD_CTRL_REG) continue;
-      //if(i== `SOC_GPIO_DS_CTRL_REG) continue;
+      //if(i== `SOC_STIM_PAD_CTRL1) continue;
       if(i== `SOC_GPIO_SR_PDRV0_1_CTRL_REG) continue;
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = 8'h15; // maximum supported address value has been set
-      if (i != `SOC_STIM_MON_INT) 
-	 nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
-      else begin
+      if (i != `SOC_STIM_MON_INT) begin 
+	 if(i == `SOC_STIM_PAD_CTRL1) begin
+           nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+	   `WR_NORMAL_REG(`SOC_STIM_PAD_CTRL1, `INIT_SOC_STIM_PAD_CTRL1, top_test_cfg.pads); 
+         end else begin
+	   nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+         end
+      end else begin
 	`WR_NORMAL_REG(`SOC_STIM_MON_INT, 8'hff, top_test_cfg.pads);
 	`RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
-	if(top_test_cfg.rd_data !== 8'hf0)
-	  `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'hf0",`SOC_STIM_MON_INT, top_test_cfg.rd_data))   
+	if(top_test_cfg.rd_data !== 8'hf8)
+	  `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'hf8",`SOC_STIM_MON_INT, top_test_cfg.rd_data))   
         end
     end
     end
@@ -549,8 +554,8 @@ class `TESTNAME extends soc_base_test;
       else begin
 	  `WR_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.wr_data[0], top_test_cfg.pads);
           `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
-      if(top_test_cfg.rd_data !== top_test_cfg.wr_data[0] & 8'hf0)
-          `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=%0h",`SOC_STIM_MON_INT, top_test_cfg.rd_data, top_test_cfg.wr_data[0] & 8'hf0))   
+      if(top_test_cfg.rd_data !== top_test_cfg.wr_data[0] & 8'hf8)
+          `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=%0h",`SOC_STIM_MON_INT, top_test_cfg.rd_data, top_test_cfg.wr_data[0] & 8'hf8))   
       end
       // avoid set burst for shape register.
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, 8'h00, top_test_cfg.pads);

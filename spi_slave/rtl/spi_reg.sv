@@ -437,8 +437,8 @@ output reg [7:0] threshold_tgt,
   // ========================
   output  wire  	  otp_rst_reg,
   output  wire  	  dig_rst_reg,
-  output  wire  	  lead_off_rst,
-  output  wire  	  lead_off_en,
+  //output  wire  	  lead_off_rst,
+  //output  wire  	  lead_off_en,
 
 //input  wire [NO_OF_WAVEGEN-1:0]  	A2D_COMP0_7,   
  
@@ -1079,10 +1079,10 @@ assign ana_lvd_sts	      = 1'b0;
 assign {o_otp_dpstb_en, o_hresetreq, o_sleepdeep, o_pmuenable} = pmu_reg0[3:0];
 assign o_wave_gen_dis	      = pmu_reg0[4];
 assign o_wave_gen_rst         = pmu_reg0[5];
-assign lead_off_dis	      = pmu_reg0[6];
-assign lead_off_rst           = pmu_reg0[7];
+//assign lead_off_dis	      = pmu_reg0[6];
+//assign lead_off_rst           = pmu_reg0[7];
 
-assign lead_off_en            = ~lead_off_dis;
+//assign lead_off_en            = ~lead_off_dis;
 
 assign otp_rst_reg            = pmu_reg1[0];
 assign dig_rst_reg            = pmu_reg1[1];

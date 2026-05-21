@@ -51,10 +51,10 @@ input wire[23:0] filter_dly_tgt,
 //===============
 input  wire         otp_rst_reg,
 input  wire         dig_rst_reg,
-input  wire         lead_off_rst,
+//input  wire         lead_off_rst,
 input  wire         anac_reset,
 input  wire         temp_sar_reset,
-output wire         lead_off_presetn,
+//output wire         lead_off_presetn,
 output wire         anac_presetn,
 output wire         temp_sar_presetn,
 
@@ -246,17 +246,17 @@ common_rst_sync u_stim_monitor_presetn_sync(
   .RSTOUTn   (stim_monitor_rstn)
 );
 
-wire lead_off_presetn_tmp;
-assign lead_off_presetn_tmp = atpg_en? scan_rst_n : (global_rstn_atpg & (~lead_off_rst));
-
-common_rst_sync u_lead_off_rst_sync(
-  .RSTINn    (lead_off_presetn_tmp),
-  .RSTREQ    (1'b0),
-  .CLK       (pclk),
-  .SE        (atpg_en),
-  .RSTBYPASS (atpg_en),
-  .RSTOUTn   (lead_off_presetn)
-);
+//wire lead_off_presetn_tmp;
+//assign lead_off_presetn_tmp = atpg_en? scan_rst_n : (global_rstn_atpg & (~lead_off_rst));
+//
+//common_rst_sync u_lead_off_rst_sync(
+//  .RSTINn    (lead_off_presetn_tmp),
+//  .RSTREQ    (1'b0),
+//  .CLK       (pclk),
+//  .SE        (atpg_en),
+//  .RSTBYPASS (atpg_en),
+//  .RSTOUTn   (lead_off_presetn)
+//);
 
 wire anac_presetn_tmp;
 assign anac_presetn_tmp = atpg_en? scan_rst_n : (global_rstn_atpg & (~anac_reset));

@@ -34,6 +34,10 @@ parameter ADDR_WIDTH = 12,
 
   output logic [ELEC_NO_C-1:0] drive_en,
 
+  output wire         dds_mode[15:0],
+  output wire [31:0]  dds_step_spi[15:0],
+
+
   output logic [ELEC_NO_C-1:0]   	o_source_driver,       //
 //  output logic [ELEC_NO_C-1:0]   	o_sourceb_driver_c,       // 
   output logic [ELEC_NO_C-1:0]   	o_pulldn_driver,       // 
@@ -54,7 +58,7 @@ parameter ADDR_WIDTH = 12,
 
   output wire stim_global_en,
   
-  
+  input wire                     dds_clk[ELEC_NO_C-1:0],  
   input wire                     i_pclk,
   input wire                     i_fclk,
   input wire                     i_presetn,
@@ -148,6 +152,9 @@ wire  w_sw[ELEC_NO_C-1:0] ;
 wire  wavegen_clk_gating[ELEC_NO_C-1:0];
 
 
+
+
+
 //assign o_out_wave_drivera_dac0 = o_out_wave_drivera_dac[0];
 //assign o_out_wave_drivera_dac1 = o_out_wave_drivera_dac[1];
 //assign o_out_wave_drivera_dac2 = o_out_wave_drivera_dac[2];
@@ -191,12 +198,14 @@ assign  o_out_wave_driver_idac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] 
 assign drive_en[i] = (spi_wg.global_en & spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
 
 
-common_clock_gate u_wavegen_clk_gating (
-  .clk        (i_pclk),
-  .enable     (drive_en[i]),
-  .bypass     (scan_mode),
-  .gated_clk  (wavegen_clk_gating[i])
-);
+//common_clock_gate u_wavegen_clk_gating (
+//  .clk        (dds_clk[i]),
+//  .enable     (drive_en[i]),
+//  .bypass     (scan_mode),
+//  .gated_clk  (wavegen_clk_gating[i])
+//);
+
+assign wavegen_clk_gating[i] = dds_clk[i];
 
 
 common_sync_bit   u_driver_en_sync (
@@ -247,6 +256,9 @@ assign i_wg_driver_delay_lim_sync[i] = spi_wg.o_wg_driver_delay_lim[i];
 assign i_wg_driver_sw_config_sync[i] = spi_wg.o_wg_driver_sw_config[i];
 
 assign i_mult_elec_sync[i] = spi_wg.o_mult_elec[i];
+
+assign dds_mode[i]        = spi_wg.dds_mode[i] & drive_en[i];
+assign dds_step_spi[i] = spi_wg.o_wg_driver_silent_t1[i];
 
 common_sync_bit   u_driver_int_addr0_sync[7:0](
        .clk(i_pclk),

@@ -145,7 +145,7 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   //constraint c_altf_sel    { soft altf_sel == 2'b00; }
 
   //python_check_en
-  constraint c_python_check_en { python_check_en inside {[1:1]}; }
+  constraint c_python_check_en { python_check_en == ($countones(wavegen_drv_en[15:0]) == 2); }
 
   //preload_sel
   constraint c_preload_sel     { preload_sel inside {0,3};} // bit[2:1] WAVEFORM_SEL of AWG_CTRL_REG0: 0x01 - 00: Preloaded SINE, 11: Used waveform loaded from SPI 

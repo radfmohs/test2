@@ -30,6 +30,7 @@ import nnc_uvm_pkg::*;
 `define PINMUX_BLOCK_ENABLE
 `define PYTHON_BLOCK_ENABLE
 `define NIRS_PPG_BLOCK_ENABLE
+`define ZMEAS_BLOCK_ENABLE
 
 `ifdef SYS_BLOCK_ENABLE
 `include "blocks/tb_chip_top_uvm_sys.sv"
@@ -81,6 +82,9 @@ import nnc_uvm_pkg::*;
 `include "blocks/tb_chip_top_uvm_nirs_ppg.sv"
 `endif
 
+`ifdef ZMEAS_BLOCK_ENABLE
+`include "blocks/tb_chip_top_uvm_zmeas.sv"
+`endif
 // ============================
 // Define for ENS2 project
 // ============================

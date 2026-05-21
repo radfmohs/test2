@@ -259,6 +259,10 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM28", $sformatf("D2A_BGBUFFER_CPTEST_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_BGBUFFER_CPTEST_EN))
       end
+    if(`ANA_TOP.D2A_RLD_EN != 1'b1)
+      begin
+	 `nnc_error("ATM28", $sformatf("D2A_RLD_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_RLD_EN))
+      end
 
     //Checking the connections from PADs to ANA Interface
     for (int i=0; i < 100; i++) begin

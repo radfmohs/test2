@@ -381,11 +381,11 @@ wire         ppg_clk50duty;
 //-------------------------------------
    //wire[7:0] lead_off_cnt_dac0_dbg;
    //wire[7:0] lead_off_cnt_dac1_dbg;
-   wire[7:0] lead_off_Counter_cnt_dac0_dbg;
-   wire[7:0] lead_off_Counter_cnt_dac1_dbg;
+   //wire[7:0] lead_off_Counter_cnt_dac0_dbg;
+   //wire[7:0] lead_off_Counter_cnt_dac1_dbg;
 
-  wire                    lead_off_rst;
-  wire                    lead_off_en;
+  //wire                    lead_off_rst;
+  //wire                    lead_off_en;
   //wire                    dly_en;
 //  wire [OUT_NO_BITS-1:0]  TH_H;
 //  wire [OUT_NO_BITS-1:0]  TH_L;
@@ -831,15 +831,19 @@ pinmux u_pinmux (
   .A2D_IREFFINE0	        (ana_nirs_if.A2D_NIRS_IREFFINE[0])
 );  
 
-wire lead_off_pclk;
-wire lead_off_presetn;
+//wire lead_off_pclk;
+//wire lead_off_presetn;
 wire anac_presetn;
 wire temp_sar_presetn;
 
 wire wave_gen_pclk;
+wire wave_gen_dds_clk[15:0];
 wire wave_gen_fclk;
 wire wave_gen_rst;
 wire wave_gen_dis;
+wire         dds_mode[15:0];
+wire [31:0]  dds_step_spi[15:0];
+
 
 //bps imeas
 /*
@@ -1090,11 +1094,14 @@ clk_ctrl u_clk_ctrl
   .anac_clock_en        (anac_clock_en),
   .temp_sar_clock_dis   (temp_sar_clock_dis),
   .temp_sar_pclk        (temp_sar_pclk),
-  .lead_off_en          (lead_off_en),
-  .lead_off_pclk        (lead_off_pclk),
+  //.lead_off_en          (lead_off_en),
+  //.lead_off_pclk        (lead_off_pclk),
   .wave_gen_dis         (wave_gen_dis),
   .wave_gen_pclk        (wave_gen_pclk),
   .wave_gen_fclk        (wave_gen_fclk),
+  .wave_gen_dds_clk     (wave_gen_dds_clk),
+  .dds_mode             (dds_mode),
+  .dds_step_spi         (dds_step_spi),
   .hfosc_out            (hfosc_out)                    //to pinmux then to one of gpio io cells
 );
 
@@ -1167,10 +1174,10 @@ reset_ctrl u_reset_ctrl
 
   .otp_rst_reg          (otp_rst_reg),
   .dig_rst_reg          (dig_rst_reg),
-  .lead_off_rst         (lead_off_rst),
+  //.lead_off_rst         (lead_off_rst),
+  //.lead_off_presetn     (lead_off_presetn),
   .anac_reset           (anac_reset),
   .temp_sar_reset       (temp_sar_reset),
-  .lead_off_presetn     (lead_off_presetn),
   .anac_presetn         (anac_presetn),
   .temp_sar_presetn     (temp_sar_presetn),
 
@@ -1600,8 +1607,8 @@ u_spi_top (
   //.lead_off_Counter_cnt_dac0_dbg  (lead_off_Counter_cnt_dac0_dbg),
   //.lead_off_Counter_cnt_dac1_dbg  (lead_off_Counter_cnt_dac1_dbg),
 
-  .lead_off_rst         (lead_off_rst),
-  .lead_off_en          (lead_off_en),
+  //.lead_off_rst         (lead_off_rst),
+  //.lead_off_en          (lead_off_en),
   //.timer_cnt_tgt           (timer_cnt_tgt),
   //.timer_cnt_tgt1          (timer_cnt_tgt1),
   //.counter_th_tgt          (counter_th_tgt),
@@ -1757,10 +1764,13 @@ wg_driver_top_wrapper #(
 
 //.i_pclk                       (pclk),
 //.i_presetn                    (presetn),
+  .dds_clk                      (wave_gen_dds_clk),
   .i_pclk                       (wave_gen_pclk),
   .i_fclk                       (wave_gen_fclk),
   .i_presetn                    (wave_gen_presetn),
   .scan_mode                    (atpg_en),   //tri change
+  .dds_mode                     (dds_mode),
+  .dds_step_spi                 (dds_step_spi),
 
   //.lead_off_stop	  ({6'b0,lead_off_stop1,lead_off_stop}),
   .lead_off_stop	  (0),//(spi_leadoff.lead_off_stop),
