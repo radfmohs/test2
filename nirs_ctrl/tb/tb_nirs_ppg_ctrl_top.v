@@ -117,6 +117,28 @@ wire [WIDTH-1:0] DOUTC, DOUTF;
 wire [21:0] DOUT;
 
 //----------------------------------------------------------------------------
+// Flag latches – capture short-lived ppg-domain flags (valid ~3 ppg cycles)
+//----------------------------------------------------------------------------
+reg  clear_flag_latches;
+reg  latch_coarse_not_on;
+reg  latch_fine_not_on;
+reg  latch_coarse_on_not_off;
+
+always @(posedge clk_ppg or negedge rst_n) begin
+  if (!rst_n || clear_flag_latches) begin
+    latch_coarse_not_on    <= 1'b0;
+    latch_fine_not_on      <= 1'b0;
+    latch_coarse_on_not_off <= 1'b0;
+  end else begin
+    if (IREF_COARSE_NOT_ON)     latch_coarse_not_on    <= 1'b1;
+    if (IREF_FINE_NOT_ON)       latch_fine_not_on      <= 1'b1;
+    if (IREF_COARSE_ON_NOT_OFF) latch_coarse_on_not_off <= 1'b1;
+  end
+end
+
+initial clear_flag_latches = 1'b0;
+
+//----------------------------------------------------------------------------
 // DUT instantiation
 //----------------------------------------------------------------------------
 nirs_ppg_ctrl_top #(.WIDTH(WIDTH)) dut (

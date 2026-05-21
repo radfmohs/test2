@@ -251,8 +251,8 @@ module nirs_ppg_ctrl_top #(
   assign RATIO_MANUAL   = LED[1] ? RATIO_MANUAL_1 : RATIO_MANUAL_0;
   assign RATIO_CTRL     = LED[1] ? RATIO_CTRL_1 : RATIO_CTRL_0;
   assign D2A_RATIO_CTRL = RATIO_CTRL[2:1];
-  assign IPDMIRROR_ADJ  = LED[1] ? IPDMIRROR_ADJ_spi_0 : IPDMIRROR_ADJ_spi_1;
-  assign IREFC_ADJ      = LED[1] ? IREFC_ADJ_spi_0 : IREFC_ADJ_spi_1;
+  assign IPDMIRROR_ADJ  = LED[1] ? IPDMIRROR_ADJ_spi_1 : IPDMIRROR_ADJ_spi_0; // Bug fix: was swapped
+  assign IREFC_ADJ      = LED[1] ? IREFC_ADJ_spi_1 : IREFC_ADJ_spi_0;         // Bug fix: was swapped
 
   nirs_ppg_idac_ctrl #(.WIDTH(WIDTH)) u_idac_led0_ctrl (
     .rst_n          (rst_n),
@@ -321,6 +321,19 @@ module nirs_ppg_ctrl_top #(
 
 /* Flags */
   wire DATA_READY;
+  wire DATA_READY_sys; // DATA_READY synchronized to clk_sys domain
+
+  // Bug fix: DATA_READY is a 1-ppg-cycle pulse that must be synchronized
+  // from clk_ppg to clk_sys before entering nirs_ppg_int.
+  common_pulse_cdc u_data_ready_sync (
+    .aclk     (clk_ppg),
+    .bclk     (clk_sys),
+    .arst_    (rst_n),
+    .brst_    (rst_n),
+    .atpg_en  (scan_mode),
+    .a_pulse  (DATA_READY),
+    .b_pulse  (DATA_READY_sys)
+  );
 
   nirs_ppg_ctrl u_nirs_ctrl (
     .rst_n          (rst_n),
@@ -392,7 +405,7 @@ module nirs_ppg_ctrl_top #(
     .IREF_FINE_NOT_ON       (IREF_FINE_NOT_ON),
     .IDAC_MAX               (IDAC_MAX),
     .IDAC_MIN               (IDAC_MIN),
-    .DATA_READY             (DATA_READY),
+    .DATA_READY             (DATA_READY_sys),
     .INT_CLR                (INT_CLR),
     .INT                    (INT),
     .INT_IO                 (INT_IO)
