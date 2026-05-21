@@ -251,8 +251,10 @@ module adc_cap_ctrl_tb;
 
       expect_true(A2D_ADC_DATA_VLD, "manual mode sample should be valid");
       expect_u16(A2D_ADC_DATA_TAG, {4'd0, 2'b00, 10'h155}, "manual sample tag");
-      idle_cycles(2);
+      expect_false(stim_mon_int_sts, "sample interrupt status should lag capture by one cycle");
+      idle_cycles(1);
       expect_true(stim_mon_int_sts, "sample interrupt status should set");
+      idle_cycles(1);
       expect_true(o_stim_mon_int, "sample interrupt should reach pin");
       expect_false(A2D_ADC_DELTA_DATA_VLD, "manual mode should not emit delta data");
       expect_false(one_cycle_data_vld, "manual mode should not emit cycle data");
@@ -396,6 +398,13 @@ module adc_cap_ctrl_tb;
       A2D_ADC_DATA = 10'd444;
       wait_for_delta_vld();
       expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd333}, "last-sample selector should return captured sample");
+
+      adc_cap_period = 16'd1;
+      stim_mon_delta_data_sel = 2'b11;
+      send_sample(10'd120, 1'b1);
+      send_sample(10'd330, 1'b1);
+      wait_for_delta_vld();
+      expect_u16(A2D_ADC_DELTA_DATA_TAG, {4'd0, 2'b00, 10'd330}, "last-sample selector should return final sample in multi-sample window");
     end
   endtask
 

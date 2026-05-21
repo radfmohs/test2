@@ -464,18 +464,18 @@ reg [9:0] A2D_ADC_DATA_delta;
 reg [9:0] A2D_ADC_DATA_max_cap;  	
 reg [9:0] A2D_ADC_DATA_min_cap;  	
 reg [9:0] A2D_ADC_DATA_last_cap;  	
-wire delta_accumulators_invalid;
+wire first_sample_in_window;
 wire [9:0] A2D_ADC_DATA_max_eff;
 wire [9:0] A2D_ADC_DATA_min_eff;
-assign delta_accumulators_invalid = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
+assign first_sample_in_window = (A2D_ADC_DATA_max < A2D_ADC_DATA_min);
 assign A2D_ADC_DATA_max_eff =
     sample_cap_now ?
-    (delta_accumulators_invalid ? A2D_ADC_DATA :
+    (first_sample_in_window ? A2D_ADC_DATA :
     ((A2D_ADC_DATA >= A2D_ADC_DATA_max) ? A2D_ADC_DATA : A2D_ADC_DATA_max)) :
     A2D_ADC_DATA_max;
 assign A2D_ADC_DATA_min_eff =
     sample_cap_now ?
-    (delta_accumulators_invalid ? A2D_ADC_DATA :
+    (first_sample_in_window ? A2D_ADC_DATA :
     ((A2D_ADC_DATA <= A2D_ADC_DATA_min) ? A2D_ADC_DATA : A2D_ADC_DATA_min)) :
     A2D_ADC_DATA_min;
 always @ (posedge sysclk or negedge presetn) begin
