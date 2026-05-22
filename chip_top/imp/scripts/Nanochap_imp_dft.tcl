@@ -391,7 +391,7 @@ set_scan_path chain8 -view spec -test_mode internal_scan \
 #set_scan_state test_ready
 
 set_dft_insertion_configuration -preserve_design_name true
-set_dft_insertion_configuration -synthesis_optimization incremental
+set_dft_insertion_configuration -synthesis_optimization all
 
 set_app_var power_cg_auto_identify true
 

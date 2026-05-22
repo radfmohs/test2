@@ -59,6 +59,8 @@ module spi_top #(
   output wire          stim_mon_int_clr,   //from spi
   input  wire          stim_mon_int_sts,   //to spi
 
+  output wire multi_intb_pin,
+
   input  wire [255:0] one_cycle_data,
 
   output wire          stim_mon_delta_int_clr,   //from spi
@@ -258,6 +260,7 @@ output wire [7:0] threshold_tgt,
   output wire [7:0]    gpio_pu_ctrl,
   output wire [7:0]    gpio_pd_ctrl,
   output wire [2:0]    gpio_sr_pdrv0_1_ctrl,
+  output wire          gpio_normal_out_ctrl,
   output wire          gpio_nirs_out_ctrl
 
 //analog register outputs
@@ -356,7 +359,7 @@ wire i_sclk_inv;
 wire sclk_latch_in;
 wire sclk_latch_out;
 
-//wire sclk_latch_in_tmp;
+wire sclk_latch_in_tmp;
 wire sclk_latch_out_tmp;
 
 wire daisy_en;
@@ -370,12 +373,13 @@ spi_cpha_cpol_slct u_spi_cpha_cpol_slct(
 .iopad_cpha(iopad_cpha),
 .iopad_cpol(iopad_cpol),
 .i_sclk(int_clk),  //(i_sclk),// int_clk
-.o_sclk_latch_in(sclk_latch_in),
+.o_sclk_latch_in(sclk_latch_in_tmp),
 .o_sclk_latch_out(sclk_latch_out_tmp)
 );
 
 //assign sclk_latch_in =  SCANMODE ? int_clk : sclk_latch_in_tmp;
-assign sclk_latch_out = SCANMODE ? int_clk : sclk_latch_out_tmp;
+assign sclk_latch_out = SCANMODE ?  int_clk : sclk_latch_out_tmp;
+assign sclk_latch_in =  SCANMODE ? ~int_clk : sclk_latch_in_tmp;
 
 /*
 assign i_sclk_inv = ~i_sclk;
@@ -463,6 +467,8 @@ spi_reg_u (
   .spi_nirs_if(spi_nirs_if),
   .i_clk(int_clk),            //clk for reg block same as sclk 
   .i_rst_n(i_rst_n),
+
+  .multi_intb_pin(multi_intb_pin),
 
   .stim_eeg_sync_en(stim_eeg_sync_en),
   .filter_dly_tgt(filter_dly_tgt),
@@ -642,7 +648,8 @@ spi_reg_u (
   .gpio_pu_ctrl(gpio_pu_ctrl),	
   .gpio_pd_ctrl(gpio_pd_ctrl),
   .gpio_sr_pdrv0_1_ctrl(gpio_sr_pdrv0_1_ctrl),
-  .gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl)
+  .gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl),
+  .gpio_normal_out_ctrl   (gpio_normal_out_ctrl)
 
 //-------Analog Register Output----------
 //.o_D2A_ANA_GEN_REG_0	(o_D2A_ANA_GEN_REG_0),

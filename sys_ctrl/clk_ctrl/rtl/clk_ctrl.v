@@ -948,8 +948,10 @@ common_clock_gate u_cmsdk_clock_gate_stim_monitor_ana (
 );
   wire clkis8m;
   assign clkis8m = (iclk_div_stim_monitor == 4'b1100);
+wire stim_monitor_ana_wire_final_bak;
 wire stim_monitor_ana_wire_final;
-  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_CLK2 (.A(stim_monitor_ana_wire_temp), .B(fclk), .S0(clkis8m), .Y(stim_monitor_ana_wire_final));
+  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_CLK2 (.A(stim_monitor_ana_wire_temp), .B(fclk), .S0(clkis8m), .Y(stim_monitor_ana_wire_final_bak));
+  CLKMX2_X4_A7TULL DNT_DIV_STIM_MON_CLK2_ATPG (.A(stim_monitor_ana_wire_final_bak), .B(scan_clk), .S0(atpg_en), .Y(stim_monitor_ana_wire_final));
 //+++++++++++++++++++++++++++++
 
 wire iclk_stim_monitor_enable_sync;

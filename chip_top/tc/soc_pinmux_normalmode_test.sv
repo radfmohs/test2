@@ -284,7 +284,7 @@ class `TESTNAME extends soc_base_test;
 
 
 		//--------------------Check i_wg_drviver_int-----------------//
-                force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+                //force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
                 force `DIG_TOP.u_pinmux.i_anac_int = 0;
@@ -305,12 +305,12 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_wg_drviver_int;
                 end
-                release `DIG_TOP.u_pinmux.i_lead_off_int;
+                //release `DIG_TOP.u_pinmux.i_lead_off_int;
                 release `DIG_TOP.u_pinmux.i_eeg_int;
                 release `DIG_TOP.u_pinmux.i_tsc_int;
                 release `DIG_TOP.u_pinmux.i_anac_int;
                 release `DIG_TOP.u_pinmux.i_nirs_int;		
-                
+                /*
 		//--------------------Check i_lead_off_int-----------------//
                 force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 	        force `DIG_TOP.u_pinmux.i_eeg_int = 0; 	
@@ -341,10 +341,10 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_tsc_int;
                 release `DIG_TOP.u_pinmux.i_anac_int;
                 release `DIG_TOP.u_pinmux.i_nirs_int;		
-
+		*/
                 // ----------------------Check i_eeg_int-----------------------//
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+		//force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
 		force `DIG_TOP.u_pinmux.i_anac_int = 0;
 		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
@@ -367,7 +367,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_eeg_int;
                 end
-                release `DIG_TOP.u_pinmux.i_lead_off_int;
+                //release `DIG_TOP.u_pinmux.i_lead_off_int;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 		release `DIG_TOP.u_pinmux.i_tsc_int;
 		release `DIG_TOP.u_pinmux.i_anac_int;
@@ -375,7 +375,7 @@ class `TESTNAME extends soc_base_test;
 
 		// ----------------------Check i_tsc_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+		//force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_anac_int = 0;
                 force `DIG_TOP.u_pinmux.i_nirs_int = 0;
@@ -398,7 +398,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_tsc_int;
                 end
-                release `DIG_TOP.u_pinmux.i_lead_off_int;
+                //release `DIG_TOP.u_pinmux.i_lead_off_int;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 	        release `DIG_TOP.u_pinmux.i_eeg_int;
 		release `DIG_TOP.u_pinmux.i_anac_int;
@@ -406,7 +406,7 @@ class `TESTNAME extends soc_base_test;
 
 		// ----------------------Check i_anac_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+		//force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
                 force `DIG_TOP.u_pinmux.i_nirs_int = 0;
@@ -429,7 +429,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_anac_int;
                 end
-                release `DIG_TOP.u_pinmux.i_lead_off_int;
+                //release `DIG_TOP.u_pinmux.i_lead_off_int;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 		release `DIG_TOP.u_pinmux.i_eeg_int;
 		release `DIG_TOP.u_pinmux.i_tsc_int;
@@ -437,7 +437,7 @@ class `TESTNAME extends soc_base_test;
 
 		// ----------------------Check i_nirs_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
+		//force `DIG_TOP.u_pinmux.i_lead_off_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
 		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
 
@@ -459,7 +459,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_anac_int;
                 end
-                release `DIG_TOP.u_pinmux.i_lead_off_int;
+                //release `DIG_TOP.u_pinmux.i_lead_off_int;
 		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
 		release `DIG_TOP.u_pinmux.i_eeg_int;
 		release `DIG_TOP.u_pinmux.i_tsc_int;

@@ -145,7 +145,7 @@ module nirs_ppg_ctrl (
   assign QF_COUNTER_EN    = IREF_FINE_L;
   assign DOUTC_LATCH_EN   = (cur != next) && (next == DATA_UPDATE);
   assign DOUTF_LATCH_EN   = (cur != next) && (next == DATA_UPDATE);
-  assign DOUT_EN          = (cur == DATA_UPDATE); 
+  assign DOUT_EN          = (cur == DATA_UPDATE) && DATA_UPDATED;  
   assign IDAC_INCREASE    = IREF_COARSE_ON_NOT_OFF || IREF_COARSE_NOT_ON || IREF_FINE_ON_NOT_OFF || IREF_FINE_NOT_ON;
   assign IDAC_UPDATE_EN   = (cur != next) && (next == IDLE);
   assign COUNTERS_CLEAR   = (cur != next) && (next == IDLE);

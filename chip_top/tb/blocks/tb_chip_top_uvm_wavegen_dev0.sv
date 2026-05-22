@@ -16,6 +16,35 @@ nnc_wavegen_if            dut_wg_vif[`WAVEGEN_DRIVER_NUM]();
 
 logic [0:`WAVEGEN_DRIVER_NUM-1] wg_drive_sw_tmp;
 
+logic [3:0] wavegen_dev_src;
+logic [3:0] wavegen_dev_snk;
+
+function automatic int get_wavegen_dev_snk();
+  get_wavegen_dev_snk = 0;
+  if (!dut_vif.python_wavegen_en)
+    return 0;
+
+  for (int i = 0; i < 16; i++) begin
+    if (dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i])
+      return i;
+  end
+endfunction
+
+assign wavegen_dev_snk = get_wavegen_dev_snk();
+
+function automatic int get_wavegen_dev_src();
+  get_wavegen_dev_src = 0;
+  if (!dut_vif.python_wavegen_en)
+    return 0;
+
+  for (int i = 0; i < 16; i++) begin
+    if (dut_vif.wavegen_drv_mode[i] & !dut_vif.wavegen_drv_en[i])
+      return i;
+  end
+endfunction
+
+assign wavegen_dev_src = get_wavegen_dev_src();
+
 `ifdef BEHAVIORAL
   assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[0];
   assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[1];

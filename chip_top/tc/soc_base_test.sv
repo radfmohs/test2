@@ -737,7 +737,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG57);
   `SET_CFG_REG(`REG58);
 // */  
-/*  `SET_CFG_REG(`REG59);
+  `SET_CFG_REG(`REG59);
   `SET_CFG_REG(`REG59_1);
   `SET_CFG_REG(`REG59_2);
   `SET_CFG_REG(`REG59_3);
@@ -747,7 +747,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG59_7);
   `SET_CFG_REG(`REG59_8);
   `SET_CFG_REG(`REG59_9);
-  `SET_CFG_REG(`REG59_10);*/
+  `SET_CFG_REG(`REG59_10);
   /* Lead off and short registers
   `SET_CFG_REG(`REG60);
   `SET_CFG_REG(`REG61);

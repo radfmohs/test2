@@ -73,8 +73,8 @@ module nirs_ppg_int (
       INT_d <= 1'b0;
     end else if (INT_CLR_valid) begin
       INT_d <= 1'd0;
-    end else begin
-      INT_d <= INT_tmp;
+    end else if (INT_tmp) begin
+      INT_d <= 1'b1;
     end
   end 
 

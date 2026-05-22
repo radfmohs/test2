@@ -80,10 +80,11 @@
 
 // gpio
 `define  GPIO_BASE_ADDR                 8'h30
-`define  GPIO_PU_CTRL                   `GPIO_BASE_ADDR+8'h00//20
-`define  GPIO_PD_CTRL                   `GPIO_BASE_ADDR+8'h01//21
-`define  GPIO_SR_PDRV0_1_CTRL           `GPIO_BASE_ADDR+8'h02//22
-`define  GPIO_NIRS_OUT_CTRL             `GPIO_BASE_ADDR+8'h03//23
+`define  GPIO_PU_CTRL                   `GPIO_BASE_ADDR+8'h00//30
+`define  GPIO_PD_CTRL                   `GPIO_BASE_ADDR+8'h01//31
+`define  GPIO_SR_PDRV0_1_CTRL           `GPIO_BASE_ADDR+8'h02//32
+`define  GPIO_NIRS_OUT_CTRL             `GPIO_BASE_ADDR+8'h03//33
+`define  GPIO_NORMAL_OUT_CTRL           `GPIO_BASE_ADDR+8'h04//34
  //spare reg `GPIO_BASE_ADDR + 8'h03~`GPIO_BASE_ADDR + 8'h05//23~25
 
 // lead_off
@@ -376,6 +377,8 @@ module spi_reg #(
   output reg              stim_mon_int_clr,   //from spi
   input  wire             stim_mon_int_sts,   //to spi
 
+  output wire multi_intb_pin,
+
   input  wire [255:0] one_cycle_data,
 
   output reg              stim_mon_delta_int_clr,   //from spi
@@ -465,6 +468,7 @@ output reg [7:0] threshold_tgt,
   output wire [7:0]       gpio_pd_ctrl,
   output wire [2:0]       gpio_sr_pdrv0_1_ctrl,
   output wire             gpio_nirs_out_ctrl,
+  output wire             gpio_normal_out_ctrl,
          
   output  wire            tsc_intr_en, 
   output  wire            tsc_intr_trans_sel,
@@ -695,7 +699,7 @@ assign 	imeas_en_chn = {~imeas_en_dis_chn_h, ~imeas_en_dis_chn_l};
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n)begin
     // pmu ctrl
-    pmu_reg0             <= 8'h01;  
+    pmu_reg0             <= 8'h41;  
     pmu_reg1             <= 2'b10;  
     o_clk_sel            <= 1'h0;  
     //bps imeas
@@ -856,10 +860,10 @@ generate
     for (g_i = 0; g_i < 8; g_i = g_i + 1) begin : gen_bit_ctrl
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n)begin
-	stim_mon_leadoff_int_clr[g_i] <= 8'b0;   //from spi
-	stim_mon_leadoff_int_clr[8+g_i] <= 8'b0;   //from spi
-	stim_mon_short_int_clr[g_i] <= 8'b0;   //from spi
-	stim_mon_short_int_clr[8+g_i] <= 8'b0;   //from spi
+	stim_mon_leadoff_int_clr[g_i] <= 1'b0;   //from spi
+	stim_mon_leadoff_int_clr[8+g_i] <= 1'b0;   //from spi
+	stim_mon_short_int_clr[g_i] <= 1'b0;   //from spi
+	stim_mon_short_int_clr[8+g_i] <= 1'b0;   //from spi
    end else begin
      case (i_addr[7:0])
 	`STIM_MON_LOFF_INT_STS0  : begin
@@ -874,6 +878,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 `STIM_MON_SHORT_INT_STS1 : begin
 				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[8+g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
 			   end             
+default: ;
     endcase
   end
 end
@@ -911,6 +916,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	threshold_leadoff <= 10'b0;  	
 	threshold_short <= 10'b0;  	
 	threshold_tgt <= 8'b0;
+	stim_mon_loff_short_int_ctrl <= 8'b0;
    end else begin
      case (i_addr[7:0])
        `STIM_PAD_CTRL       :   stim_pad_ctrl <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl;        
@@ -951,7 +957,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 `STIM_MON_SHORT_TH0           	:      threshold_short[7:0] <=  i_wr ? i_wr_data : threshold_short[7:0];
 `STIM_MON_SHORT_TH1           	:      threshold_short[9:8] <=  i_wr ? i_wr_data[1:0] : threshold_short[9:8];
 `STIM_MON_TH_TGT           	:      threshold_tgt <=  i_wr ? i_wr_data : threshold_tgt;
-
+	default : ;
     endcase
   end
 end
@@ -1079,6 +1085,7 @@ assign ana_lvd_sts	      = 1'b0;
 assign {o_otp_dpstb_en, o_hresetreq, o_sleepdeep, o_pmuenable} = pmu_reg0[3:0];
 assign o_wave_gen_dis	      = pmu_reg0[4];
 assign o_wave_gen_rst         = pmu_reg0[5];
+assign  multi_intb_pin        = pmu_reg0[6];
 //assign lead_off_dis	      = pmu_reg0[6];
 //assign lead_off_rst           = pmu_reg0[7];
 
@@ -1100,6 +1107,7 @@ reg [7:0]   pu_ctrl;
 reg [7:0]   pd_ctrl;
 reg [2:0]   sr_pdrv0_1_ctrl;
 reg         nirs_out_ctrl;
+reg         normal_out_ctrl;
 
 //reg [5:0] gpio_0_ctrl,gpio_1_ctrl,gpio_2_ctrl,gpio_3_ctrl,gpio_4_ctrl; 
 //reg [5:0] gpio_5_ctrl,gpio_6_ctrl,gpio_7_ctrl,gpio_8_ctrl,gpio_9_ctrl;
@@ -1110,7 +1118,7 @@ assign gpio_pu_ctrl           =  pu_ctrl;
 assign gpio_pd_ctrl           =  pd_ctrl;
 assign gpio_sr_pdrv0_1_ctrl   =  sr_pdrv0_1_ctrl;
 assign gpio_nirs_out_ctrl     =  nirs_out_ctrl;
-//assign gpio_3_ctrl_all =  gpio_3_ctrl;
+assign gpio_normal_out_ctrl   =  normal_out_ctrl;
 //assign gpio_4_ctrl_all =  gpio_4_ctrl;
 //assign gpio_5_ctrl_all =  gpio_5_ctrl;
 //assign gpio_6_ctrl_all =  gpio_6_ctrl;
@@ -1134,6 +1142,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
      pd_ctrl    		  <= 8'h1F; 
      sr_pdrv0_1_ctrl  <= 3'b000; 
      nirs_out_ctrl    <= 1'b0;	
+     normal_out_ctrl  <= 1'b0;	
   end
   else begin
     case (i_addr[ADDR_WIDTH-1:0])
@@ -1141,6 +1150,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
      `GPIO_PD_CTRL     	   : pd_ctrl         <= i_wr ? i_wr_data[7:0] : pd_ctrl;
      `GPIO_SR_PDRV0_1_CTRL : sr_pdrv0_1_ctrl <= i_wr ? i_wr_data[2:0] : sr_pdrv0_1_ctrl;   
      `GPIO_NIRS_OUT_CTRL   : nirs_out_ctrl   <= i_wr ? i_wr_data[0]   : nirs_out_ctrl;
+     `GPIO_NORMAL_OUT_CTRL : normal_out_ctrl   <= i_wr ? i_wr_data[0]   : normal_out_ctrl;
     endcase
   end
 end
@@ -1837,6 +1847,7 @@ assign wavegen_reg_acc_addr[i] = wavegen_reg_acc[i]?   ({2'b00,i_addr} + 10'h40 
    .o_pullba_ctrl   (spi_wg.o_pullba_ctrl[i]),
    .o_dirve         (spi_wg.dirve[i]),
    .o_start_with_silent(spi_wg.o_start_with_silent[i]),
+   .o_dds_mode                    (spi_wg.dds_mode[i]),
 
    .o_data_scl                    (spi_wg.o_data_scl[i]),
    .o_ems_data_ctrl               (spi_wg.o_ems_data_ctrl[i]),
@@ -1977,7 +1988,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `GPIO_PU_CTRL           :   reg_rd_data <= {pu_ctrl};				  	   
       `GPIO_PD_CTRL           :   reg_rd_data <= {pd_ctrl};                           	 
       `GPIO_SR_PDRV0_1_CTRL   :   reg_rd_data <= {5'b0, sr_pdrv0_1_ctrl};
-      `GPIO_NIRS_OUT_CTRL     :   reg_rd_data <= {7'b0, nirs_out_ctrl};                         
+      `GPIO_NIRS_OUT_CTRL     :   reg_rd_data <= {7'b0, nirs_out_ctrl};       
+      `GPIO_NORMAL_OUT_CTRL   :   reg_rd_data <= {7'b0, normal_out_ctrl};                                           
        
       // lead off
 //    `LEAD_OFF_CTRL          :  reg_rd_data  <= lead_off_ctrl 	; 

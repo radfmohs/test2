@@ -36,6 +36,8 @@ module pinmux (
   output wire         o_cpha,
   output wire         o_DAISY_IN, 
 
+  input  wire 	     multi_intb_pin,
+
   input  wire         i_ext_clk_sel,
   output wire         o_ext_clk_sel,
   output wire         o_int_clk_out_gpio,
@@ -73,7 +75,7 @@ module pinmux (
 
   //interrupts
   input  wire         i_wg_drviver_int,
-  input  wire         i_lead_off_int,  
+ // input  wire         i_lead_off_int,  
 //input  wire 	      i_lvd_intr_pin,
 //input  wire 	      i_comp_ch1_intr_pin,
 //input  wire 	      i_comp_ch2_intr_pin, 
@@ -98,8 +100,7 @@ module pinmux (
   output wire         o_SPI_ANA_TESTMODE,
   output wire [7:0]   o_SPI_ATM_ADJ_DATA,
 
-  //COMP
-//input  wire         NORMAL_OUT_SEL,
+  input  wire         i_gpio_normal_out_ctrl,
 //input  wire         COMP_OUT_EN,
 //input  wire         COMP_OUT_SEL,
 //input  wire         o_A2D_COMP0,
@@ -107,6 +108,7 @@ module pinmux (
 //input  wire         COMP_OUT_SEL_STIM,
 //input  wire         A2D_STIMU0_1,
 //input  wire         A2D_STIMU2_3,
+//input  wire         COMP_OUT_SEL,
   
 //NIRS
   input  wire		  NIRS_LED_ON0,
@@ -122,7 +124,7 @@ module pinmux (
   input  wire		  NIRS_IIN_SW0,
   input  wire		  A2D_IREFCOARSE0,
   input  wire		  A2D_IREFFINE0,
-  input  wire             i_gpio_nirs_out_ctrl,
+  input  wire     i_gpio_nirs_out_ctrl,
 
   pinmux_if.D2A         pinmux_if,
   spi_pinmux_if.pinmux  spi_pinmux_if,
@@ -137,7 +139,7 @@ module pinmux (
   input wire          i_ds_driver_en_current,
   input wire          i_stimu_en
 );
-//wire        GPIO14_NORMAL_OUT;
+  wire        GPIO8_NORMAL_OUT;
   wire        GPIO15_NORMAL_OUT;
   wire        GPIO16_NORMAL_OUT;
   wire        GPIO17_NORMAL_OUT;
@@ -160,6 +162,7 @@ module pinmux (
   wire        pad_cs_n;
   wire        pad_sclk;
   wire        pad_mosi;
+  wire        pad_mosi1;
   wire        ext_clk_normal;
   wire        ext_clk_0;
   wire        int_clk_out_gpio;
@@ -363,9 +366,36 @@ module pinmux (
                     (ana_test_mode == 5'd28)? 5'b11110: 
                     (ana_test_mode == 5'd29)? 5'b11111: 	5'b00000);
    
+ wire INTB_EEG;
+ wire INT0;
+ wire INT1;
+ wire INT2;
+ wire INT3;
+//these following 3 will be assigned to GPIOs
+ wire INTB_WG;
+ wire INTB_ANAC;  //include i_anac_int, i_tsc, i_stim_mon_int
+ wire INTB_NIRS;
+
+ assign INTB_EEG =   (INT_LEVEL_SEL == 1'b1) ? i_eeg_int : ~i_eeg_int;  //when using one pin, this pin will be combined interrupt pin
+
+//these following 3 will be assigned to GPIOs
+ assign INTB_WG =    (INT_LEVEL_SEL == 1'b1) ? i_wg_drviver_int : ~i_wg_drviver_int;
+ assign INTB_ANAC =  (INT_LEVEL_SEL == 1'b1) ? (i_anac_int | i_tsc_int | i_stim_mon_int) : ~(i_anac_int | i_tsc_int | i_stim_mon_int);  
+ assign INTB_NIRS =  (INT_LEVEL_SEL == 1'b1) ? i_nirs_int : ~i_nirs_int;
+
+ assign INT1 = INTB_WG;
+ assign INT2 = INTB_ANAC;
+ assign INT3 = INTB_NIRS;
+
+ assign GPIO8_NORMAL_OUT = ~i_gpio_normal_out_ctrl ? INT0 : i_otp_vpp_en ;
 //combine interrupt
- assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int | i_nirs_int); 
- assign INTB      = (INT_LEVEL_SEL == 1'b1) ? INTB_tmp : ~INTB_tmp;
+ //assign INTB_tmp  = (i_wg_drviver_int | i_lead_off_int | i_anac_int | i_tsc_int | i_eeg_int | i_nirs_int | i_stim_mon_int); 
+ assign INTB_tmp  =  (i_wg_drviver_int  | i_anac_int | i_tsc_int | i_eeg_int | i_nirs_int | i_stim_mon_int); 
+ wire INTB_tmp_combined;
+ assign INTB_tmp_combined =(INT_LEVEL_SEL == 1'b1) ? INTB_tmp : ~INTB_tmp ;
+
+ //assign INTB      = (INT_LEVEL_SEL == 1'b1) ? INTB_tmp : ~INTB_tmp;
+ assign INT0      = multi_intb_pin ? INTB_EEG : INTB_tmp_combined;
 
 // EXTERNAL CLOCK
   assign ext_clk = ~test_en ?  ext_clk_normal : (debug_mode_en ? ext_clk_0 : 1'b0);
@@ -376,6 +406,7 @@ module pinmux (
   assign cs_n    = ~test_en ?  pad_cs_n   : 1'b0;
   assign sclk    = ~test_en ?  pad_sclk   : 1'b0;
   assign mosi    = ~test_en ?  pad_mosi   : 1'b0;
+  assign mosi1   = ~test_en ?  pad_mosi1   : 1'b0;
 
 //assign GPIO8_NORMAL_OUT = ~test_en ? (~COMP_OUT_EN ? i_otp_vpp_en : (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2)) : 1'b0;
 //assign GPIO8_NORMAL_OUT = ~test_en ? (~COMP_OUT_EN ? 1'b0 : (~COMP_OUT_SEL ? A2D_COMP1 : A2D_COMP2)) : 1'b0;
@@ -3341,7 +3372,7 @@ u_gpio7_pinmux (
 ); 
 
 // GPIO8 pad
-// normal: INTB
+// normal: GPIO8_NORMAL_OUT
 // test0 : scan_in[5]
 // test1 : None 
 // test2 : pad_d2a_trim0_sig[7]
@@ -3479,7 +3510,7 @@ u_gpio8_pinmux (
 */
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (INTB),
+.altf_a    (GPIO8_NORMAL_OUT),
 .altf_def  (1'b0),
 .altf_y    (),
 // test mode function
@@ -3685,7 +3716,7 @@ u_gpio8_pinmux (
 ); 
 
 // GPIO9 pad
-// normal: OTP_VPP_EN
+// normal: INT1
 // test0 : scan_in[6]
 // test1 : None
 // test2 : OTP_VPP_EN
@@ -3823,7 +3854,7 @@ u_gpio9_pinmux (
 */   
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (i_otp_vpp_en),
+.altf_a    (INT1),
 .altf_def  (1'b0),
 .altf_y    (),
 
@@ -4027,7 +4058,7 @@ u_gpio9_pinmux (
 .iopad_gpio_a    (o_ens2_IOBUF_A[9])                                     
 ); 
 // GPIO10 pad
-// normal: hfosc_out 
+// normal: INT2 
 // test0 : scan_in[7]
 // test1 : wire_ens2_IOBUF_Y[0]
 // test2 : None
@@ -4164,7 +4195,7 @@ u_gpio10_pinmux (
 */
 .altf_ie   (1'b0),
 .altf_oe   (1'b1),
-.altf_a    (hfosc_out),
+.altf_a    (INT2),
 .altf_def  (1'b0),
 .altf_y    (),  
 // test mode function
@@ -4369,7 +4400,7 @@ u_gpio10_pinmux (
 
 
 // GPIO11 pad
-// normal: int_clk_out_gpio 
+// normal: INT3 
 // test0 : scan_in[8]
 // test1 : wire_ens2_IOBUF_Y[1]
 // test2 : None
@@ -4504,11 +4535,11 @@ u_gpio11_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (),   
 */   
-.altf_ie   (1'b1),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
+.altf_ie   (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (INT3),
 .altf_def  (1'b0),
-.altf_y    (int_clk_out_gpio),
+.altf_y    (),
 // test mode function
 // test0
 .test0_ie   (1'b1),     
@@ -4712,7 +4743,7 @@ u_gpio11_pinmux (
 ); 
 
 // GPIO12 pad
-// normal: none 
+// normal: hfosc_out 
 // test0 : scan_out[0]
 // test1 : wire_ens2_IOBUF_Y[2]
 // test2 : None
@@ -4848,10 +4879,10 @@ u_gpio12_pinmux (
 .altf3_y    (int_clk_out_gpio[3]), 
 */
 .altf_ie   (1'b0),
-.altf_oe   (1'b0),
-.altf_a    (1'b0),
+.altf_oe   (1'b1),
+.altf_a    (hfosc_out),
 .altf_def  (1'b0),
-.altf_y    (), 
+.altf_y    (),  
 // test mode function
 // test0
 .test0_ie   (1'b0), 
@@ -5054,7 +5085,7 @@ u_gpio12_pinmux (
 ); 
 
 // GPIO13 pad
-// normal:  none
+// normal:  int_clk_out_gpio
 // test0 :  scan_out[1] 
 // test1 :  wire_ens2_IOBUF_Y[3]
 // test2 :  None 
@@ -5189,11 +5220,11 @@ u_gpio13_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (),     
 */
-.altf_ie   (1'b0),
+.altf_ie   (1'b1),
 .altf_oe   (1'b0),
 .altf_a    (1'b0),
 .altf_def  (1'b0),
-.altf_y    (),
+.altf_y    (int_clk_out_gpio),
 // test mode function
 // test0
 .test0_ie   (1'b0),

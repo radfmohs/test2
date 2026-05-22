@@ -1,16 +1,22 @@
-/*--------------------------------------------------------------------------------------
-// Copyright 2021 Nanochap, Inc.
-// All Rights Reserved Worldwide
-//--------------------------------------------------------------------------------------
-// File Name    : soc_pinmux_debugmode_atm_trim_otp_test.sv                                                   
-// Project      : Nanochap ENS2                                                         
-// Description  : Testcase soc_pinmux_debugmode_atm_trim_otp_test                                          
-// Designer     : ddang@nanochap.com                                                            
-// Date         : 07-08-2025                                                                     
-// Revision     : 0.1 Initial version created by script                                 
-// --------------------------------------------------------------------------------------*/
+//========================================================================================================  
+// -------------------------------------------------------------------------------------------------------  
+//  Nanochap Electronics Copyright (C) 2014. ALL RIGHTS RESERVED.  
+// -------------------------------------------------------------------------------------------------------  
+// Project name    : ENS2
+// File name       : soc_pinmux_debugmode_atm_fixed_value_test.sv
+// Description     : Testcase soc_pinmux_debugmode_atm_fixed_value_test     
+// -------------------------------------------------------------------------------------------------------  
+// Revision History:  
+// -------------------------------------------------------------------------------------------------------  
+// Revision       Date(dd-mm-yyyy)     Author                       Description  
+// -------------------------------------------------------------------------------------------------------  
+//   1.0          14-08-2024          zhenghong.yu@nanochap.com     Initial version created in BAF4
+//   2.0          20-10-2024          ddang@nanochap.com            Cloned to use for BMS6 
+// -------------------------------------------------------------------------------------------------------  
+//========================================================================================================
 `define TESTNAME soc_pinmux_debugmode_atm_trim_otp_test
 `define TESTCFG soc_pinmux_debugmode_atm_trim_otp_test_cfg
+
 class `TESTCFG extends soc_base_test_cfg;
 
   `nnc_object_utils(`TESTCFG)
@@ -22,13 +28,13 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] reg_addr;
   rand int    no_of_bytes;   
   logic [7:0] rd_data[256];
-  logic [7:0] atm;
-  logic [7:0] save_trim_wdata[9];
+  logic [14:0] atm;
+  logic [7:0] save_trim_wdata[15];
   rand logic [7:0] otp_addr;  
   rand logic [7:0] otp_data;  
   rand logic [7:0] pads;
   rand bit         trim_tag_prepare_en;
-  rand logic [2:0] atm_no;  
+  rand logic [2:0] atm_no;
   // -----------------------------------------------
   // End of decalration of new variables 
   // -----------------------------------------------
@@ -116,7 +122,7 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.altf_sel = top_test_cfg.altf_sel;
 
     // Select internal/external clock sources
-    `DUT_IF.ext_clk_en = top_test_cfg.ext_clk_en;			  // 1: external EXT_2MHZ will be driven to SOC from OSC model
+    `DUT_IF.ext_clk_en = top_test_cfg.ext_clk_en;             // 1: external EXT_2MHZ will be driven to SOC from OSC model
 
     // enable to fix 1'b0 to internal clk
     `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;         // 1: disble pin to 2MHZ internal osc model, 0:enable pin to internal 2MHZ osc model
@@ -126,14 +132,6 @@ class `TESTNAME extends soc_base_test;
 
     // Clock variation of HFOSC
     `DUT_IF.hfosc_variation = top_test_cfg.hfosc_variation;
-
-    // ========================================================================
-    // Before entering ATM mode, Disbale internal POR and clock
-    // ========================================================================
-    //stuck internal POR=1
-    //force `ANA_TOP.A2D_POR_DVDD = 1'b1;
-    //disable internal clock
-    //force `ANA_TOP.A2D_CLK2MHZ = 1'b0; // no need to force because hfosc_fixed_gnd_en =1 this take care stuck 0
 
     // ==================
     // Scoreboard enables
@@ -152,21 +150,13 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", "soc_pinmux_debugmode_atm_trim_otp_test start", NNC_LOW)
     // ----------------------------------------------------------------------------------
     // Please add your code of your test here
-    // ---------------------------------------------------------------------------------- 
     // This is sample to write a data to Register
 
     `DUT_IF.pinmux_mode = 1;
     `DUT_IF.io_model_check_off = 1;  
     `DUT_IF.otp_ignore_check_en = 1;        
-
-    //// Use external resetn (set LOW to HIGH )
-    //force `SOC_TB.ext_resetn = 1'b0;
-    //#100000;
-    //force `SOC_TB.ext_resetn = 1'b1;
-    //#1ms;
        
     do_run;
-    #1000000;            
     // ----------------------------------------------------------------------------------
     // End of adding test 
     // ----------------------------------------------------------------------------------
@@ -175,371 +165,352 @@ class `TESTNAME extends soc_base_test;
   
   virtual task do_run;
     begin
+    
+    // ========================================================================
+    // Before entering ATM mode, Disbale internal POR and clock
+    // ========================================================================
+   `nnc_info("Disable internal POR and clock", "Disable internal POR and clock", UVM_LOW);
+   //force `SOC_TB.VDD_DIG = 1'b0;
+
+    assert(top_test_cfg.randomize() with { testmode_sel == 2'b11;})
+    `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
+    //#100us;
+    #1ms;
+   
+    //`nnc_info("Enable internal POR and clock", "Enable internal POR and clock", UVM_LOW);
+    //force `SOC_TB.VDD_DIG = 1'b1;
+ 
+    //force `SOC_TB.ext_resetn = 1'b0;
+    //#1000
+    //force `SOC_TB.ext_resetn = 1'b1;
+    //#1ms
   
     // =======================================
     // ATM0 Operation (Step 1) - Save BG_TRIM
     // =======================================
   
-    `uvm_info("",$sformatf("Enter ATM0 Operation"),NNC_LOW)
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b000; 
-
-    force `SOC_TB.ext_resetn = 1'b0;
-
-    force `SOC_TB.UNLOCK = 1'b0;//OTP_UNLOCK 
-
-    //#10ms;
-`ifndef MIX_SIM_EN 
-    //force `ANA_TOP.PMU_SW.CHIP_EN = 0;
-`endif
-    //wait(`SOC_TB.VDD_DIG === 0); 
-    //force `SOC_TB.VDD_DIG = 0;
-    `DUT_IF.testmode_sel = 2'b11;  
-    #1000ns;
-
-    force `ANA_TOP.A2D_POR_DVDD = 1'b1;
-    // Use external resetn (set LOW to HIGH )
-    force `ANA_TOP.PMU_SW.DVDD = 1'b1; //in testmode LDO will not connected to DVDD so need provide external supply 1.8v
-    //force `SOC_TB.ext_resetn = 1'b0;
-    #100000;
-    force `SOC_TB.ext_resetn = 1'b1;
-    #1ms;
-  
-
-`ifndef MIX_SIM_EN
-    //force `ANA_TOP.PMU_SW.CHIP_EN = 1;
-`endif
-    //wait(`SOC_TB.VDD_DIG === 1); 
-    //force `SOC_TB.VDD_DIG = 1;
-      
-     
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random(0);
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM0 Operation"),NNC_LOW)
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00000; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random(0);
     #10us;
 
-    top_test_cfg.save_trim_wdata[0] = {2'b0, `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]}; 
+    top_test_cfg.save_trim_wdata[0] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]}; 
     `nnc_info("ATM0",$sformatf("D2A_BG_TRIM = %8b",top_test_cfg.save_trim_wdata[0]), NNC_LOW) 
 
-    #1ms;
-
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
-    // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM0", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM0", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1];      
-
-    // ===================================
-    // ATM1 Operation - IREF_TRIM, IREF_TSC_OUT_SEL
-    // ===================================
-    `uvm_info("",$sformatf("Enter ATM1 Operation"),NNC_LOW) 
-    `DUT_IF.testmode_sel = 2'b11;  
-       
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b001; 
-    #1000ns; //change atm_mode -> set trim data
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
     
-    #10000;
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM0", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+    
+    // ===================================
+    // ATM1 Operation - BGBUFFER_TRIM
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM1 Operation"),NNC_LOW) 
+       
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00001; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    top_test_cfg.save_trim_wdata[1] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    top_test_cfg.save_trim_wdata[1] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
     `nnc_info("ATM1",$sformatf("D2A_IREF_TRIM = %8b", top_test_cfg.save_trim_wdata[1]), NNC_LOW) 
 
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif   
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM1", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM1", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM1", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1];      
 
     // =====================================================================
-    // ATM2 Operation - CLDO1P8_TRIM and LDO_2P8_PUMP_TRIM, CS_PGA_CLK_TRIM
+    // ATM2 Operation - IREF_TRIM
     // =====================================================================
-    `uvm_info("",$sformatf("Enter ATM2 Operation"),NNC_LOW) 
-    `DUT_IF.testmode_sel = 2'b11;  
-           
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b010; 
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM2 Operation"),NNC_LOW) 
+
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00010; 
     #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
-    #10000;
+    top_test_cfg.save_trim_wdata[2] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM2",$sformatf("D2A_IREF_TRIM = %8b", top_test_cfg.save_trim_wdata[2]), NNC_LOW)
 
-    top_test_cfg.save_trim_wdata[2] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM2",$sformatf("D2A_CLDO1P8_TRIM = %5b", {1'b0, top_test_cfg.save_trim_wdata[2][3:0]}), NNC_LOW)
-    `nnc_info("ATM2",$sformatf("D2A_LDO_2P8_PUMP_TRIM = %2b", top_test_cfg.save_trim_wdata[2][5:4]), NNC_LOW)
-    `nnc_info("ATM2",$sformatf("D2A_CS_PGA_CLK_TRIM = %1b", top_test_cfg.save_trim_wdata[2][6]), NNC_LOW)
-
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM2", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM2", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM2", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1];   
 
     // ===================================
-    // ATM3 Operation - OSC2MHZ_TRIM 
+    // ATM3 Operation - LDO_TRIM 
     // ===================================
-    `uvm_info("",$sformatf("Enter ATM3 Operation"),NNC_LOW) 
-    `DUT_IF.testmode_sel = 2'b11;  
-           
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b011; 
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM3 Operation"),NNC_LOW) 
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00011; 
     #1000ns; //change atm_mode -> set trim data
-
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
-    #10000;
-
-    top_test_cfg.save_trim_wdata[3] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM3",$sformatf("D2A_OSC2MHZ_TRIM = %8b", top_test_cfg.save_trim_wdata[3]), NNC_LOW)
-
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+    
+    top_test_cfg.save_trim_wdata[3] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM3",$sformatf("D2A_CLDO1P8_TRIM = %8b", top_test_cfg.save_trim_wdata[3]), NNC_LOW)
+    
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM3", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM3", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM3", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1];   
 
     // =====================================================================================================
-    // ATM4 Operation - D2A_VDAC_TRIM_CH1 - D2A_CS_TRIM_CH1 - D2A_PUMP_CLK_TRIM_CH1 - D2A_PUMP_CLK_TRIM_CH2
+    // ATM4 Operation - OSC_TRIM
     // =====================================================================================================
-    `uvm_info("",$sformatf("Enter ATM4 Operation"),NNC_LOW)
-    `DUT_IF.testmode_sel = 2'b11;  
-            
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b100; 
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM4 Operation"),NNC_LOW)
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00100; 
     #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
-    #10000;
+    top_test_cfg.save_trim_wdata[4] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM4",$sformatf("D2A_OSC8MHZ_TRIM = %8b", top_test_cfg.save_trim_wdata[4]), NNC_LOW)
 
-    top_test_cfg.save_trim_wdata[4] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM4",$sformatf("D2A_VDAC_TRIM_CH1 = %3b", top_test_cfg.save_trim_wdata[4][2:0]), NNC_LOW)
-    `nnc_info("ATM4",$sformatf("D2A_CS_TRIM_CH1 = %3b", {1'b0, top_test_cfg.save_trim_wdata[4][4:3]}), NNC_LOW)
-    `nnc_info("ATM4",$sformatf("D2A_PUMP_CLK_TRIM_CH1 = %1b", top_test_cfg.save_trim_wdata[4][5]), NNC_LOW)
-    `nnc_info("ATM4",$sformatf("D2A_PUMP_CLK_TRIM_CH2 = %1b", top_test_cfg.save_trim_wdata[4][6]), NNC_LOW)
-
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
-    // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM4", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM4", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1];   
-
-    // ===================================
-    // ATM5 Operation - D2A_VDAC_TRIM_CH2 - D2A_CS_TRIM_CH2 - D2A_LDO2P8_PUMP_TRIM_CH2
-    // ===================================
-    `uvm_info("",$sformatf("Enter ATM5 Operation"),NNC_LOW) 
-    `DUT_IF.testmode_sel = 2'b11;  
-           
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b101; 
-    #1000ns; //change atm_mode -> set trim data
-
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
-    #10000;
-
-    top_test_cfg.save_trim_wdata[5] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM5",$sformatf("D2A_VDAC_TRIM_CH2 = %3b", top_test_cfg.save_trim_wdata[5][2:0]), NNC_LOW)
-    `nnc_info("ATM5",$sformatf("D2A_CS_TRIM_CH2 = %3b", {1'b0, top_test_cfg.save_trim_wdata[5][4:3]}), NNC_LOW)
-    `nnc_info("ATM5",$sformatf("D2A_LDO2P8_PUMP_TRIM_CH2 = %2b", top_test_cfg.save_trim_wdata[5][6:5]), NNC_LOW)
-
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
 
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM5", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM4", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
 
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM5", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
+    // ===================================
+    // ATM5 Operation - TSC_TRIM
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM5 Operation"),NNC_LOW) 
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00101; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    //release  `SOC_TOP.IOBUF_PAD[7:1]; 
+    top_test_cfg.save_trim_wdata[5] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM5",$sformatf("D2A_TSC_TRIM = %8b", top_test_cfg.save_trim_wdata[5]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM5", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
     
     // ===================================================
-    // ATM6 Operation -D2A_IBAS_IDAC_TRIM - D2A_TSC_TRIM
+    // ATM6 Operation - IDAC
     // ===================================================
-    `uvm_info("",$sformatf("Enter ATM6 Operation"),NNC_LOW) 
-    `DUT_IF.testmode_sel = 2'b11;  
-           
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b110; 
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM6 Operation"),NNC_LOW) 
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00110; 
     #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
+    top_test_cfg.save_trim_wdata[6] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM6",$sformatf("D2A_DRIVER_CUR_TRIM = %8b", top_test_cfg.save_trim_wdata[6]), NNC_LOW)
 
-    #10000;
-
-    top_test_cfg.save_trim_wdata[6] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM6",$sformatf("D2A_IBAS_IDAC_TRIM = %4b", {1'b0, top_test_cfg.save_trim_wdata[6][2:0]}), NNC_LOW)
-    `nnc_info("ATM6",$sformatf("D2A_TSC_TRIM = %6b", top_test_cfg.save_trim_wdata[6][6:3]), NNC_LOW)
-
-    #1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif   
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM6", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM6", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM6", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    //release  `SOC_TOP.IOBUF_PAD[7:1]; 
      
     // ===================================
-    // ATM7 Operation
+    // ATM7 Operation - D2A_TRIM0_SIG_SPARE
     // ===================================
-    `uvm_info("",$sformatf("Enter ATM7 Operation"),NNC_LOW)    
-    `DUT_IF.testmode_sel = 2'b11;  
-
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b111; 
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM7 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b00111; 
     #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random;
-    #10us; //#10000;
+    top_test_cfg.save_trim_wdata[7] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM7",$sformatf("D2A_TRIM0_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[7]), NNC_LOW)
 
-    top_test_cfg.save_trim_wdata[7] = {1'b0,`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
-    `nnc_info("ATM6",$sformatf("D2A_TRIM0_SPARE = %8b", top_test_cfg.save_trim_wdata[7]), NNC_LOW)
-
-    #1ms; //#1000us;
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif     
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
     // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM7", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end    
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM7", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
+        `nnc_error("ATM7", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end   
+     
+    // ===================================
+    // ATM8 Operation - D2A_TRIM1_SIG_SPARE
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM8 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01000; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
 
-    //release  `SOC_TOP.IOBUF_PAD[7:1];
+    top_test_cfg.save_trim_wdata[8] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM8",$sformatf("D2A_TRIM1_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[8]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM8", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM9 Operation - D2A_TRIM2_SIG_SPARE
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM9 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01001; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[9] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM9",$sformatf("D2A_TRIM2_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[9]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM9", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM10 Operation - D2A_TRIM3_SIG_SPARE
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM10 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01010; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[10] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM10",$sformatf("D2A_TRIM3_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[10]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM10", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM11 Operation - D2A_TRIM4_SIG_SPARE
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM11 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01011; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[11] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM11",$sformatf("D2A_TRIM4_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[11]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM11", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM12 Operation - SDM_BUFFOP
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM12 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01100; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[12] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM12",$sformatf("D2A_TRIM5_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[12]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM12", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM13 Operation - SDM_BUFFON
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM13 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01101; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[13] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM13",$sformatf("D2A_TRIM6_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[13]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM13", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+     
+    // ===================================
+    // ATM14 Operation - SDM
+    // ===================================
+    `uvm_info("ENTER ATM",$sformatf("Enter ATM7 Operation"),NNC_LOW)    
+    force `SOC_TOP.IOBUF_PAD[14:10] = 5'b01110; 
+    #1000ns; //change atm_mode -> set trim data
+    force `SOC_TOP.IOBUF_PAD[8:1] = $random;
+    #10us;
+
+    top_test_cfg.save_trim_wdata[14] = {`SOC_TOP.IOBUF_PAD[8],`SOC_TOP.IOBUF_PAD[7], `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]};  
+    `nnc_info("ATM14",$sformatf("D2A_TRIM7_SIG_SPARE = %8b", top_test_cfg.save_trim_wdata[14]), NNC_LOW)
+
+    top_test_cfg.atm = {`DIG_TOP.u_pinmux.ATM0,`DIG_TOP.u_pinmux.ATM1,`DIG_TOP.u_pinmux.ATM2,`DIG_TOP.u_pinmux.ATM3,`DIG_TOP.u_pinmux.ATM4,`DIG_TOP.u_pinmux.ATM5,`DIG_TOP.u_pinmux.ATM6,`DIG_TOP.u_pinmux.ATM7,`DIG_TOP.u_pinmux.ATM8,`DIG_TOP.u_pinmux.ATM9,`DIG_TOP.u_pinmux.ATM10,`DIG_TOP.u_pinmux.ATM11,`DIG_TOP.u_pinmux.ATM12,`DIG_TOP.u_pinmux.ATM13,`DIG_TOP.u_pinmux.ATM14};
+    
+    // Checking ATM
+    if (top_test_cfg.atm !== (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+      begin
+        `nnc_error("ATM14", $sformatf("ATM[0:14] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (15'b100_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+      end   
+    
     // =============================================================
     // ATM0 Operation (Step 8) - Save BG_TRIM at step 1 to this step
     // =============================================================
-    `uvm_info("",$sformatf("Enter ATM0 Operation"),NNC_LOW)
-
     assert(top_test_cfg.randomize() with { otp_program_en == 1; });
     `DUT_IF.otp_program_en = top_test_cfg.otp_program_en;
     `DUT_IF.otp_vpp_delay = top_test_cfg.otp_vpp_delay;
-
-      
-    force `SOC_TOP.IOBUF_PAD[10:8] = 3'b000; 
-    #1000ns;
- 
-    force `SOC_TOP.IOBUF_PAD[7:1] = $random(0);
-    #10us;
-
-    top_test_cfg.save_trim_wdata[0] = {2'b0, `SOC_TOP.IOBUF_PAD[6], `SOC_TOP.IOBUF_PAD[5], `SOC_TOP.IOBUF_PAD[4], `SOC_TOP.IOBUF_PAD[3], `SOC_TOP.IOBUF_PAD[2], `SOC_TOP.IOBUF_PAD[1]}; 
-    `nnc_info("ATM0",$sformatf("D2A_BG_TRIM = %8b",top_test_cfg.save_trim_wdata[0]), NNC_LOW) 
-
-    #1ms;
-
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif    
-    // Checking ATM
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM0", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end   
-
-    top_test_cfg.atm = {`ANA_TOP.D2A_ATM0,`ANA_TOP.D2A_ATM1,`ANA_TOP.D2A_ATM2,`ANA_TOP.D2A_ATM3,`ANA_TOP.D2A_ATM4,`ANA_TOP.D2A_ATM5,`ANA_TOP.D2A_ATM6,`ANA_TOP.D2A_ATM7};
-    if (top_test_cfg.atm !== (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]))
-      begin
-        `nnc_error("ATM0", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8])))
-      end       
-
-    #100us;
-
+    
     `nnc_info("SOC","Enable OTP Unlock", NNC_LOW)
-    release  `SOC_TOP.IOBUF_PAD[7];
-    force `SOC_TB.UNLOCK = 1'b1;//OTP_UNLOCK 
-       
-    wait(`SOC_TB.IOBUF_PAD[7] === 0);
+    //force `SOC_TOP.CLKSEL = 1;//OTP_UNLOCK 
+    force `SOC_TB.UNLOCK = 1;//OTP_UNLOCK
+    // In VPP Timing session 8.OTP BIST, During ATM mode, VPP_EN is not available
 
-    #10ms; 
+    //`nnc_info("SOC","Wait for VPP_EN == 1", NNC_LOW)
+    wait(`DIG_TOP.otp_vpp_en == 1);
+    `nnc_info("SOC","Apply VPP High", NNC_LOW)
+    #15ns;
+    force `DIG_TOP.VPP_OTP = 1;
+    //#6.65ms;
+    wait(`DIG_TOP.otp_vpp_en == 0);
+    force `DIG_TOP.VPP_OTP = 0; 
+
+    release `DIG_TOP.VPP_OTP; 
+    #1; 
     `nnc_info("DATA in GPIO",$sformatf("DATA0 = %h", top_test_cfg.save_trim_wdata[0]), NNC_LOW)
     `nnc_info("DATA in GPIO",$sformatf("DATA1 = %h", top_test_cfg.save_trim_wdata[1]), NNC_LOW)
     `nnc_info("DATA in GPIO",$sformatf("DATA2 = %h", top_test_cfg.save_trim_wdata[2]), NNC_LOW)
@@ -548,8 +519,15 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("DATA in GPIO",$sformatf("DATA5 = %h", top_test_cfg.save_trim_wdata[5]), NNC_LOW)
     `nnc_info("DATA in GPIO",$sformatf("DATA6 = %h", top_test_cfg.save_trim_wdata[6]), NNC_LOW)
     `nnc_info("DATA in GPIO",$sformatf("DATA7 = %h", top_test_cfg.save_trim_wdata[7]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA8 = %h", top_test_cfg.save_trim_wdata[8]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA9 = %h", top_test_cfg.save_trim_wdata[9]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA10 = %h", top_test_cfg.save_trim_wdata[10]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA11 = %h", top_test_cfg.save_trim_wdata[11]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA12 = %h", top_test_cfg.save_trim_wdata[12]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA13 = %h", top_test_cfg.save_trim_wdata[13]), NNC_LOW)
+    `nnc_info("DATA in GPIO",$sformatf("DATA14 = %h", top_test_cfg.save_trim_wdata[14]), NNC_LOW)
 
-    `nnc_info("DATA in OTP",$sformatf("DATA0 = %h at address: 0x04", ~top_test_cfg.save_trim_wdata[0]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA0 = %h at address: 0x04", `ANA_TOP.D2A_BG_TRIM), NNC_LOW)
     `nnc_info("DATA in OTP",$sformatf("DATA1 = %h at address: 0x05", ~top_test_cfg.save_trim_wdata[1]), NNC_LOW)
     `nnc_info("DATA in OTP",$sformatf("DATA2 = %h at address: 0x06", ~top_test_cfg.save_trim_wdata[2]), NNC_LOW)
     `nnc_info("DATA in OTP",$sformatf("DATA3 = %h at address: 0x07", ~top_test_cfg.save_trim_wdata[3]), NNC_LOW)
@@ -557,34 +535,34 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("DATA in OTP",$sformatf("DATA5 = %h at address: 0x09", ~top_test_cfg.save_trim_wdata[5]), NNC_LOW)
     `nnc_info("DATA in OTP",$sformatf("DATA6 = %h at address: 0x0A", ~top_test_cfg.save_trim_wdata[6]), NNC_LOW)
     `nnc_info("DATA in OTP",$sformatf("DATA7 = %h at address: 0x0B", ~top_test_cfg.save_trim_wdata[7]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA8 = %h at address: 0x0C", ~top_test_cfg.save_trim_wdata[8]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA9 = %h at address: 0x0D", ~top_test_cfg.save_trim_wdata[9]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA10 = %h at address: 0x0E", ~top_test_cfg.save_trim_wdata[10]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA11 = %h at address: 0x0F", ~top_test_cfg.save_trim_wdata[11]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA12 = %h at address: 0x10", ~top_test_cfg.save_trim_wdata[12]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA13 = %h at address: 0x11", ~top_test_cfg.save_trim_wdata[13]), NNC_LOW)
+    `nnc_info("DATA in OTP",$sformatf("DATA14 = %h at address: 0x12", ~top_test_cfg.save_trim_wdata[14]), NNC_LOW)
 
-    force `SOC_TB.UNLOCK = 1'b0;//OTP_UNLOCK
+    force `SOC_TB.UNLOCK = 0;//OTP_UNLOCK
 
-    release  `SOC_TOP.IOBUF_PAD[7:1]; 
     release `SOC_TB.UNLOCK;
+    release `SOC_TOP.IOBUF_PAD[8:1];
     // ===================================
     // Changing to use BIST 
     // ===================================
     assert(top_test_cfg.randomize() with { otp_program_en == 0; });
+    
     `DUT_IF.otp_program_en = top_test_cfg.otp_program_en;
     `DUT_IF.otp_vpp_delay = top_test_cfg.otp_vpp_delay;
-
-`ifndef MIX_SIM_EN
-    //force `SOC_TB.iopad_resetn =1'b0;  //force `ANA_TOP.PMU_SW.CHIP_EN = 0;
+    #15us;
+    
     force `ANA_TOP.PMU_SW.DVDD = 1'b0; //in testmode LDO  not connected to DVDD so need provide external supply 1.8v
-`endif
-    //wait(`SOC_TB.VDD_DIG === 0);
 
-    #1000ns;
     assert(top_test_cfg.randomize() with { testmode_sel == 2'b10;})
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
     #150us;
     
-`ifndef MIX_SIM_EN
-    //force `SOC_TB.iopad_resetn =1'b1; //force `ANA_TOP.PMU_SW.CHIP_EN = 1;
     force `ANA_TOP.PMU_SW.DVDD = 1'b1; //in testmode LDO  not connected to DVDD so need provide external supply 1.8v
-`endif
-    //wait(`SOC_TB.VDD_DIG === 1);
     
     #150us;
     `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
@@ -593,13 +571,18 @@ class `TESTNAME extends soc_base_test;
     
     #150us;
     
-    for(int i=0; i<8'h0C; i++) begin
-        `BISTM_SINGLE_READ(top_test_cfg.OTP_SEL, i, top_test_cfg.rd_data[i]);
-        #10000;        
-        // Daniel -> must add comparison
+    for(int i = 4; i<8'h13; i++) begin
+        `BISTM_SINGLE_READ(top_test_cfg.OTP_SEL, i, top_test_cfg.rd_data[i-4]);
+        `nnc_info("SOC_TEST", $sformatf("Testing the data :%b",top_test_cfg.rd_data[i-4]), NNC_LOW);
+        if(top_test_cfg.save_trim_wdata[i-4] !== top_test_cfg.rd_data[i-4])
+            begin
+                `nnc_error("OTP REG", $sformatf("Wrong data in OTP reg 0x%h, Expected data %8b, Real data %8b", i, top_test_cfg.save_trim_wdata[i-4], top_test_cfg.rd_data[i-4]))                 
+            end
+        else 
+                `nnc_info("OTP REG", $sformatf("Data in OTP reg 0x%h, Expected data %8b, Real data %8b", i, top_test_cfg.save_trim_wdata[i-4], top_test_cfg.rd_data[i-4]), NNC_HIGH)                 
     end
 
-    for(int i=0; i<8 ; i++) begin
+    for(int i=0; i<14 ; i++) begin
         if (top_test_cfg.save_trim_wdata[i] !== `EPROM_BIST_IF.rd_data[i+4][7:0]) 
            `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== bist_rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], `EPROM_BIST_IF.rd_data[i+4][7:0]))
         else 
@@ -617,23 +600,23 @@ class `TESTNAME extends soc_base_test;
     // ===================================
     // Changing to use NORMAL Mode 
     // ===================================
-    force `ANA_TOP.PMU_SW.CHIP_EN = 0;
+    //force `ANA_TOP.PMU_SW.CHIP_EN = 0;
     //wait(`SOC_TB.VDD_DIG === 0);
-    force `SOC_TB.VDD_DIG = 0;
+    force `SOC_TOP.VDD_DIG = 0;
 
     #1000ns;
     assert(top_test_cfg.randomize() with { testmode_sel == 2'b00; pinmux_mode == 1;})
     `DUT_IF.pinmux_mode = top_test_cfg.pinmux_mode; 
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
     #150us;
-    force `ANA_TOP.PMU_SW.CHIP_EN = 1;
+    //force `ANA_TOP.PMU_SW.CHIP_EN = 1;
     //wait(`SOC_TB.VDD_DIG === 1);
-    force `SOC_TB.VDD_DIG = 1;       
+    force `SOC_TOP.VDD_DIG = 1;       
 
     // Wait the chip reset successfully
     //wait(`DUT_IF.soc_resetn); 
     
-    top_test_cfg.rd_data=new[8];  
+    //top_test_cfg.rd_data=new[8];  
     
     // wait reload done
     //do begin

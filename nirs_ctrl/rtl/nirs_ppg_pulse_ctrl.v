@@ -215,6 +215,7 @@ parameter [15:0] t_delay_timing   = 16'd10;
   assign t_RESET_w      = t_RESET_w_timing  * 16'd2;
   assign t_delay        = t_delay_timing    * 16'd2;
   assign t_IPD_SW_w     = t_IPD_SW_w_sel    * 16'd2;
+  assign t_off_led_w    = t_off_led         * 16'd2;
 
   assign EN_h         = 16'd10;
   assign EN_l         = 16'h0; 
@@ -229,7 +230,7 @@ parameter [15:0] t_delay_timing   = 16'd10;
   assign IIN_SW_l     = IPD_SW_l;
 
   assign LED_ON_h     = (IPD_SW_h > t_stable_led_w) ? (IPD_SW_h - t_stable_led_w) : 16'd0;
-  assign LED_ON_l     = IPD_SW_l + t_off_led;
+  assign LED_ON_l     = IPD_SW_l + t_off_led_w;
 
 
 

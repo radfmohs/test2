@@ -572,7 +572,8 @@ wire         ppg_clk50duty;
   wire  [7:0] gpio_pu_ctrl_reg;                  
   wire  [7:0] gpio_pd_ctrl_reg;            
   wire  [2:0] gpio_sr_pdrv0_1_ctrl_reg;    
-  wire        gpio_nirs_out_ctrl_reg;      
+  wire        gpio_nirs_out_ctrl_reg;   
+  wire        gpio_normal_out_ctrl_reg;   
 
 /*
  wire		w_D2A_LVD_EN;
@@ -718,6 +719,7 @@ gpio u_gpio(
 );
 
 wire o_stim_mon_int;   //to INTB
+wire  	     multi_intb_pin;
 
 pinmux u_pinmux (
 
@@ -757,6 +759,8 @@ pinmux u_pinmux (
   .dual_en              (dual_en),
   .dual_wr              (dual_wr),
 
+ .multi_intb_pin(multi_intb_pin),
+
   .o_cpoln              (iopad_cpoln),    
   .o_cpha               (iopad_cpha),
   .o_DAISY_IN           (DAISY_IN_Y),
@@ -770,7 +774,7 @@ pinmux u_pinmux (
   .iopad_resetn_y       (iopad_resetn_y),
   .i_wg_drviver_int     (wg_driver_interrupt),
   //.i_lead_off_int       (lead_off_int),
-  .i_lead_off_int       (1'b0),
+  //.i_lead_off_int       (1'b0),
 
  //lvd
 //  .i_lvd_intr_pin       (lvd_intr_pin),
@@ -806,6 +810,8 @@ pinmux u_pinmux (
           
   .sys_d2a_trim_reg     (spi_otp.trim_read[TRIM_NUMBER:1]),
   .i_gpio_nirs_out_ctrl   (gpio_nirs_out_ctrl_reg),  
+  .i_gpio_normal_out_ctrl   (gpio_normal_out_ctrl_reg),  
+
 // TSC
   .d2a_tsc_vdac8b_din_ch1 (d2a_tsc_vdac8b_din_ch1),
 //.d2a_tsc_vdac8b_en_ch1  (d2a_tsc_vdac8b_en_ch1),
@@ -917,6 +923,7 @@ wire  [3:0]  iclk_div_stim_monitor;               // stim monitor clock divider
 wire        iclk_stim_monitor_inv;               
 wire        stim_monitor_rst_reg;               
 
+
 wire 	     stim_monitor_ana_clk;
 wire 	     stim_monitor_dig_clk;
 
@@ -961,6 +968,7 @@ adc_cap_ctrl u_adc_cap_ctrl(
  .stim_dly_tgt(stim_dly_tgt),   //from spi
  .stim_mon_int_topin_en(stim_mon_int_topin_en),   //from spi
  .stim_mon_delta_data_sel(stim_mon_delta_data_sel),   //from spi
+
 
  .stim_mon_int_clr(stim_mon_int_clr),   //from spi
  .stim_mon_int_sts(stim_mon_int_sts),   //to spi
@@ -1444,6 +1452,8 @@ spi_top  #(
 u_spi_top (
   .i_channel_max(i_channel_max),
 
+ .multi_intb_pin(multi_intb_pin),
+
   .stim_eeg_sync_en 	(stim_eeg_sync_en),
   .filter_dly_tgt 	(filter_dly_tgt),
 
@@ -1635,6 +1645,7 @@ u_spi_top (
   .gpio_pu_ctrl                 (gpio_pu_ctrl_reg),         
   .gpio_pd_ctrl                 (gpio_pd_ctrl_reg),        
   .gpio_nirs_out_ctrl           (gpio_nirs_out_ctrl_reg), 
+  .gpio_normal_out_ctrl         (gpio_normal_out_ctrl_reg), 
   .gpio_sr_pdrv0_1_ctrl         (gpio_sr_pdrv0_1_ctrl_reg)
 
 //output to always on
