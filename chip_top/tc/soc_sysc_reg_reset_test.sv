@@ -242,7 +242,7 @@ class `TESTNAME extends soc_base_test;
         top_test_cfg.exp_otp_rst_reg          =    top_test_cfg.pmu_reg1[0]; 
         top_test_cfg.exp_anac_rst_reg         =    top_test_cfg.anac_ctrl[1]; 
         top_test_cfg.exp_tsc_rst_reg          =    top_test_cfg.anac_ctrl[2];  
-        top_test_cfg.exp_stimu_rst_reg        =    top_test_cfg.anac_ctrl[5];
+        top_test_cfg.exp_stimu_rst_reg        =    top_test_cfg.stim_mon_clk_rst_ctrl[5];
         top_test_cfg.exp_eeg_filter_rst_reg   =    top_test_cfg.imeas_reg_0[1];  //sync with wavegen reg
         top_test_cfg.exp_nirs_rst_reg         =    top_test_cfg.nirs_clk_ctrl[5]; 
     
@@ -257,7 +257,7 @@ class `TESTNAME extends soc_base_test;
 
         `WR_NORMAL_REG(`SOC_IMEAS_REG_0, top_test_cfg.imeas_reg_0, top_test_cfg.pads);
 
-        `WR_NORMAL_REG(`SOC_STIM_MON_CLK_RST_CTRL, top_test_cfg.adc_cap_ctrl_rst_reg, top_test_cfg.pads);
+        `WR_NORMAL_REG(`SOC_STIM_MON_CLK_RST_CTRL, top_test_cfg.stim_mon_clk_rst_ctrl, top_test_cfg.pads);
         
 
         #200us;
@@ -292,8 +292,8 @@ class `TESTNAME extends soc_base_test;
             if(`TSC_TOP.presetn === top_test_cfg.exp_tsc_rst_reg)
                 `nnc_error("SOC_TEST", "TSC RESETn error!!!");
 
-            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === ( top_test_cfg.exp_stimu_rst_reg && top_test_cfg.exp_wave_gen_rst_reg) )
-              `nnc_error("SOC_TEST", "adc_cap_ctrl.presetn error!!!");
+            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === (top_test_cfg.exp_stimu_rst_reg || top_test_cfg.exp_wave_gen_rst_reg) )
+              `nnc_error("SOC_TEST", $sformatf("adc_cap_ctrl.presetn error presetn=%h exp_stimu_rst_reg=%h exp_wave_gen_rst_reg=%h!!!", soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn,top_test_cfg.exp_stimu_rst_reg,top_test_cfg.exp_wave_gen_rst_reg));
 
            if(`IMEAS_WRAPPER_TOP.filter_rstn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
              `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
@@ -314,6 +314,8 @@ class `TESTNAME extends soc_base_test;
         end
         else begin
             `nnc_info("SYSC_TEST","SLP_EN==1", NNC_LOW);      //fclk (clock) is gated
+            //@(posedge `CLK_CTRL_TOP.fclk);
+            `nnc_info("SYSC_TEST","Start checking After clock when SLP_EN==1", NNC_LOW);   
             if(`WG_DRIVER_TOP.i_presetn === (top_test_cfg.wave_gen_rst_l || top_test_cfg.wave_gen_rst))
                 `nnc_error("SOC_TEST", "WAVEGEN RESETn error!!!");        
             //if(`LEADOFF_WRAPPER_TOP.i_presetn === (top_test_cfg.lead_off_rst_l || top_test_cfg.lead_off_rst))
@@ -327,8 +329,8 @@ class `TESTNAME extends soc_base_test;
             if(`TSC_TOP.presetn === ( top_test_cfg.tsc_rst_reg_l || top_test_cfg.exp_tsc_rst_reg))
                 `nnc_error("SOC_TEST", "TSC RESETn error!!!");
 
-            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === ( top_test_cfg.adc_cap_ctrl_rst_reg_l || (top_test_cfg.exp_stimu_rst_reg && top_test_cfg.exp_wave_gen_rst_reg) ))
-              `nnc_error("SOC_TEST", "adc_cap_ctrl.presetn error!!!");
+            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === (top_test_cfg.adc_cap_ctrl_rst_reg_l || (top_test_cfg.exp_stimu_rst_reg ||top_test_cfg.exp_wave_gen_rst_reg )) )
+              `nnc_error("SOC_TEST", $sformatf("adc_cap_ctrl.presetn error!!! .u_adc_cap_ctrl.presetn =%h, adc_cap_ctrl_rst_reg_l =%h, exp_stimu_rst_reg=%h, exp_wave_gen_rst_reg=%h",soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn,top_test_cfg.adc_cap_ctrl_rst_reg_l,top_test_cfg.exp_stimu_rst_reg,top_test_cfg.exp_wave_gen_rst_reg));
 
             if(`IMEAS_WRAPPER_TOP.filter_rstn  === ( top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
              `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));

@@ -44,6 +44,9 @@ output reg                    enable_cic,    //to clk_ctrl
 output wire                   imeas_working,
 output wire                   imeas_working_sync,
 
+input  wire active_stim,
+output reg stim_on_flag,
+
 //++++++++++++++++++++++++++
 //from old pmu
 input  wire                   start_y,
@@ -582,6 +585,26 @@ always @(posedge pclk or negedge cic_rst_n) begin
     eeg_int_sts <= eeg_int_sts;
   end
 end
+
+
+//+++++++++++++++++++++++++
+//for output the stimulation status when EEG is doing, will output 1 just have stimulation at any time
+reg stim_on_flag_reg;
+always @(posedge pclk or negedge cic_rst_n) begin
+  if(~cic_rst_n) 
+	stim_on_flag_reg <= 1'b0;
+  else if(active_stim)
+	stim_on_flag_reg <= 1'b1;
+  else if(eeg_int_en_flag)
+	stim_on_flag_reg <= 1'b0;
+end
+always @(posedge pclk or negedge cic_rst_n) begin
+  if(~cic_rst_n) 
+	stim_on_flag <= 1'b0;
+  else if(eeg_int_en_flag)
+	stim_on_flag <= stim_on_flag_reg;
+end
+//+++++++++++++++++++++++++++
 
 always @(posedge pclk or negedge cic_rst_n) begin
   if(~cic_rst_n) begin

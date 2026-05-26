@@ -119,7 +119,7 @@ wire [31:0] silent_lim; // number of clocks for each silent period
 wire [15:0] alt_silent_lim; // number of clocks for each silent period
 //wire [15:0] delay_lim; // number of clocks for initial delay before wave is generated
 //reg [15:0] silent_cnt;
-assign alt_silent_lim = 16'h0000;
+assign alt_silent_lim = mul_wave_repeat? 16'b0 : i_alt_silent_lim;
 
 
 

@@ -325,8 +325,10 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
-reg cmd_reg_0, cmd_reg_1, cmd_reg_2, cmd_reg_3; 
-reg cmd_reg_4, cmd_reg_5, cmd_reg_6, cmd_reg_7;
+reg cmd_reg_0, cmd_reg_1;
+//reg cmd_reg_2, cmd_reg_3; 
+reg cmd_reg_4, cmd_reg_5; 
+reg cmd_reg_6, cmd_reg_7;
 
 assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
@@ -407,37 +409,35 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
 end
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge i_rst_n) begin
-  if (!i_rst_n) begin
-    cmd_reg_3 <= 1'b0;
-  end else if (cs_n_d == 1'b1) begin
-    cmd_reg_3 <= 1'b0;
-//end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)
-  end else if (dual_en) begin
-    if (bit_cnt == 6'h10 )       
-    cmd_reg_3 <= rx_buf[1]; 
-  end else begin
-    if (bit_cnt == 6'h0e )       //single 
-    cmd_reg_3 <= rx_buf[0];           
-  end
-end
+// always@(posedge i_sclk_neg, negedge i_rst_n) begin
+//   if (!i_rst_n) begin
+//     cmd_reg_3 <= 1'b0;
+//   end else if (cs_n_d == 1'b1) begin
+//     cmd_reg_3 <= 1'b0;
+//   end else if (dual_en) begin
+//     if (bit_cnt == 6'h10 )       
+//     cmd_reg_3 <= rx_buf[1]; 
+//   end else begin
+//     if (bit_cnt == 6'h0e )       //single 
+//     cmd_reg_3 <= rx_buf[0];           
+//   end
+// end
 
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge i_rst_n) begin
-  if (!i_rst_n) begin
-    cmd_reg_2 <= 1'b0;
-  end else if (cs_n_d == 1'b1) begin
-    cmd_reg_2 <= 1'b0;
-//end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)  
-  end else if (dual_en) begin
-    if (bit_cnt == 6'h10)
-      cmd_reg_2 <= rx_buf[0];  // dual mode: command bit arrives 1 cycle earlier
-  end else begin
-    if(bit_cnt == 6'h0f)
-      cmd_reg_2 <= rx_buf[0];  
-  end
-end
+// always@(posedge i_sclk_neg, negedge i_rst_n) begin
+//   if (!i_rst_n) begin
+//     cmd_reg_2 <= 1'b0;
+//   end else if (cs_n_d == 1'b1) begin
+//     cmd_reg_2 <= 1'b0;
+//   end else if (dual_en) begin
+//     if (bit_cnt == 6'h10)
+//       cmd_reg_2 <= rx_buf[0];  // dual mode: command bit arrives 1 cycle earlier
+//   end else begin
+//     if(bit_cnt == 6'h0f)
+//       cmd_reg_2 <= rx_buf[0];  
+//   end
+// end
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin

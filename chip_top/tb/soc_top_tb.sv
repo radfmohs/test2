@@ -21,6 +21,7 @@
 `define LEADOFF_TOP_1 `LEADOFF_WRAPPER_TOP.lead_off_block[1].u_lead_off_detector
 `define WG_DRIVER_TOP `DIG_TOP.u_wg_driver
 `define WG_DRIVER_CORE `WG_DRIVER_TOP.wg_driver_top_inst
+`define ZMEAS_TOP `DIG_TOP.u_adc_cap_ctrl
 `define SPI_TOP `DIG_TOP.u_spi_top
 `define SPI_REG `SPI_TOP.spi_reg_u
 `define RESETN `DIG_TOP.u_reset_ctrl.presetn

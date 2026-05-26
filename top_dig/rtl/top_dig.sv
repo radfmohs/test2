@@ -365,14 +365,14 @@ assign  por_resetn = A2D_SW_POWER_POR;    // power on reset, low active
 //ppg
 wire         ppg_dis;           //ppg disble 
 wire  [1:0]  ppg_clk_div;       // ppg clock divider
-wire         ana_ppgclk_inv;   // ana ppg clock 
+wire         ana_ppgclk_inv_config;   // ana ppg clock setting 
 wire         ppg_clk50duty;            
  wire ppg_rst_reg;
 
  wire 	    ppg_clk_running;
- wire        clk_ppg;           //ppg  
- wire        clk_sys_ppg;           //ppg  
- wire        ana_clk_ppg;           //ppg  
+ wire        clk_ppg;           //digital ppg clock 
+ wire        clk_sys_ppg;           //sys ppg  clock
+ wire        ana_clk_ppg;           //analog ppg clock  
 
  wire        ppg_resetn;
 
@@ -952,11 +952,14 @@ wire[15:0] stim_mon_short_int_sts;   //to spi
 wire stim_monitor_rstn;
 wire stim_monitor_clk_running;
 wire [255:0] one_cycle_data;
+wire active_stim;
 
 adc_cap_ctrl u_adc_cap_ctrl(
 .sysclk(stim_monitor_dig_clk),	
 .presetn(stim_monitor_rstn),
 .scan_mode(atpg_en),
+
+.active_stim(active_stim),
 
   .o_source_driver           (o_source_driver),//(o_sourcea_driver_a[3:0]),
   .o_pulldn_driver           (o_pulldn_driver),//(o_pullda_driver_a[3:0]),
@@ -1061,7 +1064,7 @@ clk_ctrl u_clk_ctrl
 
   .ppg_dis(ppg_dis),           //ppg disble 
   .ppg_clk_div(ppg_clk_div),       // ppg clock divider
-  .ana_ppgclk_inv(ana_ppgclk_inv),   // ana ppg clock 
+  .ana_ppgclk_inv(ana_ppgclk_inv_config),   // ana ppg clock 
   .ppg_clk50duty(ppg_clk50duty),            
 
 /*
@@ -1071,9 +1074,9 @@ clk_ctrl u_clk_ctrl
   .ppg_clk50duty(1),            
 */
   .ppg_clk_running      (ppg_clk_running),
-  .clk_ppg	        (clk_ppg),           //ppg  
-  .clk_sys_ppg	        (clk_sys_ppg),           //ppg  
-  .ana_clk_ppg	        (ana_clk_ppg),           //ppg  
+  .clk_ppg	        (clk_ppg),           //ppg digital 
+  .clk_sys_ppg	        (clk_sys_ppg),           //ppg sys clock 
+  .ana_clk_ppg	        (ana_clk_ppg),           //ppg analog clock 
 
   .presetn              (presetn),
   .poresetn             (poresetn),
@@ -1306,6 +1309,8 @@ assign imeas_adc_din_imeas = imeas_adc_din[EEG_CHN_NUM-1:0];
 
 assign D2A_SDM_CLK = imeas_adc_clk;
 
+wire stim_on_flag;
+
 imeas_wrapper  #(
 .DATA_WIDTH(EEG_DATA_WIDTH),
 .CHN_NUM(EEG_CHN_NUM)
@@ -1318,6 +1323,8 @@ imeas_wrapper  #(
 .imeas_pclk(imeas_pclk_imeas),
 .imeas_dig_adc_clk(imeas_dig_adc_clk_imeas),
 
+.active_stim(active_stim),
+.stim_on_flag(stim_on_flag),
 .imeas_working_sync(imeas_working_sync),
 .imeas_working(imeas_working),
 
@@ -1454,6 +1461,7 @@ u_spi_top (
 
  .multi_intb_pin(multi_intb_pin),
 
+.stim_on_flag(stim_on_flag),
   .stim_eeg_sync_en 	(stim_eeg_sync_en),
   .filter_dly_tgt 	(filter_dly_tgt),
 
@@ -1562,7 +1570,7 @@ u_spi_top (
   //ppg
   .ppg_dis	(ppg_dis),           //ppg disble 
   .ppg_clk_div	(ppg_clk_div),       // ppg clock divider
-  .ana_ppgclk_inv	(ana_ppgclk_inv),   // ana ppg clock 
+  .ana_ppgclk_inv	(ana_ppgclk_inv_config),   // ana ppg clock 
   .ppg_clk50duty	(ppg_clk50duty),            
   .ppg_rst_reg	(ppg_rst_reg),
 
@@ -1915,7 +1923,7 @@ nirs_ppg_wrapper #(
 ) u_nirs_wrapper (
   .scan_mode        (atpg_en),
   .rst_n            (ppg_resetn),  // Temporary - Xin will provide the alternative later
-  .clk_ana          (ana_ppgclk_inv),
+  .clk_ana          (ana_ppgclk_inv_config),
   .clk_ppg          (clk_ppg),     // Temporary - Xin will provide the alternative later
   .clk_sys          (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
 

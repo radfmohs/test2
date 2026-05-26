@@ -67,7 +67,7 @@ current_design $rm_project_top
 
 set eco_instance_name_prefix "uECO_${scenario}"
 set eco_net_name_prefix "uECO_${scenario}"
-source -echo -verbose ../data/synthesis_${stage}.BUD=${bottom_up}_sdf/${rm_project_top}.postscan_dct.${scenario}.sdc
+source -echo -verbose ../data/synthesis_${stage}.BUD=${bottom_up}_sdf/${rm_project_top}.postscan_dct.scre_${scenario}.sdc
 
 set_operating_conditions     -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)]     -min $operating_condition_name($fast_corner_pvt) -min_lib [get_libs $target_library_name($fast_corner_pvt)]     -analysis_type on_chip_variation
 #if {$corner == "max"} {
@@ -90,6 +90,7 @@ set_app_var timing_remove_clock_reconvergence_pessimism true
 set_propagated_clock [filter_collection [all_clocks] defined(sources)]
 
 #reset_timing_derate
+ #set_false_path -from  u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/POR -to u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PPROG
 
 # -----------------------------------------------------------------------------------
 # Update timing and Check timing

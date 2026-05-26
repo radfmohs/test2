@@ -553,7 +553,35 @@ interface dut_interface();
   integer       sar_adc_vin;
   integer       sar_adc_data_timing_t1;
   integer       sar_adc_data_timing_t2;
+  logic         sar_adc_bypass_pull_src_from_wg;
      
+  //stim vol measurement 
+   logic        adc_cycle_value_int_sts_en;
+   logic        adc_sample_int_sts_en;
+   logic        adc_sample_delta_int_sts_en; 
+   logic        adc_en;
+   logic        adc_mode;
+   logic [3:0]  pair_num;
+   logic [7:0]  expected_data;
+   logic [15:0] stim_mon_period;
+   logic        mon_adc_clk_inv;
+   logic [3:0]  mon_clk_div;
+   logic [2:0]  stim_mon_int_to_pin_en;
+   logic [1:0]  stim_delta_data_sel;
+   logic        bypass_adc_data_en;
+   logic        read_adc_data_en;
+   logic        bypass_ignore_first;
+   logic [3:0]  stim_dly_tgt;
+   logic [15:0] stim_pad0_tgt0;
+   logic [15:0] stim_pad0_tgt1;
+   logic [15:0] stim_pad0_tgt2;
+   logic [15:0] stim_pad0_tgt3;
+   logic [15:0] a2d_delta_adc_tag_data;
+   logic [15:0] stim_pad1_tgt0;
+   logic [15:0] stim_pad1_tgt1;
+   logic [15:0] stim_pad1_tgt2;
+   logic [15:0] stim_pad1_tgt3;
+   
 endinterface: dut_interface
 `endif
 

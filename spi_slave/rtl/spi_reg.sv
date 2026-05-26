@@ -870,13 +870,13 @@ always @(posedge i_clk or negedge i_rst_n) begin
 				 stim_mon_leadoff_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[g_i] & i_rd) : 1'b0;
 			   end             
 `STIM_MON_LOFF_INT_STS1  : begin
-				 stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[8+g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd) : 1'b0;
+				 stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd) : 1'b0;
 			   end             
 `STIM_MON_SHORT_INT_STS0 : begin
 				 stim_mon_short_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[g_i] & i_rd) : 1'b0;
 			   end             
 `STIM_MON_SHORT_INT_STS1 : begin
-				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[8+g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
+				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
 			   end             
 default: ;
     endcase
@@ -1247,7 +1247,7 @@ assign spi_anac.int_length_slct            = int_length_slct;
 //assign spi_anac.anac_short_drive_en        = ana_stimu_ch_intr_dig_reg;
 //assign spi_anac.anac_short_leadoff_en      = anac_short_blk_slct_reg[3];
 //assign spi_anac.anac_int_pol               = ana_stimu_ch_intr_pol_reg;
-
+wire ana_lvd_intr_pin;
 assign ana_lvd_intr_pin      = spi_anac.ana_lvd_intr_pin;
 //assign counter_th_cnt_dbg    = spi_anac.counter_th_cnt_dbg;
 //assign ana_stimu_ch_intr_sts = spi_anac.ana_stimu_ch_intr_sts;

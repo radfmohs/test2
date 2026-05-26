@@ -44,6 +44,7 @@ input wire [9:0] threshold_leadoff,
 input wire [9:0] threshold_short,  	
 input wire [7:0] threshold_tgt,  	
 
+output wire active_stim,
 output reg o_stim_mon_int,   //to INTB
 input wire int_length_slct,
 
@@ -75,7 +76,6 @@ output reg[255:0] one_cycle_data
 //for example: A2D_ADC_DATA_EN  ___|--------|______
 //             final_active_stim_______|-------|____
 //so the first A2D_ADC_DATA_EN maybe not the fully stimulated source if sample clock is slower than stim clock
-wire active_stim;
 // stim_pad0/1 defines which channel is currently being stimulated
 assign active_stim = o_source_driver[D2A_STIM_PAD0[3:0]] | o_source_driver[D2A_STIM_PAD1[3:0]] |
 		     o_pulldn_driver[D2A_STIM_PAD0[3:0]] | o_pulldn_driver[D2A_STIM_PAD1[3:0]] ;
@@ -235,7 +235,7 @@ wire is_leadoff_condition;
 assign is_leadoff_condition = (comp_high >= threshold_leadoff) || (comp_low >= threshold_leadoff);
 */
 wire [9:0] adc_abs_delta;
-
+wire is_short_condition, is_leadoff_condition;
 assign adc_abs_delta =
     (A2D_ADC_DATA_CAP >= 10'h200) ?
     (A2D_ADC_DATA_CAP - 10'h200) :

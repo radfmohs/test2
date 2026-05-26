@@ -20,8 +20,8 @@
  #                 to the flop clock pin; at this point it is an estimate.
  
  #set hfosc_period       [expr {15.625}]      	; # 64 MHz     
- set hfosc_period       [expr {110}]      	; # 9 MHz 
- set extclk_period      [expr {110}] 	    	; # 9 MHz
+ set hfosc_period       [expr {120}]      	; # 9 MHz 
+ set extclk_period      [expr {120}] 	    	; # 9 MHz
  set spiclk_period      [expr {50}]       	; # 20 MHz SPI
  set mbistclk_period    [expr {120}]       	; # 10 Mhz BIST cannot be achieved in max corner. eprom is slow
 
@@ -261,9 +261,16 @@ if {[string match S22_m?? $i]} {
 #if not scan mode then no OTP 
 if {[string match S4_m?? $i]==0} {
  set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PPROG] ; # OTP Program Enable Mode
- set_multicycle_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
- set_multicycle_path -hold  1 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
- set_multicycle_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
- set_multicycle_path -hold  1 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
+ #set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/POR] ; # OTP Program Enable Mode
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
+ set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PPROG] ; # OTP Program Enable Mode
+ #set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/POR] ; # OTP Program Enable Mode
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PA*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PA*]
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PDIN*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PDIN*]
 }
 

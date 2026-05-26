@@ -61,6 +61,8 @@ module spi_top #(
 
   output wire multi_intb_pin,
 
+  input  wire stim_on_flag,
+
   input  wire [255:0] one_cycle_data,
 
   output wire          stim_mon_delta_int_clr,   //from spi
@@ -378,8 +380,8 @@ spi_cpha_cpol_slct u_spi_cpha_cpol_slct(
 );
 
 //assign sclk_latch_in =  SCANMODE ? int_clk : sclk_latch_in_tmp;
-assign sclk_latch_out = SCANMODE ?  int_clk : sclk_latch_out_tmp;
-assign sclk_latch_in =  SCANMODE ? ~int_clk : sclk_latch_in_tmp;
+assign sclk_latch_out = SCANMODE ? int_clk : sclk_latch_out_tmp;
+assign sclk_latch_in =  SCANMODE ? int_clk : sclk_latch_in_tmp;
 
 /*
 assign i_sclk_inv = ~i_sclk;
@@ -398,6 +400,11 @@ assign sclk_latch_out =(1^1) ? ~o_sclk : o_sclk;
 //assign sclk_latch_out  = o_sclk;
 */
 
+wire[39:0] i_status_words;
+assign i_status_words = {7'b0,stim_on_flag,
+			spi_ana_if.A2D_ANA_GEN_REG[4],spi_ana_if.A2D_ANA_GEN_REG[3],
+			spi_ana_if.A2D_ANA_GEN_REG[2],spi_ana_if.A2D_ANA_GEN_REG[1]};
+
 spi_slave_controller
 #( 
     .ADDR_WIDTH(ADDR_WIDTH),
@@ -411,6 +418,9 @@ spi_slv_ctrl_u (
 
 //.i_sclk        (sclk_true),
 //.i_sclk_neg    (sclk_neg_edge),
+
+
+  .i_status_words (i_status_words),
 
   .i_sclk_neg    (sclk_latch_in),
   .i_sclk        (sclk_latch_out),

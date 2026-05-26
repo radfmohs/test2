@@ -555,7 +555,7 @@ class `TESTNAME extends soc_wavegen_base_test;
     for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
       if (`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
         $display("## **************************************************************************** ##");
-        $display("##         Driver No: %2d, is enabled and configured a SINK mode                 ##", i);      
+        $display("##         Driver No: %2d, is enabled and configured as SINK mode                ##", i);      
         $display("## **************************************************************************** ##");
       end else if (!`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
         $display("## **************************************************************************** ##");

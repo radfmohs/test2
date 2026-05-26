@@ -14,12 +14,12 @@
 //------------------------------------------------------------------------------
 
 // waveform generator register array
-`define ADDR_WG_DRV_CONFIG_REG0   	        10'h00 
-`define ADDR_WG_DRV_CTRL_REG0     	        10'h01
-`define ADDR_WG_DRV_POINT_CONFIG                10'h02
+`define ADDR_WG_DRV_CONFIG_REG0   	        10'h02 
+`define ADDR_WG_DRV_CTRL_REG0     	        10'h03
+`define ADDR_WG_DRV_POINT_CONFIG                10'h04
 //addr and data
-`define ADDR_WG_DRV_IN_WAVE_ADDR_REG0	        10'h03
-`define ADDR_WG_DRV_IN_WAVE_REG01 	        10'h04
+`define ADDR_WG_DRV_IN_WAVE_ADDR_REG0	        10'h01
+`define ADDR_WG_DRV_IN_WAVE_REG01 	        10'h00
 //wave0 period
 `define ADDR_WG_DRV_REST_CLK_REG01     	        10'h05
 `define ADDR_WG_DRV_REST_CLK_REG02     	        10'h06
@@ -191,7 +191,7 @@ module spi_reg_wavegen #(
 );
 
 reg burst_lock;
-
+wire i_wr_burst;
 assign i_wr_burst = burst_lock? 1'b0 : i_wr;
 
 

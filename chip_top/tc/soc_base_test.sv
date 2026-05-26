@@ -269,7 +269,7 @@ class `TESTCFG extends nnc_object;
     // Declare constraints for each of randomized variables
     //--------------------------------------------------------
 
-    constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b1; } // Sine is enable
+    constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b0; } // Sine is enable
 
     constraint c_sar_adc_sine_wave_freq   { sar_adc_sine_wave_freq == 10000; } // 10Khz
 
@@ -708,7 +708,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG31);
   `SET_CFG_REG(`REG32);
   `SET_CFG_REG(`REG33);
-
+  `SET_CFG_REG(`REG33_1);
   `SET_CFG_REG(`REG34);
   `SET_CFG_REG(`REG35);
   `SET_CFG_REG(`REG36);
@@ -1091,6 +1091,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
     `SET_CFG_WG_REG(`REG_WG4);
     `SET_CFG_WG_REG(`REG_WG5);
     `SET_CFG_WG_REG(`REG_WG6);
+    `SET_CFG_WG_REG(`REG_WG6_1); 
     `SET_CFG_WG_REG(`REG_WG7);
     `SET_CFG_WG_REG(`REG_WG8);
     `SET_CFG_WG_REG(`REG_WG9);

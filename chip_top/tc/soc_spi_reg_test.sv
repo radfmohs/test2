@@ -454,19 +454,40 @@ class `TESTNAME extends soc_base_test;
       if(i== `SOC_GPIO_SR_PDRV0_1_CTRL_REG) continue;
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = 8'h15; // maximum supported address value has been set
-      if (i != `SOC_STIM_MON_INT) begin 
-	 //if(i == `SOC_STIM_PAD_CTRL1) begin
-           //nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
-	   //`WR_NORMAL_REG(`SOC_STIM_PAD_CTRL1, `INIT_SOC_STIM_PAD_CTRL1, top_test_cfg.pads); 
-         //end else begin
-	   nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
-        // end
-      end else begin
-	`WR_NORMAL_REG(`SOC_STIM_MON_INT, 8'hff, top_test_cfg.pads);
-	`RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
-	if(top_test_cfg.rd_data !== 8'hf8)
-	  `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'hf8",`SOC_STIM_MON_INT, top_test_cfg.rd_data))   
-        end
+ 
+      if (i == `SOC_STIM_MON_INT) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_INT, 8'hff, top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'hf8)
+           `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'hf8",`SOC_STIM_MON_INT, top_test_cfg.rd_data))   
+      end
+      else if (i == `SOC_STIM_MON_LOFF_INT_STS0_L) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_L, 8'hff, top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_L, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_LOFF_INT_STS0_L TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_LOFF_INT_STS0_L, top_test_cfg.rd_data))   
+      end
+      else if (i == `SOC_STIM_MON_LOFF_INT_STS0_H) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_H, 8'hff, top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_H, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_LOFF_INT_STS0_H TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_LOFF_INT_STS0_H, top_test_cfg.rd_data))   
+      end
+      else if (i == `SOC_STIM_MON_SHORT_INT_STS0_L) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_L, 8'hff, top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_L, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_SHORT_INT_STS0_L TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_SHORT_INT_STS0_L, top_test_cfg.rd_data))   
+      end 
+      else if (i == `SOC_STIM_MON_SHORT_INT_STS0_H) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_H, 8'hff, top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_H, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_SHORT_INT_STS0_H TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_SHORT_INT_STS0_H, top_test_cfg.rd_data))   
+      end
+      else begin
+        nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+      end
     end
     end
 
@@ -550,13 +571,38 @@ class `TESTNAME extends soc_base_test;
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = $urandom_range(0,21); // address range suuporte is 8'h0 to 8'h15
       //if(i== `SOC_ANA_ENABLE_REG_0 && `DUT_IF.ext_clk_en == 1'b0)  top_test_cfg.wr_data[0][1] =1'b1; // keep OSC2MHZ_EN==1
-      if (i != `SOC_STIM_MON_INT) 
-          nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
+      if (i == `SOC_STIM_MON_INT) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== top_test_cfg.wr_data[0] & 8'hf8)
+           `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=%0h",`SOC_STIM_MON_INT, top_test_cfg.rd_data, top_test_cfg.wr_data[0] & 8'hf8))   
+      end
+      else if (i == `SOC_STIM_MON_LOFF_INT_STS0_L) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_L, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_L, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_LOFF_INT_STS0_L TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_LOFF_INT_STS0_L, top_test_cfg.rd_data))   
+      end
+      else if (i == `SOC_STIM_MON_LOFF_INT_STS0_H) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_H, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_H, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_LOFF_INT_STS0_H TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_LOFF_INT_STS0_H, top_test_cfg.rd_data))   
+      end
+      else if (i == `SOC_STIM_MON_SHORT_INT_STS0_L) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_L, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_L, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_SHORT_INT_STS0_L TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_SHORT_INT_STS0_L, top_test_cfg.rd_data))   
+      end 
+      else if (i == `SOC_STIM_MON_SHORT_INT_STS0_H) begin 
+	      `WR_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_H, top_test_cfg.wr_data[0], top_test_cfg.pads);
+	      `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_H, top_test_cfg.pads, top_test_cfg.rd_data);
+	       if(top_test_cfg.rd_data !== 8'h00)
+           `nnc_error("SOC_STIM_MON_SHORT_INT_STS0_H TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=8'h00",`SOC_STIM_MON_SHORT_INT_STS0_H, top_test_cfg.rd_data))   
+      end
       else begin
-	  `WR_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.wr_data[0], top_test_cfg.pads);
-          `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
-      if(top_test_cfg.rd_data !== top_test_cfg.wr_data[0] & 8'hf8)
-          `nnc_error("SOC_STIM_MON_INT TEST", $sformatf("read value of register %0h is read_data=%0h not the same as exp=%0h",`SOC_STIM_MON_INT, top_test_cfg.rd_data, top_test_cfg.wr_data[0] & 8'hf8))   
+        nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
       end
       // avoid set burst for shape register.
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, 8'h00, top_test_cfg.pads);
@@ -699,8 +745,8 @@ class `TESTNAME extends soc_base_test;
 
       // Set burst mode for Wavegen Shape register (set bit-4 to 1)
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
-      `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-      top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] | 8'h10;
+      `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+      top_test_cfg.wr_data[0] = top_test_cfg.rd_data | 8'h10;
       top_test_cfg.burst_size = 64;
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
@@ -775,7 +821,7 @@ class `TESTNAME extends soc_base_test;
         endcase 
       end
       // Clear back
-      top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] & 8'h00;
+      top_test_cfg.wr_data[0] = top_test_cfg.rd_data & 8'h00;
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);      
       if (`DUT_IF.wavegen_reg_all == 1'b0) break; 
      end

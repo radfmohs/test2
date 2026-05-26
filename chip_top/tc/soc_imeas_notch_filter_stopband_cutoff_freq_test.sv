@@ -28,7 +28,7 @@ class `TESTCFG extends soc_imeas_notch_filter_base_test_cfg;
   // Adding constraints of randomization
   // -----------------------------------------------
   //constraint c_imeas_sin_expected_freq{ imeas_sin_expected_freq inside {[49000 : 51000]};} //49 to 51 Hz // sine freq * 1000
-  constraint c_imeas_sin_expected_freq{ imeas_sin_expected_freq inside {[53500 : 53500]};} //49 to 51 Hz // sine freq * 1000
+  constraint c_imeas_sin_expected_freq{ imeas_sin_expected_freq inside {[53750 : 53750]};} // 53.75Hz // sine freq * 1000
 
   // -----------------------------------------------
   // End of adding constraints of randomization

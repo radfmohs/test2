@@ -128,7 +128,7 @@ assign coeff_a2_section4 = notch_coeff_data[22]; //sfix20_En18
 assign coeff_a3_section4 = notch_coeff_data[23]; //sfix20_En18
 
   // Signals
-  wire  signed [24:0] input_register; // sfix25_En24
+  reg  signed [24:0] input_register; // sfix25_En24
   wire phase_0; // boolean
   wire phase_2; // boolean
   wire phase_3; // boolean
@@ -198,8 +198,19 @@ assign coeff_a3_section4 = notch_coeff_data[23]; //sfix20_En18
   wire signed [24:0] output_typeconvert; // sfix25_En24
   reg  signed [24:0] output_register; // sfix25_En24
 
-assign          input_register = ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
 
+  // Block Statements
+  always @ (posedge clk or negedge reset)
+    begin: input_reg_process
+      if (reset == 1'b0) begin
+        input_register <= 0;
+      end
+      else begin
+        if (clk_enable == 1'b1) begin
+          input_register <= ~sign_en?  $signed({1'b0,filter_in})-25'sh0_80_0000 : {{2{filter_in[23]}},filter_in[22:0]};
+        end
+      end
+    end // input_reg_process
 
   assign  phase_0 = (cur_count == 5'b00000 && clk_enable == 1'b1) ? 1'b1 : 1'b0;
 
