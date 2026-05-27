@@ -113,7 +113,6 @@ class `TESTNAME extends soc_base_test;
     /*-----------------------------PMU-------------------------------*/       
     //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL            
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0];
@@ -121,20 +120,10 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][7:0]: %b",`ANA_TOP.D2A_BG_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0]; 
-                if (`ANA_TOP.D2A_BG_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_BG_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0][7:0]: %b",`ANA_TOP.D2A_BG_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0];  
-`endif                  
     end
 
     //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                    
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1];
@@ -142,20 +131,10 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_BGBUFFER_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][7:0]: %b",`ANA_TOP.D2A_BGBUFFER_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8];
-        if (`ANA_TOP.D2A_BGBUFFER_TRIM[7:0] !== rand_num[7:0]) begin // Only use 6-bit
-        `nnc_error("ANA", $sformatf("D2A_BGBUFFER_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[1][7:0]: %b",`ANA_TOP.D2A_BGBUFFER_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[15:8];  
-`endif                                    
     end
 
     //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                            
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2];
@@ -163,19 +142,9 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][7:0]: %b",`ANA_TOP.D2A_IREF_TRIM[7:0],  rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16];
-        if (`ANA_TOP.D2A_IREF_TRIM[7:0] !==  rand_num[7:0]) begin // Only use 5-bit
-        `nnc_error("ANA", $sformatf("D2A_IREF_TRIM :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[2][7:0]: %b",`ANA_TOP.D2A_IREF_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[23:16]; 
-`endif                      
     end
 
    for (int i=0; i < 100; i++) begin   
-`ifdef BEHAVIORAL                                
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];
@@ -183,19 +152,9 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of rand_num[7:0] : %b",`ANA_TOP.D2A_CLDO1P8_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];
-        if (`ANA_TOP.D2A_CLDO1P8_TRIM[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_CLDO1P8_TRIM :%b is not as expectation of rand_num[7:0] : %b",`ANA_TOP.D2A_CLDO1P8_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];  
-`endif                   
     end
 
     for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                                   
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4];
@@ -203,19 +162,9 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_OSC8MHZ_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
-        if (`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC8MHZ_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_OSC8MHZ_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
-`endif                                   
     end
 
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5] = $random;
         #10000ns;
         rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];
@@ -223,263 +172,54 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_TSC_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TSC_TRIM[7:0], rand_num[7:0]))
         end
       release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];   
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
-        if (`ANA_TOP.D2A_TSC_TRIM[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TSC_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TSC_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
-`endif                                    
     end
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6];
-        if (`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48];
-        if (`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_TRIM[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_DRIVER_CUR_TRIM[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48]; 
-`endif                     
-    end 
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7];
-        if (`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[7]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48];
-        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[63:56]; 
-`endif                     
-    end 
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8];
-        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM1_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[8]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64];
-        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM1_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM1_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[71:64]; 
-`endif                     
-    end 
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9];
-        if (`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM2_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[9]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72];
-        if (`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM2_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM2_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[79:72]; 
-`endif                     
-    end 
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10];
-        if (`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM3_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[10]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80];
-        if (`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM3_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM3_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[87:80]; 
-`endif                     
-    end 
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11];
-        if (`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM4_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[11]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88];
-        if (`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM4_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM4_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[95:88]; 
-`endif                     
-    end
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12];
-        if (`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM5_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[12]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96];
-        if (`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM5_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM5_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[103:96]; 
-`endif                     
-    end
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13];
-        if (`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM6_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[13]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104];
-        if (`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM6_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM6_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[111:104]; 
-`endif                     
-    end
-
-    for (int i=0; i < 100; i++) begin 
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14];
-        if (`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM7_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[14]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112];
-        if (`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0] !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM7_SIG_SPARE[7:0] :%b is not as expectation of rand_num[7:0]: %b",`ANA_TOP.D2A_TRIM7_SIG_SPARE[7:0], rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[119:112]; 
-`endif                     
-    end
-/*
+ 
     //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                    
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][0] = $random;
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][0];
-        if (`ANA_TOP.D2A_LVD_EN !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("ANA_ENABLE_REG_0[0] :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_LVD_EN, rand_bit))
+        rand_num = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1];
+        if (`ANA_TOP.D2A_OSC8MHZEN !== rand_num[1] || `ANA_TOP.D2A_BGBUFFER_CPTEST_EN !== rand_num[0]) begin
+          `nnc_error("ANA", $sformatf("ANA_ENABLE_REG_0_1 %b is not as expectation of rand_num : %8b", {6'b000000, `ANA_TOP.D2A_OSC8MHZEN, `ANA_TOP.D2A_BGBUFFER_CPTEST_EN}, rand_num))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][0];
-`else 
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[0] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[0];
-        if (`ANA_TOP.D2A_LVD_EN !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("ANA_ENABLE_REG_0[0] :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_LVD_EN, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[0];
-`endif                   
-    end
-
-    //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL        
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][2:0] = $random;
-        #10000ns;
-        rand_num[2:0] = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][2:0];
-        if (`ANA_TOP.D2A_LVD_SEL !== rand_num[2:0]) begin
-          `nnc_error("ANA", $sformatf("D2A_LVD_SEL :%b is not as expectation of rand_num[2:0] : %b",`ANA_TOP.D2A_LVD_SEL, rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][2:0]; 
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[2:0] = $random;
-        #10000ns;
-        rand_num[2:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[2:0];
-        if (`ANA_TOP.D2A_LVD_SEL !== rand_num[2:0]) begin
-          `nnc_error("ANA", $sformatf("D2A_LVD_SEL :%b is not as expectation of rand_num[2:0] : %b",`ANA_TOP.D2A_LVD_SEL, rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[2:0]; 
-`endif                            
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1];
     end
     
-    //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin // DONEEEE
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6];
-        if (`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_IBIAS_IDAC_TRIM[2:0] :%b is not as expectation of rand_num[6:0]: %b",`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0], rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[6]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48];
-        if (`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_IBIAS_IDAC_TRIM[2:0] :%b is not as expectation of rand_num[6:0]: %b",`ANA_TOP.D2A_IBIAS_IDAC_TRIM[2:0], rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[55:48]; 
-`endif                     
-    end  
-     
-    //Module : PMU , Direction : A2D , Connection : SPI THROUGH PINMUX.
+    //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                        
+        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][3] = $random;
+        #10000ns;
+        rand_num[0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][3];
+        if (`ANA_TOP.D2A_LVD_EN !== rand_num[0]) begin
+          `nnc_error("ANA", $sformatf("ANA_ENABLE_REG_0_0 %b is not as expectation of rand_num : %1b", `ANA_TOP.D2A_LVD_EN, rand_num[0]))
+        end
+      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][3];
+    end
+
+    //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][0];
+        if (`ANA_TOP.D2A_LVD_SEL !== rand_num[2:0]) begin
+          `nnc_error("ANA", $sformatf("D2A_LVD_SEL :%b is not as expectation of rand_num[2:0] : %3b",`ANA_TOP.D2A_LVD_SEL, rand_num[2:0]))
+        end
+      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[0][2:0]; 
+    end
+    
+    //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_EN_TSC = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_EN_TSC;
+        if (`ANA_TOP.D2A_EN_TSC !== rand_num[0]) begin
+          `nnc_error("ANA", $sformatf("D2A_LVD_SEL :%b is not as expectation of rand_num : %1b",`ANA_TOP.D2A_EN_TSC, rand_num[0]))
+        end
+      release  `ANA_WRAPPER_TOP.D2A_EN_TSC; 
+    end
+     
+    //Module : PMU , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
         force `ANA_TOP.A2D_LVD = $random;
         #10000ns;
         rand_bit = `ANA_TOP.A2D_LVD;
@@ -487,960 +227,396 @@ class `TESTNAME extends soc_base_test;
           `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[0] :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.spi_ana_if.A2D_ANA_GEN_REG[0][0], rand_bit))
         end
       release  `ANA_TOP.A2D_LVD; 
-`else
-        force `ANA_TOP.A2D_LVD = $random;
+    end
+    
+    //Module : PMU , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_TSC_COMP_OUT = $random;
         #10000ns;
-        rand_bit = `ANA_TOP.A2D_LVD;
-        if (`ANA_WRAPPER_TOP.spi_ana_if_A2D_ANA_GEN_REG[0] !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[0] :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.spi_ana_if_A2D_ANA_GEN_REG[0], rand_bit))
+        rand_bit = `ANA_TOP.A2D_TSC_COMP_OUT;
+        if (`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[0][1] !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0 :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[0][1], rand_bit))
         end
-      release  `ANA_TOP.A2D_LVD; 
-`endif                     
+      release  `ANA_TOP.A2D_TSC_COMP_OUT; 
+    end
+    
+    //Module : PMU , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[0][14][2:0] = $random;
+        #10000ns;
+        //rand_bit = `ANA_WRAPPER_TOP.D2A_ADJ0_14_IO;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[0][14][2:0];
+        if (`ANA_TOP.D2A_VDAC8B_DIN !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("D2A_VDAC8B_DIN :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC8B_DIN, rand_num[2:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[0][14][2:0];
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ0_IO = $random;
+        #10000ns;
+        rand_bit = `ANA_WRAPPER_TOP.D2A_ADJ0_IO;
+        if (`ANA_TOP.D2A_VDAC8B_DIN !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("D2A_VDAC8B_DIN :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC8B_DIN, rand_bit))
+        end
+        release `ANA_WRAPPER_TOP.D2A_ADJ0_IO;
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ14_IO = $random;
+        #10000ns;
+        rand_bit = `ANA_WRAPPER_TOP.D2A_ADJ14_IO;
+        if (`ANA_TOP.D2A_VDAC8B_DIN !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("D2A_VDAC8B_DIN :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC8B_DIN, rand_bit))
+        end
+        release `ANA_WRAPPER_TOP.D2A_ADJ14_IO;
     end
 
     //Module : PMU , Direction : A2D , Connection : A2D_SW_POWER_POR at top level.
     for (int i=0; i < 100; i++) begin
-        force `ANA_TOP.A2D_POR_DVDD = $random;
+        force `ANA_TOP.A2D_POR = $random;
         #10000ns;
-        rand_bit = `ANA_TOP.A2D_POR_DVDD;          
-        if (`ANA_WRAPPER_TOP.A2D_POR_DVDD !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("A2D_POR_DVDD :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_POR_DVDD, rand_bit))
+        rand_bit = `ANA_TOP.A2D_POR;          
+        if (`ANA_WRAPPER_TOP.A2D_POR !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("A2D_POR :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_POR, rand_bit))
         end
-      release  `ANA_TOP.A2D_POR_DVDD;              
+      release  `ANA_TOP.A2D_POR;              
     end
     
-    //-----------------------------OSC-------------------------------//       
-    //Module : OSC , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin   // DONEEEEEEEEEEEEEEE
-`ifdef BEHAVIORAL                                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];
-        if (`ANA_TOP.D2A_OSC2MHZ_TRIM[6:0] !== rand_num[6:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_num[6:0] : %b",`ANA_TOP.D2A_OSC2MHZ_TRIM[6:0], rand_num[6:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[3];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];
-        if (`ANA_TOP.D2A_OSC2MHZ_TRIM[6:0] !== rand_num[6:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_num[6:0] : %b",`ANA_TOP.D2A_OSC2MHZ_TRIM[6:0], rand_num[6:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[31:24];  
-`endif                   
-    end
-
-    //Module : OSC , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : PMU , Direction : A2D , Connection : A2D_OSC_OUT at top level.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL           
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1] = $random;
+        force `ANA_TOP.A2D_CLK8MHZ = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1];
-        if (`ANA_TOP.D2A_OSC2MHZEN !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_OSC2MHZEN, rand_bit))
+        rand_bit = `ANA_TOP.A2D_CLK8MHZ;          
+        if (`ANA_WRAPPER_TOP.A2D_CLK8MHZ !== rand_bit) begin
+          `nnc_error("ANA", $sformatf("A2D_CLK8MHZ :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_CLK8MHZ, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[0][1];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[1] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[1];
-        if (`ANA_TOP.D2A_OSC2MHZEN !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_OSC2MHZEN, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[1];  
-`endif                      
+      release  `ANA_TOP.A2D_CLK8MHZ;              
     end
-
-    //Module : OSC , Direction : A2D , Connection : A2D_OSC_OUT at top level.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_TOP.A2D_CLK2MHZ = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_CLK2MHZ;
-        if (`ANA_WRAPPER_TOP.A2D_CLK2MHZ !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("A2D_CLK2MHZ :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_CLK2MHZ, rand_bit))
-        end
-      release  `ANA_TOP.A2D_CLK2MHZ;              
-    end
-
+    
     //-----------------------------BIST-------------------------------//       
     //Module : BIST , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                   
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][0] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][0];
-        if (`ANA_TOP.D2A_BIST_EN !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIST_EN, rand_bit))
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0];
+        if (`ANA_TOP.D2A_BIST_SEL !== rand_num[5:1] || `ANA_TOP.D2A_BIST_EN !== rand_num[0]) begin
+          `nnc_error("ANA", $sformatf("ANA_ENABLE_REG_0_0 %b is not as expectation of rand_num : %8b",{2'b00, `ANA_TOP.D2A_BIST_SEL, `ANA_TOP.D2A_BIST_EN}, rand_num))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][0];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[24] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[24];
-        if (`ANA_TOP.D2A_BIST_EN !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIST_EN, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[24];  
-`endif                     
+      release  `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0];
     end
 
-    //Module : BIST , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                           
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][4:1] = $random;
-        #10000ns;
-        rand_num[3:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][4:1];
-        if (`ANA_TOP.D2A_BIST_SEL !== rand_num[3:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_BIST_SEL :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIST_SEL, rand_num[3:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[3][4:1];
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[28:25] = $random;
-        #10000ns;
-        rand_num[3:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[28:25];
-        if (`ANA_TOP.D2A_BIST_SEL !== rand_num[3:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_BIST_SEL :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIST_SEL, rand_num[3:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[28:25];
-`endif                                         
-    end  
-
-    //-----------------------------CH1-------------------------------//    
-    //Module : CH1 , Direction : D2A , Connection : OTP THROUGH PINMUX.
+    //-----------------------------DC LEAD OFF-------------------------------//    
+    //Module : DC LEAD OFF , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin // DONEEEEEEEEEEEEEEEEEEEEEE
-`ifdef BEHAVIORAL                                   
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][6] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][5] = $random;
         #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4];
-        if (`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_VTRIM_CH1[2:0] :%b is not as expectation of rand_num[2:0]: %b",`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0], rand_num[2:0]))
+        rand_num[15:0] = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][6],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][5]};
+        if (`ANA_TOP.D2A_DCLOFFEN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("DCLOFFEN[15:0] :%b is not as expectation of rand_num: %b",`ANA_TOP.D2A_DCLOFFEN[15:0], rand_num[15:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
-        if (`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_VTRIM_CH1[2:0] :%b is not as expectation of rand_num[2:0]: %b",`ANA_TOP.D2A_VDAC_VTRIM_CH1[2:0], rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
-`endif                                   
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][6];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][5];
     end
 
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : DC LEAD OFF , Direction : D2A , Connection : SPI.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                           
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][0] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][14] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][0];
-        if (`ANA_TOP.D2A_CS_EN_CH_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_EN_CH_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_CS_EN_CH_CH1, rand_bit))
+        rand_num[7:0] = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][14];
+        if (`ANA_TOP.D2A_LOFF_COMP_TH !== rand_num[2:0]) begin
+        `nnc_error("ANA", $sformatf("LOFF_COMP_TH :%b is not as expectation of rand_num[2:0] : %3b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[2:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][0];  
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[8] = $random;
+        if (`ANA_TOP.D2A_LOFF_ISEL_ADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("LOFF_ISEL_ADJ :%b is not as expectation of rand_num[7:4] : %4b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[7:4]))
+        end
+        if (`ANA_TOP.D2A_LOFF_IPOL !== rand_num[3]) begin
+        `nnc_error("ANA", $sformatf("LOFF_IPOL :%b is not as expectation of rand_num[3] : %1b",`ANA_TOP.D2A_LOFF_IPOL, rand_num[3]))
+        end
+        release  `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][14];  
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ1_IO = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[8];
-        if (`ANA_TOP.D2A_CS_EN_CH_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_EN_CH_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_CS_EN_CH_CH1, rand_bit))
+        rand_num[7:0] = `ANA_WRAPPER_TOP.D2A_ADJ1_IO;
+        if (`ANA_TOP.D2A_LOFF_COMP_TH !== rand_num[2:0]) begin
+        `nnc_error("ANA", $sformatf("LOFF_COMP_TH :%b is not as expectation of rand_num[2:0] : %3b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[2:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[8];  
-`endif      
+        if (`ANA_TOP.D2A_LOFF_ISEL_ADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("LOFF_ISEL_ADJ :%b is not as expectation of rand_num[7:4] : %4b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[7:4]))
+        end
+        if (`ANA_TOP.D2A_LOFF_IPOL !== rand_num[3]) begin
+        `nnc_error("ANA", $sformatf("LOFF_IPOL :%b is not as expectation of rand_num[3] : %1b",`ANA_TOP.D2A_LOFF_IPOL, rand_num[3]))
+        end
+        release  `ANA_WRAPPER_TOP.D2A_ADJ1_IO;  
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ2_IO = $random;
+        #10000ns;
+        rand_num[7:0] = `ANA_WRAPPER_TOP.D2A_ADJ2_IO;
+        if (`ANA_TOP.D2A_LOFF_COMP_TH !== rand_num[2:0]) begin
+        `nnc_error("ANA", $sformatf("LOFF_COMP_TH :%b is not as expectation of rand_num[2:0] : %3b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[2:0]))
+        end
+        if (`ANA_TOP.D2A_LOFF_ISEL_ADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("LOFF_ISEL_ADJ :%b is not as expectation of rand_num[7:4] : %4b",`ANA_TOP.D2A_LOFF_ISEL_ADJ, rand_num[7:4]))
+        end
+        if (`ANA_TOP.D2A_LOFF_IPOL !== rand_num[3]) begin
+        `nnc_error("ANA", $sformatf("LOFF_IPOL :%b is not as expectation of rand_num[3] : %1b",`ANA_TOP.D2A_LOFF_IPOL, rand_num[3]))
+        end
+      release  `ANA_WRAPPER_TOP.D2A_ADJ2_IO;  
     end
 
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : DC LEAD OFF , Direction : A2D , Connection : SPI.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                                   
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][1] = $random;
+        force `ANA_TOP.A2D_LOFF_STATP = $random;                                      
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][1];
-        if (`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH1, rand_bit))
+        rand_num = `ANA_TOP.A2D_LOFF_STATP;
+        if ({`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[2],`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[1]} !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("{`ANA_WRAPPER_TOP.pinmux_if.A2D_ANA_GEN_REG[2],`ANA_WRAPPER_TOP.pinmux_if.A2D_ANA_GEN_REG[1]} :%b is not as expectation of rand_bit : %b",{`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[2],`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[1]}, rand_num[15:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][1];
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[9] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[9];
-        if (`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[9];
-`endif                      
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                                           
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][2] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][2];
-        if (`ANA_TOP.D2A_COMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][2]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[10] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[10];
-        if (`ANA_TOP.D2A_COMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[10]; 
-`endif                         
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][3] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][3];
-        if (`ANA_TOP.D2A_IDAC_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_IDAC_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][3]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[11] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[11];
-        if (`ANA_TOP.D2A_IDAC_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_IDAC_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[11]; 
-`endif                             
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][4] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][4];
-        if (`ANA_TOP.D2A_VDAC_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][4]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[12] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[12];
-        if (`ANA_TOP.D2A_VDAC_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_OSC2MHZ_TRIM :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[12]; 
-`endif                   
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][5] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][5];
-        if (`ANA_TOP.D2A_STIMU_COMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_EN_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][5]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[13] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[13];
-        if (`ANA_TOP.D2A_STIMU_COMP_EN_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_EN_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_EN_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[13]; 
-`endif                   
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL            
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][6] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][6];
-        if (`ANA_TOP.D2A_STIMU_COMP_SEL_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_SEL_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_SEL_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[1][6]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[14] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[14];
-        if (`ANA_TOP.D2A_STIMU_COMP_SEL_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_SEL_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_SEL_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[14]; 
-`endif                    
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4];
-        if (`ANA_TOP.D2A_CS_TRIM_CH1[2:0] !== {rand_num[7], rand_num[4:3]}) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_TRIM_CH1[3:0] :%b is not as expectation of rand_num[6:3]: %b",`ANA_TOP.D2A_CS_TRIM_CH1[2:0], {rand_num[7], rand_num[4:3]}))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[4]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32];
-        if (`ANA_TOP.D2A_CS_TRIM_CH1[2:0] !== {rand_num[7], rand_num[4:3]}) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_TRIM_CH1[3:0] :%b is not as expectation of rand_num[6:3]: %b",`ANA_TOP.D2A_CS_TRIM_CH1[2:0], {rand_num[7], rand_num[4:3]}))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[39:32]; 
-`endif                   
-    end  
-     
-    //Module : CH1 , Direction : WG , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][4] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][4];
-        //if (`ANA_TOP.D2A_COMP_ISEL_CH1 !== rand_bit) begin
-        //`nnc_error("ANA", $sformatf("D2A_COMP_ISEL_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_ISEL_CH1, rand_bit))
-        //end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][4]; 
-`endif                                      
-    end
-
-    //Module : CH1 , Direction : WG , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                
-        force {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[1]} = $random;
-        #10000ns;
-        rand_num[11:0] = {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[1]};
-        if (`ANA_TOP.D2A_VDAC_DIN_CH1[11:0] !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_DIN_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_DIN_CH1[11:0], rand_num[11:0]))
-        end
-      release  {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[2][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[1]}; 
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[19:8] = $random;
-        #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[19:8];
-        if (`ANA_TOP.D2A_VDAC_DIN_CH1[11:0] !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_DIN_CH1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_DIN_CH1[11:0], rand_num[11:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[19:8]; 
-`endif                                      
-    end
-
-    //Module : CH1 , Direction : WG , Connection : WG.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_source_driver[0]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[0];
-        if (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_source_driver[0];              
-    end  
-
-    //Module : CH1 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_source_driver[0]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[0];
-        if (`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_source_driver[0];              
-    end
-
-    //Module : CH1 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldn_driver[0]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[0];
-        if (`ANA_TOP.D2A_DRIVERA_PULLDA_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_pulldn_driver[0];              
-    end
-
-    //Module : CH1 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldn_driver[0]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[0];
-        if (`ANA_TOP.D2A_DRIVERA_PULLDB_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH1 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_pulldn_driver[0];              
-    end
-
-    //Module : CH1 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0] = $random;
-        #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0];
-        if (`ANA_TOP.D2A_IDAC_DIN_CH1 !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_IDAC_DIN_CH1 :%b is not as expectation of rand_num[11:0]: %b",`ANA_TOP.D2A_IDAC_DIN_CH1, rand_num[11:0]))
-        end
-      release  `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0][11:0];              
-    end
-
-    //Module : PMU , Direction : A2D , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                        
-        force `ANA_TOP.A2D_COMP_OUT_STIMU0_1 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_STIMU0_1;
-        if (`ANA_WRAPPER_TOP.spi_ana_if.A2D_ANA_GEN_REG[0][1] !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[1] :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.spi_ana_if.A2D_ANA_GEN_REG[0][1], rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_STIMU0_1;  
-`else
-        force `ANA_TOP.A2D_COMP_OUT_STIMU0_1 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_STIMU0_1;
-        if (`ANA_WRAPPER_TOP.spi_ana_if_A2D_ANA_GEN_REG[1] !== rand_bit) begin
-          `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[1] :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.spi_ana_if_A2D_ANA_GEN_REG[1], rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_STIMU0_1;  
-`endif                   
-    end
-
-    //Module : CH1 , Direction : A2D , Connection : A2D_COMP0 at top level.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_TOP.A2D_COMP_OUT_CH1 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_CH1;
-        if (`ANA_WRAPPER_TOP.A2D_COMP_OUT_CH1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("A2D_COMP0 :%b is not as expectation of rand_bit: %b",`ANA_WRAPPER_TOP.A2D_COMP_OUT_CH1, rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_CH1;              
-    end
-
-    //Module : CH2 , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin // DONEEEEEEEEEEEEE
-`ifdef BEHAVIORAL                                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];
-        if (`ANA_TOP.D2A_VDAC_VTRIM_CH2[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_VTRIM_CH1[2:0] :%b is not as expectation of rand_num[2:0]: %b",`ANA_TOP.D2A_VDAC_VTRIM_CH2[2:0], rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];   
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
-        if (`ANA_TOP.D2A_VDAC_VTRIM_CH2[2:0] !== rand_num[2:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_VTRIM_CH1[2:0] :%b is not as expectation of rand_num[2:0]: %b",`ANA_TOP.D2A_VDAC_VTRIM_CH2[2:0], rand_num[2:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
-`endif                                    
+        force `ANA_TOP.A2D_LOFF_STATP = $random;                                      
     end
     
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : DC LEAD OFF , Direction : A2D , Connection : SPI.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][0] = $random;
+        force `ANA_TOP.A2D_LOFF_STATN = $random;                                      
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][0];
-        if (`ANA_TOP.D2A_CS_EN_CH_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_EN_CH_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_CS_EN_CH_CH2, rand_bit))
+        rand_num = `ANA_TOP.A2D_LOFF_STATN;
+        if ({`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[4],`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[3]} !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("{`ANA_WRAPPER_TOP.pinmux_if.A2D_ANA_GEN_REG[4],`ANA_WRAPPER_TOP.pinmux_if.A2D_ANA_GEN_REG[3]} :%b is not as expectation of rand_bit : %b",{`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[4],`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG[3]}, rand_num[15:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][0]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[16] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[16];
-        if (`ANA_TOP.D2A_CS_EN_CH_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_EN_CH_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_CS_EN_CH_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[16]; 
-`endif                   
+        force `ANA_TOP.A2D_LOFF_STATN = $random;                                      
     end
 
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //-----------------------------RECODING-------------------------------//    
+    //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][1] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][1] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][1];
-        if (`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_CSAMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH2, rand_bit))
+        rand_bit = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][1];
+        if (`ANA_TOP.D2A_BIAS_MEAS !== rand_bit) begin
+        `nnc_error("ANA", $sformatf("D2A_BIAS_MEAS :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIAS_MEAS, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][1]; 
-`else 
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[17] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[17];
-        if (`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_CSAMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_DRIVERA_CSAMP_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[17]; 
-`endif                                     
+      release  `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][1]; 
     end
 
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : RECODING , Direction : D2A , Connection : SPI.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][2] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0][3] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][2];
-        if (`ANA_TOP.D2A_COMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_COMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_EN_CH2, rand_bit))
+        rand_bit = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0][3];
+        if (`ANA_TOP.D2A_BIASREF_INT !== rand_bit) begin
+        `nnc_error("ANA", $sformatf("D2A_BIASREF_INT :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_BIASREF_INT, rand_bit))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][2]; 
-`else 
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[18] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[18];
-        if (`ANA_TOP.D2A_COMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_COMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[18]; 
-`endif                      
+      release  `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0][3]; 
     end
 
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][3] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][4] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][5] = $random;
         #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][3];
-        if (`ANA_TOP.D2A_IDAC_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_IDAC_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_IDAC_EN_CH2, rand_bit))
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][5],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][4]};
+        if (`ANA_TOP.D2A_EEGLNA_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGLNA_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGLNA_EN, rand_num[15:0]))
         end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][3]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[19] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[19];
-        if (`ANA_TOP.D2A_IDAC_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_IDAC_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_IDAC_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[19];  
-`endif                    
-    end
-
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                        
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][4] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][4];
-        if (`ANA_TOP.D2A_VDAC_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][4]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[20] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[20];
-        if (`ANA_TOP.D2A_VDAC_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[20];
-`endif                                       
-    end
-
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL         
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][5] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][5];
-        if (`ANA_TOP.D2A_STIMU_COMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][5]; 
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[21] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[21];
-        if (`ANA_TOP.D2A_STIMU_COMP_EN_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_EN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_EN_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[21];
-`endif                                
-    end
-
-    //Module : CH2 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                 
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][6] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][6];
-        if (`ANA_TOP.D2A_STIMU_COMP_SEL_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_SEL_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_SEL_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_ANA_ENABLE_REG[2][6];
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[22] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[22];
-        if (`ANA_TOP.D2A_STIMU_COMP_SEL_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_STIMU_COMP_SEL_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_STIMU_COMP_SEL_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_ANA_ENABLE_REG[22];
-`endif                                                    
-    end
-
-    //Module : CH1 , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                         
-        force {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[3]} = $random;
-        #10000ns;
-        rand_num[11:0] = {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[3]};
-        if (`ANA_TOP.D2A_VDAC_DIN_CH2[11:0] !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_DIN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_DIN_CH2[11:0], rand_num[9:0]))
-        end
-      release  {`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][3:0],`ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[3]}; 
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[35:24] = $random;
-        #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[35:24];
-        if (`ANA_TOP.D2A_VDAC_DIN_CH2[11:0] !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_VDAC_DIN_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VDAC_DIN_CH2[11:0], rand_num[9:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[35:24]; 
-`endif                               
-    end
-
-    //Module : CH1 , Direction : WG , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][4] = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][4];
-        //if (`ANA_TOP.D2A_COMP_ISEL_CH2 !== rand_bit) begin
-        //`nnc_error("ANA", $sformatf("D2A_COMP_ISEL_CH2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_COMP_ISEL_CH2, rand_bit))
-        //end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[4][4]; 
-`endif                                      
-    end
-   
-    //Module : CH2 , Direction : D2A , Connection : OTP THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                 
-        force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5];
-        if (`ANA_TOP.D2A_CS_TRIM_CH2[2:0] !== {rand_num[7], rand_num[4:3]}) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_TRIM_CH2[3:0] :%b is not as expectation of rand_num[6:3]: %b",`ANA_TOP.D2A_CS_TRIM_CH2[2:0], {rand_num[7], rand_num[4:3]}))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[5]; 
-`else 
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[47:40];
-        if (`ANA_TOP.D2A_CS_TRIM_CH2[2:0] !== {rand_num[7], rand_num[4:3]}) begin
-        `nnc_error("ANA", $sformatf("D2A_CS_TRIM_CH2[3:0] :%b is not as expectation of rand_num[6:3]: %b",`ANA_TOP.D2A_CS_TRIM_CH2[2:0], {rand_num[7], rand_num[4:3]}))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[46:43]; 
-`endif                          
-    end
-
-    //Module : CH2 , Direction : WG , Connection : WG.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_source_driver[1]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[1];
-        if (`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEA :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEA_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_source_driver[1];              
-    end  
-
-    //Module : CH2 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_source_driver[1]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_source_driver[1];
-        if (`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_SOURCEB :%b is not as expectation of `ANA_WRAPPER_TOP.i_source_driver: %b",`ANA_TOP.D2A_DRIVERA_SOURCEB_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_source_driver[1];              
-    end
-
-    //Module : CH2 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldn_driver[1]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[1];
-        if (`ANA_TOP.D2A_DRIVERA_PULLDA_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDA_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDA_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_pulldn_driver[1];              
-    end
-
-    //Module : CH2 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_pulldn_driver[1]  = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.i_pulldn_driver[1];
-        if (`ANA_TOP.D2A_DRIVERA_PULLDB_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_DRIVERA_PULLDB_CH2 :%b is not as expectation of `ANA_WRAPPER_TOP.i_pulldn_driver: %b",`ANA_TOP.D2A_DRIVERA_PULLDB_CH2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.i_pulldn_driver[1];              
-    end
-
-    //Module : CH2 , Direction : WG , Connection : WG.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0] = $random;
-        #10000ns;
-        rand_num[11:0] = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0];
-        if (`ANA_TOP.D2A_IDAC_DIN_CH2 !== rand_num[11:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_IDAC_DIN_CH2 :%b is not as expectation of rand_num[11:0]: %b",`ANA_TOP.D2A_IDAC_DIN_CH2, rand_num[11:0]))
-        end
-      release  `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1][11:0];              
-    end
-
-    //Module : CH2 , Direction : A2D , Connection : A2D.    
-    for (int i=0; i < 100; i++) begin
-        force `ANA_TOP.A2D_COMP_OUT_CH2 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_CH2;
-        if (`ANA_WRAPPER_TOP.A2D_COMP_OUT_CH2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("A2D_COMP1 :%b is not as expectation of rand_bit: %b",`ANA_WRAPPER_TOP.A2D_COMP_OUT_CH2, rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_CH2;              
-    end
-
-    //Module : CH2 , Direction : A2D , Connection : A2D.    
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                         
-        force `ANA_TOP.A2D_COMP_OUT_STIMU2_3 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_STIMU2_3;
-        if (`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[2] !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[2] :%b is not as expectation of rand_bit: %b",`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[2], rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_STIMU2_3; 
-`else
-        force `ANA_TOP.A2D_COMP_OUT_STIMU2_3 = $random;
-        #10000ns;
-        rand_bit = `ANA_TOP.A2D_COMP_OUT_STIMU2_3;
-        if (`ANA_WRAPPER_TOP.A2D_COMP_OUT_STIMU2_3 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG[2] :%b is not as expectation of rand_bit: %b",`ANA_WRAPPER_TOP.A2D_COMP_OUT_STIMU2_3, rand_bit))
-        end
-      release  `ANA_TOP.A2D_COMP_OUT_STIMU2_3; 
-`endif                      
-    end
-      
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM0 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM0;
-        if (`ANA_TOP.D2A_ATM0 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM0 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM0, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM0;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM1 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM1;
-        if (`ANA_TOP.D2A_ATM1 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM1 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM1, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM1;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM2 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM2;
-        if (`ANA_TOP.D2A_ATM2 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM2 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM2, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM2;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM3 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM3;
-        if (`ANA_TOP.D2A_ATM3 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM3 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM3, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM3;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM4 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM4;
-        if (`ANA_TOP.D2A_ATM4 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM4 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM4, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM4;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM5 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM5;
-        if (`ANA_TOP.D2A_ATM5 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM5 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM5, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM5;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM6 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM6;
-        if (`ANA_TOP.D2A_ATM6 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM6 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM6, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM6;              
-    end
-
-    //Module : ATM , Direction : D2A , Connection : PINMUX.
-    for (int i=0; i < 100; i++) begin
-        force `ANA_WRAPPER_TOP.D2A_ATM7 = $random;
-        #10000ns;
-        rand_bit = `ANA_WRAPPER_TOP.D2A_ATM7;
-        if (`ANA_TOP.D2A_ATM7 !== rand_bit) begin
-        `nnc_error("ANA", $sformatf("D2A_ATM7 :%b is not as expectation of `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM: %b",`ANA_TOP.D2A_ATM7, rand_bit))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_ATM7;              
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][4];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][5];
     end
     
-    //Module : SPARE , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL       
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[5][7:0] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][6] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][7] = $random;
         #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[5][7:0];
-        if (`ANA_TOP.D2A_SPI_SPARE0 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE0 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE0, rand_num[7:0]))
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][7],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][6]};
+        if (`ANA_TOP.D2A_QSTRLNA_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_QSTRLNA :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_QSTRLNA_EN, rand_num[15:0]))
         end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[5][7:0]; 
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[47:40] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[47:40];
-        if (`ANA_TOP.D2A_SPI_SPARE0 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE0 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE0, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[47:40]; 
-`endif                       
-    end
-
-    //Module : SPARE , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL               
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[6][7:0] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[6][7:0];
-        if (`ANA_TOP.D2A_SPI_SPARE1 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE1, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[6][7:0];
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[55:48] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[55:48];
-        if (`ANA_TOP.D2A_SPI_SPARE1 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE1 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE1, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[55:48];
-`endif                                           
-    end
-
-    //Module : SPARE , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                       
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[7][7:0] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[7][7:0];
-        if (`ANA_TOP.D2A_SPI_SPARE2 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE2, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[7][7:0];
-`else
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[63:56] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[63:56];
-        if (`ANA_TOP.D2A_SPI_SPARE2 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE2 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE2, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[63:56];
-`endif                         
-    end
-
-    //Module : SPARE , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                               
-        force `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[8][7:0] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[8][7:0];
-        if (`ANA_TOP.D2A_SPI_SPARE3 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE3 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE3, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if.D2A_ANA_GEN_REG[8][7:0];  
-`else 
-        force `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[71:64] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[71:64];
-        if (`ANA_TOP.D2A_SPI_SPARE3 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE3 :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_SPI_SPARE3, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.spi_ana_if_D2A_ANA_GEN_REG[71:64];  
-`endif                                          
-    end
-
-    //Module : SPARE , Direction : D2A , Connection : SPI THROUGH PINMUX.
-    for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                       
-        force `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE[7:0] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE[7:0];
-        if (`ANA_TOP.D2A_TRIM0_SIG_SPARE !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE[7:0];
-`else
-        force `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[63:56] = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[63:56];
-        if (`ANA_TOP.D2A_TRIM0_SIG_SPARE !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE, rand_num[7:0]))
-        end
-      release  `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[63:56];
-`endif                                                               
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][6];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][7];
     end
     
-    //Module : SPARE , Direction : A2D , Connection : SPI THROUGH PINMUX.
+    //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
-`ifdef BEHAVIORAL                                               
-        force `ANA_TOP.A2D_SPARE_RO_REG_0 = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][8] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][9] = $random;
         #10000ns;
-        rand_num[7:0] = `ANA_TOP.A2D_SPARE_RO_REG_0;
-        if (`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0 !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("A2D_SPARE_RO_REG_0 :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0, rand_num[7:0]))
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][9],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][8]};
+        if (`ANA_TOP.D2A_EEGPGA_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA_EN, rand_num[15:0]))
         end
-      release  `ANA_TOP.A2D_SPARE_RO_REG_0; 
-`else
-        force `ANA_TOP.A2D_SPARE_RO_REG_0 = $random;
-        #10000ns;
-        rand_num[7:0] = `ANA_TOP.A2D_SPARE_RO_REG_0;
-        if (`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0_tmp !== rand_num[7:0]) begin
-        `nnc_error("ANA", $sformatf("A2D_SPARE_RO_REG_0 :%b is not as expectation of rand_bit : %b",`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0_tmp, rand_num[7:0]))
-        end
-      release  `ANA_TOP.A2D_SPARE_RO_REG_0; 
-`endif                                                                                  
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][8];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][9];
     end
-    */
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][10] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][11] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][11],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][10]};
+        if (`ANA_TOP.D2A_QSTRPGA_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_QSTRPGA_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_QSTRPGA_EN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][10];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][11];
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][14] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][14];
+        if (`ANA_TOP.D2A_VCMGENBUFF_IADJ !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_VCMGENBUFF_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_VCMGENBUFF_IADJ, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][14];
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ10_IO = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_ADJ10_IO;
+        if (`ANA_TOP.D2A_VCMGENBUFF_IADJ !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_VCMGENBUFF_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_VCMGENBUFF_IADJ, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_ADJ10_IO;
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][1] = $random;
+        #10000ns;
+        rand_bit = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][1];
+        if (`ANA_TOP.D2A_VCMGENBUFF_EN !== rand_bit) begin
+        `nnc_error("ANA", $sformatf("D2A_VCMGENBUFF_EN :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VCMGENBUFF_EN, rand_bit))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[4][14];
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][1] = $random;
+        #10000ns;
+        rand_bit = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][1];
+        if (`ANA_TOP.D2A_SDMVCMBUFF_EN !== rand_bit) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVCMBUFF_EN :%b is not as expectation of rand_bit : %b",`ANA_TOP.D2A_VCMGENBUFF_EN, rand_bit))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[4][14];
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[5][14] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[5][14];
+        if (`ANA_TOP.D2A_SDMVCMBUFF_IADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVCMBUFF_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVCMBUFF_IADJ, rand_num[1:0]))
+        end
+        if (`ANA_TOP.D2A_SDMVCMBUFF_SEL !== rand_num[7:2]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVCMBUFF_SEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVCMBUFF_SEL, rand_num[7:2]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[5][14];
+            
+        force `ANA_WRAPPER_TOP.D2A_ADJ11_IO = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_ADJ11_IO;
+        if (`ANA_TOP.D2A_SDMVCMBUFF_IADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVCMBUFF_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVCMBUFF_IADJ, rand_num[1:0]))
+        end
+        if (`ANA_TOP.D2A_SDMVCMBUFF_SEL !== rand_num[7:2]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVCMBUFF_SEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVCMBUFF_SEL, rand_num[7:2]))
+        release `ANA_WRAPPER_TOP.D2A_ADJ11_IO;
+        end
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][3] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][3];
+        if (`ANA_TOP.D2A_SDMVREFPBUFF_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVREFPBUFF_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVREFPBUFF_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14];
+    end 
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14][1:0] = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14][7:2] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14];
+        if (`ANA_TOP.D2A_SDMVREFP_IADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVREFP_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVREFP_IADJ, rand_num[1:0]))
+        end
+        if (`ANA_TOP.D2A_SDMVREFP_SEL !== rand_num[7:2]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVREFP_SEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVREFP_SEL, rand_num[7:2]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14];
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ12_IO[1:0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_ADJ12_IO[7:2] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_ADJ12_IO;
+        if (`ANA_TOP.D2A_SDMVREFP_IADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVREFP_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVREFP_IADJ, rand_num[1:0]))
+        end
+        if (`ANA_TOP.D2A_SDMVREFP_SEL !== rand_num[7:2]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMVREFP_SEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMVREFP_SEL, rand_num[7:2]))
+        release `ANA_WRAPPER_TOP.D2A_ADJ12_IO;
+        end
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][2] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][2];
+        if (`ANA_TOP.D2A_RLD_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_RLD_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_RLD_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][2];
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][0];
+        if (`ANA_TOP.D2A_RLD_ELECTRODE_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_RLD_ELECTRODE_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_RLD_ELECTRODE_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][0];
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[7][14] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[7][14];
+        if (`ANA_TOP.D2A_RLD_IADJ !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_RLD_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_RLD_IADJ, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[6][14];
+        
+        force `ANA_WRAPPER_TOP.D2A_ADJ13_IO = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_ADJ13_IO;
+        if (`ANA_TOP.D2A_RLD_IADJ !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_RLD_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_RLD_IADJ, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_ADJ13_IO;
+    end
+    
+    //Module : RECODING , Direction : D2A , Connection : SPI.
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[0][1] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][1];
+        if (`ANA_TOP.D2A_EEG_CH0_SET !== rand_num[2:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEG_CH0_SET :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEG_CH0_SET, rand_num[2:0]))
+        end
+        if (`ANA_TOP.D2A_EEG_CH1_SET !== rand_num[5:3]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEG_CH1_SET :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEG_CH1_SET, rand_num[5:3]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][2][0];
+    end
+    
     //for (int i=0; i < 100; i++) begin
     //    force `ANA_TOP.VDD_DIG = $random;
     //    #10000ns;

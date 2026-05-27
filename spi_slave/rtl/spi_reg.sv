@@ -950,8 +950,11 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_MON_INT_STS    : begin  
 				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
 				 stim_mon_delta_data_sel <= i_wr ? i_wr_data[4:3] : stim_mon_delta_data_sel;
+				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
+				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
+				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
        end
-	`STIM_MON_INT_STS, `GENERAL_INTERUPT_STATUS_REG0B : begin
+	`GENERAL_INTERUPT_STATUS_REG0B : begin
 				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
 				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
 				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
