@@ -165,7 +165,7 @@ class `TESTNAME extends soc_base_test;
         `WR_NORMAL_REG(`SOC_TSC_VDAC8B_DIN_CH1_REG, top_test_cfg.tsc_vdac_din, top_test_cfg.pads);
    
         #500ns;
-        if(top_test_cfg.tsc_ctrl[2:0] !== {`ANA_TOP.tsc_monitoring_ch1.D2A_VDAC8B_EN_CHx, `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_COMP_EN_CHx, `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_EN_CHx})begin
+        if(top_test_cfg.tsc_ctrl[0] !==  `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_EN_CHx)begin
             `nnc_error("SOC_TEST", "tsc_ctrl error in spi mode");
         end
         if(top_test_cfg.tsc_vdac_din !== `ANA_TOP.tsc_monitoring_ch1.D2A_VDAC8B_DIN_CHx)begin

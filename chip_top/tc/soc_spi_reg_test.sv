@@ -92,6 +92,8 @@ class `TESTCFG extends soc_base_test_cfg;
   
   constraint c_wavegen_reg_num  { wavegen_reg_num inside {[0:15]};}
 
+  constraint c_spi_dual_mode_en { spi_dual_mode_en == 1'b0; } 
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
@@ -174,6 +176,8 @@ class `TESTNAME extends soc_base_test;
 
     `DUT_IF.wavegen_reg_all = top_test_cfg.wavegen_reg_all;
     `DUT_IF.wavegen_reg_num = top_test_cfg.wavegen_reg_num;
+
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase

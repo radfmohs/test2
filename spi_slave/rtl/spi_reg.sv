@@ -228,6 +228,8 @@
  //spare reg `ANA_SHORT_BASE_ADDR + 8'h13~`ANA_SHORT_BASE_ADDR+8'h0A//62~6A
 
 // tsc
+`define VDAC_NOR_L			8'h69  //change from 73h to 69h   //xin
+`define SMP_STS			 	8'h6A   //change from 74h to 6Ah    //xin	
 `define TSC_BASE_ADDR                   8'h6B
 `define TSC_EN_REG_SEL		        `TSC_BASE_ADDR+8'h00//6b
 `define TSC_CTRL			`TSC_BASE_ADDR+8'h01//6c
@@ -237,20 +239,28 @@
 `define TSC_VDAC8B_DIN_CH1              `TSC_BASE_ADDR+8'h05//70
 `define TSC_INT_CRTL      		`TSC_BASE_ADDR+8'h06//71
 `define TSC_INT_STATUS   		`TSC_BASE_ADDR+8'h07//72
-`define VDAC_NOR_L			`TSC_BASE_ADDR+8'h08//73
-`define SMP_STS			 	`TSC_BASE_ADDR+8'h09//74
+//`define VDAC_NOR_L			`TSC_BASE_ADDR+8'h08//73   //change
+//`define SMP_STS		 	`TSC_BASE_ADDR+8'h09//74   //change
  //spare reg `TSC_BASE_ADDR + 8'h0a~`TSC_BASE_ADDR+8'h0c//75~77
 
 // int read
-`define  INT_REG_BASE_ADDR               8'h78
-`define  GENERAL_INTERUPT_CTRL_REG       `INT_REG_BASE_ADDR+8'h00//78
-`define  GENERAL_INTERUPT_STATUS_REG01   `INT_REG_BASE_ADDR+8'h01//79
-`define  GENERAL_INTERUPT_STATUS_REG02   `INT_REG_BASE_ADDR+8'h02//7A
-`define  GENERAL_INTERUPT_STATUS_REG03   `INT_REG_BASE_ADDR+8'h03//7B
-`define  GENERAL_INTERUPT_STATUS_REG04   `INT_REG_BASE_ADDR+8'h04//7C
-`define  GENERAL_INTERUPT_STATUS_REG05   `INT_REG_BASE_ADDR+8'h05//7D
+//`define  INT_REG_BASE_ADDR               8'h78
+`define  GENERAL_INTERUPT_STATUS_REG07   8'h73  //new add for stim
+`define  GENERAL_INTERUPT_STATUS_REG08   8'h74  //new add for stim
+`define  GENERAL_INTERUPT_STATUS_REG09   8'h75  //new add for stim
+`define  GENERAL_INTERUPT_STATUS_REG0A   8'h76  //new add for stim
+`define  GENERAL_INTERUPT_STATUS_REG0B   8'h77  //new add for stim
+
+`define  INT_REG_BASE_ADDR               8'h78     
+`define  GENERAL_INTERUPT_CTRL_REG       `INT_REG_BASE_ADDR+8'h00  //78  
+`define  GENERAL_INTERUPT_STATUS_REG01   `INT_REG_BASE_ADDR+8'h01  //79  
+`define  GENERAL_INTERUPT_STATUS_REG02   `INT_REG_BASE_ADDR+8'h02  //7A  
+`define  GENERAL_INTERUPT_STATUS_REG03   `INT_REG_BASE_ADDR+8'h03  //7B  
+`define  GENERAL_INTERUPT_STATUS_REG04   `INT_REG_BASE_ADDR+8'h04  //7C  
+`define  GENERAL_INTERUPT_STATUS_REG05   `INT_REG_BASE_ADDR+8'h05  //7D  
  //spare reg `TSC_REG_BASE_ADDR + 8'h04~`TSC_REG_BASE_ADDR+8'h05//7C~7D
-`define  GENERAL_INTERUPT_STATUS_REG06   `INT_REG_BASE_ADDR+8'h06//7D
+`define  GENERAL_INTERUPT_STATUS_REG06   `INT_REG_BASE_ADDR+8'h06  //7E  
+
 
 //pinmux
 `define  PINMUX_REG_BASE_ADDR            8'h7F
@@ -376,6 +386,9 @@ module spi_reg #(
   output reg  [1:0]       stim_mon_delta_data_sel,   //from spi
   output reg              stim_mon_int_clr,   //from spi
   input  wire             stim_mon_int_sts,   //to spi
+
+  output reg  adc_delta_data_cap_in_manual,
+  output reg  select_2nd_max_min,
 
   output wire multi_intb_pin,
 
@@ -552,7 +565,7 @@ output reg [7:0] threshold_tgt,
  wire       boost_oc;
  wire       boost_ot;
  wire       boost_ov;   
-
+ wire [7:0] ATM_MODE;
  wire       int_clear_type;
  wire       int_active_level;
 
@@ -865,17 +878,21 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	stim_mon_short_int_clr[g_i] <= 1'b0;   //from spi
 	stim_mon_short_int_clr[8+g_i] <= 1'b0;   //from spi
    end else begin
+	stim_mon_leadoff_int_clr[g_i]   <= 1'b0;
+        stim_mon_leadoff_int_clr[8+g_i] <= 1'b0;
+        stim_mon_short_int_clr[g_i]     <= 1'b0;
+        stim_mon_short_int_clr[8+g_i]   <= 1'b0;	
      case (i_addr[7:0])
-	`STIM_MON_LOFF_INT_STS0  : begin
+	`STIM_MON_LOFF_INT_STS0, `GENERAL_INTERUPT_STATUS_REG07 : begin
 				 stim_mon_leadoff_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[g_i] & i_rd) : 1'b0;
 			   end             
-`STIM_MON_LOFF_INT_STS1  : begin
+`STIM_MON_LOFF_INT_STS1, `GENERAL_INTERUPT_STATUS_REG08 : begin
 				 stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd) : 1'b0;
 			   end             
-`STIM_MON_SHORT_INT_STS0 : begin
+`STIM_MON_SHORT_INT_STS0, `GENERAL_INTERUPT_STATUS_REG09 : begin
 				 stim_mon_short_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[g_i] & i_rd) : 1'b0;
 			   end             
-`STIM_MON_SHORT_INT_STS1 : begin
+`STIM_MON_SHORT_INT_STS1, `GENERAL_INTERUPT_STATUS_REG0A : begin
 				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
 			   end             
 default: ;
@@ -917,7 +934,12 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	threshold_short <= 10'b0;  	
 	threshold_tgt <= 8'b0;
 	stim_mon_loff_short_int_ctrl <= 8'b0;
+ 	adc_delta_data_cap_in_manual <= 1'b0;
+ 	select_2nd_max_min <= 1'b0;
    end else begin
+        stim_mon_delta_int_clr <= 1'b0;
+        stim_mon_cycle_int_clr <= 1'b0;
+	stim_mon_int_clr <= 1'b0;
      case (i_addr[7:0])
        `STIM_PAD_CTRL       :   stim_pad_ctrl <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl;        
        `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl1;        
@@ -928,11 +950,12 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_MON_INT_STS    : begin  
 				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
 				 stim_mon_delta_data_sel <= i_wr ? i_wr_data[4:3] : stim_mon_delta_data_sel;
+       end
+	`STIM_MON_INT_STS, `GENERAL_INTERUPT_STATUS_REG0B : begin
 				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
 				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
 				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
-       end
-
+	end
 
        `STIM_PAD0_TGT0_L    :   stim_pad0_tgt0_l <= i_wr ? i_wr_data : stim_pad0_tgt0_l; 
        `STIM_PAD0_TGT0_H    :   stim_pad0_tgt0_h <= i_wr ? i_wr_data : stim_pad0_tgt0_h; 
@@ -950,6 +973,11 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_PAD1_TGT2_H    :   stim_pad1_tgt2_h <= i_wr ? i_wr_data : stim_pad1_tgt2_h; 
        `STIM_PAD1_TGT3_L    :   stim_pad1_tgt3_l <= i_wr ? i_wr_data : stim_pad1_tgt3_l; 
        `STIM_PAD1_TGT3_H    :   stim_pad1_tgt3_h <= i_wr ? i_wr_data : stim_pad1_tgt3_h; 
+
+       `STIM_ADC_DELTA_DATA_TAG_H    :   begin 
+					adc_delta_data_cap_in_manual <= i_wr ? i_wr_data[2] : adc_delta_data_cap_in_manual;
+					select_2nd_max_min <= i_wr ? i_wr_data[3] : select_2nd_max_min;
+					 end 
 
 `STIM_MON_LOFF_SHORT_INT_CTRL   :  stim_mon_loff_short_int_ctrl <=  i_wr ? i_wr_data : stim_mon_loff_short_int_ctrl;    
 `STIM_MON_LOFF_TH0           	:     threshold_leadoff[7:0] <=  i_wr ? i_wr_data : threshold_leadoff[7:0]; 
@@ -1045,6 +1073,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
      endcase
    end
 end
+assign ATM_MODE = {atm_adj_mode[13],atm_adj_mode[12],atm_adj_mode[11], atm_adj_mode[10], atm_adj_mode[9] || atm_adj_mode[8], atm_adj_mode[7] || atm_adj_mode[6],  atm_adj_mode[2] || atm_adj_mode[1], atm_adj_mode[0] || atm_adj_mode[14]};
+
 	
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
@@ -1069,13 +1099,12 @@ always @(posedge i_clk or negedge i_rst_n) begin
     // IO WRITE ATM ADJ MODE
     else if (atm_adj) begin
       for (int x = 0; x < 8; x++) begin				
-        if(atm_adj_mode[x]) begin
+        if(ATM_MODE[x]) begin
           ana_gen_reg[x][14]	<= atm_adj_data;
         end
       end
     end
-  end
-
+end
 //to anac
 //xin change temporily, pls Truong check
 //assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
@@ -1899,6 +1928,10 @@ wire [7:0] nirs_rd_data;
     .i_wr_data      (i_wr_data),
     .o_rd_data      (nirs_rd_data),
 
+    .atm_adj_mode   (atm_adj_mode[5:3]),
+    .atm_adj        (atm_adj),
+    .atm_adj_data   (atm_adj_data),
+
     .ppg_dis        (ppg_dis),
     .ppg_clk_div    (ppg_clk_div),
     .ana_ppgclk_inv (ana_ppgclk_inv),
@@ -2056,7 +2089,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `STIM_ADC_DATA_TAG_L : reg_rd_data  <= A2D_ADC_DATA_TAG[7:0] ;        
       `STIM_ADC_DATA_TAG_H : reg_rd_data  <= A2D_ADC_DATA_TAG[15:8]  ;        
       `STIM_ADC_DELTA_DATA_TAG_L : reg_rd_data  <= A2D_ADC_DELTA_DATA_TAG[7:0] ;        
-      `STIM_ADC_DELTA_DATA_TAG_H : reg_rd_data  <= A2D_ADC_DELTA_DATA_TAG[15:8]  ;        
+      `STIM_ADC_DELTA_DATA_TAG_H : reg_rd_data  <= {A2D_ADC_DELTA_DATA_TAG[15:12],select_2nd_max_min,adc_delta_data_cap_in_manual,A2D_ADC_DELTA_DATA_TAG[9:8]}  ;        
 
       // analog register
       // My add
@@ -2151,6 +2184,12 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[11],spi_wg.i_wg_driver_int_sts[10],spi_wg.i_wg_driver_int_sts[9],spi_wg.i_wg_driver_int_sts[8]};   
       `GENERAL_INTERUPT_STATUS_REG05  : reg_rd_data  <= {spi_wg.i_wg_driver_int_sts[15],spi_wg.i_wg_driver_int_sts[14],spi_wg.i_wg_driver_int_sts[13],spi_wg.i_wg_driver_int_sts[12]};   
       `GENERAL_INTERUPT_STATUS_REG06  : reg_rd_data  <= spi_nirs_if.NIRS_INT; 
+//new for stim
+      `GENERAL_INTERUPT_STATUS_REG07  : reg_rd_data  <= stim_mon_leadoff_int_sts[7:0]; 
+      `GENERAL_INTERUPT_STATUS_REG08  : reg_rd_data  <= stim_mon_leadoff_int_sts[15:8]; 
+      `GENERAL_INTERUPT_STATUS_REG09  : reg_rd_data  <= stim_mon_short_int_sts[7:0]; 
+      `GENERAL_INTERUPT_STATUS_REG0A  : reg_rd_data  <= stim_mon_short_int_sts[15:8]; 
+      `GENERAL_INTERUPT_STATUS_REG0B  : reg_rd_data  <= {5'b0,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts}; 
 
 //    `GENERAL_INTERUPT_STATUS_REG04  : reg_rd_data  <= lead_off_result;   
 

@@ -61,6 +61,9 @@ module spi_top #(
 
   output wire multi_intb_pin,
 
+  output wire adc_delta_data_cap_in_manual,
+  output wire select_2nd_max_min,
+
   input  wire stim_on_flag,
 
   input  wire [255:0] one_cycle_data,
@@ -479,6 +482,9 @@ spi_reg_u (
   .i_rst_n(i_rst_n),
 
   .multi_intb_pin(multi_intb_pin),
+
+  .adc_delta_data_cap_in_manual(adc_delta_data_cap_in_manual),
+  .select_2nd_max_min(select_2nd_max_min),
 
   .stim_eeg_sync_en(stim_eeg_sync_en),
   .filter_dly_tgt(filter_dly_tgt),

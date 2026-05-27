@@ -197,25 +197,7 @@ interface dut_interface();
   logic        python_check_en;
   logic        python_wavegen_en;
  
-  logic [1:0]  waveshape_sel;
 
-  logic [31:0] wg_hlf_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave0
-  logic [31:0] wg_neg_hlf_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave0
-  logic [31:0] wg_hlf_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave1
-  logic [31:0] wg_neg_hlf_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave1
-  logic [31:0] wg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave2
-  logic [31:0] wg_neg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave2
-  logic [31:0] wg_rest_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave0
-  logic [31:0] wg_silent_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave0
-  logic [31:0] wg_rest_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave1
-  logic [31:0] wg_silent_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave1
-  logic [31:0] wg_rest_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave2
-  logic [31:0] wg_silent_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave2
-  logic [7:0]  wg_drv_ctrl;
-  logic [7:0]  wg_drv_cfg;
-  logic [7:0]  wg_drv_pnt_cfg;
-  logic [20:0] wg_drive;
-  logic [1:0]  DRIVE_SLCT;
 
   logic        io_model_check_off;
   bit          VPP;
@@ -490,7 +472,7 @@ interface dut_interface();
   logic [3:0]   period_ctrl;
   //NIRS_CTRL
   logic [1:0]   led_off_time_after_ipd_sw; 
-  //rand logic [2:0] recv_stable_time_ctrl;
+  //logic [2:0] recv_stable_time_ctrl;
   logic [2:0]   led_stable_time_beforeipd_sw;
   logic [2:0]   reset_on_time_ctrl;              
   //NIRS_CTRL_2
@@ -581,6 +563,77 @@ interface dut_interface();
    logic [15:0] stim_pad1_tgt1;
    logic [15:0] stim_pad1_tgt2;
    logic [15:0] stim_pad1_tgt3;
+   logic [15:0] exp_stim_period_cnt =0;
+   integer      exp_stim_tag =0;
+   integer      exp_stim_tag_temp =0;
+   logic [9:0]  max_a2d_data = 0;
+   logic [9:0]  min_a2d_data = 0;
+   logic [9:0]  max_a2d_data_final = 0;
+   logic [9:0]  min_a2d_data_final = 'h3FF; // 10 bit biggest value
+   logic [9:0]  delta_a2d_data = 0;
+   logic        adc_delta_data_in_manual_en;
+   logic        exp_stim_pair_int_sts;
+   logic        exp_stim_cycle_int_sts;
+   logic        pair_change =0;
+
+   logic        spi_dual_mode_en;
+
+   // Wavegen
+  logic [1:0]  waveshape_sel;
+
+  logic [31:0] wg_hlf_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave0
+  logic [31:0] wg_neg_hlf_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave0
+  logic [31:0] wg_hlf_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave1
+  logic [31:0] wg_neg_hlf_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave1
+  logic [31:0] wg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave2
+  logic [31:0] wg_neg_hlf_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for negative half wave2
+  logic [31:0] wg_rest_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave0
+  logic [31:0] wg_silent_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave0
+  logic [31:0] wg_rest_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave1
+  logic [31:0] wg_silent_wave1_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave1
+  logic [31:0] wg_rest_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each rest period wave2
+  logic [31:0] wg_silent_wave2_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks for each silent period wave2
+  logic [7:0]  wg_drv_ctrl;
+  logic [7:0]  wg_drv_cfg;
+  logic [7:0]  wg_drv_pnt_cfg;
+  logic [20:0] wg_drive;
+  logic [1:0]  DRIVE_SLCT;
+
+  // Wavegen randomized variables
+  logic        wg_sine_en;
+  logic        wg_triangle_en;
+  logic        wg_pulse_en;
+  logic        wg_dc_en;
+
+  logic        wg_load_points_sel;
+  logic        wg_same_pos_neg_period;
+  logic [12:0] wg_half_period0[2];
+  logic [12:0] wg_half_period1[2];
+  logic [12:0] wg_half_period2[2];
+  logic [1:0]  wg_preload_sel;     // preload selection : 11 or 00
+  logic        wg_neg_ena;
+  logic        wg_pos_dis;
+  logic [2:0]  wg_points_sel; 
+  logic [2:0]  wg_waveform_sel;    // Waveform selection: 001, 010, 000 - rest values are reserved 
+  logic        wg_load_points_sel; // waveform_sel: 001 or 010 and preload_sel: 11 -> load_points_sel = 1 
+  logic        wg_pos_neg_diff_sel;
+  logic        wg_dac_bit_len_sel;//1'b0:8-bits; 1'b1:12-bits (only 8 bits supported for sine)
+  logic        wg_auto_man;//1'b0:auto; 1'b1:manual
+  logic [7:0]  wg_dac0_data_l;
+  logic [3:0]  wg_dac0_data_h;
+  logic [2:0]  wg_dac0_msb_sel;
+  logic [7:0]  wg_dac1_data_l;
+  logic [3:0]  wg_dac1_data_h;
+  logic [2:0]  wg_dac1_msb_sel;
+  logic [7:0]  wg_dac2_data_l;
+  logic [3:0]  wg_dac2_data_h;
+  logic [2:0]  wg_dac2_msb_sel;
+  logic [7:0]  wg_dac3_data_l;
+  logic [3:0]  wg_dac3_data_h;
+  logic [2:0]  wg_dac3_msb_sel;
+  logic        wg_PULLAB_pos_en;
+  logic        wg_PULLAB_neg_en;
+  logic [5:0]  wg_PULLAB_lim;
    
 endinterface: dut_interface
 `endif

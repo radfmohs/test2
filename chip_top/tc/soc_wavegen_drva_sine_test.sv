@@ -642,10 +642,17 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b000:begin // 64
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -667,10 +674,17 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b001:begin // 32
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/2;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y32", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -692,10 +706,17 @@ class `TESTNAME extends soc_wavegen_base_test;
  
          3'b010:begin // 16
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/4;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y16", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -717,10 +738,17 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b011:begin // 8
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/8;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y8", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -743,10 +771,17 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b100:begin // 4
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/16;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y4", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -769,10 +804,17 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b101:begin // 2
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/32;
-		    if(top_test_cfg.LOAD_POINTS === 0)
-		    	$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", mem_tmp);
-		    else
-			$readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+		    if(top_test_cfg.LOAD_POINTS === 0) begin // single wave
+                       if(top_test_cfg.PRELOAD == 2'b00) 
+		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y2", mem_tmp); 
+		    end else begin
+                       if (top_test_cfg.PRELOAD == 2'b00)   
+			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                       else if (top_test_cfg.PRELOAD == 2'b01)  
+                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
+                    end
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array
@@ -795,12 +837,18 @@ class `TESTNAME extends soc_wavegen_base_test;
 
          3'b110:begin // 1
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/64;
-		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y1", mem_tmp);
+                    if(top_test_cfg.PRELOAD == 2'b00) 
+		      $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y1", mem_tmp);
+                    else if (top_test_cfg.PRELOAD == 2'b01)  
+                      $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y1", mem_tmp); 
 		end
 
          3'b111:begin // 64
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT;
-		    $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                    if(top_test_cfg.PRELOAD == 2'b00) 
+		      $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
+                    else if (top_test_cfg.PRELOAD == 2'b01)  
+                      $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
 
                     // -----------------------------------------
                     // 2) Copy loaded data into class array

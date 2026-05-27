@@ -179,6 +179,7 @@
 `define RD_RESET_CHK_NORMAL_REG `SPIM_VIP.spi_check_reset_value_normal_reg
 // `RD_RESET_CHK_NORMAL_REG(addr, data, pad);
 
+`define SPI_CHANGE_TO_DUAL_MODE `SPIM_VIP.spi_change_to_dual_spi
 // ----------------------------------------------------
 // RDATA and RDATAC 
 // ----------------------------------------------------
@@ -464,7 +465,7 @@ assign gpio3_conn    = ((dut_vif.mult_chip_en === 1'b1) && (dut_vif.mult_chip_mo
 assign gpio4_conn    = (dut_vif.altf_gpio_sel === 2'b00) ? spi_sck      : (dut_vif.altf_gpio_sel === 2'b01) ? spi_sck      : (dut_vif.altf_gpio_sel === 2'b10) ? spi_mosi     : (dut_vif.altf_gpio_sel === 2'b11) ? 1'bz         : 1'bx; // Checked
 assign gpio5_conn    = (dut_vif.altf_gpio_sel === 2'b00) ? spi_mosi     : (dut_vif.altf_gpio_sel === 2'b01) ? 1'bz         : (dut_vif.altf_gpio_sel === 2'b10) ? 1'bz         : (dut_vif.altf_gpio_sel === 2'b11) ? spi_mosi     : 1'bx; // Checked
 
-assign gpio6_conn    = (dut_vif.altf_gpio_sel === 2'b00) ? 1'bz         : (dut_vif.altf_gpio_sel === 2'b01) ? spi_mosi     : (dut_vif.altf_gpio_sel === 2'b10) ? spi_sck      : (dut_vif.altf_gpio_sel === 2'b11) ? spi_sck      : 1'bx; // Checked
+assign gpio6_conn    = (dut_vif.altf_gpio_sel === 2'b00) ? ((`SPIM_VIP.dual_en === 1'b0) ? 1'bz : (`SPIM_VIP.read_bus_en  === 1'b0) ? spi_miso : 1'bz)         : (dut_vif.altf_gpio_sel === 2'b01) ? spi_mosi     : (dut_vif.altf_gpio_sel === 2'b10) ? spi_sck      : (dut_vif.altf_gpio_sel === 2'b11) ? spi_sck      : 1'bx; // Checked
 
 assign spi_miso_conn = (dut_vif.altf_gpio_sel === 2'b00) ? (((dut_vif.mult_chip_en === 1'b1) && (dut_vif.mult_chip_mode === 2'b10)) ? IOBUF_PAD_S1[6] : IOBUF_PAD[6]) : (dut_vif.altf_gpio_sel === 2'b01) ? IOBUF_PAD[5] : (dut_vif.altf_gpio_sel === 2'b10) ? IOBUF_PAD[5] : (dut_vif.altf_gpio_sel === 2'b11) ? IOBUF_PAD[4] : 1'bx; // Checked
 
@@ -487,7 +488,7 @@ assign IOBUF_PAD[7] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmo
 // MISO
 assign IOBUF_PAD[6] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? TDI    :   (dut_vif.testmode_sel === 2'b01) ? scan_in[3]          : gpio6_conn;          // Checked
 // MOSI
-assign IOBUF_PAD[5] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? STROBE :   (dut_vif.testmode_sel === 2'b01) ? scan_in[2]          : gpio5_conn;          // Checked
+assign IOBUF_PAD[5] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? STROBE :   (dut_vif.testmode_sel === 2'b01) ? scan_in[2]          : ((`SPIM_VIP.dual_en === 1'b0) ? gpio5_conn : (`SPIM_VIP.read_bus_en  === 1'b0) ? gpio5_conn : 1'bz);          // Checked mosi
 // SCLK
 assign IOBUF_PAD[4] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? scan_in[1]          : gpio4_conn;          // Checked
 // NSS
@@ -499,7 +500,8 @@ assign IOBUF_PAD[1] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmo
 // CLKSEL
 assign IOBUF_PAD[0] =  (dut_vif.testmode_sel === 2'b11) ? ext_hfclk : (dut_vif.testmode_sel === 2'b10 && dut_vif.mult_chip_en === 1'b0) ? TCK : (dut_vif.testmode_sel === 2'b01) ? scan_clk            : CLK0;                 // Checked
 
-assign spi_miso     = (dut_vif.testmode_sel === 2'b10) ? 1'bz             : spi_miso_conn; // Checked 
+assign spi_mosi     = (dut_vif.testmode_sel !== 2'b00) ? 1'bz             : (`SPIM_VIP.dual_en === 1'b0) ? 1'bz : (`SPIM_VIP.read_bus_en  === 1'b0) ? 1'bz : IOBUF_PAD[5];
+assign spi_miso     = (dut_vif.testmode_sel === 2'b10) ? 1'bz             : (`SPIM_VIP.dual_en === 1'b0) ? spi_miso_conn : (`SPIM_VIP.read_bus_en  === 1'b0) ? 1'bz : spi_miso_conn; // Checked 
 assign scan_out     = (dut_vif.testmode_sel === 2'b01) ? IOBUF_PAD[10:7]  : 4'bzzzz;       // Checked  
 assign TDO_SEROUT   = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[3]     : 1'bz;          // Checked 
 assign TDO          = (dut_vif.testmode_sel === 2'b10) ? IOBUF_PAD[4]     : 1'bz;          // Checked

@@ -720,6 +720,8 @@ gpio u_gpio(
 
 wire o_stim_mon_int;   //to INTB
 wire  	     multi_intb_pin;
+wire  	     adc_delta_data_cap_in_manual;
+wire  	     select_2nd_max_min;
 
 pinmux u_pinmux (
 
@@ -959,6 +961,8 @@ adc_cap_ctrl u_adc_cap_ctrl(
 .presetn(stim_monitor_rstn),
 .scan_mode(atpg_en),
 
+ .adc_delta_data_cap_in_manual(adc_delta_data_cap_in_manual),
+ .select_2nd_max_min(select_2nd_max_min),
 .active_stim(active_stim),
 
   .o_source_driver           (o_source_driver),//(o_sourcea_driver_a[3:0]),
@@ -1460,6 +1464,9 @@ u_spi_top (
   .i_channel_max(i_channel_max),
 
  .multi_intb_pin(multi_intb_pin),
+
+ .adc_delta_data_cap_in_manual(adc_delta_data_cap_in_manual),
+ .select_2nd_max_min(select_2nd_max_min),
 
 .stim_on_flag(stim_on_flag),
   .stim_eeg_sync_en 	(stim_eeg_sync_en),

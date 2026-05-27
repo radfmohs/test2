@@ -755,7 +755,7 @@ assign D2A_NIRS_IREFC_ADJ[3:0]  = ana_nirs_if.D2A_IREFC_ADJ[3:0];
 assign D2A_NIRS_IREFC_ADJ[4]    = pinmux_if.D2A_ATM[18] ? pinmux_if.D2A_ADJ_IO[3][1:0] : pinmux_if.D2A_ATM[19] ? pinmux_if.D2A_ADJ_IO[4][1:0] : ana_nirs_if.D2A_IREFC_ADJ[4];
 assign D2A_NIRS_IREFC_ADJ[7:5]  = ana_nirs_if.D2A_IREFC_ADJ[7:5];
 assign D2A_NIRS_IDAC_ADJ[3:0]   = ana_nirs_if.D2A_NIRS_IDAC[3:0];
-assign D2A_NIRS_IDAC_ADJ[4]     = pinmux_if.D2A_ATM[20] ? {1'b0, pinmux_if.D2A_ADJ_IO[5]} : ana_nirs_if.D2A_NIRS_IDAC[4];
+assign D2A_NIRS_IDAC_ADJ[4]     = pinmux_if.debug_mode_en ? (pinmux_if.D2A_ATM[20] ? {1'b0, pinmux_if.D2A_ADJ_IO[5]} : ana_nirs_if.IDAC_MANUAL_ATM) : ana_nirs_if.D2A_NIRS_IDAC[4];
 assign D2A_NIRS_IDAC_ADJ[7:5]   = ana_nirs_if.D2A_NIRS_IDAC[7:5];
 assign D2A_NIRS_CFRATE_ADJ0     = ana_nirs_if.D2A_NIRS_RATIO[0];
 assign D2A_NIRS_CFRATE_ADJ1     = ana_nirs_if.D2A_NIRS_RATIO[1];
@@ -768,7 +768,6 @@ assign D2A_NIRS_CFRATE_ADJ7     = ana_nirs_if.D2A_NIRS_RATIO[7];
 assign ana_nirs_if.A2D_NIRS_IREFCOARSE  = A2D_NIRS_IREFCOARSE;
 assign ana_nirs_if.A2D_NIRS_IREFFINE    = A2D_NIRS_IREFFINE;
 /***********NIRS END**********/
-
 
 ENS2_ANA_CHIP u_top_ana (
 

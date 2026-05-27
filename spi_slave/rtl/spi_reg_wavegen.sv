@@ -1247,7 +1247,7 @@ assign o_reg_wg_cal_addr = reg_wg_cal_addr;
 //EMS
 wire       ems_ctrl_wr;
 wire       ems_data_num_wr;
-reg [5:0]  reg_ems_data_ctrl;
+reg [3:0]  reg_ems_data_ctrl;
 
 assign ems_ctrl_wr     = i_wr_burst & (i_addr[ADDR_WIDTH-1:0]==(`EMS_REG_CTRL+10'h40 * NO_OF_WAVEGEN));
 assign ems_data_num_wr = i_wr_burst & (i_addr[ADDR_WIDTH-1:0]==(`EMS_DATA_NUM+10'h40 * NO_OF_WAVEGEN));
@@ -1257,15 +1257,15 @@ assign ems_data_num_wr = i_wr_burst & (i_addr[ADDR_WIDTH-1:0]==(`EMS_DATA_NUM+10
 always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
     alt_ems_cnt_tar   <= 8'h00;
-    reg_ems_data_ctrl <= 6'h0;
+    reg_ems_data_ctrl <= 4'h0;
   end
   else begin
     alt_ems_cnt_tar   <= ems_data_num_wr ? i_wr_data[7:0]  : alt_ems_cnt_tar;
-    reg_ems_data_ctrl <= ems_ctrl_wr     ? i_wr_data[5:0]  : reg_ems_data_ctrl;
+    reg_ems_data_ctrl <= ems_ctrl_wr     ? i_wr_data[3:0]  : reg_ems_data_ctrl;
  end
 end
 
-assign o_ems_data_ctrl = reg_ems_data_ctrl;
+assign o_ems_data_ctrl = {2'b00,reg_ems_data_ctrl[3:0]};
 //END
 
 
@@ -1387,7 +1387,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
         `NO_OF_NUM_SLIENT_TAR0               :  reg_rd_data  <=  o_no_of_num_slient_tar[7:0];
         `NO_OF_NUM_SLIENT_TAR1               :  reg_rd_data  <=  o_no_of_num_slient_tar[15:8];
         `ADDR_IS_VALID_FOR_CAL               :  reg_rd_data  <= reg_wg_cal_addr;
-        `EMS_REG_CTRL                        :  reg_rd_data  <=  {2'b00,reg_ems_data_ctrl};
+        `EMS_REG_CTRL                        :  reg_rd_data  <=  {4'b0,reg_ems_data_ctrl[3:0]};
         `EMS_DATA_NUM                        :  reg_rd_data  <=  alt_ems_cnt_tar; 
         `AWG_DRIVEC_SW_CFG0                  :  reg_rd_data  <=  sw_config_reg[7:0];
         `AWG_DRIVEC_SW_CFG1                  :  reg_rd_data  <=  sw_config_reg[15:8];

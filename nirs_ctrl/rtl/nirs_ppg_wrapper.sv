@@ -179,6 +179,7 @@ generate
   end
 endgenerate
 
+assign ana_nirs_if.IDAC_MANUAL_ATM    = IDAC_MANUAL_1[4]; // For CP test only - No functional use
 assign ana_nirs_if.D2A_PDBIAS_EN      = spi_nirs_if.NIRS_CTRL_ADJ[6];
 assign ana_nirs_if.D2A_PDBIAS_ADJ     = spi_nirs_if.NIRS_CTRL_ADJ[5:4];
 assign ana_nirs_if.D2A_CLK_NIRS       = clk_ana;
@@ -187,7 +188,6 @@ assign ana_nirs_if.D2A_CHOPPER_EN     = spi_nirs_if.NIRS_CTRL_ADJ[1];
 assign ana_nirs_if.D2A_TEST_EN        = spi_nirs_if.NIRS_CTRL_ADJ[0];
 
 assign LED_ON_IO  = LED_ON; // Control external LED
-
 
 nirs_ppg_cmd u_nirs_ppg_cmd  [NO_OF_NIRS-1:0] (
   .rst_n          (rst_n),

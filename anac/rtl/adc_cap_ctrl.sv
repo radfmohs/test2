@@ -18,6 +18,7 @@ input wire sysclk,
 input wire presetn,
 input wire scan_mode,
 
+input wire select_2nd_max_min,
 input wire bypass_adc_data_en,
 input wire bypass_ignore_first,
 input wire [3:0] stim_dly_tgt,   //from spi
@@ -43,6 +44,8 @@ output reg[15:0] stim_mon_short_int_sts,   //to spi
 input wire [9:0] threshold_leadoff,  	
 input wire [9:0] threshold_short,  	
 input wire [7:0] threshold_tgt,  	
+
+input  wire adc_delta_data_cap_in_manual,
 
 output wire active_stim,
 output reg o_stim_mon_int,   //to INTB
@@ -145,6 +148,7 @@ always @ (posedge sysclk or negedge presetn) begin
 end
 
 
+wire check_pulse_mode;
 reg check_pulse;
 reg check_pulse_d1;
 reg check_pulse_cycle;
@@ -167,6 +171,26 @@ always @ (posedge sysclk or negedge presetn) begin
 	check_pulse <= 1'b0;
 end
 
+//for manual mode capture delta data
+wire adc_delta_data_cap_in_manual_sync;
+reg adc_delta_data_cap_in_manual_sync_d1;
+common_sync_bit common_bit_sync_in_manual(
+  .async_in(adc_delta_data_cap_in_manual),
+  .clk(sysclk),
+  .rst_(presetn),      
+  .sync_out(adc_delta_data_cap_in_manual_sync)
+);
+always @ (posedge sysclk or negedge presetn) begin
+  if (~presetn)  
+	adc_delta_data_cap_in_manual_sync_d1 <= 1'b0;
+  else
+	adc_delta_data_cap_in_manual_sync_d1 <= adc_delta_data_cap_in_manual_sync;
+end
+wire adc_delta_data_cap_in_manual_pulse;
+assign adc_delta_data_cap_in_manual_pulse = adc_delta_data_cap_in_manual_sync & (!adc_delta_data_cap_in_manual_sync_d1);
+
+assign check_pulse_mode = (~adc_mode) ? adc_delta_data_cap_in_manual_pulse : check_pulse;
+//+++++++++++++++++++
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	check_pulse_cycle <= 1'b0;
@@ -184,7 +208,7 @@ always @ (posedge sysclk or negedge presetn) begin
 	check_pulse_cycle_d3 <= 1'b0;
 	check_pulse_cycle_d4 <= 1'b0;
   end else begin
-	check_pulse_d1 <= check_pulse;
+	check_pulse_d1 <= check_pulse_mode;
 	check_pulse_cycle_d1 <= check_pulse_cycle;
 	check_pulse_cycle_d2 <= check_pulse_cycle_d1;
 	check_pulse_cycle_d3 <= check_pulse_cycle_d2;
@@ -250,7 +274,8 @@ assign is_leadoff_condition =
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) begin
  	leadoff_cnt <= 8'b0;  	
-  end else if(check_pulse) begin
+  //end else if(check_pulse) begin
+  end else if(check_pulse_mode) begin
  	leadoff_cnt <= 8'b0;  	
   end else if (A2D_ADC_DATA_VLD && is_leadoff_condition && (leadoff_cnt < threshold_tgt)) begin
  	leadoff_cnt <= leadoff_cnt + 8'b1;  	
@@ -265,7 +290,8 @@ end
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) begin
         short_cnt   <= 8'b0;
-  end else if(check_pulse) begin
+  //end else if(check_pulse) begin
+  end else if(check_pulse_mode) begin
         short_cnt   <= 8'b0;
   end else if (A2D_ADC_DATA_VLD && is_short_condition && (short_cnt < threshold_tgt)) begin
         short_cnt <= short_cnt + 8'b1;
@@ -328,7 +354,8 @@ wire[15:0] stim_mon_leadoff_int_sts_pulse;
 wire[15:0] stim_mon_leadoff_sts_clr_sync_pulse;
 
 wire[15:0] stim_mon_leadoff_int_en_flag;
-assign stim_mon_leadoff_int_en_flag = leadoff_pulse_pair;
+//assign stim_mon_leadoff_int_en_flag = leadoff_pulse_pair;
+assign stim_mon_leadoff_int_en_flag = {16{stim_mon_int_en[3]}} &  leadoff_pulse_pair;
 
 genvar i;
 generate
@@ -372,7 +399,8 @@ wire[15:0] stim_mon_short_int_sts_pulse;
 wire[15:0] stim_mon_short_sts_clr_sync_pulse;
 
 wire[15:0] stim_mon_short_int_en_flag;
-assign stim_mon_short_int_en_flag = short_pulse_pair;
+//assign stim_mon_short_int_en_flag = short_pulse_pair;
+assign stim_mon_short_int_en_flag = {16{stim_mon_int_en[4]}} &  short_pulse_pair;
 
 genvar j;
 generate
@@ -437,31 +465,51 @@ end
 //calculate the peak to peak
 
 reg [9:0] A2D_ADC_DATA_max;  	
+reg [9:0] A2D_ADC_DATA_max2;  	
 reg [9:0] A2D_ADC_DATA_min;  	
+reg [9:0] A2D_ADC_DATA_min2;  	
 reg [9:0] A2D_ADC_DATA_delta;  	
 reg [9:0] A2D_ADC_DATA_max_cap;  	
 reg [9:0] A2D_ADC_DATA_min_cap;  	
 reg [9:0] A2D_ADC_DATA_last_cap;  	
 always @ (posedge sysclk or negedge presetn) begin
-  if (~presetn)  
-	A2D_ADC_DATA_max <= 10'h0;  	
+  if (~presetn) begin 
+	A2D_ADC_DATA_max  <= 10'h0;  	
+	A2D_ADC_DATA_max2 <= 10'h0;  	
   //else if(check_pulse_d1) 
-  else if(check_pulse)   //check_pulse has higher priority, if check_pulse happen at same time with A2D_ADC_DATA_VLD,
+  //else if(check_pulse)   //check_pulse has higher priority, if check_pulse happen at same time with A2D_ADC_DATA_VLD,
+  end else if(check_pulse_mode) begin   //check_pulse has higher priority, if check_pulse happen at same time with A2D_ADC_DATA_VLD,
 			//then A2D_ADC_DATA_VLD data will be ignored 
-	A2D_ADC_DATA_max <= 10'h0;  	
-  else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP >= A2D_ADC_DATA_max)) 
-	A2D_ADC_DATA_max <= A2D_ADC_DATA_CAP;  	
+	A2D_ADC_DATA_max  <= 10'h0;  	
+	A2D_ADC_DATA_max2 <= 10'h0;  	
+  end else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP >= A2D_ADC_DATA_max)) begin 
+	A2D_ADC_DATA_max  <= A2D_ADC_DATA_CAP;  	
+	A2D_ADC_DATA_max2 <= A2D_ADC_DATA_max;  	
+  end else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP >= A2D_ADC_DATA_max2)) begin
+        A2D_ADC_DATA_max2  <= A2D_ADC_DATA_CAP;
+  end
 end
 
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	A2D_ADC_DATA_min <= 10'h3ff;  	
   //else if(check_pulse_d1) 
-  else if(check_pulse) 
-	A2D_ADC_DATA_min <= 10'h3ff;  	
-  else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP <= A2D_ADC_DATA_min)) 
-	A2D_ADC_DATA_min <= A2D_ADC_DATA_CAP;  	
+  //else if(check_pulse) 
+  else if(check_pulse_mode) begin 
+	A2D_ADC_DATA_min  <= 10'h3ff;  	
+	A2D_ADC_DATA_min2 <= 10'h3ff;  	
+  end else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP <= A2D_ADC_DATA_min)) begin 
+	A2D_ADC_DATA_min  <= A2D_ADC_DATA_CAP;  	
+	A2D_ADC_DATA_min2 <= A2D_ADC_DATA_min;  	
+  end else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP <= A2D_ADC_DATA_min2)) begin
+        A2D_ADC_DATA_min2  <= A2D_ADC_DATA_CAP;
+  end
 end
+
+wire [9:0] A2D_ADC_DATA_max_final;  	
+wire [9:0] A2D_ADC_DATA_min_final;  	
+assign A2D_ADC_DATA_max_final = select_2nd_max_min ? A2D_ADC_DATA_max2 : A2D_ADC_DATA_max ;  	
+assign A2D_ADC_DATA_min_final = select_2nd_max_min ? A2D_ADC_DATA_min2 : A2D_ADC_DATA_min ;  	
 
 reg[3:0] A2D_ADC_TAG_CAP_delta;
 always @ (posedge sysclk or negedge presetn) begin
@@ -471,11 +519,12 @@ always @ (posedge sysclk or negedge presetn) begin
  	A2D_ADC_DATA_max_cap <= 10'h0;  	
  	A2D_ADC_DATA_min_cap <= 10'h0;  	
  	A2D_ADC_DATA_last_cap <= 10'h0;  	
-  end else if(check_pulse) begin 
-	A2D_ADC_DATA_delta <= (A2D_ADC_DATA_max < A2D_ADC_DATA_min) ? 10'h0: (A2D_ADC_DATA_max - A2D_ADC_DATA_min);  	
+  //end else if(check_pulse) begin 
+  end else if(check_pulse_mode) begin 
+	A2D_ADC_DATA_delta <= (A2D_ADC_DATA_max_final < A2D_ADC_DATA_min_final) ? 10'h0: (A2D_ADC_DATA_max_final - A2D_ADC_DATA_min_final);  	
  	A2D_ADC_TAG_CAP_delta <= A2D_ADC_TAG_CAP;
- 	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max;  	
- 	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min;  	
+ 	A2D_ADC_DATA_max_cap <= A2D_ADC_DATA_max_final;  	
+ 	A2D_ADC_DATA_min_cap <= A2D_ADC_DATA_min_final;  	
  	A2D_ADC_DATA_last_cap <= A2D_ADC_DATA_CAP;  	
   end
 end
@@ -511,7 +560,8 @@ end
 wire stim_mon_int_sts_pulse;
 wire stim_mon_sts_clr_sync_pulse;
 wire stim_mon_int_en_flag;
-assign stim_mon_int_en_flag = A2D_ADC_DATA_VLD ;
+//assign stim_mon_int_en_flag = A2D_ADC_DATA_VLD ;
+assign stim_mon_int_en_flag = stim_mon_int_en[1] & A2D_ADC_DATA_VLD ;
 always @(posedge sysclk or negedge presetn) begin
   if(~presetn) begin
     stim_mon_int_sts <= 1'b0;
@@ -550,7 +600,8 @@ wire stim_mon_delta_int_sts_pulse;
 wire stim_mon_delta_sts_clr_sync_pulse;
 
 wire stim_mon_delta_int_en_flag;
-assign stim_mon_delta_int_en_flag = A2D_ADC_DELTA_DATA_VLD;
+//assign stim_mon_delta_int_en_flag = A2D_ADC_DELTA_DATA_VLD;
+assign stim_mon_delta_int_en_flag = stim_mon_int_en[0] & A2D_ADC_DELTA_DATA_VLD;
 always @(posedge sysclk or negedge presetn) begin
   if(~presetn) begin
     stim_mon_delta_int_sts <= 1'b0;
@@ -588,7 +639,8 @@ wire stim_mon_cycle_int_sts_pulse;
 wire stim_mon_cycle_sts_clr_sync_pulse;
 
 wire stim_mon_cycle_int_en_flag;
-assign stim_mon_cycle_int_en_flag = one_cycle_data_vld;
+//assign stim_mon_cycle_int_en_flag = one_cycle_data_vld;
+assign stim_mon_cycle_int_en_flag = stim_mon_int_en[2] & one_cycle_data_vld;
 always @(posedge sysclk or negedge presetn) begin
   if(~presetn) begin
     stim_mon_cycle_int_sts <= 1'b0;

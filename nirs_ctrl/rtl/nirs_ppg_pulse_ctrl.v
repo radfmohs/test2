@@ -130,6 +130,7 @@ parameter [15:0] t_delay_timing   = 16'd10;
     end else if (MODE_SEL[4] == 1'b1) begin // SINGLE LED_d MODE
       if (MODE_SEL[5] == 1'b1) begin //Ambient
         LED_d[0]  <= ~LED_d[0];   
+        LED_d[1]  <= 1'b0;
       end else begin
         LED_d     <= 2'b0; 
       end

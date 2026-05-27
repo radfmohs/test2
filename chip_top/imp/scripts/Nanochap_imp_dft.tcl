@@ -543,7 +543,7 @@ saif_map -type ptpx -write_map $out_rep/${rm_project_top}_SAIF.namemap
 #write_icc2_files -output $out_data/${rm_project_top}.${stage}.icc2 -force
 write_def -components -output $out_data/${rm_project_top}.${stage}.def
 write_environment -consistency -output $out_data/${rm_project_top}.${stage}.env
-analyze_rtl_congestion > $out_rep/${rm_project_top}.congestion
+#analyze_rtl_congestion > $out_rep/${rm_project_top}.congestion
 
 # ------------------------------------------------------------------------------
 # Insert scan chains and report estimated scan coverage

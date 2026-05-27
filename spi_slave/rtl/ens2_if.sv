@@ -525,6 +525,7 @@ interface ana_nirs_if #(
 )
 ();
 
+wire  [8:0] IDAC_MANUAL_ATM;
 wire        D2A_PDBIAS_EN;
 wire  [1:0] D2A_PDBIAS_ADJ;
 wire        D2A_CLK_NIRS;
@@ -546,6 +547,7 @@ wire        A2D_NIRS_IREFFINE   [NO_OF_NIRS-1:0];
 
 
 modport nirs (
+  output    IDAC_MANUAL_ATM,
   output    D2A_PDBIAS_EN,
   output    D2A_NIRS_EN,
   output    D2A_CLK_NIRS,
@@ -566,6 +568,7 @@ modport nirs (
 );
 
 modport ana (
+  input     IDAC_MANUAL_ATM,
   input     D2A_PDBIAS_EN,
   input     D2A_NIRS_EN,
   input     D2A_CLK_NIRS,

@@ -31,6 +31,9 @@ class `TESTCFG extends soc_nirs_ppg_base_test_cfg;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
   logic [7:0]      rd_data[];
+  logic [7:0]      ch;
+  bit [1:0]        num_leds;
+  bit              first_time_config=0;
 
   // -----------------------------------------------
   // End of decalration of new variables 
@@ -59,26 +62,6 @@ class `TESTCFG extends soc_nirs_ppg_base_test_cfg;
 
   // mask values
   constraint c_mask        { soft mask == 8'hff; }
-
-  //
-  //constraint c_nirs_ppg_mode_sel { nirs_ppg_mode_sel == 4;} //received master single
-
-  //NIRS_CTRL_CMD
-  //constraint c_nirs_ppg_cmd       {nirs_ppg_cmd == 1;}  //0,1,2,3
-
-  //
-  //constraint c_nirs_ppg_meas     { nirs_ppg_meas ==1;} only for mcu master single mode needs to be set 1
-  //
-  //constraint c_nirs_ppg_en       { nirs_ppg_en == 1;}
-  // set FF
-  //NIRS_CTRL_6
-  //constraint c_threshold_h_18_13              {threshold_h_18_13  inside {[0:0]};}
-  //NIRS_CTRL_7
-  //constraint c_threshold_h_12_5               {threshold_h_12_5  inside {[24:24]};} //[7:7]
-  //NIRS_CTRL_8
-  //constraint c_threshold_h_4_0                {threshold_h_4_0  inside {[0:0]};} //[31:31]
-  //
-  //constraint c_led_stable_time_beforeipd_sw   {led_stable_time_beforeipd_sw  inside {[0:0]};}
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -125,9 +108,6 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
 
-    //`DUT_IF.nirs_ppg_mode_sel = top_test_cfg.nirs_ppg_mode_sel;
-
-    //`DUT_IF.nirs_ppg_cmd = top_test_cfg.nirs_ppg_cmd;
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -198,6 +178,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
  
 
     //// ########################################################
+    //// ########################################################
     //// --------------------------------------------------------
     //// --------------------------------------------------------
     //// NIRS/PPG Configration begins from here:
@@ -205,77 +186,141 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
     //// --------------------------------------------------------
     //// ########################################################
     //// ########################################################
-/*    for(int i=0; i<1; i++)begin
 
-      `nnc_info("SOC_TEST", $sformatf("Configure for NIRS_CH[%0d]", i),NNC_LOW)
-       configure_nirs_ctrl_regs(i);  //nirs from base test,nirs_addr_channel_en
+    //assert(top_test_cfg.randomize() with {top_test_cfg.ch_en_mask != 0;});
+   `nnc_info("PPG_TEST",$sformatf("top_test_cfg.ch_en_mask=%0h",top_test_cfg.ch_en_mask),NNC_LOW); 
+   `nnc_info("PPG_TEST",$sformatf("define num_of_leds in loop =%0h",top_test_cfg.num_of_leds_loop ),NNC_LOW); 
+  
+    //clear if any interrupts
+    top_test_cfg.first_time_config = 1'b1; 
+    `nnc_info("PPG_TEST",$sformatf("for common nirs reg configuration first_time_config=%0h",top_test_cfg.first_time_config),NNC_LOW); 
 
-       //At OFFSET 0X0A
-       //0X0A[3:0] == nirs_ppg_mode_sel
-       //0x0A[4]== 0: dual led mode, 1:single led mode
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_MODE REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_MODE_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.nirs_ppg_led_signle_en,`DUT_IF.nirs_ppg_mode_sel};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_MODE REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+    for(top_test_cfg.num_leds =0; top_test_cfg.num_leds < top_test_cfg.num_of_leds_loop; top_test_cfg.num_leds++ )begin  //led0 led1
+        top_test_cfg.temp_en_config_leds = (2**top_test_cfg.num_leds);
+         `nnc_info("PPG_TEST",$sformatf("temp_en_config_leds[1:0]=%0h",top_test_cfg.temp_en_config_leds ),NNC_LOW);
 
-       //At OFFSET 0X10
-       //0X10[3:0] == debug_channel
-       //0x10[4]== debug led
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_DEBUG_SEL REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_DEBUG_SEL_REG; mask == 8'hff; data[0] == {3'b0,`DUT_IF.debug_led,`DUT_IF.debug_channel};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_DEBUG_SEL REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+        for (top_test_cfg.ch = 0; top_test_cfg.ch < 1; top_test_cfg.ch++) begin  //ch0 to ch7
+           bit ch_en = top_test_cfg.ch_en_mask[top_test_cfg.ch];
+          
+           `nnc_info("PPG_TEST",$sformatf("channel_number=%0d, ch_en=%0h",top_test_cfg.ch, ch_en),NNC_LOW);
+   
+          // // 1. Randomize a fresh configuration for this channel
+          assert(`NIRS_PPG_CTRL_CFG.randomize() with{nirs_ppg_mode_sel == 'h4;
+                                                     threshold_h_18_16 == 'h0;
+                                                     threshold_h_15_8  == 'h0; 
+                                                     threshold_h_7_0 inside {[0:10]};
+                                                     threshold_l_7_0 inside {[0:10]};
+                                                     en_config_led0 ==  top_test_cfg.temp_en_config_leds[0] ; //'h1; // led0 and led1 configuration one by one to have different random value
+                                                     en_config_led1 ==  top_test_cfg.temp_en_config_leds[1]; //'h0; // led0 and led1 configuration one by one to have different random value
+                                                     nirs_ppg_led_signle_en == 'h1;
+                                                     idac_min_int_en == 'h1;
+                                                     idac_max_int_en == 'h1;
+                                                     iref_fine_on_not_off_en == 'h1;
+                                                     iref_fine_not_on_en == 'h1;
+                                                     iref_coarse_en == 'h1;
+                                                     data_ready_en == 'h1;
+                                                     idac_en == 'h1;
+                                                     //debug_channel == (top_test_cfg.ch +1'b1);
+                                                     //debug_led     == top_test_cfg.num_leds;
+                                                    });
 
-       //At OFFSET 0X0F
-       //0X0F[1:0] == NIRS_PPG_CMD
-       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_CMD_REG", NNC_LOW)
-       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
-       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CMD_REG; mask == 8'hff; data[0] == {6'b0,`DUT_IF.nirs_ppg_cmd};});
-       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CMD_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
+       
+          `nnc_info("PPG_TEST",$sformatf("nirs pgg base test top_test_cfg: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+                    `NIRS_PPG_CTRL_CFG.threshold_h_18_16,
+                    `NIRS_PPG_CTRL_CFG.threshold_h_15_8,
+                    `NIRS_PPG_CTRL_CFG.threshold_h_7_0,
+                    `NIRS_PPG_CTRL_CFG.threshold_l_7_0),NNC_LOW);
 
-    end //for
+          `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW);
 
-    #20ms;*/
+          //2.Configure only once common regs after randomization
+          if(top_test_cfg.first_time_config === 1'b1)begin
+            //1.nirs_clk_reg
+            config_nirs_clk_ctrl_reg;
+            //2. configure control led register
+            //config_nirs_ctrl_led_reg;
+            //3.
+            config_nirs_adj0_reg;    
+            //4.configure channel enable register
+            config_nirs_channel_en_reg(top_test_cfg.ch_en_mask);
+            //5.
+            config_nirs_intr_en_reg;
+            //6.
+            config_nirs_ctrl_mode_reg; 
+           `nnc_info("PPG_TEST","Disable common regs configuration for each loop",NNC_LOW);
+            top_test_cfg.first_time_config =1'b0; 
+            `nnc_info("PPG_TEST",$sformatf("for common nirs reg configuration first_time_config=%0h",top_test_cfg.first_time_config),NNC_LOW);
+          end
+      
+          //2.aconfigure control led register
+          config_nirs_ctrl_led_reg;
+
  
+          ////3. Enable only this channel
+          //`NIRS_PPG_CTRL_CFG.en_config_ch0 =  //(top_test_cfg.ch == 0) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch1 =  //(top_test_cfg.ch == 1) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch2 =  //(top_test_cfg.ch == 2) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch3 =  //(top_test_cfg.ch == 3) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch4 =  //(top_test_cfg.ch == 4) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch5 =  //(top_test_cfg.ch == 5) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch6 =  //(top_test_cfg.ch == 6) && ch_en;
+          //`NIRS_PPG_CTRL_CFG.en_config_ch7 =  //(top_test_cfg.ch == 7) && ch_en;
+  
+          //`nnc_info("PPG_TEST",$sformatf("nirs pgg base test en_config_ch0=%0h, en_config_ch1=%0h, en_config_ch2=%0h, en_config_ch3=%0h, en_config_ch4=%0h, en_config_ch5=%0h, en_config_ch6=%0h, en_config_ch7=%0h ",
+          // `NIRS_PPG_CTRL_CFG.en_config_ch0,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch1,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch2,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch3,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch4,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch5,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch6,
+          // `NIRS_PPG_CTRL_CFG.en_config_ch7),NNC_LOW);
+ 
+         //3. STORE RANDOMIZED VALUES INTO EXPECTED MODEL for scoreboard/checker
+         //3.a (LED0)
+          if(`NIRS_PPG_CTRL_CFG.en_config_led0 === 1'b1)begin
+           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test Enabled LED0 REGS CONFIGURATION, en_config_led0=%0h", `NIRS_PPG_CTRL_CFG.en_config_led0),NNC_LOW);
+            `NIRS_PPG_CTRL_CFG.compute_expected(top_test_cfg.ch,top_test_cfg.num_leds); 
+          end
 
-//       //At OFFSET 0XC4(SOC_NIRS_CTRL_5_REG)
-//       //bit[2:0] LEAD_STABLE_CTRL bit, Time for LED stable before D2A_NIRS_IPD_SW (0-10us, 1-20us, 2-40us, 3-60us, 4-80us, 5-1ms, 6-1.2ms, 7-1.4ms)
-//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_4_REG", NNC_LOW)
-//       //top_test_cfg.data[0] = {5'b0,top_test_cfg.led_stable_time_beforeipd_sw};
-//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_4_REG; mask == 8'hff; data[0] == {3'b0,top_test_cfg.idac_manual_8, top_test_cfg.idac_manual_en, top_test_cfg.led_stable_time_beforeipd_sw};});
-//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_4_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
-//       //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads/*, top_test_cfg.mask*/);
-//  
-//       //Generic configuration for Rx Cont. mode
-//       //Case 1:
-//       //1)MCU sets MODE_SEL to 4'b0100(RECEIVER MASTER CONT MODE, TYP)
-//       //2)MCU enables the NIRS receiver (by a register/command) 
-//       //3)NIRS_ctrl turns ON analog receiver (D2A_NIRS_EN) 
-//       //4)Delay a programmable time to wait for analog receiver to be stable 
-//       //5)NIRS_ctrl starts the state machine (D2A_NIRS_RESET_SW)  
-//       //6)NIRS_ctrl turns LED_ON on with a programmable delay time before D2A_NIRS_IPD_SW 
-//       //7)NIRS_ctrl starts the sampling process (D2A_NIRS_IPD_SW) 
-//       //8)NIRS_ctrl waits falling edge of A2D_IREFFINE to latch data then generates interrupt and turns off analog receiver.
-//
-//       //steps 1,2,3
-//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_0_REG", NNC_LOW)
-//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_0_REG; mask == 8'hff; data[0] == {1'b0, top_test_cfg.ratio_ctrl, top_test_cfg.ratio_mode,top_test_cfg.nirs_ppg_mode_sel};});
-//       `nnc_info("SOC_TEST", $sformatf("top_test_cfg.data[0]: %h nirs_ppg_mode_sel: %h ratio_mode: %h ration_ctrl: %h",top_test_cfg.data[0], top_test_cfg.nirs_ppg_mode_sel, top_test_cfg.ratio_mode, top_test_cfg.ratio_ctrl), NNC_LOW)
-//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
-//
-//       //At OFFSET 0XCE[7:0]
-//       top_test_cfg.ch_en_mask |= (8'b1 << i);
-//       `nnc_info("SOC_TEST", $sformatf("Configure SOC_NIRS_CTRL_EN_REG top_test_cfg.ch_en_mask =8'b%b",top_test_cfg.ch_en_mask), NNC_LOW)
-//       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_EN_REG", NNC_LOW)
-//       //top_test_cfg.data[0] = top_test_cfg.threshold_l_7_0;
-//       assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_EN_REG; mask == 8'hff; data[0] == (({top_test_cfg.nirs_ppg_en7,top_test_cfg.nirs_ppg_en6,top_test_cfg.nirs_ppg_en5,top_test_cfg.nirs_ppg_en4,top_test_cfg.nirs_ppg_en3,top_test_cfg.nirs_ppg_en2,top_test_cfg.nirs_ppg_en1,top_test_cfg.nirs_ppg_en0})& top_test_cfg.ch_en_mask);}); 
-//       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_EN_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)                                                         
-//       `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);  
-//
+         //3.b (LED1)
+         if(`NIRS_PPG_CTRL_CFG.en_config_led1 === 1'b1)begin
+           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test Enabled LED1 REGS CONFIGURATION, en_config_led1=%0h", `NIRS_PPG_CTRL_CFG.en_config_led1),NNC_LOW);
+            `NIRS_PPG_CTRL_CFG.compute_expected(top_test_cfg.ch,top_test_cfg.num_leds); 
+         end
+         
+         //4. Drive DUT/NIRS interface with this channel's config, debug purpose\
+         //LED0
+          if(`NIRS_PPG_CTRL_CFG.en_config_led0 === 1'b1)begin
+           drive_nirs_if_from_cfg_leds(top_test_cfg.ch,top_test_cfg.num_leds);
+         end
+         //LED1
+           if(`NIRS_PPG_CTRL_CFG.en_config_led1 === 1'b1)begin
+             drive_nirs_if_from_cfg_leds(top_test_cfg.ch,top_test_cfg.num_leds);
+           end
+         //`nnc_info("PPG_TEST",$sformatf("DUT_IF: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+         //           `DUT_IF.threshold_h_18_16,
+         //           `DUT_IF.threshold_h_15_8,
+         //           `DUT_IF.threshold_h_7_0,
+         //           `DUT_IF.threshold_l_7_0),NNC_LOW);
+
+
+         //5. Write registers for this channel
+          if(`NIRS_PPG_CTRL_CFG.en_config_led0 === 1'b1)begin
+             configure_nirs_ctrl_regs(top_test_cfg.ch, top_test_cfg.num_leds);
+          end
+          if(`NIRS_PPG_CTRL_CFG.en_config_led1 === 1'b1)begin
+             configure_nirs_ctrl_regs(top_test_cfg.ch, top_test_cfg.num_leds);
+          end 
+         `nnc_info("PPG_TEST",$sformatf("Configured channel %0d with unique register values", top_test_cfg.ch),NNC_LOW);    
+       end //8 channel configuration
+    end //led0,led1 config 
+
+    //6.send command
+   nirs_start_cmd_receiver_single_cont_mode;
+    
+
+    #50ms;
  
  
     // --------------------------------------------------------

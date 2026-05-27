@@ -90,7 +90,6 @@ set_app_var timing_remove_clock_reconvergence_pessimism true
 set_propagated_clock [filter_collection [all_clocks] defined(sources)]
 
 #reset_timing_derate
- #set_false_path -from  u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/POR -to u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PPROG
 
 # -----------------------------------------------------------------------------------
 # Update timing and Check timing

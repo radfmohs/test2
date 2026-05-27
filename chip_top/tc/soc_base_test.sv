@@ -253,6 +253,8 @@ class `TESTCFG extends nnc_object;
     rand  integer        sar_adc_data_timing_t1; // unit ns (timing to assert A2D_ADC_DATA_EN after the falling of D2A_ADC_CLK) (5ns < t1 < 75% of ADC_CLK Period)
     rand  integer        sar_adc_data_timing_t2; // unit ns (timing to de-assert A2D_ADC_DATA_EN after the rising of D2A_ADC_CLK) (5ns < t2 < 25% of ADC_CLK Period)
 
+    rand  bit            spi_dual_mode_en;
+
     bit A2D_comp0_in = 0;
     bit A2D_comp1_in = 0;
     bit A2D_comp_stim0_1_in = 0;
@@ -268,6 +270,8 @@ class `TESTCFG extends nnc_object;
     //--------------------------------------------------------
     // Declare constraints for each of randomized variables
     //--------------------------------------------------------
+
+    constraint c_spi_dual_mode_en         { spi_dual_mode_en == 1'b0; }
 
     constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b0; } // Sine is enable
 
@@ -1435,6 +1439,8 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
 
     `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
 
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en; 
+
     phase.drop_objection(this);
 endtask : pre_reset_phase
 
@@ -1581,6 +1587,11 @@ task `TESTNAME::reset_phase(nnc_phase phase);
         `nnc_info(get_type_name(), "Reset is done", NNC_LOW)
         #1ms;
       end
+
+      if (`DUT_IF.spi_dual_mode_en === 1'b1) begin
+        `nnc_info("SOC_TEST", "DUAL SPI MODE ENABLE", NNC_LOW)
+        `SPI_CHANGE_TO_DUAL_MODE();
+      end      
 
       if (`DUT_IF.spi_o_clk_sel !== 1'b0) begin
         `nnc_info("SOC_TEST", "Single Writing to SOC_OUT_CLK_SEL_REG Register to use MULTI CHIP with Unaligned clock", NNC_LOW)

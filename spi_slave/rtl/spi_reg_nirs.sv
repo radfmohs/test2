@@ -92,6 +92,10 @@ module spi_reg_nirs #(
   input  [DATA_WIDTH-1:0] i_wr_data,
   output [DATA_WIDTH-1:0] o_rd_data,
 
+  input  reg  [2:0]       atm_adj_mode,
+  input  reg              atm_adj,
+  input  reg  [7:0]       atm_adj_data,
+
 
   output  wire            ppg_dis,           //ppg disble 
   output  wire  [1:0]     ppg_clk_div,       // ppg clock divider
@@ -182,16 +186,25 @@ module spi_reg_nirs #(
     if(!i_rst_n) begin
       for(int x = 0; x < NO_OF_CHANNEL; x = x + 1) begin
         for(int y = 0; y < 2; y = y + 1) begin
-          nirs_ctrl_reg [x][y][0]  <= 8'h44;
+          nirs_ctrl_reg [x][y][0]  <= 8'h47;
           nirs_ctrl_reg [x][y][1]  <= 8'h02;
           nirs_ctrl_reg [x][y][2]  <= 8'h00;
-          nirs_ctrl_reg [x][y][3]  <= 8'h0F;
+          nirs_ctrl_reg [x][y][3]  <= 8'h07;
           nirs_ctrl_reg [x][y][4]  <= 8'hFF;
           nirs_ctrl_reg [x][y][5]  <= 8'hFF;
           nirs_ctrl_reg [x][y][6]  <= 8'hFF;
-          nirs_ctrl_reg [x][y][7]  <= 8'h00 ;
+          nirs_ctrl_reg [x][y][7]  <= 8'h00;
           nirs_ctrl_reg [x][y][8]  <= 8'h00;
         end
+      end
+
+    end else if (atm_adj) begin
+      if (atm_adj_mode[0] || atm_adj_mode[1]) begin
+        nirs_ctrl_reg[4][1][7][4:3] <= atm_adj_data[1:0];
+        nirs_ctrl_reg[4][1][7][2:1] <= atm_adj_data[3:2];
+      end else if (atm_adj_mode[2]) begin
+        nirs_ctrl_reg[4][1][3][7:5] <= atm_adj_data[2:0];
+        nirs_ctrl_reg[4][1][2][4:0] <= atm_adj_data[7:3];
       end
 
     end else begin

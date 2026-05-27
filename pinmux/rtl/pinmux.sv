@@ -403,8 +403,8 @@ module pinmux (
 //NORMAL MODE - SPI
   assign o_cpoln = ~test_en ?  pad_cpoln  : 1'b0;
   assign o_cpha  = ~test_en ?  pad_cpha   : 1'b0;
-  assign cs_n    = ~test_en ?  pad_cs_n   : 1'b0;
-  assign sclk    = ~test_en ?  pad_sclk   : 1'b0;
+  assign cs_n    = ~test_en ?  pad_cs_n   : 1'b1;
+  assign sclk    = ~test_en ?  pad_sclk   : ext_clk;
   assign mosi    = ~test_en ?  pad_mosi   : 1'b0;
   assign mosi1   = ~test_en ?  pad_mosi1   : 1'b0;
 
@@ -461,29 +461,33 @@ module pinmux (
   assign pinmux_if.i_ds_driver_en_current = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_ds_driver_en_current;
   assign pinmux_if.i_stimu_en             = (ATM_CONFG & (ATM_HC_SEL == 1'b0) &  ATM6) ?  1'b1  : i_stimu_en;
 
-
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][0]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][0];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM1[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][1];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM2[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][2];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM3[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][3];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM4[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][4];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM5[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][5];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM6[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][6];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][7]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM7[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][7];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][8]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM8[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][8];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][9]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM9[ATM_sel]   : spi_pinmux_if.ANA_ENABLE_REG[0][9];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][10]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM10[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][10];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][11]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM11[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][11];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][12]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM12[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][12];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][13]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM13[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][13];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[0][14]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM14[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[0][14];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][0]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM15[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][0];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][1]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM16[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][1];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][2]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM17[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][2];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][3]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM18[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][3];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][4]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM19[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][4];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][5]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM20[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][5];
-  assign pinmux_if.D2A_ANA_ENABLE_REG[1][6]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? CONFIG_ROM21[ATM_sel]  : spi_pinmux_if.ANA_ENABLE_REG[1][6];
+genvar i; 
+  generate 
+    for (i = 0; i < 8; i = i + 1) begin
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][0][i]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? (CONFIG_ROM0[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][0][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][0][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][1][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM1[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][1][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][1][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][2][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM2[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][2][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][2][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][3][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM3[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][3][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][3][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][4][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM4[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][4][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][4][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][5][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM5[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][5][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][5][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][6][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM6[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][6][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][6][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][7][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM7[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][7][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][7][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][8][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM8[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][8][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][8][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][9][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM9[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][9][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][9][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][10][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM10[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][10][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][10][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][11][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM11[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][11][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][11][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][12][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM12[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][12][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][12][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][13][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM13[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][13][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][13][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][14][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM14[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][14][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][14][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][0][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM15[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][0][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][0][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][1][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM16[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][1][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][1][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][2][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM17[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][2][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][2][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][3][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM18[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][3][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][3][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][4][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM19[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][4][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][4][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][5][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM20[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][5][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][5][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[1][6][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM21[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][6][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][6][i];
+    end
+  endgenerate
 
 
 //debug_signal_mode0(ATM0)

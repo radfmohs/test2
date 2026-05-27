@@ -26,10 +26,14 @@ class `TESTCFG extends soc_base_test_cfg;
 
   //rand logic [7:0] expected_data;
   //logic [7:0]      rd_data[];
+    logic [7:0]      rd_data[256];
+
     rand logic [15:0] wavegen_drv_mode; // 0: Source and 1: Pull
     rand logic [7:0]  wg_glb_reg;
     rand logic [7:0]  pads;
     rand logic [15:0] wavegen_drv_en;   // 0: disable, 1: enable
+
+
   // -----------------------------------------------
   // End of decalration of new variables 
   // ===============================================
@@ -53,9 +57,12 @@ class `TESTCFG extends soc_base_test_cfg;
   // at the time
     constraint c_wg_glb_reg  {wg_glb_reg[0] == 0;}
 
-    constraint c_wavegen_drv_mode  {wavegen_drv_mode == 16'h0001;} // 0 is Source and 1 is Sink 
+    constraint c_wavegen_drv_mode  { foreach (wavegen_drv_mode[i]) { if (!wavegen_drv_en[i]) wavegen_drv_mode[i] == 0; } // 0 is Source and 1 is Sink 
+                                     $countones(wavegen_drv_mode) == 1;
+                                   } 
 
-    constraint c_wavegen_drv_en {wavegen_drv_en == 16'h0003;} // 0 and 1 is enabled
+    constraint c_wavegen_drv_en { $countones(wavegen_drv_en) == 2; } // 0 and 1 is enabled
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
