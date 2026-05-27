@@ -273,13 +273,50 @@ module spi_reg_controller_tb;
     end
   endtask
 
-  // Receive one byte from single-wire MISO in dual mode context
+  // Receive one byte from dual MISO (o_miso1=odd bit, o_miso=even bit) over 4 clocks
   task dual_recv_byte;
+    integer p;
+    begin
+      for (p = 3; p >= 0; p = p - 1) begin
+        @(posedge sclk);
+        xfr_rd_byte[2*p+1] = o_miso1; // odd bit of pair
+        xfr_rd_byte[2*p]   = o_miso;  // even bit of pair
+      end
+    end
+  endtask
+
+  // Assert CS# and drive addr MSB on MOSI simultaneously (single mode)
+  // This prevents a dead Z clock on the first bit that would corrupt rx_buf.
+  task single_start_txn;
+    input [7:0] addr;
     integer b;
     begin
-      for (b = 7; b >= 0; b = b - 1) begin
+      @(negedge sclk);
+      i_cs_n = 0;
+      i_mosi = addr[7]; // drive MSB at CS# assertion — no dead clock
+      @(posedge sclk);
+      for (b = 6; b >= 0; b = b - 1) begin
+        @(negedge sclk); i_mosi = addr[b];
         @(posedge sclk);
-        xfr_rd_byte[b] = o_miso;
+      end
+    end
+  endtask
+
+  // Assert CS# and drive addr MSB pair on {MOSI1, MOSI} simultaneously (dual mode)
+  task dual_start_txn;
+    input [7:0] addr;
+    integer p;
+    begin
+      @(negedge sclk);
+      i_cs_n  = 0;
+      i_mosi1 = addr[7]; // drive MSB pair at CS# assertion
+      i_mosi  = addr[6];
+      @(posedge sclk);
+      for (p = 2; p >= 0; p = p - 1) begin
+        @(negedge sclk);
+        i_mosi1 = addr[2*p+1];
+        i_mosi  = addr[2*p];
+        @(posedge sclk);
       end
     end
   endtask
@@ -294,8 +331,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_WR);
       single_send_byte(data);
       single_send_byte(8'h00); // pad so last data byte shifts fully into DUT
@@ -309,8 +345,7 @@ module spi_reg_controller_tb;
   task single_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_RD);
       single_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz;
@@ -323,8 +358,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     integer j;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_BURST_WR);
       for (j = 0; j < xfr_len; j = j + 1)
         single_send_byte(xfr_wr_buf[j]);
@@ -339,10 +373,8 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     integer j;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_BURST_RD);
-      @(posedge sclk); // extra clock before reading
       for (j = 0; j < xfr_len; j = j + 1) begin
         single_recv_byte();
         xfr_rd_buf[j] = xfr_rd_byte;
@@ -357,8 +389,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_WG_WR);
       single_send_byte(data);
       single_send_byte(8'h00);
@@ -371,8 +402,7 @@ module spi_reg_controller_tb;
   task single_wavegen_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_WG_RD);
       single_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz;
@@ -385,8 +415,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_NIRS_WR);
       single_send_byte(data);
       single_send_byte(8'h00);
@@ -399,8 +428,7 @@ module spi_reg_controller_tb;
   task single_nirs_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(addr);
+      single_start_txn(addr);
       single_send_byte(CMD_S_NIRS_RD);
       single_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz;
@@ -413,8 +441,7 @@ module spi_reg_controller_tb;
     integer j, total;
     begin
       total = xfr_len * 3;
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(8'h00);
+      single_start_txn(8'h00);
       single_send_byte(CMD_S_RDATA);
       for (j = 0; j < total; j = j + 1) begin
         single_recv_byte();
@@ -430,8 +457,7 @@ module spi_reg_controller_tb;
     integer j, total;
     begin
       total = xfr_len * 3;
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(8'h00);
+      single_start_txn(8'h00);
       single_send_byte(CMD_S_RDATAC);
       for (j = 0; j < total; j = j + 1) begin
         single_recv_byte();
@@ -448,8 +474,7 @@ module spi_reg_controller_tb;
   //--------------------------------------------------------------------------
   task enable_dual_mode;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      single_send_byte(8'hFF);
+      single_start_txn(8'hFF);
       single_send_byte(CMD_S_WR | CMD_DUAL_ENABLE);
       single_send_byte(8'h00);
       single_send_byte(8'h00);
@@ -467,8 +492,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_WR);
       dual_send_byte(data);
       dual_send_byte(8'h00);
@@ -481,9 +505,9 @@ module spi_reg_controller_tb;
   task dual_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_RD);
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       dual_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz; i_mosi1 = 1'bz;
       repeat(4) @(posedge sclk);
@@ -495,8 +519,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     integer j;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_BURST_WR);
       for (j = 0; j < xfr_len; j = j + 1)
         dual_send_byte(xfr_wr_buf[j]);
@@ -511,10 +534,9 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     integer j;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_BURST_RD);
-      @(posedge sclk); // extra clock
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       for (j = 0; j < xfr_len; j = j + 1) begin
         dual_recv_byte();
         xfr_rd_buf[j] = xfr_rd_byte;
@@ -529,8 +551,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_WG_WR);
       dual_send_byte(data);
       dual_send_byte(8'h00);
@@ -543,9 +564,9 @@ module spi_reg_controller_tb;
   task dual_wavegen_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_WG_RD);
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       dual_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz; i_mosi1 = 1'bz;
       repeat(4) @(posedge sclk);
@@ -557,8 +578,7 @@ module spi_reg_controller_tb;
     input [7:0] addr;
     input [7:0] data;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_NIRS_WR);
       dual_send_byte(data);
       dual_send_byte(8'h00);
@@ -571,9 +591,9 @@ module spi_reg_controller_tb;
   task dual_nirs_read;
     input [7:0] addr;
     begin
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(addr);
+      dual_start_txn(addr);
       dual_send_byte(CMD_D_NIRS_RD);
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       dual_recv_byte();
       @(negedge sclk); i_cs_n = 1; i_mosi = 1'bz; i_mosi1 = 1'bz;
       repeat(4) @(posedge sclk);
@@ -585,9 +605,9 @@ module spi_reg_controller_tb;
     integer j, total;
     begin
       total = xfr_len * 3;
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(8'h00);
+      dual_start_txn(8'h00);
       dual_send_byte(CMD_D_RDATA);
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       for (j = 0; j < total; j = j + 1) begin
         dual_recv_byte();
         xfr_rd_buf[j] = xfr_rd_byte;
@@ -602,9 +622,9 @@ module spi_reg_controller_tb;
     integer j, total;
     begin
       total = xfr_len * 3;
-      @(negedge sclk); i_cs_n = 0;
-      dual_send_byte(8'h00);
+      dual_start_txn(8'h00);
       dual_send_byte(CMD_D_RDATAC);
+      @(posedge sclk); // wait for first data bit to be driven on MISO
       for (j = 0; j < total; j = j + 1) begin
         dual_recv_byte();
         xfr_rd_buf[j] = xfr_rd_byte;
@@ -1082,6 +1102,11 @@ module spi_reg_controller_tb;
     // ------------------------------------------------------------------
     // TC25: Dual RDATAC command  (2 channels)
     // ------------------------------------------------------------------
+    // NOTE: DUT limitation in dual RDATAC mode — rdata_cmd is de-asserted
+    // once cmd_reg_5 is fully decoded (at bc=14), causing tx_buf to load
+    // from i_rd_data instead of imeas_temp for all bytes after the first.
+    // This means dual RDATAC does not correctly stream imeas_chdata for
+    // channels beyond ch0 byte0. TC25b intentionally exposes this DUT bug.
     $display("\n[TC25] Dual RDATAC  2 channels");
     xfr_len = 2;
     dual_rdatac();
@@ -1090,6 +1115,7 @@ module spi_reg_controller_tb;
       pass_test("TC25a: dual RDATAC ch0 byte0");
     else
       fail_test("TC25a: dual RDATAC ch0 byte0 wrong", xfr_rd_buf[0], imeas_chdata[0][23:16]);
+    // TC25b exposes DUT bug: dual RDATAC falls back to i_rd_data for ch1
     if (xfr_rd_buf[3] === imeas_chdata[1][23:16])
       pass_test("TC25b: dual RDATAC ch1 byte0");
     else
