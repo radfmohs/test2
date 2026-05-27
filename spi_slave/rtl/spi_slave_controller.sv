@@ -137,22 +137,36 @@ wire [7:0]              imeas_3rd_byte;
 wire [7:0]              imeas_2nd_byte;
 wire [7:0]              imeas_1st_byte;
 
-wire  spi_reset_n = i_rst_n & !i_cs_n;
+reg cmd_reg_0, cmd_reg_1;
+//reg cmd_reg_2, cmd_reg_3; 
+reg cmd_reg_4, cmd_reg_5; 
+reg cmd_reg_6, cmd_reg_7;
 
 //--------------------------------------------------//
 //        dual control    													//
 //--------------------------------------------------//
-reg dual_cmd_reg;
+reg dual_pending;
 reg  dual_en;
 assign o_dual_en = dual_en;
 assign o_dual_wr = (dual_en && !rd_data_rdy);
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
+    dual_pending <= 1'b0;
+  else if (bit_cnt == 6'h12)   // one cycle after cmd_reg_0 is decoded at 0x11
+    dual_pending <= cmd_reg_0; // sclk is running here, no cs_n_d needed
+end
+ 
+/*
+  One cycle after cmd_reg_0 decoded -> raise dual_pending
+  At bit_cnt == 0, new transaction starts -> switch to dual
+  No logical mechanism to exit dual mode. Assert reset to go back to single!
+*/
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if(!i_rst_n)
     dual_en <= 1'b0;
-  else if (dual_en == 1'b0)
-    if (dual_cmd_reg)
-      dual_en <= 1'b1;
+  else if (bit_cnt == 6'h00 && dual_pending)
+    dual_en <= 1'b1;
 end
 
 //--------------------------------------------------//
@@ -198,11 +212,11 @@ end
 //--------------------------------------------------//
 //assign i_mosi1_d = 1'b0;
 //always@(posedge i_sclk , negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     rx_buf <= {DATA_WIDTH{1'b0}};
-//end else if (cs_n_d == 1'b1) begin
-//  rx_buf <= {DATA_WIDTH{1'b0}};
+  end else if (cs_n_d == 1'b1) begin
+    rx_buf <= {DATA_WIDTH{1'b0}};
   end else if (dual_en) begin
     rx_buf <= {rx_buf[DATA_WIDTH-3:0], i_mosi1_d, i_mosi_d};
   end else begin
@@ -214,11 +228,11 @@ end
 //            bit cnt logic								  				//
 //--------------------------------------------------//
 
-//wire bit_cnt_reset = i_rst_n & !i_cs_n;
+wire bit_cnt_reset = i_rst_n & !i_cs_n;
 //always@(posedge i_sclk or negedge bit_cnt_reset)begin //or negedge i_cs_n)  begin // or negedge i_cs_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge bit_cnt_reset) begin
 //if (!i_rst_n) begin
-  if (!spi_reset_n) begin
+  if (!bit_cnt_reset) begin
     bit_cnt <= 0;
   end else if (i_cs_n)begin
     bit_cnt <= 0;
@@ -327,11 +341,6 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
-reg cmd_reg_0, cmd_reg_1;
-//reg cmd_reg_2, cmd_reg_3; 
-reg cmd_reg_4, cmd_reg_5; 
-reg cmd_reg_6, cmd_reg_7;
-
 assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
 assign nirs_cmd_reg     = (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
@@ -341,11 +350,11 @@ assign rdata_cmd        = (cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cm
 assign cmd_reg          =  cmd_reg_7;
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cmd_reg_7 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  cmd_reg_7 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    cmd_reg_7 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_7 <= 1'b0;
   //end else if (bit_cnt == 6'h0b )begin        // 9th bit is the command bit(9+2 =11)
@@ -359,11 +368,11 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
 end
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cmd_reg_6 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  cmd_reg_6 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    cmd_reg_6 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_6 <= 1'b0;
 //end else if (bit_cnt == 6'h0d )begin        // 11th bit is the command bit(11+2=13)
@@ -378,11 +387,11 @@ end
 
 // Thanh Huu added
 //-------------RDATA_CMD------------------//
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cmd_reg_5 <= 1'b0;
-//end else if(cs_n_d == 1'b1) begin
-//  cmd_reg_5 <= 1'b0;
+  end else if(cs_n_d == 1'b1) begin
+    cmd_reg_5 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_5 <= 1'b0;
   end else if (dual_en) begin
@@ -394,11 +403,11 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
   end
 end
 
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cmd_reg_4 <= 1'b0;
-//end else if(cs_n_d == 1'b1) begin
-//  cmd_reg_4 <= 1'b0;
+  end else if(cs_n_d == 1'b1) begin
+    cmd_reg_4 <= 1'b0;
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_4 <= 1'b0;
   end else if (dual_en) begin   // dual mode: command bit arrives 1 cycle earlier
@@ -411,8 +420,8 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
 end
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-// always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-//   if (!spi_reset_n) begin
+// always@(posedge i_sclk_neg, negedge i_rst_n) begin
+//   if (!i_rst_n) begin
 //     cmd_reg_3 <= 1'b0;
 //   end else if (cs_n_d == 1'b1) begin
 //     cmd_reg_3 <= 1'b0;
@@ -427,8 +436,8 @@ end
 
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-// always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-//   if (!spi_reset_n) begin
+// always@(posedge i_sclk_neg, negedge i_rst_n) begin
+//   if (!i_rst_n) begin
 //     cmd_reg_2 <= 1'b0;
 //   end else if (cs_n_d == 1'b1) begin
 //     cmd_reg_2 <= 1'b0;
@@ -441,11 +450,11 @@ end
 //   end
 // end
 
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cmd_reg_1 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  cmd_reg_1 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    cmd_reg_1 <= 1'b0;
 //end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)
   end else if (dual_en) begin
     if (bit_cnt == 6'h12 )       
@@ -457,11 +466,11 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
 end
 
 
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if(!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if(!i_rst_n) begin
     cmd_reg_0 <= 1'b0;   //active low
-//end else if (cs_n_d == 1'b1) begin
-//  cmd_reg_0 <= cmd_reg_0; 
+  end else if (cs_n_d == 1'b1) begin
+    cmd_reg_0 <= cmd_reg_0; 
   end else if (dual_en) begin
     if (bit_cnt == 6'h12)
       cmd_reg_0 <= rx_buf[0];
@@ -476,11 +485,11 @@ end
 //-----------------------wr_data logic--------------------/
 //latch 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     latch_state <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  latch_state <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    latch_state <= 1'b0;
   end else if(bit_cnt==6'h0) begin
     latch_state <= 1'b0;
 //end else if (burst_mode ==1'b0 && bit_cnt ==6'h19 && cmd_reg==1 )begin // after receiving data1 is 7th bit
@@ -613,13 +622,12 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
 end
 
 //-----------------------------mosi output------------------//
-wire spi_sclk_reset_n = i_rst_n & !i_cs_n;
 
-always@(posedge i_sclk, negedge spi_sclk_reset_n) begin
-  if (!spi_sclk_reset_n) begin
+always@(posedge i_sclk, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     dff_miso <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  dff_miso <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    dff_miso <= 1'b0;
   end else if ((cov_done == 1'b1) && (cpha != 1'b0)) begin
     dff_miso <= (!mode[1] && !next_dev_valid) ? status_temp[7] : imeas_temp[7]; 
   end else if ((byte_cnt[6:0] == 7'h01) && (rd_data_rdy == 1'b1) && (rdatac_cmd == 1'b1) && (bit_cnt == 6'h18) && (byte_done == 1'b0)) begin
@@ -630,11 +638,11 @@ always@(posedge i_sclk, negedge spi_sclk_reset_n) begin
 end
 
 //dual mode
-always@(posedge i_sclk, negedge spi_sclk_reset_n) begin
-  if (!spi_sclk_reset_n) begin
+always@(posedge i_sclk, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     dff_miso1 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  dff_miso1 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    dff_miso1 <= 1'b0;
   end else if (dual_en) begin
     dff_miso1 <= tx_d1;
   end 
@@ -648,11 +656,11 @@ assign o_miso = detect_flag ? comb_miso : dff_miso;
 assign o_miso1 = dff_miso1;
 assign detect_first_bit = cov_done && rdata_cmd && rdatac_cmd && (cpha == 1'b0);
 
-always@(posedge i_sclk, negedge spi_sclk_reset_n) begin
-  if (!spi_sclk_reset_n) begin
+always@(posedge i_sclk, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     detect_first_bit_sync <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  detect_first_bit_sync <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    detect_first_bit_sync <= 1'b0;
   end else begin
     detect_first_bit_sync <= detect_first_bit;
   end 
@@ -660,11 +668,11 @@ end
 
 //tx_d
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     tx_d <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  tx_d <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    tx_d <= 1'b0;
   end else if (dual_en) begin
     if (rd_data_rdy == 1) begin
       tx_d <= tx_buf[DATA_WIDTH-2];
@@ -681,11 +689,11 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
 end
 
 //dual mode
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     tx_d1 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  tx_d1 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    tx_d1 <= 1'b0;
   end else if (!dual_en) begin
     tx_d1 <= 1'b0;
   end else if (rd_data_rdy == 1) begin
@@ -697,11 +705,11 @@ end
 
 //rd_data_rdy
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     rd_data_rdy <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  rd_data_rdy <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    rd_data_rdy <= 1'b0;
   end else if (bit_cnt ==6'h4 ) begin  // bit_cnt == 2) begin   //when sampling the cmd instruction 2
     rd_data_rdy <= 1'b0; 
 //end else if (dual_en) begin
@@ -715,11 +723,11 @@ always@(posedge i_sclk_neg, negedge spi_reset_n) begin
 end
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
-always@(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     tx_buf <= 0;
-//end else if (cs_n_d == 1'b1) begin
-//  tx_buf <= 0;
+  end else if (cs_n_d == 1'b1) begin
+    tx_buf <= 0;
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
   end else if (dual_en) begin
@@ -757,11 +765,11 @@ start sending read_data at this time.
 - When master chip finished sending its imeas data (next_dev_valid) 
 then when after every 8 i_sclk_neg or byte_done, byte_cnt increase bt 1 
 *********************************************/
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     byte_cnt <= 7'h0;
-//end else if (cs_n_d == 1'b1) begin
-//  byte_cnt <= 7'h0;
+  end else if (cs_n_d == 1'b1) begin
+    byte_cnt <= 7'h0;
   end else if (bit_cnt == 6'h0) begin
     byte_cnt <= 7'h0;
   end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt == num_status_byte + i_channel_max * chdata_size[2:0] - 1) && !next_dev_valid) begin
@@ -780,11 +788,11 @@ Used to track the number of byte count per channel,
 reset when reach adc_inc_val or when status mode (!mode[1])
 and byte_cnt <= 7'h5
 *********************************************/
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     byte_cnt_tmp <= 6'h0;
-//end else if (cs_n_d == 1'b1) begin
-//  byte_cnt_tmp <= 6'h0;
+  end else if (cs_n_d == 1'b1) begin
+    byte_cnt_tmp <= 6'h0;
   end else if (bit_cnt == 6'h0) begin
     byte_cnt_tmp <= 6'h0;
   end else if (!mode[1] && (byte_cnt < 7'h5 || ( byte_cnt == 7'h5 && !byte_done )) && !next_dev_valid) begin
@@ -815,11 +823,11 @@ reg cov_done_d1;
 assign cov_done = (dual_en) ? ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (rdatac_cmd == 1'b1) && (byte_cnt == 7'h00) && (bit_cnt == 6'h1a)) : 
                               ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (rdatac_cmd == 1'b1) && (byte_cnt == 7'h00) && (bit_cnt == 6'h18));
 
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     cov_done_d1 <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  cov_done_d1 <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    cov_done_d1 <= 1'b0;
   end else begin
     cov_done_d1 <= cov_done;
   end
@@ -838,11 +846,11 @@ Similarly, if 3 bytes data per channel then adc_cnt reset when reach 5'd22.
 Because, 22 * 3 = 66 => imeas_chdata_reg = {buffer[x],buffer[x+1],buffer[x+2],buffer[x+3].
 Notice when x+2 and x+3 are 68 and 69, just don't care as no more i_sclk_neg
 ******************************************************/
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     adc_cnt <= 5'h0;
-//end else if (cs_n_d == 1'b1) begin
-//  adc_cnt <= 5'h0;
+  end else if (cs_n_d == 1'b1) begin
+    adc_cnt <= 5'h0;
   end else if (bit_cnt == 6'h0) begin
     adc_cnt <= 5'h0;
   end else if ((adc_cnt == i_channel_max - 1) && (byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
@@ -878,11 +886,11 @@ When master chip has finished transfer its data
 through MISO, it started sending data of other chip
 stored in buffer.
 ***********************************************/
-always @(posedge i_sclk_neg, negedge spi_reset_n) begin
-  if (!spi_reset_n) begin
+always @(posedge i_sclk_neg, negedge i_rst_n) begin
+  if (!i_rst_n) begin
     next_dev_valid <= 1'b0;
-//end else if (cs_n_d == 1'b1) begin
-//  next_dev_valid <= 1'b0;
+  end else if (cs_n_d == 1'b1) begin
+    next_dev_valid <= 1'b0;
   end else if (bit_cnt == 6'h0) begin
     next_dev_valid <= 1'b0;
   end else if (next_dev_en) begin

@@ -45,6 +45,9 @@ endfunction
 
 assign wavegen_dev_src = get_wavegen_dev_src();
 
+assign dut_vif.wg_dev_src = wavegen_dev_src;
+assign dut_vif.wg_dev_snk = wavegen_dev_snk;
+
 `ifdef BEHAVIORAL
   assign wavegen_vif[0].wave_addr[0] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[0];
   assign wavegen_vif[0].wave_addr[1] = `WG_DRIVER_TOP.o_wg_driver_in_wave_addr[1];

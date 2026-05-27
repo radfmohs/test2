@@ -71,7 +71,7 @@ if {[string match S11?_m?? $i]} {
   set_clock_uncertainty -hold    0.4      [get_clocks imeas_clk]
 }
 
-#external clock can support either normal mode (S21) or cp test mode (S22)
+#external clock can support either normal mode (S12) or cp test mode (S22)
 if {[string match S?2*_m?? $i]} {
   # ================================================================================================================================
   # ===== ext_clk  
@@ -99,6 +99,13 @@ if {[string match S?2*_m?? $i]} {
 			[get_pins u_top_dig/u_clk_ctrl/hpf_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks hpf_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks hpf_clk]
+
+   create_generated_clock -name imeas_clk -add -divide_by 1 -master_clock ext_clk \
+			-source [get_attribute [get_clocks ext_clk] sources] \
+			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
+  set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
+  set_clock_uncertainty -hold    0.4      [get_clocks imeas_clk]
+
 }
 
 #bist clock scenario
@@ -256,16 +263,7 @@ if {[string match S1??_m?? $i]} {
 if {[string match S1??_m?? $i]} {   
   set_case_analysis 0 iopad_testmode0
   set_case_analysis 0 iopad_testmode1
-  
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/hpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl/hpf_fsm_reg* -to  notch_clk
-  
+ 
   set_false_path -from hpf_clk -to notch_clk
   set_false_path -from lpf_clk -to notch_clk
   set_false_path -from imeas_clk -to notch_clk
@@ -300,13 +298,34 @@ if {[string match S4_m?? $i]==0} {
  # ------------------------------------------------------------------------------
  # Exception 
  # ------------------------------------------------------------------------------
+#normal mode; int clk
 if {[string match S11?_m?? $i]} {
   set_false_path -hold -from [get_clocks vclk] -through [get_ports IOBUF_PAD[10]] -through [get_pins u_top_dig/u_clk_ctrl/int_clk_out_gpio] -to [get_clocks sys_clk]
   set_false_path -from sys_clk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/*
+
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
 }
+#normal mode; ext clk
 if {[string match S12?_m?? $i]} {
   set_false_path -hold -from [get_clocks vclk] -through [get_ports IOBUF_PAD[10]] -through [get_pins u_top_dig/u_clk_ctrl/int_clk_out_gpio] -to [get_clocks ext_clk]
   set_false_path -from ext_clk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/*
+
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
+ 
 }
 
 if {[string match S22_m?? $i]} {
@@ -321,11 +340,11 @@ if {[string match S4_m?? $i]==0} {
  set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PA*]
  set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
  set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/PDIN*]
- set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PPROG] ; # OTP Program Enable Mode
+ set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen/PPROG] ; # OTP Program Enable Mode
  #set_false_path -to [get_pin u_top_dig/u_otp_ctrl_top/u_EO32X32GCT2Q_H3/POR] ; # OTP Program Enable Mode
- set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PA*]
- set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PA*]
- set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PDIN*]
- set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen/PDIN*]
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen/PA*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen/PA*]
+ set_multicycle_path -reset_path -setup 2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen/PDIN*]
+ set_multicycle_path -reset_path -hold  2 -to [get_pins u_top_dig/u_otp_ctrl_top/WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen/PDIN*]
 }
 

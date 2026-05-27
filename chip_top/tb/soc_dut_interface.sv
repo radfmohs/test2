@@ -567,14 +567,14 @@ interface dut_interface();
    integer      exp_stim_tag =0;
    integer      exp_stim_tag_temp =0;
    logic [9:0]  max_a2d_data = 0;
-   logic [9:0]  min_a2d_data = 0;
-   logic [9:0]  max_a2d_data_final = 0;
-   logic [9:0]  min_a2d_data_final = 'h3FF; // 10 bit biggest value
+   logic [9:0]  min_a2d_data = 'h3FF; // 10 bit biggest value
    logic [9:0]  delta_a2d_data = 0;
    logic        adc_delta_data_in_manual_en;
    logic        exp_stim_pair_int_sts;
    logic        exp_stim_cycle_int_sts;
    logic        pair_change =0;
+   logic        valid_data =0;
+   logic        select_2nd_max_min;
 
    logic        spi_dual_mode_en;
 
@@ -600,6 +600,8 @@ interface dut_interface();
   logic [1:0]  DRIVE_SLCT;
 
   // Wavegen randomized variables
+  logic [3:0]  wg_dev_src;
+  logic [3:0]  wg_dev_snk;
   logic        wg_sine_en;
   logic        wg_triangle_en;
   logic        wg_pulse_en;

@@ -309,6 +309,7 @@ wire  [`SCAN_SIZE-1:0]          scan_out;
 wire                            scan_compression_in;
 wire                            atpg_en;
 wire                            INTB;
+wire  [3:0]                     INT; 
 wire				VDD_DIG;
 wire				VDD_DIG_S1;
 wire				VDD_DIG_S2;
@@ -328,6 +329,11 @@ wire VPP_BIST;
 wire VPP;
 wire VPP_S1;
 wire VPP_S2;
+
+assign INT[0] = IOBUF_PAD[8];  // pmu_reg[6]=0: multi intr - pmu_reg[6]=1: ECG?
+assign INT[1] = IOBUF_PAD[9];  // wavegen intr
+assign INT[2] = IOBUF_PAD[10]; // anac intr - including stim and leadoff/short
+assign INT[3] = IOBUF_PAD[11]; // NIRS intr
 
 // ==============================
 // UVM TB Including 

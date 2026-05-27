@@ -37,6 +37,7 @@ output[3:0] D2A_STIM_PAD0,    //to analog
 output[3:0] D2A_STIM_PAD1,    //to analog	
 output wire D2A_ADC_EN,    //to analog	
 output wire D2A_ADC_CLK,    //to analog	
+output wire ina_pga_ana_clk,    //to analog	
 //=====================
 
 //bps imeas
@@ -1024,7 +1025,7 @@ adc_cap_ctrl u_adc_cap_ctrl(
 .one_cycle_data_vld(),
 .one_cycle_data(one_cycle_data)
 );
-
+//wire ina_pga_ana_clk;
 clk_ctrl u_clk_ctrl
 (
   //bps imeas
@@ -1039,7 +1040,7 @@ clk_ctrl u_clk_ctrl
 
 .iclk_ina_pga_disable(iclk_ina_pga_disable),               // ina_pga clock divider
 .iclk_div_ina_pga(iclk_div_ina_pga),               // ina_pga clock divider
-.ina_pga_ana_clk(),   //before name pga_ana_clk, connected to analog or pinmux then analog top
+.ina_pga_ana_clk(ina_pga_ana_clk),   //before name pga_ana_clk, connected to analog or pinmux then analog top
 
  .iclk_stim_monitor_enable(adc_en),               // stim monitor clock enable 
  .iclk_div_stim_monitor(iclk_div_stim_monitor),               // stim monitor clock divider

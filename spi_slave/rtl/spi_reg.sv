@@ -1107,8 +1107,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
 end
 //to anac
 //xin change temporily, pls Truong check
-//assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
-assign ana_lvd_sts	      = 1'b0;      
+assign ana_lvd_sts	      = A2D_ANA_GEN_REG_0[0];      
+//assign ana_lvd_sts	      = 1'b0;      
 
 // pmu register output 
 assign {o_otp_dpstb_en, o_hresetreq, o_sleepdeep, o_pmuenable} = pmu_reg0[3:0];
