@@ -147,7 +147,25 @@
 `define ANAC_SHORT_SCB_EN        top_cfg.lead_off_cfg.nnc_anac_short_scoreboard_en
 `define ANALOG_SCOREBOARD_EN     top_cfg.ana_cfg.nnc_analog_scoreboard_en
 `define PINMUX_SCOREBOARD_EN     top_cfg.pinmux_cfg.nnc_pinmux_scoreboard_en
+
 `define NNC_WAVEGEN_REF_SCB_EN   top_cfg.wavegen_cfg[0].nnc_wavgen_ref_scb_en
+`define NNC_WG_AGENT top_env.wavegen_env.wg_drvs_agt
+`define NNC_WAVEGEN_REF_SCB_EN_0 `NNC_WG_AGENT.wg_drv_agt[0].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_1 `NNC_WG_AGENT.wg_drv_agt[1].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_2 `NNC_WG_AGENT.wg_drv_agt[2].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_3 `NNC_WG_AGENT.wg_drv_agt[3].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_4 `NNC_WG_AGENT.wg_drv_agt[4].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_5 `NNC_WG_AGENT.wg_drv_agt[5].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_6 `NNC_WG_AGENT.wg_drv_agt[6].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_7 `NNC_WG_AGENT.wg_drv_agt[7].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_8 `NNC_WG_AGENT.wg_drv_agt[8].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_9 `NNC_WG_AGENT.wg_drv_agt[9].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_10 `NNC_WG_AGENT.wg_drv_agt[10].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_11 `NNC_WG_AGENT.wg_drv_agt[11].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_12 `NNC_WG_AGENT.wg_drv_agt[12].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_13 `NNC_WG_AGENT.wg_drv_agt[13].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_14 `NNC_WG_AGENT.wg_drv_agt[14].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
+`define NNC_WAVEGEN_REF_SCB_EN_15 `NNC_WG_AGENT.wg_drv_agt[15].wavegen_ref_drv.wavegen_cfg.nnc_wavgen_ref_scb_en
 
 `define TOP_ENV_ENABLE
 `define POSTSCAN_NETLIST_ROOT "../netlist/prelayout"

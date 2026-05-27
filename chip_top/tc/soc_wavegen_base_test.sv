@@ -118,9 +118,20 @@ class `TESTNAME extends soc_base_test;
     // -------------------
     // `SPIM_SCOREBOARD_EN = 1;
     // `ANALOG_SCOREBOARD_EN = 1;
-       `NNC_WAVEGEN_REF_SCB_EN = 1;
+    //   `NNC_WAVEGEN_REF_SCB_EN = 1;
     phase.drop_objection(this);
   endtask : pre_reset_phase
+
+  // -----------------------------------------
+  // Declare the reset_phase task 
+  // -----------------------------------------
+  virtual task reset_phase(nnc_phase phase);
+    phase.raise_objection(this);
+
+    super.reset_phase(phase);
+
+    phase.drop_objection(this);
+  endtask : reset_phase
 
   // -----------------------------------------
   // Declare the main_phase task of your test

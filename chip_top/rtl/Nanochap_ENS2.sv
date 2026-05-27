@@ -524,9 +524,9 @@ ENS2_ANA_CHIP_wrapper #(
   .A2D_SDM_OUT15(A2D_SDM_OUT15),
 
   .atpg_en                  (atpg_en),
-  .A2D_CLK2MHZ              (A2D_OSC_OUT),
+  .A2D_CLK8MHZ              (A2D_OSC_OUT),
 //.A2D_LVD                  (),
-  .A2D_POR_DVDD             (A2D_SW_POWER_POR),
+  .A2D_POR             (A2D_SW_POWER_POR),
   .VDDIO                    (VDDIO),
   .VDD_DIG                  (VDD_DIG),
   .VSS_DIG                  (VSS_DIG),

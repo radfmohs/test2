@@ -476,9 +476,9 @@ write_test_protocol -names verilog -test_mode compress_scan -output $out_data/${
 # unique names to avoid name collisions when integrating the design at the top
 # level
 set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
-if {$bottom_up != "yes"} {
+#if {$bottom_up != "yes"} {
   uniquify -force
-}
+#}
 
 define_name_rules verilog -case_insensitive
 change_names -rules verilog -hierarchy -verbose > $out_rep/${rm_project_top}.change_names

@@ -61,8 +61,8 @@ output wire  A2D_SDM_OUT15,
 input  wire  D2A_SDM_CLK,
 
   // CURRENT
-  output  A2D_CLK2MHZ,
-  output  A2D_POR_DVDD,
+  output  A2D_CLK8MHZ,
+  output  A2D_POR,
   inout   VDDIO,
   inout   VDD_DIG,
   inout   VSS_DIG,
@@ -801,8 +801,8 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_TSC_TRIM           (D2A_TSC_TRIM), 
   .D2A_VDAC8B_DIN         (D2A_VDAC8B_DIN),
   .A2D_LVD                (A2D_LVD), 
-  .A2D_POR                (A2D_POR_DVDD), 
-  .A2D_CLK8MHZ            (A2D_CLK2MHZ), 
+  .A2D_POR                (A2D_POR), 
+  .A2D_CLK8MHZ            (A2D_CLK8MHZ), 
   .A2D_TSC_COMP_OUT       (A2D_TSC_COMP_OUT_CH1_tmp),
 
 // BIST AMA
@@ -915,7 +915,7 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_EEGPGA14B_GAIN     (D2A_EEGPGA14B_GAIN),
   .D2A_EEGPGA15A_GAIN     (D2A_EEGPGA15A_GAIN),
   .D2A_EEGPGA15B_GAIN     (D2A_EEGPGA15B_GAIN),
-  .D2A_INA_CLK            (),
+//.D2A_INA_CLK            (),
   .D2A_EEGPGA0A_IADJ      (D2A_EEGPGA0A_IADJ), 
   .D2A_EEGPGA0B_IADJ      (D2A_EEGPGA0B_IADJ), 
   .D2A_EEGPGA1A_IADJ      (D2A_EEGPGA1A_IADJ), 
