@@ -16,7 +16,7 @@
 //
 // Command encoding (single mode, MSB first):
 //   cmd[7]=1  write, 0 read
-//   cmd[6:5]  00=normal, 11=wavegen, 11+cmd[4]=NIRS, 10=RDATA group
+//   cmd[6:4]: 000=normal, 110=wavegen, 111=NIRS, 1x0=RDATA group (cmd[7]=0,cmd[6]=1)
 //   cmd[1]=1  burst (addr auto-increment)
 //   cmd[0]=1  enable dual SPI on next transaction
 //
