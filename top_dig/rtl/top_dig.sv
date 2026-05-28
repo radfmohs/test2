@@ -951,6 +951,7 @@ wire[15:0] stim_mon_short_int_sts;   //to spi
  wire [9:0] threshold_leadoff;  	
  wire [9:0] threshold_short;  	
  wire [7:0] threshold_tgt;
+ wire  check_everyN;
 
 wire stim_monitor_rstn;
 wire stim_monitor_clk_running;
@@ -995,12 +996,18 @@ adc_cap_ctrl u_adc_cap_ctrl(
 .threshold_short(threshold_short),  	
 .threshold_tgt(threshold_tgt),
 
+.check_everyN(check_everyN),
+//.check_everyN(1),
+
  .o_stim_mon_int(o_stim_mon_int),   //to INTB
 
 .adc_mode(adc_mode),   //0 is manual mode, 1 is auto mode
      	//wavegen also need in manual mode if adc_mode is 0, should provide fixed stim waveform and source/pull
 .adc_cap_period(adc_cap_period),	
+
 .pair_num(pair_num),   //1 means has 2 pair, 2 means has 3 pair, max 16 pair	
+//.pair_num(8),   //1 means has 2 pair, 2 means has 3 pair, max 16 pair	
+
 .stim_pad0_tgt(stim_pad0_tgt),	
 .stim_pad1_tgt(stim_pad1_tgt),	
 //temporily connected for verification
@@ -1544,6 +1551,8 @@ u_spi_top (
 .threshold_short(threshold_short),  	
 .threshold_tgt(threshold_tgt),
 
+.check_everyN(check_everyN),
+
 .one_cycle_data(one_cycle_data),
 
 .adc_en(adc_en),
@@ -1931,7 +1940,8 @@ nirs_ppg_wrapper #(
 ) u_nirs_wrapper (
   .scan_mode        (atpg_en),
   .rst_n            (ppg_resetn),  // Temporary - Xin will provide the alternative later
-  .clk_ana          (ana_ppgclk_inv_config),
+  //.clk_ana          (ana_ppgclk_inv_config),
+  .clk_ana          (ana_clk_ppg),
   .clk_ppg          (clk_ppg),     // Temporary - Xin will provide the alternative later
   .clk_sys          (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
 

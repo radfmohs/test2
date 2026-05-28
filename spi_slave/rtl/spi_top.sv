@@ -82,6 +82,8 @@ output wire [9:0] threshold_leadoff,
 output wire [9:0] threshold_short,  	
 output wire [7:0] threshold_tgt,
 
+output wire  check_everyN,
+
   output wire          adc_en,
   output wire          adc_mode,
   output wire [15:0]   adc_cap_period,
@@ -511,6 +513,8 @@ spi_reg_u (
 .threshold_leadoff(threshold_leadoff),  	
 .threshold_short(threshold_short),  	
 .threshold_tgt(threshold_tgt),
+
+.check_everyN(check_everyN),
 
   .one_cycle_data(one_cycle_data),
 

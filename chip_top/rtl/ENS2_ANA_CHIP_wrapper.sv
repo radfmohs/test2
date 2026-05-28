@@ -110,25 +110,25 @@ wire  [7:0] D2A_TRIM3_SIG;
 wire  [7:0] D2A_TRIM4_SIG;
 wire  [7:0] D2A_TRIM5_SIG;
 wire  [7:0] D2A_TRIM6_SIG;
-wire  [7:0] D2A_ADJ0_IO;
+//wire  [7:0] D2A_ADJ0_IO;
 wire  [7:0] D2A_ADJ0_14_IO;
-wire  [7:0] D2A_ADJ1_IO;
-wire  [7:0] D2A_ADJ2_IO;
+//wire  [7:0] D2A_ADJ1_IO;
+//wire  [7:0] D2A_ADJ2_IO;
 wire  [7:0] D2A_ADJ1_2_IO;
-wire  [7:0] D2A_ADJ3_IO;
-wire  [7:0] D2A_ADJ4_IO;
-wire  [7:0] D2A_ADJ5_IO;
-wire  [7:0] D2A_ADJ6_IO;
-wire  [7:0] D2A_ADJ7_IO;
+//wire  [7:0] D2A_ADJ3_IO;
+//wire  [7:0] D2A_ADJ4_IO;
+//wire  [7:0] D2A_ADJ5_IO;
+//wire  [7:0] D2A_ADJ6_IO;
+//wire  [7:0] D2A_ADJ7_IO;
 wire  [7:0] D2A_ADJ6_7_IO;
-wire  [7:0] D2A_ADJ8_IO;
-wire  [7:0] D2A_ADJ9_IO;
+//wire  [7:0] D2A_ADJ8_IO;
+//wire  [7:0] D2A_ADJ9_IO;
 wire  [7:0] D2A_ADJ8_9_IO;
 wire  [7:0] D2A_ADJ10_IO;
 wire  [7:0] D2A_ADJ11_IO;
 wire  [7:0] D2A_ADJ12_IO;
 wire  [7:0] D2A_ADJ13_IO;
-wire  [7:0] D2A_ADJ14_IO;
+//wire  [7:0] D2A_ADJ14_IO;
 wire  [7:0] DC_LOFF_SEL;
 wire  [7:0] NIRS_IREF_SEL;
 wire  [7:0] EEGLNA8_SEL;
@@ -436,9 +436,9 @@ assign D2A_TRIM7_SIG_SPARE = pinmux_if.D2A_TRIM_SIG[14];
 assign D2A_ADJ0_14_IO = pinmux_if.D2A_ATM[15] ?  pinmux_if.D2A_ADJ_IO[0]  : (pinmux_if.D2A_ATM[29] ?  pinmux_if.D2A_ADJ_IO[14] : ANA_GEN_REG[0][14]);
 assign D2A_ADJ1_2_IO  = pinmux_if.D2A_ATM[16] ?  pinmux_if.D2A_ADJ_IO[1]  : (pinmux_if.D2A_ATM[17] ?  pinmux_if.D2A_ADJ_IO[2] : ANA_GEN_REG[1][14]);
 
-assign D2A_ADJ3_IO   = pinmux_if.D2A_ADJ_IO[3];//NIRS
-assign D2A_ADJ4_IO   = pinmux_if.D2A_ADJ_IO[4];//NIRS
-assign D2A_ADJ5_IO   = pinmux_if.D2A_ADJ_IO[5];//NIRS
+//assign D2A_ADJ3_IO   = pinmux_if.D2A_ADJ_IO[3];//NIRS
+//assign D2A_ADJ4_IO   = pinmux_if.D2A_ADJ_IO[4];//NIRS
+//assign D2A_ADJ5_IO   = pinmux_if.D2A_ADJ_IO[5];//NIRS
 assign D2A_ADJ6_7_IO = pinmux_if.D2A_ATM[21] ?  pinmux_if.D2A_ADJ_IO[6] :  (pinmux_if.D2A_ATM[22] ?  pinmux_if.D2A_ADJ_IO[7] : ANA_GEN_REG[2][14]);
 
 assign D2A_ADJ8_9_IO = pinmux_if.D2A_ATM[23] ?  pinmux_if.D2A_ADJ_IO[8]  : (pinmux_if.D2A_ATM[24] ?  pinmux_if.D2A_ADJ_IO[9] : ANA_GEN_REG[3][14]);

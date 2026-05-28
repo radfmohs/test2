@@ -47,7 +47,11 @@ assign sub_result = (RATIO * DOUTC) - DOUTF;
   SHIFT = 4 -> DOUT = (15/16) DOUT + (01/16) sub_result
 */
 
-assign DOUT_tmp   = DOUT_reg + ((sub_result - DOUT_reg) >> SHIFT);
+wire[OUT_WIDTH-1:0] sub_tmp, shifted_tmp;
+assign sub_tmp      = sub_result - DOUT_reg;
+assign shifted_tmp  = sub_tmp >> SHIFT;
+
+assign DOUT_tmp   = (sub_result < DOUT_reg) ? DOUT_reg - ((DOUT_reg - sub_result) >> SHIFT) : DOUT_reg + ((sub_result - DOUT_reg) >> SHIFT);
 
 // Update DOUT synchronously on rising clock edge
 always @(posedge clk or negedge rst_n) begin

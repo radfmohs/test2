@@ -1,7 +1,7 @@
 module nirs_ppg_int (
   input  wire       scan_mode,
   input  wire       rst_n,
-  input  wire       clk_sys,
+  input  wire       clk,
   input  wire [7:0] INT_CONFIG,
   input  wire       int_length_slct,
 
@@ -26,17 +26,17 @@ module nirs_ppg_int (
   wire  INT_CLR_valid;
   wire  INT_CLR_sync;
 
-  common_rst_sync u_addr0_int_clr_sync(
+  common_rst_sync u_int_clr_sync(
     .RSTINn    (rst_n),
     .RSTREQ    (INT_CLR),
-    .CLK       (clk_sys),
+    .CLK       (clk),
     .SE        (1'b0),
     .RSTBYPASS (scan_mode),  //tri change to fix dft issue
     .RSTOUTn   (INT_CLR_sync)
   );
 
 
-  always @(posedge clk_sys or negedge INT_CLR_sync) begin
+  always @(posedge clk or negedge INT_CLR_sync) begin
     if (!INT_CLR_sync) begin
       INT_CLR_d   <= 1'b0;
       INT_CLR_dd  <= 1'b0;
@@ -68,7 +68,11 @@ module nirs_ppg_int (
                     (IDAC_MAX                && INT_CONFIG[6]) ||
                     (IDAC_MIN                && INT_CONFIG[7]);
 
-  always @(posedge clk_sys or negedge rst_n) begin
+  
+
+
+
+  always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       INT_d <= 1'b0;
     end else if (INT_CLR_valid) begin
@@ -83,7 +87,7 @@ module nirs_ppg_int (
 */
   common_pulse_rising u_nirs_interrupt_rising (
   .d_in   (INT_d),
-  .clk    (clk_sys),
+  .clk    (clk),
   .rst_   (rst_n),
   .d_out  (INT_pulse)
   );

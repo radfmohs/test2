@@ -109,9 +109,9 @@ set_app_var report_default_significant_digits 3
 read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
 
 remove_attribute [get_cells u_top_dig/u_imeas_wrapper] dont_touch
-remove_attribute [get_designs imeas_wrapper] dont_touch
+remove_attribute [get_designs -hierarchical *Nanochap_ENS2_imeas_wrapper*] dont_touch
 set_boundary_optimization [get_cells u_top_dig/u_imeas_wrapper] true
-remove_attribute [get_designs filter_wrapper] dont_touch
+remove_attribute [get_designs -hierarchical *Nanochap_ENS2_filter_wrapper*] dont_touch
 
 # ------------------------------------------------------------------------------
 # Function clock and constraints AND Power Intent

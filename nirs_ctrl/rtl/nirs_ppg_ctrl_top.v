@@ -89,7 +89,7 @@ module nirs_ppg_ctrl_top #(
   input  wire             IREF_COARSE,
   input  wire             IREF_FINE
 );
-
+  wire [21:0] DOUT_LED0, DOUT_AMB0, DOUT_AMB1, DOUT_LED1;
   wire [WIDTH-1:0] QC, QF;
   
   wire QC_COUNTER_EN, QF_COUNTER_EN, COUNTERS_CLEAR;
@@ -99,8 +99,6 @@ module nirs_ppg_ctrl_top #(
   wire   [5:0]  NIRS_PPG_MODE_SEL;
   wire          NIRS_PPG_EN;
   wire          NIRS_PPG_MEAS;
-  wire   [1:0]  AVG_SEL;
-  wire   [7:0]  RATIO_MANUAL;             // Value for manual mode
   wire   [2:0]  RATIO_CTRL;               // ratio[1:0], manual_en for Ratio
   wire   [1:0]  AVG_SEL_0;
   wire   [7:0]  RATIO_MANUAL_0;       
@@ -202,16 +200,58 @@ module nirs_ppg_ctrl_top #(
     .out    (DOUTC)
   );
 
-  nirs_ppg_subtract_dout #(.IN_WDTH(WIDTH)) u_subtract_dout (
+
+/*
+
+*/
+  wire DOUT_LED0_EN, DOUT_LED1_EN, DOUT_AMB0_EN, DOUT_AMB1_EN;
+
+  nirs_ppg_subtract_dout #(.IN_WDTH(WIDTH)) u_subtract_dout_led0 (
     .rst_n        (rst_n),
     .clk          (clk_ppg),
-    .en           (DOUT_EN),
+    .en           (DOUT_LED0_EN),
     .DOUTF        (DOUTF),
     .DOUTC        (DOUTC),
-    .AVG_SEL      (AVG_SEL),
-    .RATIO_MANUAL (RATIO_MANUAL),
-    .RATIO_CTRL   (RATIO_CTRL),
-    .DOUT         (DOUT)
+    .AVG_SEL      (AVG_SEL_0),
+    .RATIO_MANUAL (RATIO_MANUAL_0),
+    .RATIO_CTRL   (RATIO_CTRL_0),
+    .DOUT         (DOUT_LED0)
+  );
+
+  nirs_ppg_subtract_dout #(.IN_WDTH(WIDTH)) u_subtract_dout_amb0 (
+    .rst_n        (rst_n),
+    .clk          (clk_ppg),
+    .en           (DOUT_AMB0_EN),
+    .DOUTF        (DOUTF),
+    .DOUTC        (DOUTC),
+    .AVG_SEL      (AVG_SEL_0),
+    .RATIO_MANUAL (RATIO_MANUAL_0),
+    .RATIO_CTRL   (RATIO_CTRL_0),
+    .DOUT         (DOUT_AMB0)
+  );
+
+  nirs_ppg_subtract_dout #(.IN_WDTH(WIDTH)) u_subtract_dout_led1 (
+    .rst_n        (rst_n),
+    .clk          (clk_ppg),
+    .en           (DOUT_LED1_EN),
+    .DOUTF        (DOUTF),
+    .DOUTC        (DOUTC),
+    .AVG_SEL      (AVG_SEL_1),
+    .RATIO_MANUAL (RATIO_MANUAL_1),
+    .RATIO_CTRL   (RATIO_CTRL_1),
+    .DOUT         (DOUT_LED1)
+  );
+
+  nirs_ppg_subtract_dout #(.IN_WDTH(WIDTH)) u_subtract_dout_amb1 (
+    .rst_n        (rst_n),
+    .clk          (clk_ppg),
+    .en           (DOUT_AMB1_EN),
+    .DOUTF        (DOUTF),
+    .DOUTC        (DOUTC),
+    .AVG_SEL      (AVG_SEL_1),
+    .RATIO_MANUAL (RATIO_MANUAL_1),
+    .RATIO_CTRL   (RATIO_CTRL_1),
+    .DOUT         (DOUT_AMB1)
   );
 
   nirs_ppg_counter #(.COUNTER_WIDTH(WIDTH)) IREF_FINE_COUNTER (
@@ -234,8 +274,8 @@ module nirs_ppg_ctrl_top #(
 /*
   DUAL LED sel for IDAC
 */
-  wire IDAC_LED0_EN = IDAC_UPDATE_EN && ~LED[1] && IDAC_IDAC_EN_0;
-  wire IDAC_LED1_EN = IDAC_UPDATE_EN && LED[1]  && IDAC_IDAC_EN_1;
+  wire IDAC_LED0_EN = IDAC_UPDATE_EN && (!LED[1] && !LED[0]) && IDAC_IDAC_EN_0;
+  wire IDAC_LED1_EN = IDAC_UPDATE_EN && ( LED[1] && !LED[0]) && IDAC_IDAC_EN_1;
   wire [8:0] IDAC_tmp [1:0];
   wire IDAC_MAX_tmp [1:0];
   wire IDAC_MIN_tmp [1:0];
@@ -247,12 +287,19 @@ module nirs_ppg_ctrl_top #(
   assign IDAC_MIN       = LED[1] ? IDAC_MIN_tmp[1] : IDAC_MIN_tmp[0];
   assign LED_ON         = LED[0] ? 1'b0 : LED_ON_tmp;
 
-  assign AVG_SEL        = LED[1] ? AVG_SEL_1      : AVG_SEL_0;
-  assign RATIO_MANUAL   = LED[1] ? RATIO_MANUAL_1 : RATIO_MANUAL_0;
   assign RATIO_CTRL     = LED[1] ? RATIO_CTRL_1 : RATIO_CTRL_0;
   assign D2A_RATIO_CTRL = RATIO_CTRL[2:1];
-  assign IPDMIRROR_ADJ  = LED[1] ? IPDMIRROR_ADJ_spi_0 : IPDMIRROR_ADJ_spi_1;
-  assign IREFC_ADJ      = LED[1] ? IREFC_ADJ_spi_0 : IREFC_ADJ_spi_1;
+  assign IPDMIRROR_ADJ  = LED[1] ? IPDMIRROR_ADJ_spi_1 : IPDMIRROR_ADJ_spi_0;
+  assign IREFC_ADJ      = LED[1] ? IREFC_ADJ_spi_1 : IREFC_ADJ_spi_0;
+
+  assign DOUT_LED0_EN   = (!LED[1] && !LED[0]) ? DOUT_EN : 1'b0;
+  assign DOUT_AMB0_EN   = (!LED[1] &&  LED[0]) ? DOUT_EN : 1'b0;
+  assign DOUT_LED1_EN   = ( LED[1] && !LED[0]) ? DOUT_EN : 1'b0;
+  assign DOUT_AMB1_EN   = ( LED[1] &&  LED[0]) ? DOUT_EN : 1'b0;
+  assign DOUT           = (!LED[1] && !LED[0]) ? DOUT_LED0  :
+                          (!LED[1] &&  LED[0]) ? DOUT_AMB0  :
+                          ( LED[1] && !LED[0]) ? DOUT_LED1  :
+                          ( LED[1] &&  LED[0]) ? DOUT_AMB1  : DOUT_LED0;
 
   nirs_ppg_idac_ctrl #(.WIDTH(WIDTH)) u_idac_led0_ctrl (
     .rst_n          (rst_n),
@@ -383,7 +430,7 @@ module nirs_ppg_ctrl_top #(
   nirs_ppg_int  u_nirs_ppg_int (
     .scan_mode              (scan_mode),
     .rst_n                  (rst_n),
-    .clk_sys                (clk_sys),
+    .clk                    (clk_ppg),
     .INT_CONFIG             (NIRS_PPG_INT_SEL),
     .int_length_slct        (int_length_slct),
     .IREF_COARSE_ON_NOT_OFF (IREF_COARSE_ON_NOT_OFF),

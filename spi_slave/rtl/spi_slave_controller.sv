@@ -159,13 +159,13 @@ end
  
 /*
   One cycle after cmd_reg_0 decoded -> raise dual_pending
-  At bit_cnt == 0, new transaction starts -> switch to dual
+  At bit_cnt == 1f, at the end of the current transaction -> switch to dual
   No logical mechanism to exit dual mode. Assert reset to go back to single!
 */
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
     dual_en <= 1'b0;
-  else if (bit_cnt == 6'h00 && dual_pending)
+  else if (bit_cnt == 6'h1f && dual_pending)
     dual_en <= 1'b1;
 end
 
@@ -677,7 +677,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     if (rd_data_rdy == 1) begin
       tx_d <= tx_buf[DATA_WIDTH-2];
     end else begin
-      tx_d <= rx_buf[4]; // just send what is received //original 2  
+      tx_d <= 1'b0; // just send what is received //original 2  
     end
   end else begin
     if (rd_data_rdy == 1) begin
@@ -699,7 +699,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if (rd_data_rdy == 1) begin
     tx_d1 <= tx_buf[DATA_WIDTH-1];
   end else begin
-    tx_d1 <= rx_buf[5]; 
+    tx_d1 <= 1'b0; 
   end
 end
 

@@ -124,7 +124,7 @@
 `define  STIM_PAD_CTRL               8'h40 // 
 `define  STIM_MON_PERIOD_L           8'h41 // 
 `define  STIM_MON_PERIOD_H           8'h42 // 
-`define  STIM_MON_CLK_RST_CTRL            8'h43 // 
+`define  STIM_MON_CTRL2            8'h43 // 
 `define  STIM_ADC_DATA_TAG_L         8'h44 // 
 `define  STIM_ADC_DATA_TAG_H         8'h45 // 
 `define  STIM_MON_INT_STS            8'h46 // 
@@ -408,6 +408,7 @@ output reg [9:0] threshold_leadoff,
 output reg [9:0] threshold_short,  	
 output reg [7:0] threshold_tgt,
 
+output wire  check_everyN,
 
   output wire             adc_en,
   output wire             adc_mode,
@@ -787,7 +788,7 @@ reg [7:0] stim_pad_ctrl;
 reg [7:0] stim_pad_ctrl1;
 reg [7:0] stim_mon_period_l;
 reg [7:0] stim_mon_period_h;
-reg [5:0] stim_mon_clk_rst_ctrl;
+reg [6:0] stim_mon_ctrl2;
 reg [7:0] stim_pad0_tgt0_l;
 reg [7:0] stim_pad0_tgt0_h;
 reg [7:0] stim_pad0_tgt1_l;
@@ -820,9 +821,10 @@ assign stim_mon_int_en = {stim_mon_loff_short_int_ctrl[1:0],stim_pad_ctrl[7:5]};
 assign adc_mode = stim_pad_ctrl[4];
 assign pair_num = stim_pad_ctrl[3:0];
 assign adc_cap_period = {stim_mon_period_h,stim_mon_period_l};
-assign iclk_div_stim_monitor = stim_mon_clk_rst_ctrl[3:0];
-assign iclk_stim_monitor_inv = stim_mon_clk_rst_ctrl[4];
-assign stim_monitor_rst_reg = stim_mon_clk_rst_ctrl[5];
+assign iclk_div_stim_monitor = stim_mon_ctrl2[3:0];
+assign iclk_stim_monitor_inv = stim_mon_ctrl2[4];
+assign stim_monitor_rst_reg = stim_mon_ctrl2[5];
+assign check_everyN = stim_mon_ctrl2[6];
 
 assign stim_pad0_tgt[0]  = stim_pad0_tgt0_l[3:0];
 assign stim_pad0_tgt[1]  = stim_pad0_tgt0_l[7:4];
@@ -910,7 +912,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	stim_pad_ctrl1        <= 8'h20;
 	stim_mon_period_l    <= 8'h0;
 	stim_mon_period_h    <= 8'h0;
-	stim_mon_clk_rst_ctrl<= 6'h04;
+	stim_mon_ctrl2<= 7'h04;
 	stim_pad0_tgt0_l     <= 8'h10;
 	stim_pad0_tgt0_h     <= 8'h32;
 	stim_pad0_tgt1_l     <= 8'h54;
@@ -945,7 +947,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl1;        
        `STIM_MON_PERIOD_L   :   stim_mon_period_l <= i_wr ? i_wr_data : stim_mon_period_l;     
        `STIM_MON_PERIOD_H   :   stim_mon_period_h <= i_wr ? i_wr_data : stim_mon_period_h;      
-       `STIM_MON_CLK_RST_CTRL:  stim_mon_clk_rst_ctrl <= i_wr ? i_wr_data[5:0] : stim_mon_clk_rst_ctrl;      
+       `STIM_MON_CTRL2:  stim_mon_ctrl2 <= i_wr ? i_wr_data[6:0] : stim_mon_ctrl2;      
 
        `STIM_MON_INT_STS    : begin  
 				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
@@ -2056,7 +2058,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `STIM_PAD_CTRL1       :  reg_rd_data  <=  {stim_pad_ctrl1}    ;        
       `STIM_MON_PERIOD_L   :  reg_rd_data  <=  stim_mon_period_l;     
       `STIM_MON_PERIOD_H   :  reg_rd_data  <=  stim_mon_period_h;      
-      `STIM_MON_CLK_RST_CTRL    :  reg_rd_data  <=  {2'b0,stim_mon_clk_rst_ctrl} ;      
+      `STIM_MON_CTRL2    :  reg_rd_data  <=  {1'b0,stim_mon_ctrl2} ;      
       `STIM_MON_INT_STS    :  reg_rd_data  <= {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
 
 `STIM_MON_LOFF_INT_STS0        :   reg_rd_data  <= stim_mon_leadoff_int_sts[7:0]; 

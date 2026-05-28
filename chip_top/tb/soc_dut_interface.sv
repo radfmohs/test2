@@ -636,7 +636,9 @@ interface dut_interface();
   logic        wg_PULLAB_pos_en;
   logic        wg_PULLAB_neg_en;
   logic [5:0]  wg_PULLAB_lim;
-   
+  logic        wg_wave_started;
+  logic        wg_scoreboard_en;
+  
 endinterface: dut_interface
 `endif
 

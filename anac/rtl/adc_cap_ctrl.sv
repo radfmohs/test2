@@ -18,6 +18,7 @@ input wire sysclk,
 input wire presetn,
 input wire scan_mode,
 
+input wire check_everyN,
 input wire select_2nd_max_min,
 input wire bypass_adc_data_en,
 input wire bypass_ignore_first,
@@ -155,7 +156,7 @@ reg check_pulse_cycle;
 reg check_pulse_cycle_d1;
 reg check_pulse_cycle_d2;
 reg check_pulse_cycle_d3;
-reg check_pulse_cycle_d4;
+//reg check_pulse_cycle_d4;
 reg[3:0] pair_cnt;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) begin 
@@ -206,19 +207,19 @@ always @ (posedge sysclk or negedge presetn) begin
 	check_pulse_cycle_d1 <= 1'b0;
 	check_pulse_cycle_d2 <= 1'b0;
 	check_pulse_cycle_d3 <= 1'b0;
-	check_pulse_cycle_d4 <= 1'b0;
+	//check_pulse_cycle_d4 <= 1'b0;
   end else begin
 	check_pulse_d1 <= check_pulse_mode;
 	check_pulse_cycle_d1 <= check_pulse_cycle;
 	check_pulse_cycle_d2 <= check_pulse_cycle_d1;
 	check_pulse_cycle_d3 <= check_pulse_cycle_d2;
-	check_pulse_cycle_d4 <= check_pulse_cycle_d3;
+	//check_pulse_cycle_d4 <= check_pulse_cycle_d3;
   end
 end
 
 assign  A2D_ADC_DELTA_DATA_VLD = check_pulse_d1;	
 
-assign  one_cycle_data_vld = check_pulse_cycle_d4;	
+assign  one_cycle_data_vld = check_pulse_cycle_d3;	
 
 
 
@@ -536,20 +537,24 @@ assign  A2D_ADC_DATA_delta_final = (stim_mon_delta_data_sel == 2'b00) ? A2D_ADC_
 assign A2D_ADC_DELTA_DATA_TAG	 = adc_mode ? {A2D_ADC_TAG_CAP_delta,2'b0,A2D_ADC_DATA_delta_final} : {4'b0,2'b0,A2D_ADC_DATA_delta_final};
 //One data is latched per adc_cap_period, and these are then organized into pair_num sets of data, which are read out in a single SPI operation
 
+
+reg is_16data_d1;
 reg[255:0] one_cycle_data_bak;
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	one_cycle_data_bak <= 256'b0;
-  else if (check_pulse_cycle_d4) // 
+  //else if (check_pulse_cycle_d4) // 
+  else if (check_everyN ? 1'b0 : check_pulse_cycle_d3) // 
     	one_cycle_data_bak <= 256'b0;
-  else if(A2D_ADC_DELTA_DATA_VLD)
-	one_cycle_data_bak <= {one_cycle_data_bak[239:0],A2D_ADC_DELTA_DATA_TAG};
+  else if(check_everyN ? A2D_ADC_DATA_VLD : A2D_ADC_DELTA_DATA_VLD)
+	one_cycle_data_bak <= {one_cycle_data_bak[239:0],(check_everyN ? A2D_ADC_DATA_TAG : A2D_ADC_DELTA_DATA_TAG)};
 end
 
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn)  
 	one_cycle_data <= 256'b0;
-  else if(check_pulse_cycle_d3)
+  //else if(check_pulse_cycle_d3) //for much margin, the timing should be not bad, so back to _d2
+  else if(check_everyN ? is_16data_d1 : check_pulse_cycle_d2)
 	one_cycle_data <= one_cycle_data_bak;
 end
 
@@ -557,11 +562,45 @@ end
 
 //for one adc sampling int
 //++++++++++++++++++++++++++++++++++++++++
+//if use cycle data, then issue interrupt per 16 data
+//use this wire: check_everyN;
+//if check_everyN is 1, then can not use cycle interrupt
+//=====================================
+reg[3:0] cnt_data;
+always @(posedge sysclk or negedge presetn) begin
+  if(~presetn) 
+ 	cnt_data <= 4'b0;
+  else if(!stim_mon_int_en[1])
+ 	cnt_data <= 4'b0;
+  else if(A2D_ADC_DATA_VLD) begin
+	if(cnt_data >= pair_num) 
+ 		cnt_data <= 4'b0;
+	else
+ 		cnt_data <= cnt_data + 4'b1;
+  end
+end
+
+wire is_16data;
+assign is_16data = A2D_ADC_DATA_VLD & (cnt_data >= pair_num);
+
+reg is_16data_d2;
+always @(posedge sysclk or negedge presetn) begin
+  if(~presetn) begin 
+	is_16data_d1 <= 1'b0;
+	is_16data_d2 <= 1'b0;
+  end else begin
+	is_16data_d1 <= is_16data;
+	is_16data_d2 <= is_16data_d1;
+  end
+end
+
 wire stim_mon_int_sts_pulse;
 wire stim_mon_sts_clr_sync_pulse;
 wire stim_mon_int_en_flag;
 //assign stim_mon_int_en_flag = A2D_ADC_DATA_VLD ;
-assign stim_mon_int_en_flag = stim_mon_int_en[1] & A2D_ADC_DATA_VLD ;
+//assign stim_mon_int_en_flag = stim_mon_int_en[1] & A2D_ADC_DATA_VLD ;
+assign stim_mon_int_en_flag = stim_mon_int_en[1] & (check_everyN ? is_16data_d2 : A2D_ADC_DATA_VLD) ;
+
 always @(posedge sysclk or negedge presetn) begin
   if(~presetn) begin
     stim_mon_int_sts <= 1'b0;

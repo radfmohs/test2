@@ -63,6 +63,8 @@ class `TESTCFG extends soc_base_test_cfg;
 
     constraint c_wavegen_drv_en { $countones(wavegen_drv_en) == 2; } // 0 and 1 is enabled
 
+    constraint c_wg_scoreboard_en { wg_scoreboard_en == 1; } // 0 and 1 is enabled
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // ===============================================
@@ -112,13 +114,14 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.DRIVE_SLCT = top_test_cfg.wg_glb_reg[2:1];
     `DUT_IF.wavegen_drv_mode = top_test_cfg.wavegen_drv_mode;
     `DUT_IF.wavegen_drv_en = top_test_cfg.wavegen_drv_en;
+    `DUT_IF.wg_scoreboard_en = top_test_cfg.wg_scoreboard_en;
 
     // -------------------
     // Scoreboard enables
     // -------------------
     // `SPIM_SCOREBOARD_EN = 1;
     // `ANALOG_SCOREBOARD_EN = 1;
-    //   `NNC_WAVEGEN_REF_SCB_EN = 1;
+    `NNC_WAVEGEN_REF_SCB_EN = 0;
     phase.drop_objection(this);
   endtask : pre_reset_phase
 

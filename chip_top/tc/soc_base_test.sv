@@ -254,6 +254,7 @@ class `TESTCFG extends nnc_object;
     rand  integer        sar_adc_data_timing_t2; // unit ns (timing to de-assert A2D_ADC_DATA_EN after the rising of D2A_ADC_CLK) (5ns < t2 < 25% of ADC_CLK Period)
 
     rand  bit            spi_dual_mode_en;
+    rand  bit            wg_scoreboard_en;
 
     bit A2D_comp0_in = 0;
     bit A2D_comp1_in = 0;
@@ -270,6 +271,8 @@ class `TESTCFG extends nnc_object;
     //--------------------------------------------------------
     // Declare constraints for each of randomized variables
     //--------------------------------------------------------
+
+    constraint c_wg_scoreboard_en         { wg_scoreboard_en == 0; } // 0 and 1 is enabled
 
     constraint c_spi_dual_mode_en         { spi_dual_mode_en == 1'b0; }
 
@@ -789,6 +792,7 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG92);
   `SET_CFG_REG(`REG93);
   `SET_CFG_REG(`REG94);
+  `SET_CFG_REG(`REG95);
 /*
   `SET_CFG_REG(`REG95);
   `SET_CFG_REG(`REG96);
@@ -1440,6 +1444,8 @@ task `TESTNAME::pre_reset_phase(nnc_phase phase);
     `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
 
     `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en; 
+
+    `DUT_IF.wg_scoreboard_en = top_test_cfg.wg_scoreboard_en;
 
     phase.drop_objection(this);
 endtask : pre_reset_phase
