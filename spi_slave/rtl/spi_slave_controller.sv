@@ -154,7 +154,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
     dual_pending <= 1'b0;
   else if (bit_cnt == 6'h12)   // one cycle after cmd_reg_0 is decoded at 0x11
-    dual_pending <= cmd_reg_0; // sclk is running here, no cs_n_d needed
+    dual_pending <= (cmd_reg_7 && cmd_reg_0); // sclk is running here, no cs_n_d needed
 end
  
 /*
@@ -341,7 +341,6 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
-assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
 assign nirs_cmd_reg     = (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
 assign wavegen_cmd_reg  = (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));

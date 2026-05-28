@@ -148,7 +148,7 @@ lec_postlayout: #dependency is: dft
 # STA               		    #
 #####################################
 pt_dft_eco: #dependency is: dft
-	cd work${WORK}; (time pt_shell -x "set stage postscan_dct; ${CORN_OP}; set scenario ${scenario}; set dmsa ${DMSA}" -f ../scripts/Nanochap_imp_pt_eco.tcl | tee ../logs/pt_dft_eco_${CORNER}_sdf_${scenario}_${DMSA_OP}${WORK}.log) 
+	cd work${WORK}; (time pt_shell -x "set stage postscan_dct; set scenario ${scenario}; ${BUD_STR}" -f ../scripts/Nanochap_imp_pt_eco.tcl | tee ../logs/pt_dft_eco_sdf_${scenario}${WORK}.log) 
 
 pt_dft_eco2: #dependency is: dft
 	cd work${WORK}; (time pt_shell -x "set stage postscan_pteco; ${CORN_OP}; set scenario ${scenario}; set dmsa ${DMSA}" -f ../scripts/Nanochap_imp_pt_eco.tcl | tee ../logs/pt_dft_eco2_${CORNER}_sdf_${scenario}_${DMSA_OP}${WORK}.log)
@@ -191,55 +191,29 @@ front: synthesis dft; # pt_px_max pt_px_min pt_px_typ
 lec: lec_synthesis lec_dft
 
 #scenario SXY => X: 1=Normal Mode, 2=CP test Mode, 3=Bist Mode, 4=Scan Mode. Y: 1=Internal Clock, 2=External Clock. Z: SPI phase/pol mode
-scen_list_nodmsa = S112 S121 S122 S22 S3 S4
-scen_list_dmsa = S111 S112 S121 S122 S22 S3 S4
+scenarios = S111_min S112_min S121_min S122_min S22_min S3_min S111_max S112_max S121_max S122_max S22_max S3_max S4_min S4_max
 
 pt:
-ifeq ($(DCT),no)
-	make pt_dft_eco syn_eco CORNER=max MODE=functional DCT=no
-	make pt_dft_eco2 syn_eco2 CORNER=min MODE=functional DCT=no 
-	make pt_dft_eco2 syn_eco2 CORNER=max MODE=scan DCT=no 
-	make pt_dft_eco2 syn_eco2 CORNER=min MODE=scan DCT=no
-	make pt_posteco CORNER=max MODE=functional DCT=no 
-	make pt_posteco CORNER=typ MODE=functional DCT=no 
-	make pt_posteco CORNER=min MODE=functional DCT=no 
-	make pt_posteco CORNER=max MODE=scan DCT=no 
-	make pt_posteco CORNER=typ MODE=scan DCT=no 
-	make pt_posteco CORNER=min MODE=scan DCT=no
-	make syn_eco2_pg DCT=no
-else ifeq ($(DMSA),no)
-	make pt_dft_eco CORNER=max MODE=functional scenario=S111; make syn_eco_dct;
-	@for scen in $(scen_list_nodmsa); do \
-		make pt_dft_eco2 CORNER=max MODE=functional scenario=$$scen; \
-		make syn_eco2; \
-	done
-	make pt_dft_eco2 CORNER=min MODE=functional scenario=S111; make syn_eco2;
-	@for scen in $(scen_list_nodmsa); do \
-		make pt_dft_eco2 CORNER=min MODE=functional scenario=$$scen; \
-		make syn_eco2; \
-	done
-	make syn_eco2_pg
-else
-	@for scen in $(scen_list_dmsa); do \
-		make pt_dft_eco CORNER=max MODE=functional scenario=$$scen; \
-	done
-	@for scen in $(scen_list_dmsa); do \
-		make pt_dft_eco CORNER=min MODE=functional scenario=$$scen; \
-	done
-	make pt_eco_master
-	make syn_eco_dct
-	@for scen in $(scen_list_dmsa); do \
-	  make pt_posteco CORNER=max MODE=functional scenario=$$scen; \
-	  make pt_posteco CORNER=typ MODE=functional scenario=$$scen; \
-	  make pt_posteco CORNER=min MODE=functional scenario=$$scen; \
-	done
-	make syn_eco2_pg
-endif
+	@for scen in $(scenarios); do \
+		make pt_dft_eco scenario=$$scen; \
+    	done
+	#make pt_eco_master
+	#make syn_eco
+	#@for scen in $(scenarios); do \
+      	#	make pt_posteco scenario=$$scen; \
+    	#done
+	#make syn_eco2_pg
 
-rerun:
-	make front lec atpg SDF=no DCT=yes
-	make front lec pt atpg_sdf SDF=yes DCT=yes DMSA=yes
-	make clean_work
+all:  
+	make front lec atpg SDF=no
+
+all_sdf: 
+	make front lec pt atpg SDF=yes
+
+power:
+	make synthesis_power SDF=no DCT=no
+
+
 
 #####################################
 # SYNC to HZ and SG                 #

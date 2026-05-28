@@ -579,12 +579,12 @@ lvd_model lvd_circuit (
 
 // TSC Monitoring for channel 1 Instantiation
 tsc_monitoring_model tsc_monitoring_ch1 (
-.D2A_TSC_COMP_EN_CHx(1'b0), 
+.D2A_TSC_COMP_EN_CHx(1'b1), 
 .D2A_TSC_EN_CHx(D2A_EN_TSC), 
 .D2A_TSC_TRIM_CHx(D2A_TSC_TRIM[2:0]), // connect 3-bit only 
-.D2A_VDAC8B_EN_CHx(1'b0), 
+.D2A_VDAC8B_EN_CHx(1'b1), 
 .D2A_VDAC8B_DIN_CHx(D2A_VDAC8B_DIN), 
-.A2D_TSC_COMP_OUT_CHx()
+.A2D_TSC_COMP_OUT_CHx(A2D_TSC_COMP_OUT)
 );
 
 wire NIRS_IBIAS_65N;

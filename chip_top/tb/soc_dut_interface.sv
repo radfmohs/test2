@@ -575,6 +575,16 @@ interface dut_interface();
    logic        pair_change =0;
    logic        valid_data =0;
    logic        select_2nd_max_min;
+   logic        check_every_n;
+
+   // leadoff and short
+   logic        leadoff_int_en;
+   logic        leadoff_int_to_pin_en;
+   logic [9:0]  leadoff_th;
+   logic        short_int_en;
+   logic        short_int_to_pin_en;
+   logic [9:0]  short_th;
+   logic [7:0]  leadoff_short_th_tgt;
 
    logic        spi_dual_mode_en;
 
@@ -638,6 +648,9 @@ interface dut_interface();
   logic [5:0]  wg_PULLAB_lim;
   logic        wg_wave_started;
   logic        wg_scoreboard_en;
+  logic [15:0] wg_wave0_pos_clk_num[`WAVEGEN_DRIVER_NUM]; 
+  logic [15:0] wg_wave1_pos_clk_num[`WAVEGEN_DRIVER_NUM]; 
+  logic [15:0] wg_wave2_pos_clk_num[`WAVEGEN_DRIVER_NUM];
   
 endinterface: dut_interface
 `endif
