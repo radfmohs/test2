@@ -36,7 +36,7 @@ module spi_reg_controller_tb;
 // Parameters
 // ---------------------------------------------------------------------------
 localparam real  SPI_HALF  = 31.25; // 16 MHz SPI  (half-period in ns)
-localparam real  SYS_HALF  = 5000;  // 100 kHz sys clock – far slower than SPI
+localparam real  SYS_HALF  = 5000;  // 100 kHz system clock – far slower than SPI
 localparam       DATA_W    = 8;
 localparam       ADDR_W    = 8;
 localparam       EEG_CHN   = 1;
@@ -271,7 +271,7 @@ initial begin
     // ------------------------------------------------------------------
     $display("--- Test 2: WG write 0xCD to addr 0x40, read back ---");
     spi_write(8'h40, CMD_WG_WR, 8'hCD);
-    @(posedge sys_clk); #1;   // let clocked model absorb the new address
+    @(posedge sys_clk); #1;   // let clocked model absorb write to addr 0x40; o_addr is still 0x40 here
     spi_read (8'h40, CMD_WG_RD, rd_result);
     if (rd_result === 8'hCD)
         $display("PASS: got 0x%02h", rd_result);
