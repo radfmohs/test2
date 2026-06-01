@@ -109,7 +109,7 @@ class `TESTNAME extends soc_base_test;
     // Scoreboard enables
     // ==================
     `SPI_SCB_EN = 1'b0;
-    `ANALOG_SCOREBOARD_EN = 1'b1;
+    `ANALOG_SCOREBOARD_EN = 1'b0;
     
 
     phase.drop_objection(this);

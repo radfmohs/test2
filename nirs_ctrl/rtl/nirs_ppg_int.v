@@ -14,40 +14,23 @@ module nirs_ppg_int (
   input  wire       DATA_READY,
 
   input  wire       INT_CLR,
-  output wire       INT,
+  output wire       INT_sts,
   output wire       INT_IO
 );
 
 /*
   Clear logic
 */
-  wire  INT_CLR_atpg;
-  reg   INT_CLR_d, INT_CLR_dd;
   wire  INT_CLR_valid;
-  wire  INT_CLR_sync;
 
-  common_rst_sync u_int_clr_sync(
-    .RSTINn    (rst_n),
-    .RSTREQ    (INT_CLR),
-    .CLK       (clk),
-    .SE        (1'b0),
-    .RSTBYPASS (scan_mode),  //tri change to fix dft issue
-    .RSTOUTn   (INT_CLR_sync)
+  common_pulse_async_clr u_common_pulse_async_clr_nirs (
+    .d_in       (INT_CLR),
+    .clk        (clk),
+    .rst_       (rst_n),
+    .int_sts    (INT_sts),
+    .scan_mode  (scan_mode),
+    .d_out      (INT_CLR_valid)
   );
-
-
-  always @(posedge clk or negedge INT_CLR_sync) begin
-    if (!INT_CLR_sync) begin
-      INT_CLR_d   <= 1'b0;
-      INT_CLR_dd  <= 1'b0;
-    end else begin
-      INT_CLR_d   <= 1'b1;
-      INT_CLR_dd  <= INT_CLR_d;
-    end
-  end
-
-  assign INT_CLR_atpg   = scan_mode ? 1'b0 : INT_CLR_d;
-  assign INT_CLR_valid  = INT_CLR_atpg && ~INT_CLR_dd;
 
 /*
   Interrupt logic
@@ -92,7 +75,10 @@ module nirs_ppg_int (
   .d_out  (INT_pulse)
   );
 
-  assign INT    = (INT_d && int_length_slct) || (INT_pulse && !int_length_slct);
+
+  assign INT_sts= INT_d;
+  //assign INT    = (INT_d && int_length_slct) || (INT_pulse && !int_length_slct);
+  assign INT    = (INT_d && (!int_length_slct)) || (INT_pulse && int_length_slct);
   assign INT_IO = INT && INT_CONFIG[0];
 
 endmodule

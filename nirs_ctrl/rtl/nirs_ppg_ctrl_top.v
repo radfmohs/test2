@@ -5,6 +5,7 @@ module nirs_ppg_ctrl_top #(
   input  wire             rst_n,
   input  wire             clk_ppg, // for counters and latch final counting values - Should match with ppg clock
   input  wire             clk_sys, // a stable 2Mhz to control pulses with pre-set widths
+  output wire             COUNT_STOP, // to stop clocks
 
   input  wire      [5:0]  NIRS_PPG_MODE_SEL_spi,
   input  wire             NIRS_PPG_EN_spi,    // NIRS/PPG enable
@@ -400,6 +401,7 @@ module nirs_ppg_ctrl_top #(
   nirs_ppg_pulse_ctrl u_nirs_pulse_ctrl (
     .rst_n            (rst_n),
     .clk              (clk_sys),
+    .COUNT_STOP       (COUNT_STOP),
 
     .MODE_SEL         (NIRS_PPG_MODE_SEL),
     .NIRS_EN          (NIRS_PPG_EN),
@@ -441,7 +443,7 @@ module nirs_ppg_ctrl_top #(
     .IDAC_MIN               (IDAC_MIN),
     .DATA_READY             (DATA_READY),
     .INT_CLR                (INT_CLR),
-    .INT                    (INT),
+    .INT_sts                (INT),
     .INT_IO                 (INT_IO)
   );
 

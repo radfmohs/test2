@@ -195,7 +195,7 @@ assign  o_pulldn_driver[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][2] : o_sw_pu
 //assign  o_pulldb_driver_c[i]    = spi_wg.dirve[i][4]? spi_wg.dirve[i][3] : o_sw_pullup_driver_c[i];
 assign  o_out_wave_driver_idac[i]  =  spi_wg.dirve[i][5]? spi_wg.dirve[i][17:6] : spi_wg.dirve[i][4]? spi_wg.dirve[i][17:6] : o_out_wave_drivera_dac_temp[i];
 
-assign drive_en[i] = (spi_wg.global_en & spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
+assign drive_en[i] = spi_wg.dirve[i][4]? spi_wg.global_en : (spi_wg.global_en & spi_wg.o_wg_driver_en[i]) & !spi_wg.stop_wavegen[i] & (!(lead_off_stop[i]));
 
 
 //common_clock_gate u_wavegen_clk_gating (

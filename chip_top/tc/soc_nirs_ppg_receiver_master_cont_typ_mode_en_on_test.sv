@@ -212,7 +212,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
                                                      threshold_l_7_0 inside {[0:10]};
                                                      en_config_led0 ==  top_test_cfg.temp_en_config_leds[0] ; //'h1; // led0 and led1 configuration one by one to have different random value
                                                      en_config_led1 ==  top_test_cfg.temp_en_config_leds[1]; //'h0; // led0 and led1 configuration one by one to have different random value
-                                                     nirs_ppg_led_signle_en == 'h1;
+                                                     nirs_ppg_led_signle_en == 'h0;
                                                      idac_min_int_en == 'h1;
                                                      idac_max_int_en == 'h1;
                                                      iref_fine_on_not_off_en == 'h1;

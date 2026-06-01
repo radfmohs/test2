@@ -1431,32 +1431,32 @@ class `TESTNAME extends soc_base_test;
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
     compare_start("SOC_ANA_GEN_REG_4_6", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA15B_IADJ, `ANA_TOP.D2A_EEGPGA15A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_6);
     end
-/*
+
     // ---------------------
     // Register 0xD8
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_7; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_7", `INIT_SOC_ANA_GEN_REG_4_7, {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_4_7);
+    compare_start("SOC_ANA_GEN_REG_4_7", `INIT_SOC_ANA_GEN_REG_4_7, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_7);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_7", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_4_7);
+    compare_start("SOC_ANA_GEN_REG_4_7", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_7);
     end
-*/
-/* RESERVE
+
+
     // ---------------------
     // Register 0xD9
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_8; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_8", `INIT_SOC_ANA_GEN_REG_4_8, {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_8);
+    compare_start("SOC_ANA_GEN_REG_4_8", `INIT_SOC_ANA_GEN_REG_4_8, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_8);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_8", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_8);
+    compare_start("SOC_ANA_GEN_REG_4_8", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_8);
     end
 
     // ---------------------
@@ -1464,12 +1464,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_9; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_9", `INIT_SOC_ANA_GEN_REG_4_9, {`ANA_TOP.D2A_EEGPGA5B_IADJ, `ANA_TOP.D2A_EEGPGA5A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_9);
+    compare_start("SOC_ANA_GEN_REG_4_9", `INIT_SOC_ANA_GEN_REG_4_9, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_9);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_9", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA5B_IADJ, `ANA_TOP.D2A_EEGPGA5A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_9);
+    compare_start("SOC_ANA_GEN_REG_4_9", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_9);
     end
 
     // ---------------------
@@ -1477,12 +1477,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_10; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_10", `INIT_SOC_ANA_GEN_REG_4_10, {`ANA_TOP.D2A_EEGPGA6B_IADJ, `ANA_TOP.D2A_EEGPGA6A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_10);
+    compare_start("SOC_ANA_GEN_REG_4_10", `INIT_SOC_ANA_GEN_REG_4_10, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_10);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_10", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA6B_IADJ, `ANA_TOP.D2A_EEGPGA6A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_10);
+    compare_start("SOC_ANA_GEN_REG_4_10", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_10);
     end
 
     // ---------------------
@@ -1490,12 +1490,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_11; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_11", `INIT_SOC_ANA_GEN_REG_4_11, {`ANA_TOP.D2A_EEGPGA7B_IADJ, `ANA_TOP.D2A_EEGPGA7A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_11);
+    compare_start("SOC_ANA_GEN_REG_4_11", `INIT_SOC_ANA_GEN_REG_4_11, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_11);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_11", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA7B_IADJ, `ANA_TOP.D2A_EEGPGA7A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_11);
+    compare_start("SOC_ANA_GEN_REG_4_11", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_11);
     end
 
     // ---------------------
@@ -1503,12 +1503,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_12; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_12", `INIT_SOC_ANA_GEN_REG_4_12, {`ANA_TOP.D2A_EEGPGA8B_IADJ, `ANA_TOP.D2A_EEGPGA8A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_12);
+    compare_start("SOC_ANA_GEN_REG_4_12", `INIT_SOC_ANA_GEN_REG_4_12, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_12);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_4_12", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA8B_IADJ, `ANA_TOP.D2A_EEGPGA8A_IADJ}, `MASK_SOC_ANA_GEN_REG_4_12);
+    compare_start("SOC_ANA_GEN_REG_4_12", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_12);
     end
 
     // ---------------------
@@ -1516,14 +1516,14 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_4_13; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_4_13", `INIT_SOC_ANA_GEN_REG_4_13, {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_4_13);
+    compare_start("SOC_ANA_GEN_REG_4_13", `INIT_SOC_ANA_GEN_REG_4_13, {8'h00}, `MASK_SOC_ANA_GEN_REG_4_13);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_3_13", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_4_13);
+    compare_start("SOC_ANA_GEN_REG_4_13", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_4_13);
     end
-*/
+
     // ---------------------
     // Register 0xDF
     // ---------------------
@@ -1550,18 +1550,18 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("ANA_GEN_REG", "Changing ANA_GEN Section to 5\n", UVM_LOW);
     `WR_NORMAL_REG(`SOC_ANA_GEN_SECTION_SEL_REG, 8'h5, 8'h00);
     // ---------------------
-/* RESERVE
+    
     // ---------------------
     // Register 0xD1
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_0; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_0", `INIT_SOC_ANA_GEN_REG_5_0, {`ANA_TOP.D2A_EEGPGA9B_IADJ, `ANA_TOP.D2A_EEGPGA9A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_0);
+    compare_start("SOC_ANA_GEN_REG_5_0", `INIT_SOC_ANA_GEN_REG_5_0, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_0);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_0", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA9B_IADJ, `ANA_TOP.D2A_EEGPGA9A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_0);
+    compare_start("SOC_ANA_GEN_REG_5_0", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_0);
     end
 
     // ---------------------
@@ -1569,12 +1569,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_1; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_1", `INIT_SOC_ANA_GEN_REG_5_1, {`ANA_TOP.D2A_EEGPGA10B_IADJ, `ANA_TOP.D2A_EEGPGA10A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_1);
+    compare_start("SOC_ANA_GEN_REG_5_1", `INIT_SOC_ANA_GEN_REG_5_1, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_1);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_1", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA10B_IADJ, `ANA_TOP.D2A_EEGPGA10A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_1);
+    compare_start("SOC_ANA_GEN_REG_5_1", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_1);
     end
 
     // ---------------------
@@ -1582,12 +1582,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_2; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_2", `INIT_SOC_ANA_GEN_REG_5_2, {`ANA_TOP.D2A_EEGPGA11B_IADJ, `ANA_TOP.D2A_EEGPGA11A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_2);
+    compare_start("SOC_ANA_GEN_REG_5_2", `INIT_SOC_ANA_GEN_REG_5_2, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_2);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_2", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA11B_IADJ, `ANA_TOP.D2A_EEGPGA11A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_2);
+    compare_start("SOC_ANA_GEN_REG_5_2", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_2);
     end
 
     // ---------------------
@@ -1595,12 +1595,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_3; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_3", `INIT_SOC_ANA_GEN_REG_5_3, {`ANA_TOP.D2A_EEGPGA12B_IADJ, `ANA_TOP.D2A_EEGPGA12A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_3);
+    compare_start("SOC_ANA_GEN_REG_5_3", `INIT_SOC_ANA_GEN_REG_5_3, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_3);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_3", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA12B_IADJ, `ANA_TOP.D2A_EEGPGA12A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_3);
+    compare_start("SOC_ANA_GEN_REG_5_3", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_3);
     end
 
     // ---------------------
@@ -1608,12 +1608,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_4; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_4", `INIT_SOC_ANA_GEN_REG_5_4, {`ANA_TOP.D2A_EEGPGA13B_IADJ, `ANA_TOP.D2A_EEGPGA13A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_4);
+    compare_start("SOC_ANA_GEN_REG_5_4", `INIT_SOC_ANA_GEN_REG_5_4, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_4);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_4", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA13B_IADJ, `ANA_TOP.D2A_EEGPGA13A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_4);
+    compare_start("SOC_ANA_GEN_REG_5_4", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_4);
     end
 
     // ---------------------
@@ -1621,12 +1621,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_5; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_5", `INIT_SOC_ANA_GEN_REG_5_5, {`ANA_TOP.D2A_EEGPGA14B_IADJ, `ANA_TOP.D2A_EEGPGA14A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_5);
+    compare_start("SOC_ANA_GEN_REG_5_5", `INIT_SOC_ANA_GEN_REG_5_5, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_5);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_5", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA14B_IADJ, `ANA_TOP.D2A_EEGPGA14A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_5);
+    compare_start("SOC_ANA_GEN_REG_5_5", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_5);
     end
 
     // ---------------------
@@ -1634,12 +1634,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_6; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_6", `INIT_SOC_ANA_GEN_REG_5_6, {`ANA_TOP.D2A_EEGPGA15B_IADJ, `ANA_TOP.D2A_EEGPGA15A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_6);
+    compare_start("SOC_ANA_GEN_REG_5_6", `INIT_SOC_ANA_GEN_REG_5_6, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_6);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_6", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA15B_IADJ, `ANA_TOP.D2A_EEGPGA15A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_6);
+    compare_start("SOC_ANA_GEN_REG_5_6", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_6);
     end
 
     // ---------------------
@@ -1647,12 +1647,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_7; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_7", `INIT_SOC_ANA_GEN_REG_5_7, {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_5_7);
+    compare_start("SOC_ANA_GEN_REG_5_7", `INIT_SOC_ANA_GEN_REG_5_7, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_7);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_7", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_5_7);
+    compare_start("SOC_ANA_GEN_REG_5_7", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_7);
     end
     
     // ---------------------
@@ -1660,12 +1660,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_8; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_8", `INIT_SOC_ANA_GEN_REG_5_8, {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_8);
+    compare_start("SOC_ANA_GEN_REG_5_8", `INIT_SOC_ANA_GEN_REG_5_8, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_8);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_8", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_8);
+    compare_start("SOC_ANA_GEN_REG_5_8", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_8);
     end
 
     // ---------------------
@@ -1673,12 +1673,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_9; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_9", `INIT_SOC_ANA_GEN_REG_5_9, {`ANA_TOP.D2A_EEGPGA5B_IADJ, `ANA_TOP.D2A_EEGPGA5A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_9);
+    compare_start("SOC_ANA_GEN_REG_5_9", `INIT_SOC_ANA_GEN_REG_5_9, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_9);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_9", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA5B_IADJ, `ANA_TOP.D2A_EEGPGA5A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_9);
+    compare_start("SOC_ANA_GEN_REG_5_9", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_9);
     end
 
     // ---------------------
@@ -1686,12 +1686,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_10; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_10", `INIT_SOC_ANA_GEN_REG_5_10, {`ANA_TOP.D2A_EEGPGA6B_IADJ, `ANA_TOP.D2A_EEGPGA6A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_10);
+    compare_start("SOC_ANA_GEN_REG_5_10", `INIT_SOC_ANA_GEN_REG_5_10, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_10);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_10", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA6B_IADJ, `ANA_TOP.D2A_EEGPGA6A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_10);
+    compare_start("SOC_ANA_GEN_REG_5_10", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_10);
     end
 
     // ---------------------
@@ -1699,12 +1699,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_11; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_11", `INIT_SOC_ANA_GEN_REG_5_11, {`ANA_TOP.D2A_EEGPGA7B_IADJ, `ANA_TOP.D2A_EEGPGA7A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_11);
+    compare_start("SOC_ANA_GEN_REG_5_11", `INIT_SOC_ANA_GEN_REG_5_11, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_11);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_11", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA7B_IADJ, `ANA_TOP.D2A_EEGPGA7A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_11);
+    compare_start("SOC_ANA_GEN_REG_5_11", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_11);
     end
 
     // ---------------------
@@ -1712,12 +1712,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_12; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_12", `INIT_SOC_ANA_GEN_REG_5_12, {`ANA_TOP.D2A_EEGPGA8B_IADJ, `ANA_TOP.D2A_EEGPGA8A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_12);
+    compare_start("SOC_ANA_GEN_REG_5_12", `INIT_SOC_ANA_GEN_REG_5_12, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_12);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_12", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA8B_IADJ, `ANA_TOP.D2A_EEGPGA8A_IADJ}, `MASK_SOC_ANA_GEN_REG_5_12);
+    compare_start("SOC_ANA_GEN_REG_5_12", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_12);
     end
 
     // ---------------------
@@ -1725,14 +1725,14 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_5_13; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_5_13", `INIT_SOC_ANA_GEN_REG_5_13, {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_5_13);
+    compare_start("SOC_ANA_GEN_REG_5_13", `INIT_SOC_ANA_GEN_REG_5_13, {8'h00}, `MASK_SOC_ANA_GEN_REG_5_13);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_5_13", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_5_13);
+    compare_start("SOC_ANA_GEN_REG_5_13", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_5_13);
     end
-*/
+
     // ---------------------
     // Register 0xDF
     // ---------------------
@@ -1758,18 +1758,18 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("ANA_GEN_REG", "Changing ANA_GEN Section to 6\n", UVM_LOW);
     `WR_NORMAL_REG(`SOC_ANA_GEN_SECTION_SEL_REG, 8'h6, 8'h00);
     // ---------------------
-/* RESERVE
     // ---------------------
+
     // Register 0xD1
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_0; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_0", `INIT_SOC_ANA_GEN_REG_6_0, {`ANA_TOP.D2A_EEGPGA9B_IADJ, `ANA_TOP.D2A_EEGPGA9A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_0);
+    compare_start("SOC_ANA_GEN_REG_6_0", `INIT_SOC_ANA_GEN_REG_6_0, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_0);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_0", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA9B_IADJ, `ANA_TOP.D2A_EEGPGA9A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_0);
+    compare_start("SOC_ANA_GEN_REG_6_0", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_0);
     end
 
     // ---------------------
@@ -1777,12 +1777,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_1; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_1", `INIT_SOC_ANA_GEN_REG_6_1, {`ANA_TOP.D2A_EEGPGA10B_IADJ, `ANA_TOP.D2A_EEGPGA10A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_1);
+    compare_start("SOC_ANA_GEN_REG_6_1", `INIT_SOC_ANA_GEN_REG_6_1, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_1);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_1", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA10B_IADJ, `ANA_TOP.D2A_EEGPGA10A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_1);
+    compare_start("SOC_ANA_GEN_REG_6_1", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_1);
     end
 
     // ---------------------
@@ -1790,12 +1790,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_2; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_2", `INIT_SOC_ANA_GEN_REG_6_2, {`ANA_TOP.D2A_EEGPGA11B_IADJ, `ANA_TOP.D2A_EEGPGA11A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_2);
+    compare_start("SOC_ANA_GEN_REG_6_2", `INIT_SOC_ANA_GEN_REG_6_2, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_2);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_2", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA11B_IADJ, `ANA_TOP.D2A_EEGPGA11A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_2);
+    compare_start("SOC_ANA_GEN_REG_6_2", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_2);
     end
 
     // ---------------------
@@ -1803,12 +1803,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_3; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_3", `INIT_SOC_ANA_GEN_REG_6_3, {`ANA_TOP.D2A_EEGPGA12B_IADJ, `ANA_TOP.D2A_EEGPGA12A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_3);
+    compare_start("SOC_ANA_GEN_REG_6_3", `INIT_SOC_ANA_GEN_REG_6_3, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_3);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_3", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA12B_IADJ, `ANA_TOP.D2A_EEGPGA12A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_3);
+    compare_start("SOC_ANA_GEN_REG_6_3", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_3);
     end
 
     // ---------------------
@@ -1816,12 +1816,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_4; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_4", `INIT_SOC_ANA_GEN_REG_6_4, {`ANA_TOP.D2A_EEGPGA13B_IADJ, `ANA_TOP.D2A_EEGPGA13A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_4);
+    compare_start("SOC_ANA_GEN_REG_6_4", `INIT_SOC_ANA_GEN_REG_6_4, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_4);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_4", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA13B_IADJ, `ANA_TOP.D2A_EEGPGA13A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_4);
+    compare_start("SOC_ANA_GEN_REG_6_4", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_4);
     end
 
     // ---------------------
@@ -1829,12 +1829,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_5; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_5", `INIT_SOC_ANA_GEN_REG_6_5, {`ANA_TOP.D2A_EEGPGA14B_IADJ, `ANA_TOP.D2A_EEGPGA14A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_5);
+    compare_start("SOC_ANA_GEN_REG_6_5", `INIT_SOC_ANA_GEN_REG_6_5, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_5);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_5", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA14B_IADJ, `ANA_TOP.D2A_EEGPGA14A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_5);
+    compare_start("SOC_ANA_GEN_REG_6_5", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_5);
     end
 
     // ---------------------
@@ -1842,12 +1842,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_6; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_6", `INIT_SOC_ANA_GEN_REG_6_6, {`ANA_TOP.D2A_EEGPGA15B_IADJ, `ANA_TOP.D2A_EEGPGA15A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_6);
+    compare_start("SOC_ANA_GEN_REG_6_6", `INIT_SOC_ANA_GEN_REG_6_6, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_6);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_6", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA15B_IADJ, `ANA_TOP.D2A_EEGPGA15A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_6);
+    compare_start("SOC_ANA_GEN_REG_6_6", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_6);
     end
 
     // ---------------------
@@ -1855,12 +1855,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_7; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_7", `INIT_SOC_ANA_GEN_REG_6_7, {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_6_7);
+    compare_start("SOC_ANA_GEN_REG_6_7", `INIT_SOC_ANA_GEN_REG_6_7, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_7);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_2", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_DATA_0}, `MASK_SOC_ANA_GEN_REG_6_7);
+    compare_start("SOC_ANA_GEN_REG_6_2", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_7);
     end
     
     // ---------------------
@@ -1868,12 +1868,12 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_8; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_8", `INIT_SOC_ANA_GEN_REG_6_8, {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_8);
+    compare_start("SOC_ANA_GEN_REG_6_8", `INIT_SOC_ANA_GEN_REG_6_8, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_8);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_8", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_EEGPGA4B_IADJ, `ANA_TOP.D2A_EEGPGA4A_IADJ}, `MASK_SOC_ANA_GEN_REG_6_8);
+    compare_start("SOC_ANA_GEN_REG_6_8", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_8);
     end
 
     // ---------------------
@@ -1899,7 +1899,7 @@ class `TESTNAME extends soc_base_test;
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_10", top_test_cfg.wr_data[i], {2'h0, `ANA_TOP.D2A_DRIVERC_SHORT_DET_VIPSEL, `ANA_TOP.D2A_DRIVERC_SHORT_DET_VINSEL[4]}, `MASK_SOC_ANA_GEN_REG_16_10);
+    compare_start("SOC_ANA_GEN_REG_6_10", top_test_cfg.wr_data[i], {2'h0, `ANA_TOP.D2A_DRIVERC_SHORT_DET_VIPSEL, `ANA_TOP.D2A_DRIVERC_SHORT_DET_VINSEL[4]}, `MASK_SOC_ANA_GEN_REG_6_10);
     end
 
     // ---------------------
@@ -1933,14 +1933,14 @@ class `TESTNAME extends soc_base_test;
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_6_13; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_ANA_GEN_REG_6_13", `INIT_SOC_ANA_GEN_REG_6_13, {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_6_13);
+    compare_start("SOC_ANA_GEN_REG_6_13", `INIT_SOC_ANA_GEN_REG_6_13, {8'h00}, `MASK_SOC_ANA_GEN_REG_6_13);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_ANA_GEN_REG_6_13", top_test_cfg.wr_data[i], {`ANA_TOP.D2A_SPI_SPARE3}, `MASK_SOC_ANA_GEN_REG_6_13);
+    compare_start("SOC_ANA_GEN_REG_6_13", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_6_13);
     end
-*/
+
     // ---------------------
     // Register 0xDF
     // ---------------------
@@ -1967,6 +1967,188 @@ class `TESTNAME extends soc_base_test;
     `WR_NORMAL_REG(`SOC_ANA_GEN_SECTION_SEL_REG, 8'h7, 8'h00);
     // ---------------------
     
+    // ---------------------
+    // Register 0xD1
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_0; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_0", `INIT_SOC_ANA_GEN_REG_7_0, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_0);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_0", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_0);
+    end
+    
+    // ---------------------
+    // Register 0xD2
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_1; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_1", `INIT_SOC_ANA_GEN_REG_7_1, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_1);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_1", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_1);
+    end
+    
+    // ---------------------
+    // Register 0xD3
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_2; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_2", `INIT_SOC_ANA_GEN_REG_7_2, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_2);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_2", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_2);
+    end
+    
+    // ---------------------
+    // Register 0xD4
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_3; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_3", `INIT_SOC_ANA_GEN_REG_7_3, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_3);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_3", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_3);
+    end
+    
+    // ---------------------
+    // Register 0xD5
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_4; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_4", `INIT_SOC_ANA_GEN_REG_7_4, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_4);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_4", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_4);
+    end
+    
+    // ---------------------
+    // Register 0xD6
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_5; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_5", `INIT_SOC_ANA_GEN_REG_7_5, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_5);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_5", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_5);
+    end
+    
+    // ---------------------
+    // Register 0x7
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_6; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_6", `INIT_SOC_ANA_GEN_REG_7_6, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_6);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_6", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_6);
+    end
+    
+    // ---------------------
+    // Register 0xD8
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_7; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_7", `INIT_SOC_ANA_GEN_REG_7_7, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_7);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_7", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_7);
+    end
+    
+    // ---------------------
+    // Register 0xD9
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_8; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_8", `INIT_SOC_ANA_GEN_REG_7_8, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_8);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_8", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_8);
+    end
+    
+    // ---------------------
+    // Register 0xDA
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_9; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_9", `INIT_SOC_ANA_GEN_REG_7_9, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_9);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_9", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_9);
+    end
+    
+    // ---------------------
+    // Register 0xDB
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_10; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_10", `INIT_SOC_ANA_GEN_REG_7_10, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_10);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_10", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_10);
+    end
+    
+    // ---------------------
+    // Register 0xDC
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_11; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_11", `INIT_SOC_ANA_GEN_REG_7_11, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_11);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_11", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_11);
+    end
+    
+    // ---------------------
+    // Register 0xDD
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_12; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_12", `INIT_SOC_ANA_GEN_REG_7_12, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_12);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_12", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_12);
+    end
+    
+    // ---------------------
+    // Register 0xDE
+    // ---------------------
+     assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_7_13; n_write == 10;});     
+    // Cheking Default
+    compare_start("SOC_ANA_GEN_REG_7_13", `INIT_SOC_ANA_GEN_REG_7_13, {8'h00}, `MASK_SOC_ANA_GEN_REG_7_13);
+    `nnc_info("Default", "Checking Default Done", UVM_LOW);
+    // Cheking After Write
+    for (int i=0; i<top_test_cfg.n_write; i++) begin
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
+    compare_start("SOC_ANA_GEN_REG_7_13", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_ANA_GEN_REG_7_13);
+    end
+
     // ---------------------
     // Register 0xDF
     // ---------------------
@@ -2055,21 +2237,21 @@ class `TESTNAME extends soc_base_test;
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
     compare_start("SOC_A2D_ANA_GEN_REG_4", top_test_cfg.wr_data[i], {`ANA_TOP.A2D_LOFF_STATN[15:8]}, `MASK_SOC_A2D_ANA_GEN_REG_4);
     end
-    /*
+    
     // ---------------------
     // Register 0xA5
     // ---------------------
       
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_A2D_ANA_GEN_REG_5; n_write == 10;});     
     // Cheking Default
-    compare_start("SOC_A2D_ANA_GEN_REG_5", `INIT_SOC_A2D_ANA_GEN_REG_5, {`ANA_TOP.SPARE_RO_REG}, `MASK_SOC_A2D_ANA_GEN_REG_3);
+    compare_start("SOC_A2D_ANA_GEN_REG_5", `INIT_SOC_A2D_ANA_GEN_REG_5, {8'h00}, `MASK_SOC_A2D_ANA_GEN_REG_3);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
     for (int i=0; i<top_test_cfg.n_write; i++) begin
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
-    compare_start("SOC_A2D_ANA_GEN_REG_3", top_test_cfg.wr_data[i], {`ANA_TOP.A2D_LOFF_STATN[15:8]}, `MASK_SOC_A2D_ANA_GEN_REG_3);
+    compare_start("SOC_A2D_ANA_GEN_REG_3", top_test_cfg.wr_data[i], {8'h00}, `MASK_SOC_A2D_ANA_GEN_REG_3);
     end
-    */
+    
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------

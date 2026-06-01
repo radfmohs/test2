@@ -102,7 +102,8 @@ module spi_reg_nirs #(
   output  wire            ana_ppgclk_inv,   // ana ppg clock 
   output  wire            ppg_clk50duty,            
   output  wire 	          ppg_rst_reg,
-  
+  output  wire            ppg_clk_gate_bypass,
+
   input   wire            int_clear_type,
 
   spi_nirs_if.spi         spi_nirs_if
@@ -116,7 +117,7 @@ module spi_reg_nirs #(
 //------------------------------------------------------------------------------------
   reg [7:0] nirs_ctrl_channel_reg;
   reg [1:0] nirs_ctrl_led_reg;
-  reg [5:0] nirs_ctrl_clk_reg;
+  reg [6:0] nirs_ctrl_clk_reg;
   reg [7:0] nirs_ctrl_adj_reg;
   reg [1:0] nirs_ctrl_cmd_reg [NO_OF_CHANNEL-1:0];
   reg [7:0] nirs_ctrl_int_reg [NO_OF_CHANNEL-1:0];
@@ -131,17 +132,18 @@ module spi_reg_nirs #(
   reg [7:0] nirs_int_sts_reg;
   reg [7:0] nirs_dout_reg[7:0][3:0];
 
-  assign ppg_dis          = nirs_ctrl_clk_reg[0];           //ppg disble 
-  assign ana_ppgclk_inv   = nirs_ctrl_clk_reg[1];   // ana ppg clock 
-  assign ppg_clk_div      = nirs_ctrl_clk_reg[3:2];       // ppg clock divider
-  assign ppg_clk50duty    = nirs_ctrl_clk_reg[4];            
-  assign ppg_rst_reg      = nirs_ctrl_clk_reg[5];
+  assign ppg_dis              = nirs_ctrl_clk_reg[0];           //ppg disble 
+  assign ana_ppgclk_inv       = nirs_ctrl_clk_reg[1];   // ana ppg clock 
+  assign ppg_clk_div          = nirs_ctrl_clk_reg[3:2];       // ppg clock divider
+  assign ppg_clk50duty        = nirs_ctrl_clk_reg[4];            
+  assign ppg_rst_reg          = nirs_ctrl_clk_reg[5];
+  assign ppg_clk_gate_bypass  = nirs_ctrl_clk_reg[6];
 
   always@(posedge i_clk or negedge i_rst_n) begin
     if(!i_rst_n) begin
       nirs_ctrl_channel_reg <= 8'h0;
       nirs_ctrl_led_reg     <= 2'h0;
-      nirs_ctrl_clk_reg     <= 6'h02;
+      nirs_ctrl_clk_reg     <= 7'h42;
       nirs_ctrl_adj_reg     <= 8'h00;
       nirs_debug_sel_reg    <= 5'b0;
 
@@ -156,7 +158,7 @@ module spi_reg_nirs #(
       case (i_addr[ADDR_WIDTH-1:0])
         `NIRS_CTRL_CHANNEL  : nirs_ctrl_channel_reg <= i_wr_data[7:0];
         `NIRS_CTRL_LED      : nirs_ctrl_led_reg     <= i_wr_data[1:0];
-        `NIRS_CTRL_CLK      : nirs_ctrl_clk_reg     <= i_wr_data[5:0];
+        `NIRS_CTRL_CLK      : nirs_ctrl_clk_reg     <= i_wr_data[6:0];
         `NIRS_DEBUG_SEL     : nirs_debug_sel_reg    <= i_wr_data[4:0];
         `NIRS_CTRL_ADJ_0    : nirs_ctrl_adj_reg     <= i_wr_data[7:0];
 
@@ -257,16 +259,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
       nirs_int_clr     <= 8'b0;   
   end else begin
     for (int x = 0; x < NO_OF_CHANNEL; x++) begin
-      if (nirs_int_sts_sync[x]) begin
-        if (nirs_int_sts_wr & i_wr_data[x] & !int_clear_type) begin // WRITE 1 to clear RW1C
-          nirs_int_clr[x] <= 1'b1;
-        end else if (nirs_int_sts_rd & int_clear_type) begin // READ 1 to clear - NIRS INT reg
-          nirs_int_clr[x] <= 1'b1;
-        end else if (int_gen_sts_rd & int_clear_type) begin // READ 1 to clear - GEN INT reg
-          nirs_int_clr[x] <= 1'b1;
-        end
+      if (nirs_int_sts_wr & i_wr_data[x] & !int_clear_type) begin // WRITE 1 to clear RW1C
+        nirs_int_clr[x] <= 1'b1;
+      end else if (nirs_int_sts_rd & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - NIRS INT reg
+        nirs_int_clr[x] <= 1'b1;
+      end else if (int_gen_sts_rd & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - GEN INT reg
+        nirs_int_clr[x] <= 1'b1;
       end else begin
-          nirs_int_clr[x] <= 1'b0;
+        nirs_int_clr[x] <= 1'b0;
       end
     end
   end
@@ -280,6 +280,8 @@ end
   assign nirs_debug_tmp = nirs_debug_reg[nirs_debug_sel_reg[3:0]];
 
   reg [7:0] reg_rd_data;
+
+/*
   always @ (posedge i_clk or negedge i_rst_n) begin
     if (!i_rst_n)
       reg_rd_data <= 8'b0;
@@ -287,7 +289,7 @@ end
       case(i_addr[ADDR_WIDTH-1:0])
       `NIRS_CTRL_CHANNEL  :  reg_rd_data  <= nirs_ctrl_channel_reg; 
       `NIRS_CTRL_LED      :  reg_rd_data  <= {6'b0, nirs_ctrl_led_reg};
-      `NIRS_CTRL_CLK      :  reg_rd_data  <= {2'b0, nirs_ctrl_clk_reg};
+      `NIRS_CTRL_CLK      :  reg_rd_data  <= {1'b0, nirs_ctrl_clk_reg};
       `NIRS_CTRL_MODE     :  reg_rd_data  <= {2'b0, nirs_ctrl_mode_reg[nirs_debug_sel_reg[3:0]]};
       `NIRS_CTRL_CMD      :  reg_rd_data  <= {6'b0, nirs_ctrl_cmd_reg[nirs_debug_sel_reg[3:0]]};
       `NIRS_CTRL_INT      :  reg_rd_data  <= nirs_ctrl_int_reg[nirs_debug_sel_reg[3:0]];
@@ -348,7 +350,73 @@ end
         endcase
      end
   end
+*/
 
+  always @ (*) begin
+    case(i_addr[ADDR_WIDTH-1:0])
+      `NIRS_CTRL_CHANNEL  :  reg_rd_data  = nirs_ctrl_channel_reg; 
+      `NIRS_CTRL_LED      :  reg_rd_data  = {6'b0, nirs_ctrl_led_reg};
+      `NIRS_CTRL_CLK      :  reg_rd_data  = {1'b0, nirs_ctrl_clk_reg};
+      `NIRS_CTRL_MODE     :  reg_rd_data  = {2'b0, nirs_ctrl_mode_reg[nirs_debug_sel_reg[3:0]]};
+      `NIRS_CTRL_CMD      :  reg_rd_data  = {6'b0, nirs_ctrl_cmd_reg[nirs_debug_sel_reg[3:0]]};
+      `NIRS_CTRL_INT      :  reg_rd_data  = nirs_ctrl_int_reg[nirs_debug_sel_reg[3:0]];
+      `NIRS_CTRL_ADJ_0    :  reg_rd_data  = nirs_ctrl_adj_reg;
+
+      `NIRS_INT_STATUS    :  reg_rd_data  = nirs_int_sts_reg;
+    
+      `NIRS_DOUT0_0       : reg_rd_data   = nirs_dout_reg[0][0];
+      `NIRS_DOUT0_1       : reg_rd_data   = nirs_dout_reg[0][1];
+      `NIRS_DOUT0_2       : reg_rd_data   = nirs_dout_reg[0][2];
+      `NIRS_DOUT0_3       : reg_rd_data   = nirs_dout_reg[0][3];
+      `NIRS_DOUT1_0       : reg_rd_data   = nirs_dout_reg[1][0];
+      `NIRS_DOUT1_1       : reg_rd_data   = nirs_dout_reg[1][1];
+      `NIRS_DOUT1_2       : reg_rd_data   = nirs_dout_reg[1][2];
+      `NIRS_DOUT1_3       : reg_rd_data   = nirs_dout_reg[1][3];
+      `NIRS_DOUT2_0       : reg_rd_data   = nirs_dout_reg[2][0];
+      `NIRS_DOUT2_1       : reg_rd_data   = nirs_dout_reg[2][1];
+      `NIRS_DOUT2_2       : reg_rd_data   = nirs_dout_reg[2][2];
+      `NIRS_DOUT2_3       : reg_rd_data   = nirs_dout_reg[2][3];
+      `NIRS_DOUT3_0       : reg_rd_data   = nirs_dout_reg[3][0];
+      `NIRS_DOUT3_1       : reg_rd_data   = nirs_dout_reg[3][1];
+      `NIRS_DOUT3_2       : reg_rd_data   = nirs_dout_reg[3][2];
+      `NIRS_DOUT3_3       : reg_rd_data   = nirs_dout_reg[3][3];
+      `NIRS_DOUT4_0       : reg_rd_data   = nirs_dout_reg[4][0];
+      `NIRS_DOUT4_1       : reg_rd_data   = nirs_dout_reg[4][1];
+      `NIRS_DOUT4_2       : reg_rd_data   = nirs_dout_reg[4][2];
+      `NIRS_DOUT4_3       : reg_rd_data   = nirs_dout_reg[4][3];
+      `NIRS_DOUT5_0       : reg_rd_data   = nirs_dout_reg[5][0];
+      `NIRS_DOUT5_1       : reg_rd_data   = nirs_dout_reg[5][1];
+      `NIRS_DOUT5_2       : reg_rd_data   = nirs_dout_reg[5][2];
+      `NIRS_DOUT5_3       : reg_rd_data   = nirs_dout_reg[5][3];
+      `NIRS_DOUT6_0       : reg_rd_data   = nirs_dout_reg[6][0];
+      `NIRS_DOUT6_1       : reg_rd_data   = nirs_dout_reg[6][1];
+      `NIRS_DOUT6_2       : reg_rd_data   = nirs_dout_reg[6][2];
+      `NIRS_DOUT6_3       : reg_rd_data   = nirs_dout_reg[6][3];
+      `NIRS_DOUT7_0       : reg_rd_data   = nirs_dout_reg[7][0];
+      `NIRS_DOUT7_1       : reg_rd_data   = nirs_dout_reg[7][1];
+      `NIRS_DOUT7_2       : reg_rd_data   = nirs_dout_reg[7][2];
+      `NIRS_DOUT7_3       : reg_rd_data   = nirs_dout_reg[7][3];
+
+      `NIRS_CTRL_0        :  reg_rd_data  = nirs_ctrl_tmp[0]; 
+      `NIRS_CTRL_1        :  reg_rd_data  = nirs_ctrl_tmp[1]; 
+      `NIRS_CTRL_2        :  reg_rd_data  = nirs_ctrl_tmp[2]; 
+      `NIRS_CTRL_3        :  reg_rd_data  = nirs_ctrl_tmp[3]; 
+      `NIRS_CTRL_4        :  reg_rd_data  = nirs_ctrl_tmp[4];
+      `NIRS_CTRL_5        :  reg_rd_data  = nirs_ctrl_tmp[5];
+      `NIRS_CTRL_6        :  reg_rd_data  = nirs_ctrl_tmp[6];
+      `NIRS_CTRL_7        :  reg_rd_data  = nirs_ctrl_tmp[7];
+      `NIRS_CTRL_8        :  reg_rd_data  = nirs_ctrl_tmp[8];
+
+      `NIRS_DEBUG_SEL     :  reg_rd_data  = {3'b0, nirs_debug_sel_reg};
+      `NIRS_DEBUG_0       :  reg_rd_data  = nirs_debug_tmp[0];
+      `NIRS_DEBUG_1       :  reg_rd_data  = nirs_debug_tmp[1];
+      `NIRS_DEBUG_2       :  reg_rd_data  = nirs_debug_tmp[2];
+      `NIRS_DEBUG_3       :  reg_rd_data  = nirs_debug_tmp[3];
+      `NIRS_DEBUG_4       :  reg_rd_data  = nirs_debug_tmp[4];
+      default             :  reg_rd_data  = 8'h00;
+    endcase
+  end
+  
   assign o_rd_data = reg_rd_data;
 
 //NIRS

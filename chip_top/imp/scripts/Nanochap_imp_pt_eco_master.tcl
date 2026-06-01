@@ -15,7 +15,7 @@ lappend corners min max;
 
 foreach i $scenarios { 
   foreach j $corners { 
-      create_scenario -name ${i}_${j} -image session_${j}_${i}
+      create_scenario -name ${i}_${j} -image session_${i}_${j}
       lappend all_scenarios ${i}_${j}      
     }
 }

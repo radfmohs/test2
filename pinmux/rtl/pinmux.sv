@@ -464,7 +464,8 @@ module pinmux (
 genvar i; 
   generate 
     for (i = 0; i < 8; i = i + 1) begin
-      assign pinmux_if.D2A_ANA_ENABLE_REG[0][0][i]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? (CONFIG_ROM0[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][0][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][0][i];
+      assign pinmux_if.D2A_ANA_ENABLE_REG[0][0][i]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0)  | (ANA_BIST_HC_SEL == 1'b0)))  ? CONFIG_ROM0[ATM_sel][i]  :  spi_pinmux_if.ANA_ENABLE_REG[0][0][i];
+    //assign pinmux_if.D2A_ANA_ENABLE_REG[0][0][i]   = (ATM_CONFG & ((ATM_HC_SEL == 1'b0) | (ANA_BIST_HC_SEL == 1'b0)))  ? (CONFIG_ROM0[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][0][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][0][i];
       assign pinmux_if.D2A_ANA_ENABLE_REG[0][1][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM1[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][1][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][1][i];
       assign pinmux_if.D2A_ANA_ENABLE_REG[0][2][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM2[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][2][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][2][i];
       assign pinmux_if.D2A_ANA_ENABLE_REG[0][3][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM3[ATM_sel][i]  ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][3][i])  : spi_pinmux_if.ANA_ENABLE_REG[0][3][i];

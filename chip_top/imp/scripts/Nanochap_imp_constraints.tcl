@@ -22,7 +22,7 @@
  #set hfosc_period       [expr {15.625}]      	; # 64 MHz     
  set hfosc_period       [expr {110}]      	; # 9 MHz 
  set extclk_period      [expr {110}] 	    	; # 9 MHz
- set spiclk_period      [expr {50}]       	; # 20 MHz SPI
+ set spiclk_period      [expr {55}]       	; # 18 MHz SPI
  set mbistclk_period    [expr {120}]       	; # 10 Mhz BIST cannot be achieved in max corner. eprom is slow
 
  set cycle90    [expr {0.90 * ${hfosc_period}}]
@@ -81,8 +81,10 @@ if {[string match S?2*_m?? $i]} {
   set_clock_uncertainty -hold    0.4      [get_clocks ext_clk]
   #set_case_analysis 0 [get_pins u_top_ana/A2D_EXTERNAL_EN_I]
   #set_case_analysis 0 [get_pins u_top_dig_always_on/u_clk_ctrl_always_on/DNT_ADC_CLK_INV/S0];#No need to create another scenario for this
-  
-  create_generated_clock -name notch_clk -add -divide_by 2 -master_clock ext_clk \
+}
+#normal mode; ext clk
+if {[string match S12?_m?? $i]} {
+ create_generated_clock -name notch_clk -add -divide_by 2 -master_clock ext_clk \
 			-source [get_attribute [get_clocks ext_clk] sources] \
 			[get_pins u_top_dig/u_clk_ctrl/notch_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period} * 2}] [get_clocks notch_clk]
@@ -105,7 +107,6 @@ if {[string match S?2*_m?? $i]} {
 			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks imeas_clk]
-
 }
 
 #bist clock scenario
@@ -330,6 +331,7 @@ if {[string match S12?_m?? $i]} {
 
 if {[string match S22_m?? $i]} {
   set_false_path -from vclk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/* -to [get_clocks ext_clk]
+  set_false_path -from ext_clk -through u_top_dig/u_imeas_wrapper/*/*/* -to ext_clk
 }
 
 #if not scan mode then no OTP 

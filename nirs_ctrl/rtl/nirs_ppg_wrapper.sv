@@ -16,11 +16,13 @@
 module nirs_ppg_wrapper #(
   parameter NO_OF_NIRS = 8
 ) (
+  input  wire scan_en,
   input  wire scan_mode, 
   input  wire rst_n,
   input  wire clk_ana,
   input  wire clk_ppg, // Max: 8Mhz
   input  wire clk_sys, // Max: 2MHz
+  input  wire clk_gate_bypass,
 
   output wire  [NO_OF_NIRS-1:0] LED_ON_IO,
   input  wire                   int_length_slct,
@@ -29,6 +31,10 @@ module nirs_ppg_wrapper #(
   ana_nirs_if.nirs        ana_nirs_if,
   spi_nirs_if.nirs        spi_nirs_if
 );
+
+  wire  [NO_OF_NIRS-1:0] clk_sys_gated;
+  wire  [NO_OF_NIRS-1:0] clk_ppg_gated;
+  wire  [NO_OF_NIRS-1:0] CLK_STOP;
 
   wire   [5:0]  NIRS_PPG_MODE_SEL [NO_OF_NIRS-1:0];
 
@@ -191,19 +197,26 @@ assign LED_ON_IO  = LED_ON; // Control external LED
 
 nirs_ppg_cmd u_nirs_ppg_cmd  [NO_OF_NIRS-1:0] (
   .rst_n          (rst_n),
-  .clk_sys        (clk_sys),
+  .atpg_en        (scan_en),
+  .clk_gate_bypass(clk_gate_bypass),
+  .i_clk_sys      (clk_sys),
+  .i_clk_ppg      (clk_ppg),
+  .o_clk_sys_gated(clk_sys_gated),
+  .o_clk_ppg_gated(clk_ppg_gated),
   .CMD            (CMD),
   .NIRS_SINGLE    (NIRS_SINGLE),
   .NIRS_PPG_EN    (NIRS_PPG_EN),
-  .NIRS_PPG_MEAS  (NIRS_PPG_MEAS)
+  .NIRS_PPG_MEAS  (NIRS_PPG_MEAS),
+  .CLK_STOP       (CLK_STOP)
 
 );
 
 nirs_ppg_ctrl_top u_nirs_ctrl_top [NO_OF_NIRS-1:0] (
   .scan_mode              (scan_mode),
   .rst_n                  (rst_n),
-  .clk_ppg                (clk_ppg),
-  .clk_sys                (clk_sys),
+  .clk_ppg                (clk_ppg_gated),
+  .clk_sys                (clk_sys_gated),
+  .COUNT_STOP             (CLK_STOP),
 
   .NIRS_PPG_MODE_SEL_spi  (NIRS_PPG_MODE_SEL),
   .NIRS_PPG_EN_spi        (NIRS_PPG_EN),

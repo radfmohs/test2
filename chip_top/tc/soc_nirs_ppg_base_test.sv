@@ -36,8 +36,17 @@ class `TESTCFG extends soc_base_test_cfg;
   logic [7:0]      rd_data[];
   ///NIRS_CTRL_ADDRESS
   rand logic [7:0]     ch_en_mask;
-  rand logic      [1:0]     num_of_leds_loop;
-  rand logic      [1:0]     temp_en_config_leds;
+  bit        [7:0]     temp_ch_n = 8'h0;
+  int                  temp_num_ch_en =0;
+  logic [7:0]          nirs_rd_data_burst[];
+  rand logic      [1:0]num_of_leds_loop;
+  rand logic      [1:0]temp_en_config_leds;
+  logic [7:0]          nirs_read_intr_status;
+  //general interrupt register  
+  rand bit            gen_reg_int_clr_typ;      //applied to both INT PIN aswell as don't use INT PIN 
+  rand bit            gen_reg_int_length_sel;   //applies ti INT PIN (IOPAD)
+  rand bit            gen_reg_int_active_level; //applies to INT PIN(IOPAD)     
+  rand bit            clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg;
   //rand logic [2:0] nirs_addr_channel_en;
   //nirs_ctrl_channel
 //  rand bit         en_config_ch0;
@@ -492,7 +501,11 @@ class `TESTNAME extends soc_base_test;
 
     //enable nirs_ppg assertion
     `NIRS_PPG_IF.nirs_sva_enable = 1'b0;
-
+    `NIRS_PPG_IF.gen_reg_int_clr_typ = top_test_cfg.gen_reg_int_clr_typ;     
+    `NIRS_PPG_IF.gen_reg_int_length_sel = top_test_cfg.gen_reg_int_length_sel;  
+    `NIRS_PPG_IF.gen_reg_int_active_level = top_test_cfg.gen_reg_int_active_level;
+    `NIRS_PPG_IF.ch_en_mask               =  top_test_cfg.ch_en_mask;
+    `NIRS_PPG_IF.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg = top_test_cfg.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg;
     //`DUT_IF.nirs_irefcoarse_iref_delay = top_test_cfg.nirs_irefcoarse_iref_delay;
     //`DUT_IF.en_config_ch0                 =                top_test_cfg.en_config_ch0;
     //`DUT_IF.en_config_ch1                 =                top_test_cfg.en_config_ch1;
@@ -784,11 +797,16 @@ class `TESTNAME extends soc_base_test;
 
     //`nnc_info("PPG_TEST",$sformatf("nirs_ppg_led_signle_en=%0d ", `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en),NNC_LOW);
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_en   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_adj  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_adj;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].fchop_adj   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].fchop_adj;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].chopper_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].chopper_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].test_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].test_en;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_en   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_en;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_adj  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_adj;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].fchop_adj   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].fchop_adj;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].chopper_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].chopper_en;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].test_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].test_en;
+    //`NIRS_PPG_IF.pdbias_en   = `NIRS_PPG_CTRL_CFG.pdbias_en;  //one time configuration at the beginning
+    //`NIRS_PPG_IF.pdbias_adj  = `NIRS_PPG_CTRL_CFG.pdbias_adj; //one time configuration at the beginning
+    //`NIRS_PPG_IF.fchop_adj   = `NIRS_PPG_CTRL_CFG.fchop_adj;  //one time configuration at the beginning
+    //`NIRS_PPG_IF.chopper_en  = `NIRS_PPG_CTRL_CFG.chopper_en; //one time configuration at the beginning
+    //`NIRS_PPG_IF.test_en     = `NIRS_PPG_CTRL_CFG.test_en;    //one time configuration at the beginning
 
     `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ipdmirror_ratio_adj = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ipdmirror_ratio_adj;
     `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].iref_ratio_adj      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_ratio_adj;
@@ -828,14 +846,17 @@ class `TESTNAME extends soc_base_test;
   endtask
 
    // 
-   task nirs_start_cmd_mcu_master_single_mode(logic[7:0] ch, bit [1:0]num_leds);
+   task nirs_start_cmd_mcu_master_single_mode(/*logic[7:0] ch, bit [1:0]num_leds*/);
      //At OFFSET 0X0F
       //0X0F[1:0] == NIRS_PPG_CMD
       `nnc_info("SOC_TEST", "Configure SOC_NIRS_CTRL_CMD_REG", NNC_LOW)
       //top_test_cfg.data[0] = {2'b0,top_test_cfg.threshold_h_18_13};
       for(bit [7:0] i =1; i<3; i++)begin
          `NIRS_PPG_CTRL_CFG.nirs_ppg_cmd = i; // needs to be updated
-         `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_cmd = i;
+         if(i==2)begin
+           #200us;  
+         end
+         //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_cmd = i;
          assert(top_test_cfg.randomize() with {reg_addr == `SOC_NIRS_CTRL_CMD_REG; mask == 8'hff; data[0] == i;}); 
          `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CMD_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)
          `WR_NIRS_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads); 
@@ -905,24 +926,180 @@ class `TESTNAME extends soc_base_test;
 
 
   //Config nirs ADJ0 reg 
-  task config_nirs_adj0_reg;
+  task config_nirs_adj0_reg; 
       top_test_cfg.data[0] = {1'b0,  `NIRS_PPG_CTRL_CFG.pdbias_en,  `NIRS_PPG_CTRL_CFG.pdbias_adj,  `NIRS_PPG_CTRL_CFG.fchop_adj,  `NIRS_PPG_CTRL_CFG.chopper_en,  `NIRS_PPG_CTRL_CFG.test_en}; 
       `WR_NIRS_REG(`SOC_NIRS_CTRL_ADJ0_REG, top_test_cfg.data[0], top_test_cfg.pads);
-      `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_ADJ0_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)  
-     
+      `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_ADJ0_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)         
   endtask
 
   //Config nirs ADJ0 reg 
   task config_nirs_clk_ctrl_reg;
       //assert(`NIRS_PPG_CTRL_CFG.randomize()); // with {reg_addr == `SOC_NIRS_CTRL_CLK_REG; mask == 8'hff; data[0] == {2'b0, `DUT_IF.ana_ppg_rst_reg, `DUT_IF.ana_ppg_clk50duty, `DUT_IF.ana_ppg_clk_div, `DUT_IF.ana_ppg_clk_inv,`DUT_IF.ppg_dis};});
-      top_test_cfg.data[0] = {2'b0, `NIRS_PPG_CTRL_CFG.ana_ppg_rst_reg, `NIRS_PPG_CTRL_CFG.ana_ppg_clk50duty, `NIRS_PPG_CTRL_CFG.ana_ppg_clk_div, `NIRS_PPG_CTRL_CFG.ana_ppg_clk_inv,`NIRS_PPG_CTRL_CFG.ppg_dis};
+      top_test_cfg.data[0] = {1'b0, `NIRS_PPG_CTRL_CFG.bypass_or_gateclk, `NIRS_PPG_CTRL_CFG.ana_ppg_rst_reg, `NIRS_PPG_CTRL_CFG.ana_ppg_clk50duty, `NIRS_PPG_CTRL_CFG.ana_ppg_clk_div, `NIRS_PPG_CTRL_CFG.ana_ppg_clk_inv,`NIRS_PPG_CTRL_CFG.ppg_dis};
      
       `WR_NIRS_REG(`SOC_NIRS_CTRL_CLK_REG, top_test_cfg.data[0], top_test_cfg.pads);;
       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_CLK_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)   
   endtask
 
-  
+  //
+  task automatic monitor_nirs_interrupt(int expected_interrupts, logic[7:0] intr_ch_check, int ch_num);
+
+     bit [7:0] intr_status;
+     int interrupt_count = 0; 
+     bit [7:0] prev_status = 8'h00;
+     automatic int channel_num;
      
+    channel_num = ch_num;
+    `uvm_info("NIRS_INT", $sformatf("wait for INTERRUPT!!!! for ENABLED CHANNELS =%0h\n",intr_ch_check),UVM_MEDIUM)
+     //while(interrupt_count < expected_interrupts)  begin 
+     //forever begin
+       
+       //`uvm_info("NIRS_INT", $sformatf("IN while loop wait for INTERRUPT!!!! interrupt_count =%0d",interrupt_count),UVM_LOW)  
+       //-----------------------------------------
+       // Interrupt output enabled to external pin
+       //-----------------------------------------
+       if (`NIRS_PPG_CTRL_CFG.nirs_int_pin_en === 1'b1) begin
+          //1. ACTIVE HIGH, LEVEL ACTIVE (0 to 1 trnsition, level signal until clear teh status)
+          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin
+            pin_int_active_high_level_active(channel_num);
+            interrupt_count++;
+          end
+          //2. ACTIVE HIGH, PULSE ACTIVE (0 to 1 transition, 1PCLK)
+          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin
+          pin_int_active_high_pulse_active(channel_num);
+          //interrupt_count++;
+          end
+          //3. ACTIVE LOW,  LEVEL ACTIVE (1 to 0 tarnsition, level signal until clear teh status)
+          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin            
+            pin_int_active_low_level_active(channel_num);
+            interrupt_count++;
+          end
+          //4. ACTIVE LOW,  PULSE ACTIVE (1 to 0 transition, 1PCLK))
+          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin            
+            pin_int_active_low_pulse_active(channel_num); 
+            interrupt_count++;  
+          end     
+          //@(posedge `SOC_TOP.IOBUF_PAD[11]);  //NIRS_INT on PIN (GPIO11/INT3)
+          //interrupt_count++;
+          //`uvm_info("NIRS_INT", "External interrupt pin asserted",UVM_LOW)
+       end
+
+       //-----------------------------------------
+       // Interrupt not routed to pin
+       //-----------------------------------------
+       else begin       
+         /*//-----------------------------------------
+         // Capture interrupt status
+         //-----------------------------------------
+         //intr_status = `DIG_TOP.spi_nirs_if.NIRS_INT[7:0];
+         do begin
+            `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG,8'h00, intr_status); 
+            `uvm_info("NIRS_INT",$sformatf("Poll NIRS INT STATUS for CH_NUM = %0h intr_status =%0h ", intr_ch_check, intr_status),UVM_LOW)
+         end while(intr_status[intr_ch_check] !==1);
+
+         `uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel %0d", intr_ch_check),UVM_LOW)
+         interrupt_count++;*/
+
+         //-----------------------------------------
+         // Detect interrupt channel
+         //-----------------------------------------
+         //if((intr_status != 0) && (intr_status != prev_status)) begin
+         //  for (int ch = 0; ch < 8; ch++) begin
+         //     if (intr_status[ch]) begin
+         //        `uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel %0d", ch),UVM_LOW)
+         //        interrupt_count++;
+         //        `uvm_info("NIRS_INT",$sformatf("Internal Interrupt Count %0d", interrupt_count),UVM_LOW)
+         //     end
+         //  end
+         //end
+         //prev_status = intr_status;
+       end //else
+
+    //end //while
+  
+    `uvm_info("INT_MON",$sformatf("Completed interrupt monitoring for Channel_num =%0h\n",channel_num),UVM_LOW)
+   endtask  
+
+   task read_nirs_idac_data;
+        //`RD_BURST_NIRS_REG(top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_burst_size, top_test_cfg.nirs_rd_data_burst);
+        `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h20,top_test_cfg.nirs_rd_data_burst); 
+   endtask   
+
+   task clear_interrupt_status(bit gen_reg_int_clr_typ);
+       if(`NIRS_PPG_IF.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg ===1'b1)begin
+         if(gen_reg_int_clr_typ === 1'b1)begin
+           `uvm_info("NIRS_INT",$sformatf("SOC_GENERAL_INT_STS_1_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW)     
+            `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, 8'h00, top_test_cfg.nirs_read_intr_status); //R1C
+         end
+         else begin
+           `uvm_info("NIRS_INT",$sformatf("SOC_GENERAL_INT_STS_1_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW) 
+            `WR_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, `NIRS_PPG_IF.ch_en_mask, top_test_cfg.pads); //RW1C, clear interrupt status of enabled channels
+         end
+       end
+       else begin
+         if(gen_reg_int_clr_typ === 1'b1)begin
+           `uvm_info("NIRS_INT",$sformatf("SOC_NIRS_INT_STATUS_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW)     
+            `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, 8'h00, top_test_cfg.nirs_read_intr_status); //R1C
+         end
+         else begin
+           `uvm_info("NIRS_INT",$sformatf("SOC_NIRS_INT_STATUS_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW) 
+            `WR_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, `NIRS_PPG_IF.ch_en_mask, top_test_cfg.pads); //RW1C, clear interrupt status of enabled channels
+         end
+       end
+
+   endtask
+
+   task pin_int_active_high_level_active(int channel_num);  
+        `uvm_info("NIRS_INT",$sformatf("WAIT FOR int_active_high_level_active INTERRUPT!!!! For CH =%0h\n", channel_num),UVM_LOW )       
+        @(posedge `SOC_TOP.IOBUF_PAD[11]);     // 0-->1 throughout
+        `uvm_info("NIRS_INT",$sformatf("int_active_high_level_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
+   endtask
+
+   task pin_int_active_high_pulse_active(int channel_num);
+        `uvm_info("NIRS_INT",$sformatf("WAIT FOR pin_int_active_high_pulse_active INTERRUPT!!!! For CH =%0h\n", channel_num),UVM_LOW )
+         @(posedge `SOC_TOP.IOBUF_PAD[11])//wait(`SOC_TOP.IOBUF_PAD[11]);   // 0 -->1 ( 1 PPG CLK)
+        `uvm_info("NIRS_INT",$sformatf("pin_int_active_high_pulse_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
+        @( posedge `CLK_CTRL_TOP.clk_ppg); 
+        @( negedge `CLK_CTRL_TOP.clk_ppg);
+        @( posedge `CLK_CTRL_TOP.clk_ppg);
+        if(`SOC_TOP.IOBUF_PAD[11] !== 1'b0) begin
+          `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num)) 
+        end
+   endtask
+
+   task pin_int_active_low_level_active(int channel_num);
+       `uvm_info("NIRS_INT",$sformatf("WAIT FOR pin_int_active_low_level_active INTERRUPT!!!! For CH =%0h\n", channel_num),UVM_LOW )
+        @(negedge `SOC_TOP.IOBUF_PAD[11]);     // 0-->1 throughout
+        `uvm_info("NIRS_INT",$sformatf("pin_int_active_low_level_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
+
+   endtask
+
+   task pin_int_active_low_pulse_active(int channel_num); 
+       `uvm_info("NIRS_INT",$sformatf("WAIT FOR pin_int_active_low_pulse_active INTERRUPT!!!! For CH =%0h\n", channel_num),UVM_LOW )      
+       @(negedge `SOC_TOP.IOBUF_PAD[11]);     // 0-->1 (1 PPG CLK)
+      `uvm_info("NIRS_INT",$sformatf("pin_int_active_low_pulse_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
+        @( posedge `CLK_CTRL_TOP.clk_ppg); 
+        @( negedge `CLK_CTRL_TOP.clk_ppg);
+        @( posedge `CLK_CTRL_TOP.clk_ppg);
+        if( `SOC_TOP.IOBUF_PAD[11] !== 1'b1) begin
+          `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num)) 
+        end
+   endtask
+
+   task drive_nirs_adj0_to_nirs_if();
+       `NIRS_PPG_IF.pdbias_en   = `NIRS_PPG_CTRL_CFG.pdbias_en;  //one time configuration at the beginning
+       `NIRS_PPG_IF.pdbias_adj  = `NIRS_PPG_CTRL_CFG.pdbias_adj; //one time configuration at the beginning
+       `NIRS_PPG_IF.fchop_adj   = `NIRS_PPG_CTRL_CFG.fchop_adj;  //one time configuration at the beginning
+       `NIRS_PPG_IF.chopper_en  = `NIRS_PPG_CTRL_CFG.chopper_en; //one time configuration at the beginning
+       `NIRS_PPG_IF.test_en     = `NIRS_PPG_CTRL_CFG.test_en;    //one time configuration at the beginning
+
+   endtask 
+
+
+  task config_general_interrupt_ctrl_reg;
+    top_test_cfg.wr_data[0] = {5'b0,`NIRS_PPG_IF.gen_reg_int_active_level, `NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.gen_reg_int_length_sel};
+    `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);  
+  endtask
   // ------------------------------
   // Declare the report_phase task
   // ------------------------------

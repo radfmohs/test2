@@ -139,6 +139,77 @@ end
 `define  NIRS_PPG_IF                 `SOC_TB.nirs_ppg_vif
 
 
+
+//check D2A_NIRS_*
+//D2A_PDBIAS_ADJ<1:0>
+//D2A_PDBIAS_EN
+//D2A_NIRS_TEST_EN
+//D2A_CLK_NIRS
+//D2A_NIRS_CHOPPER_EN
+//D2A_NIRS_FCHOP_ADJ<1:0>
+
+always @(posedge `NIRS_PPG_TOP.clk_sys) begin
+
+     //if(!`NIRS_PPG_TOP.rst_n)begin
+     //end
+     if(`NIRS_PPG_IF.nirs_d2a_spi_adj0_regs_check_en === 1'b1 && `NIRS_PPG_TOP.rst_n === 1'b1 )begin
+
+        if(`ANA_TOP.D2A_PDBIAS_ADJ !== `NIRS_PPG_IF.pdbias_adj)begin
+          `nnc_error("NIRS_TB",$sformatf("ERROR!!!! `ANA_TOP.D2A_PDBIAS_ADJ =%0h, `NIRS_PPG_IF.pdbias_adj =%0h\n", `ANA_TOP.D2A_PDBIAS_ADJ, `NIRS_PPG_IF.pdbias_adj))
+        end
+
+        if(`ANA_TOP.D2A_PDBIAS_EN !== `NIRS_PPG_IF.pdbias_en)begin
+          `nnc_error("NIRS_TB",$sformatf("ERROR!!!! `ANA_TOP.D2A_PDBIAS_EN =%0h, `NIRS_PPG_IF.pdbias_en =%0h\n", `ANA_TOP.D2A_PDBIAS_EN, `NIRS_PPG_IF.pdbias_en))
+        end
+
+        if(`ANA_TOP.D2A_NIRS_TEST_EN !== `NIRS_PPG_IF.test_en)begin
+          `nnc_error("NIRS_TB",$sformatf("ERROR!!!!  `ANA_TOP.D2A_NIRS_TEST_EN =%0h, `NIRS_PPG_IF.test_en =%0h\n", `ANA_TOP.D2A_NIRS_TEST_EN, `NIRS_PPG_IF.test_en))
+        end
+
+        //if(`ANA_TOP.D2A_CLK_NIRS !== )begin
+        //end
+        if(`ANA_TOP.D2A_NIRS_CHOPPER_EN !== `NIRS_PPG_IF.chopper_en)begin
+          `nnc_error("NIRS_TB",$sformatf("ERROR!!!! `ANA_TOP.D2A_NIRS_CHOPPER_EN =%0h, `NIRS_PPG_IF.chopper_en =%0h\n", `ANA_TOP.D2A_NIRS_CHOPPER_EN, `NIRS_PPG_IF.chopper_en))
+        end
+
+        if(`ANA_TOP.D2A_NIRS_FCHOP_ADJ !== `NIRS_PPG_IF.fchop_adj)begin
+          `nnc_error("NIRS_TB",$sformatf("ERROR!!!! `ANA_TOP.D2A_NIRS_FCHOP_ADJ =%0h, `NIRS_PPG_IF.fchop_adj =%0h\n", `ANA_TOP.D2A_NIRS_FCHOP_ADJ, `NIRS_PPG_IF.fchop_adj))
+        end        
+      end
+end
+
+//D2A_NIRS*_IDAC_EN
+//D2A_NIRS*_IPDMIRROR_ADJ<1:0>
+//D2A_NIRS*_IREFC_ADJ<1:0>
+//D2A_NIRS*_CFRATE_ADJ<1:0> 
+//D2A_ NIRS*_IDAC_ADJ<8:0>
+/*genvar ch;
+generate
+  for (ch = 0; ch < 8; ch++) begin
+    always @(posedge `NIRS_PPG_TOP.clk_sys or negedge `NIRS_PPG_TOP.rst_n) begin
+      if (`NIRS_PPG_IF.nirs_8ch_d2a_spi_adj_regs_check_en === 1'b1 && `NIRS_PPG_TOP.rst_n === 1'b1)begin
+         if(d2a_nirs_ipdmirror_adj_bus !== `NIRS_PPG_IF.nirs_ppg_cfg_array[0][0].ipdmirror_ratio_adj)begin
+         end
+         if(d2a_nirs_irefc_adj_bus !== `NIRS_PPG_IF.nirs_ppg_cfg_array[0][0].iref_ratio_adj)begin
+         end
+         if(d2a_nirs_cfrate_adj_bus !== `NIRS_PPG_IF.nirs_ppg_cfg_array[0][0].ratio_ctrl)begin
+         end
+         //if(d2a_nirs_idac_adj_bus !== `NIRS_PPG_IF.nirs_ppg_cfg_array[0][0].)begin
+         //end
+         if(d2a_nirs_idac_en_bus !== `NIRS_PPG_IF.nirs_ppg_cfg_array[0][0].idac_en)begin
+         end
+      end
+  end
+endgenerate*/
+
+//for below assertion added in NIRS INTERFACE
+//D2A_ NIRS*_EN
+//D2A_NIRS*_RESET_SW
+//D2A_NIRS*_IPD_SW
+//D2A_NIRS*_IIN_SW
+//A2D_NIRS*_IREFCOARSE
+//A2D_NIRS*_IREFCOARSE
+    
 //initial begin
 //    nirs_ppg_vif.cfg = top_cfg.nirs_ppg_cfg; //`NIRS_PPG_CTRL_CFG;   // pass config handle
 //end

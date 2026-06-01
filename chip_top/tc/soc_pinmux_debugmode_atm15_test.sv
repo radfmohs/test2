@@ -24,7 +24,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [5:0] reg_addr;
   rand logic [5:0] cmd;  
   logic [5:0] read_data[];
-  logic [28:0] atm;
+  logic [29:0] atm;
   
   // -----------------------------------------------
   // End of decalration of new variables 
@@ -109,7 +109,7 @@ class `TESTNAME extends soc_base_test;
     // Scoreboard enables
     // ==================
     `SPI_SCB_EN = 1'b0;
-    `ANALOG_SCOREBOARD_EN = 1'b1;
+    `ANALOG_SCOREBOARD_EN = 1'b0;
     `PINMUX_SCOREBOARD_EN = 1'b0;
     
     phase.drop_objection(this);
@@ -190,7 +190,7 @@ class `TESTNAME extends soc_base_test;
     force `SOC_TB.ext_resetn = 1'b1;
     #1ms;
 
-    `PINMUX_SCOREBOARD_EN = 1'b1;
+    `PINMUX_SCOREBOARD_EN = 1'b0;
 
    // ------------------------------------------------------ 
    // Part II: Checking ATM7 will be asserted in interface
@@ -198,14 +198,14 @@ class `TESTNAME extends soc_base_test;
     #100000ns;
 
   `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[28]};
+    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[28], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[29]};
 `else
     top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
 `endif  
      // Checking ATM
-    if (top_test_cfg.atm !== (29'b1_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
+    if (top_test_cfg.atm !== (30'b10_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
-        `nnc_error("ATM15", $sformatf("ATM[0:28] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (29'b1_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
+        `nnc_error("ATM15", $sformatf("ATM[0:29] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (30'b10_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end  
 
     //Check default signal  

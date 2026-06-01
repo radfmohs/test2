@@ -538,9 +538,9 @@ interface dut_interface();
   logic         sar_adc_bypass_pull_src_from_wg;
      
   //stim vol measurement 
-   logic        adc_cycle_value_int_sts_en;
+   logic        adc_cycle_int_sts_en;
    logic        adc_sample_int_sts_en;
-   logic        adc_sample_delta_int_sts_en; 
+   logic        adc_delta_int_sts_en; 
    logic        adc_en;
    logic        adc_mode;
    logic [3:0]  pair_num;
@@ -564,11 +564,12 @@ interface dut_interface();
    logic [15:0] stim_pad1_tgt2;
    logic [15:0] stim_pad1_tgt3;
    logic [15:0] exp_stim_period_cnt =0;
+   logic [15:0] exp_sample_cnt_for_sample_intr =0;
    integer      exp_stim_tag =0;
-   integer      exp_stim_tag_temp =0;
    logic [9:0]  max_a2d_data = 0;
    logic [9:0]  min_a2d_data = 'h3FF; // 10 bit biggest value
    logic [9:0]  delta_a2d_data = 0;
+   integer      exp_stim_delta_tag =0;
    logic        adc_delta_data_in_manual_en;
    logic        exp_stim_pair_int_sts;
    logic        exp_stim_cycle_int_sts;
@@ -585,6 +586,11 @@ interface dut_interface();
    logic        short_int_to_pin_en;
    logic [9:0]  short_th;
    logic [7:0]  leadoff_short_th_tgt;
+   logic [9:0]  adc_data_for_leadoff_short;
+   logic [7:0]  leadoff_detected =0;
+   logic [7:0]  short_detected=0;
+   logic [15:0] final_leadoff_intr = 0;
+   logic [15:0] final_short_intr = 0;
 
    logic        spi_dual_mode_en;
 

@@ -1,6 +1,7 @@
 module nirs_ppg_pulse_ctrl (
   input  wire       rst_n,
   input  wire       clk,  // 2 MHz
+  output wire       COUNT_STOP,
 
 // CONTROL signals 
 //input  wire [2:0] MODE_SEL, // xxx1: MCU MASTER (SINGLE) - 0000: RECEIVER MASTER (SINGLE) - 0010: RECEIVER MASTER (CON TYP) - 110: RECEIVER MASTER (CON FAST)
@@ -292,6 +293,7 @@ parameter [15:0] t_delay_timing   = 16'd10;
   end
 
   assign counter_en = (count_cur == COUNTING);// && (count_cur == count_next);
+  assign COUNT_STOP = (count_cur == COUNTING) && (count_cur != count_next);
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin

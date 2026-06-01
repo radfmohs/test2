@@ -112,6 +112,7 @@ class `TESTNAME extends soc_base_test;
     begin
     /*-----------------------------PMU-------------------------------*/       
     //Module : PMU , Direction : D2A , Connection : OTP THROUGH PINMUX.
+    `nnc_info("PMU", "Start  testing PMU", NNC_LOW)
     for (int i=0; i < 100; i++) begin
         force `ANA_WRAPPER_TOP.pinmux_if.D2A_TRIM_SIG[0] = $random;
         #10000ns;
@@ -292,6 +293,7 @@ class `TESTNAME extends soc_base_test;
     end
     
     //-----------------------------BIST-------------------------------//       
+    `nnc_info("BIST", "Start  testing BIST", NNC_LOW)
     //Module : BIST , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
         force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][0] = $random;
@@ -304,6 +306,7 @@ class `TESTNAME extends soc_base_test;
     end
 
     //-----------------------------DC LEAD OFF-------------------------------//    
+    `nnc_info("DC LEAD OFF", "Start  testing DC LEAD OFF", NNC_LOW)
     //Module : DC LEAD OFF , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin // DONEEEEEEEEEEEEEEEEEEEEEE
         force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][6] = $random;
@@ -357,6 +360,7 @@ class `TESTNAME extends soc_base_test;
     end
 
     //-----------------------------RECODING-------------------------------//    
+    `nnc_info("RECORDING", "Start  testing Recording", NNC_LOW)
     //Module : RECODING , Direction : D2A , Connection : SPI THROUGH PINMUX.
     for (int i=0; i < 100; i++) begin
         force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][1] = $random;
@@ -1102,6 +1106,1490 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ANA", $sformatf("D2A_EEGPGA15B_GAIN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA15B_GAIN, rand_num[7:3]))
         end
         release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][3];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][4] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][4];
+        if (`ANA_TOP.D2A_EEGPGA0A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA0A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA0A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA0B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA0B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA0B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][4];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][5] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][5];
+        if (`ANA_TOP.D2A_EEGPGA1A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA1A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA1A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA1B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA1B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA1B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][5];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][6] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][6];
+        if (`ANA_TOP.D2A_EEGPGA2A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA2A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA2A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA2B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA2B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA2B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][6];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][7] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][7];
+        if (`ANA_TOP.D2A_EEGPGA3A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA3A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA3B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA3B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][7];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][8] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][8];
+        if (`ANA_TOP.D2A_EEGPGA4A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA4A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA4A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA4B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA4B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA4B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][8];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][9] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][9];
+        if (`ANA_TOP.D2A_EEGPGA5A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA5A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA5A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA5B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA5B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA5B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][9];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][10] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][10];
+        if (`ANA_TOP.D2A_EEGPGA6A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA6A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA6A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA6B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA6B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][10];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][11] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][11];
+        if (`ANA_TOP.D2A_EEGPGA7A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA7A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA7A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA7B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA7B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][11];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][12] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][12];
+        if (`ANA_TOP.D2A_EEGPGA8A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA8A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA8A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA8B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA8B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][12];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][0];
+        if (`ANA_TOP.D2A_EEGPGA9A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA9A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA9A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA9B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA9B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA9B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][1] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][1];
+        if (`ANA_TOP.D2A_EEGPGA10A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA10A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA10A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA10B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA10B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA10B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][1];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][2] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][2];
+        if (`ANA_TOP.D2A_EEGPGA11A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA11A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA11A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA11B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA11B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA11B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][2];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][3] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][3];
+        if (`ANA_TOP.D2A_EEGPGA12A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA12A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA12A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA12B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA12B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA12B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][3];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][4] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][4];
+        if (`ANA_TOP.D2A_EEGPGA13A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA6A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA13A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA13B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA13B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][4];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][5] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][5];
+        if (`ANA_TOP.D2A_EEGPGA14A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA6A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA14A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA14B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA3B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA14B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][5];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][6] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][6];
+        if (`ANA_TOP.D2A_EEGPGA15A_IADJ !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA15A_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA15A_IADJ, rand_num[3:0]))
+        end
+        if (`ANA_TOP.D2A_EEGPGA15B_IADJ !== rand_num[7:4]) begin
+        `nnc_error("ANA", $sformatf("D2A_EEGPGA15B_IADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_EEGPGA15B_IADJ, rand_num[7:4]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][6];
+    end
+    
+    //-----------------------------STIMULATOR-------------------------------//    
+    `nnc_info("SIMULATOR", "Start  testing Simulator", NNC_LOW)
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0];
+        if (`ANA_TOP.D2A_DATA_0 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_0 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_0, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1];
+        if (`ANA_TOP.D2A_DATA_1 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_1 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_1, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[1];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[2] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[2];
+        if (`ANA_TOP.D2A_DATA_2 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_2 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_2, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[2];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[3] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[3];
+        if (`ANA_TOP.D2A_DATA_3 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_3 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_3, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[3];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[4] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[4];
+        if (`ANA_TOP.D2A_DATA_4 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_4 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_4, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[4];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[5] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[5];
+        if (`ANA_TOP.D2A_DATA_5 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_5 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_5, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[5];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[6] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[6];
+        if (`ANA_TOP.D2A_DATA_6 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_6 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_6, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[6];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[7] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[7];
+        if (`ANA_TOP.D2A_DATA_7 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_7 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_7, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[7];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[8] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[8];
+        if (`ANA_TOP.D2A_DATA_8 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_8 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_8, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[8];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[9] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[9];
+        if (`ANA_TOP.D2A_DATA_9 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_9 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_9, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[9];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[10] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[10];
+        if (`ANA_TOP.D2A_DATA_10 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_10 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_10, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[10];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[11] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[11];
+        if (`ANA_TOP.D2A_DATA_11 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_11 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_11, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[11];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[12] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[12];
+        if (`ANA_TOP.D2A_DATA_12 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_12 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_12, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[12];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[13] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[13];
+        if (`ANA_TOP.D2A_DATA_13 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_13 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_13, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[13];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[14] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[14];
+        if (`ANA_TOP.D2A_DATA_14 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_14 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_14, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[14];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_out_wave_driver_idac[15] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_out_wave_driver_idac[15];
+        if (`ANA_TOP.D2A_DATA_15 !== rand_num[12:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DATA_15 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DATA_15, rand_num[12:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_out_wave_driver_idac[15];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_driver_en_sw = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_driver_en_sw;
+        if (`ANA_TOP.D2A_CBUF_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_CBUF_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_CBUF_EN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_driver_en_sw;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_ds_driver_en_driver = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_ds_driver_en_driver;
+        if (`ANA_TOP.D2A_IDAC_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_IDAC_EN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_ds_driver_en_driver;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.pinmux_if.i_ds_driver_en_current = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.pinmux_if.i_ds_driver_en_current;
+        if (`ANA_TOP.D2A_DRIVER_CUR_EN !== rand_num) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVER_CUR_EN, rand_num))
+        end
+        release `ANA_WRAPPER_TOP.pinmux_if.i_ds_driver_en_current;
+    end
+   
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM6_SIG = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM6_SIG;
+        if (`ANA_TOP.D2A_DRIVER_CUR_TRIM !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVER_CUR_TRIM :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVER_CUR_TRIM, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM6_SIG;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_pulldn_driver = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_pulldn_driver;
+        if (`ANA_TOP.D2A_PULLD !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_PULLD :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_PULLD, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_pulldn_driver;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.i_source_driver = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.i_source_driver;
+        if (`ANA_TOP.D2A_SOURCE !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SOURCE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SOURCE, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.i_source_driver;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.pinmux_if.i_stimu_en = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.pinmux_if.i_stimu_en;
+        if (`ANA_TOP.D2A_STIMU_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_STIMU_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_STIMU_EN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.pinmux_if.i_stimu_en;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][3] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][3];
+        if (`ANA_TOP.D2A_DRIVERC_LEAD_OFF_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVERC_LEAD_OFF_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVERC_LEAD_OFF_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][3];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][3:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][3:0];
+        if (`ANA_TOP.D2A_DRIVERC_LEAD_OFF_INSEL !== rand_num[3:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVERC_LEAD_OFF_INSEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVERC_LEAD_OFF_INSEL, rand_num[3:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][3:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][4] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][4];
+        if (`ANA_TOP.D2A_DRIVERC_SHORT_DET_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVERC_SHORT_DET_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVERC_SHORT_DET_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[0][3][4];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][7:4] = $random;
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][0] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][0],`ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][7:4]};
+        if (`ANA_TOP.D2A_DRIVERC_SHORT_DET_VINSEL !== rand_num[4:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVERC_SHORT_DET_VINSEL :%b is not as expectation of rand_num : %b",{`ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][0],`ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][7:4]}, rand_num[4:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[6][9][7:4];
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][5:1] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][5:1];
+        if (`ANA_TOP.D2A_DRIVERC_SHORT_DET_VIPSEL !== rand_num[4:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_DRIVERC_SHORT_DET_VIPSEL :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_DRIVERC_SHORT_DET_VIPSEL, rand_num[4:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[6][10][5:1];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_DRIVERC_LEAD_OFF_OUT = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_DRIVERC_LEAD_OFF_OUT;
+        if (`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[2] !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[2] :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[2], rand_num[0]))
+        end
+        release `ANA_TOP.A2D_DRIVERC_LEAD_OFF_OUT;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_DRIVERC_SHORT_DET_OUT = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_DRIVERC_SHORT_DET_OUT;
+        if (`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[3] !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_ANA_GEN_REG_0[3] :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_ANA_GEN_REG_0[3], rand_num[0]))
+        end
+        release `ANA_TOP.A2D_DRIVERC_SHORT_DET_OUT;
+    end
+    //-----------------------------NIRS-------------------------------//    
+    `nnc_info("NIRS", "Start  testing Nirs", NNC_LOW)
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_PDBIAS_EN = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_PDBIAS_EN;
+        if (`ANA_TOP.D2A_PDBIAS_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_PDBIAS_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_PDBIAS_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_PDBIAS_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_PDBIAS_ADJ = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_PDBIAS_ADJ;
+        if (`ANA_TOP.D2A_PDBIAS_ADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_PDBIAS_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_PDBIAS_ADJ, rand_num[1:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_PDBIAS_ADJ;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_CLK_NIRS = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_CLK_NIRS;
+        if (`ANA_TOP.D2A_CLK_NIRS !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_CLK_NIRS :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_CLK_NIRS, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_CLK_NIRS;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CHOPPER_EN = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CHOPPER_EN;
+        if (`ANA_TOP.D2A_NIRS_CHOPPER_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_NIRS_CHOPPER_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS_CHOPPER_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CHOPPER_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_FCHOP_ADJ = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_FCHOP_ADJ;
+        if (`ANA_TOP.D2A_NIRS_FCHOP_ADJ !== rand_num[1:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_NIRS_FCHOP_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS_FCHOP_ADJ, rand_num[1:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_NIRS_FCHOP_ADJ;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_TEST_EN = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_TEST_EN;
+        if (`ANA_TOP.D2A_NIRS_TEST_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_NIRS_TEST_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS_TEST_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_NIRS_TEST_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[1] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[2] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[3] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[4] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[5] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[6] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_EN[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.D2A_NIRS_EN[7],`ANA_WRAPPER_TOP.D2A_NIRS_EN[6],`ANA_WRAPPER_TOP.D2A_NIRS_EN[5],`ANA_WRAPPER_TOP.D2A_NIRS_EN[4],`ANA_WRAPPER_TOP.D2A_NIRS_EN[3],`ANA_WRAPPER_TOP.D2A_NIRS_EN[2],`ANA_WRAPPER_TOP.D2A_NIRS_EN[1],`ANA_WRAPPER_TOP.D2A_NIRS_EN[0]};
+        
+        if (`ANA_TOP.D2A_NIRS0_EN !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_EN, rand_num[0]))
+        end
+        if (`ANA_TOP.D2A_NIRS1_EN !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_EN, rand_num[1]))
+        end
+        if (`ANA_TOP.D2A_NIRS2_EN !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_EN, rand_num[2]))
+        end
+        if (`ANA_TOP.D2A_NIRS3_EN !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_EN, rand_num[3]))
+        end
+        if (`ANA_TOP.D2A_NIRS4_EN !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_EN, rand_num[4]))
+        end
+        if (`ANA_TOP.D2A_NIRS5_EN !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_EN, rand_num[5]))
+        end
+        if (`ANA_TOP.D2A_NIRS6_EN !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_EN, rand_num[6]))
+        end
+        if (`ANA_TOP.D2A_NIRS7_EN !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_EN, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[1] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[2] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[3] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[4] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[5] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[6] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[7],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[6],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[5],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[4],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[3],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[2],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[1],`ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN[0]};
+        
+        if (`ANA_TOP.D2A_NIRS0_IDAC_EN !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IDAC_EN, rand_num[0]))
+        end
+        if (`ANA_TOP.D2A_NIRS1_IDAC_EN !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IDAC_EN, rand_num[1]))
+        end
+        if (`ANA_TOP.D2A_NIRS2_IDAC_EN !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IDAC_EN, rand_num[2]))
+        end
+        if (`ANA_TOP.D2A_NIRS3_IDAC_EN !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IDAC_EN, rand_num[3]))
+        end
+        if (`ANA_TOP.D2A_NIRS4_IDAC_EN !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IDAC_EN, rand_num[4]))
+        end
+        if (`ANA_TOP.D2A_NIRS5_IDAC_EN !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IDAC_EN, rand_num[5]))
+        end
+        if (`ANA_TOP.D2A_NIRS6_IDAC_EN !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IDAC_EN, rand_num[6]))
+        end
+        if (`ANA_TOP.D2A_NIRS7_IDAC_EN !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IDAC_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IDAC_EN, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[1] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[2] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[3] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[4] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[5] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[6] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[7],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[6],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[5],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[4],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[3],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[2],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[1],`ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[0]};
+        
+        if (`ANA_TOP.D2A_NIRS0_RESET_SW !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_RESET_SW, rand_num[0]))
+        end
+        if (`ANA_TOP.D2A_NIRS1_RESET_SW !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_RESET_SW, rand_num[1]))
+        end
+        if (`ANA_TOP.D2A_NIRS2_RESET_SW !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_RESET_SW, rand_num[2]))
+        end
+        if (`ANA_TOP.D2A_NIRS3_RESET_SW !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_RESET_SW, rand_num[3]))
+        end
+        if (`ANA_TOP.D2A_NIRS4_RESET_SW !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_RESET_SW, rand_num[4]))
+        end
+        if (`ANA_TOP.D2A_NIRS5_RESET_SW !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_RESET_SW, rand_num[5]))
+        end
+        if (`ANA_TOP.D2A_NIRS6_RESET_SW !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_RESET_SW, rand_num[6]))
+        end
+        if (`ANA_TOP.D2A_NIRS7_RESET_SW !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_RESET_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_RESET_SW, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_RESET_SW[7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[1] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[2] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[3] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[4] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[5] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[6] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[7],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[6],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[5],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[4],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[3],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[2],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[1],`ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[0]};
+        
+        if (`ANA_TOP.D2A_NIRS0_IPD_SW !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IPD_SW, rand_num[0]))
+        end
+        if (`ANA_TOP.D2A_NIRS1_IPD_SW !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IPD_SW, rand_num[1]))
+        end
+        if (`ANA_TOP.D2A_NIRS2_IPD_SW !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IPD_SW, rand_num[2]))
+        end
+        if (`ANA_TOP.D2A_NIRS3_IPD_SW !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IPD_SW, rand_num[3]))
+        end
+        if (`ANA_TOP.D2A_NIRS4_IPD_SW !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IPD_SW, rand_num[4]))
+        end
+        if (`ANA_TOP.D2A_NIRS5_IPD_SW !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IPD_SW, rand_num[5]))
+        end
+        if (`ANA_TOP.D2A_NIRS6_IPD_SW !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IPD_SW, rand_num[6]))
+        end
+        if (`ANA_TOP.D2A_NIRS7_IPD_SW !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IPD_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IPD_SW, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPD_SW[7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[0] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[1] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[2] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[3] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[4] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[5] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[6] = $random;
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[7],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[6],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[5],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[4],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[3],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[2],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[1],`ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[0]};
+        
+        if (`ANA_TOP.D2A_NIRS0_IIN_SW !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IIN_SW, rand_num[0]))
+        end
+        if (`ANA_TOP.D2A_NIRS1_IIN_SW !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IIN_SW, rand_num[1]))
+        end
+        if (`ANA_TOP.D2A_NIRS2_IIN_SW !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IIN_SW, rand_num[2]))
+        end
+        if (`ANA_TOP.D2A_NIRS3_IIN_SW !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IIN_SW, rand_num[3]))
+        end
+        if (`ANA_TOP.D2A_NIRS4_IIN_SW !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IIN_SW, rand_num[4]))
+        end
+        if (`ANA_TOP.D2A_NIRS5_IIN_SW !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IIN_SW, rand_num[5]))
+        end
+        if (`ANA_TOP.D2A_NIRS6_IIN_SW !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IIN_SW, rand_num[6]))
+        end
+        if (`ANA_TOP.D2A_NIRS7_IIN_SW !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IIN_SW :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IIN_SW, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IIN_SW[7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[0][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[0][1:0];
+        if (`ANA_TOP.D2A_NIRS0_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IPDMIRROR_ADJ, rand_num[0]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[1][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[1][1:0];
+        if (`ANA_TOP.D2A_NIRS1_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IPDMIRROR_ADJ, rand_num[1]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[2][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[2][1:0];
+        if (`ANA_TOP.D2A_NIRS2_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IPDMIRROR_ADJ, rand_num[2]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[3][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[3][1:0];
+        if (`ANA_TOP.D2A_NIRS3_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IPDMIRROR_ADJ, rand_num[3]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[4][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[4][1:0];
+        if (`ANA_TOP.D2A_NIRS4_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IPDMIRROR_ADJ, rand_num[4]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[5][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[5][1:0];
+        if (`ANA_TOP.D2A_NIRS5_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IPDMIRROR_ADJ, rand_num[5]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[6][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[6][1:0];
+        if (`ANA_TOP.D2A_NIRS6_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IPDMIRROR_ADJ, rand_num[6]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[7][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[7][1:0];
+        if (`ANA_TOP.D2A_NIRS7_IPDMIRROR_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IPDMIRROR_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IPDMIRROR_ADJ, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[0][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[1][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[2][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[3][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[4][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[5][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[6][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IPDMIRROR_ADJ[7][1:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[0][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[0][1:0];
+        
+        if (`ANA_TOP.D2A_NIRS0_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IREFC_ADJ, rand_num[0]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[1][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[1][1:0];
+        if (`ANA_TOP.D2A_NIRS1_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IREFC_ADJ, rand_num[1]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[2][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[2][1:0];
+        if (`ANA_TOP.D2A_NIRS2_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IREFC_ADJ, rand_num[2]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[3][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[3][1:0];
+        if (`ANA_TOP.D2A_NIRS3_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IREFC_ADJ, rand_num[3]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[4][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[4][1:0];
+        if (`ANA_TOP.D2A_NIRS4_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IREFC_ADJ, rand_num[4]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[5][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[5][1:0];
+        if (`ANA_TOP.D2A_NIRS5_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IREFC_ADJ, rand_num[5]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[6][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[6][1:0];
+        if (`ANA_TOP.D2A_NIRS6_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IREFC_ADJ, rand_num[6]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[7][1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[7][1:0];
+        if (`ANA_TOP.D2A_NIRS7_IREFC_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IREFC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IREFC_ADJ, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[0][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[1][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[2][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[3][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[4][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[5][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[6][1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IREFC_ADJ[7][1:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ0[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ0[1:0];
+        if (`ANA_TOP.D2A_NIRS0_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_CFRATE_ADJ, rand_num[0]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ1[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ1[1:0];
+        if (`ANA_TOP.D2A_NIRS1_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_CFRATE_ADJ, rand_num[1]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ2[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ2[1:0];
+        if (`ANA_TOP.D2A_NIRS2_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_CFRATE_ADJ, rand_num[2]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ3[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ3[1:0];
+        if (`ANA_TOP.D2A_NIRS3_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_CFRATE_ADJ, rand_num[3]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ4[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ4[1:0];
+        if (`ANA_TOP.D2A_NIRS4_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_CFRATE_ADJ, rand_num[4]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ5[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ5[1:0];
+        if (`ANA_TOP.D2A_NIRS5_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_CFRATE_ADJ, rand_num[5]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ6[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ6[1:0];
+        if (`ANA_TOP.D2A_NIRS6_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_CFRATE_ADJ, rand_num[6]))
+        end
+        force `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ7[1:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ7[1:0];
+        if (`ANA_TOP.D2A_NIRS7_CFRATE_ADJ !== rand_num[1:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_CFRATE_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_CFRATE_ADJ, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ0[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ1[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ2[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ3[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ4[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ5[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ6[1:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_CFRATE_ADJ7[1:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[0][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[0][8:0];        
+        if (`ANA_TOP.D2A_NIRS0_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS0_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS0_IDAC_ADJ, rand_num[0]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[1][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[1][8:0];
+        if (`ANA_TOP.D2A_NIRS1_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS1_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS1_IDAC_ADJ, rand_num[1]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[2][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[2][8:0];
+        if (`ANA_TOP.D2A_NIRS2_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS2_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS2_IDAC_ADJ, rand_num[2]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[3][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[3][8:0];
+        if (`ANA_TOP.D2A_NIRS3_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS3_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS3_IDAC_ADJ, rand_num[3]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[4][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[4][8:0];
+        if (`ANA_TOP.D2A_NIRS4_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS4_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS4_IDAC_ADJ, rand_num[4]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[5][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[5][8:0];
+        if (`ANA_TOP.D2A_NIRS5_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS5_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS5_IDAC_ADJ, rand_num[5]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[6][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[6][8:0];
+        if (`ANA_TOP.D2A_NIRS6_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS6_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS6_IDAC_ADJ, rand_num[6]))
+        end
+        
+        force `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[7][8:0] = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[7][8:0];
+        if (`ANA_TOP.D2A_NIRS7_IDAC_ADJ !== rand_num[8:0]) begin
+            `nnc_error("ANA", $sformatf("D2A_NIRS7_IDAC_ADJ :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS7_IDAC_ADJ, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[0][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[1][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[2][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[3][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[4][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[5][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[6][8:0];
+        release `ANA_WRAPPER_TOP.D2A_NIRS_IDAC_ADJ[7][8:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[0] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[1] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[2] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[3] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[4] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[5] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[6] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[7] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[7],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[6],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[5],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[4],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[3],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[2],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[1],`ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[0]};
+        
+        if (`ANA_TOP.A2D_NIRS0_IREFCOARSE !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS0_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS0_IREFCOARSE, rand_num[0]))
+        end
+        if (`ANA_TOP.A2D_NIRS1_IREFCOARSE !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS1_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS1_IREFCOARSE, rand_num[1]))
+        end
+        if (`ANA_TOP.A2D_NIRS2_IREFCOARSE !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS2_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS2_IREFCOARSE, rand_num[2]))
+        end
+        if (`ANA_TOP.A2D_NIRS3_IREFCOARSE !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS3_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS3_IREFCOARSE, rand_num[3]))
+        end
+        if (`ANA_TOP.A2D_NIRS4_IREFCOARSE !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS4_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS4_IREFCOARSE, rand_num[4]))
+        end
+        if (`ANA_TOP.A2D_NIRS5_IREFCOARSE !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS5_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS5_IREFCOARSE, rand_num[5]))
+        end
+        if (`ANA_TOP.A2D_NIRS6_IREFCOARSE !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS6_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS6_IREFCOARSE, rand_num[6]))
+        end
+        if (`ANA_TOP.A2D_NIRS7_IREFCOARSE !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS7_IREFCOARSE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS7_IREFCOARSE, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.A2D_NIRS_IREFCOARSE[7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[0] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[1] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[2] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[3] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[4] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[5] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[6] = $random;
+        force `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[7 ] = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[7],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[6],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[5],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[4],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[3],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[2],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[1],`ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE[0]};
+        
+        if (`ANA_TOP.A2D_NIRS0_IREFFINE !== rand_num[0]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS0_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS0_IREFFINE, rand_num[0]))
+        end
+        if (`ANA_TOP.A2D_NIRS1_IREFFINE !== rand_num[1]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS1_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS1_IREFFINE, rand_num[1]))
+        end
+        if (`ANA_TOP.A2D_NIRS2_IREFFINE !== rand_num[2]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS2_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS2_IREFFINE, rand_num[2]))
+        end
+        if (`ANA_TOP.A2D_NIRS3_IREFFINE !== rand_num[3]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS3_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS3_IREFFINE, rand_num[3]))
+        end
+        if (`ANA_TOP.A2D_NIRS4_IREFFINE !== rand_num[4]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS4_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS4_IREFFINE, rand_num[4]))
+        end
+        if (`ANA_TOP.A2D_NIRS5_IREFFINE !== rand_num[5]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS5_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS5_IREFFINE, rand_num[5]))
+        end
+        if (`ANA_TOP.A2D_NIRS6_IREFFINE !== rand_num[6]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS6_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS6_IREFFINE, rand_num[6]))
+        end
+        if (`ANA_TOP.A2D_NIRS7_IREFFINE !== rand_num[7]) begin
+            `nnc_error("ANA", $sformatf("A2D_NIRS7_IREFFINE :%b is not as expectation of rand_num : %b",`ANA_TOP.A2D_NIRS7_IREFFINE, rand_num[7]))
+        end
+    
+        release `ANA_WRAPPER_TOP.A2D_NIRS_IREFFINE;
+    end
+
+    //----------------------------SDM-------------------------------//       
+    `nnc_info("SDM", "Start  testing SDM", NNC_LOW)
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][1]     = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][2]     = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][2],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][1]};
+        if (`ANA_TOP.D2A_SDMEN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMEN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMEN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][1];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][2];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_SDM_CLK     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_SDM_CLK;
+        if (`ANA_TOP.D2A_SDMCLK !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMCLK :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMCLK, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_SDM_CLK;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][3]     = $random;
+        force `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][4]     = $random;
+        #10000ns;
+        rand_num = {`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][4],`ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][3]};
+        if (`ANA_TOP.D2A_SDMBUFF_EN !== rand_num[15:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SDMBUFF_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SDMBUFF_EN, rand_num[15:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][3];
+        release `ANA_WRAPPER_TOP.ANA_ENABLE_REG[1][4];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM0     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM0;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT0 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT0 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT0, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM0;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM1     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM1;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT1 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT1 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT1, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM1;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM2     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM2;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT2 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT2 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT2, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM2;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM3     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM3;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT3 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT3 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT3, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM3;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM4     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM4;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT4 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT4 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT4, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM4;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM5     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM5;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT5 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT5 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT5, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM5;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM6     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM6;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT6 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT6 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT6, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM6;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM7     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM7;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT7 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT7 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT7, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM7;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM8     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM8;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT8 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT8 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT8, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM8;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM9     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM9;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT9 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT9 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT9, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM9;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM10     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM10;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT10 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT10 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT10, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM10;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM11     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM11;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT11 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT11 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT11, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM11;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM12     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM12;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT12 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT12 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT12, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM12;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM13     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM13;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT13 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT13 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT13, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM13;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM14     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM14;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT14 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT14 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT14, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM14;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SDM15     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SDM15;
+        if (`ANA_WRAPPER_TOP.A2D_SDM_OUT15 !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SDM_OUT15 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SDM_OUT15, rand_num[0]))
+        end
+        release `ANA_TOP.A2D_SDM15;
+    end
+    //----------------------------SPARE-------------------------------//       
+    `nnc_info("SPARE", "Start  testing SPARE", NNC_LOW)
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[0][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[0][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE0 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE0 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE0, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[0][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[1][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[1][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE1 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE1 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE1, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[1][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[2][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[2][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE2 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE2 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE2, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[2][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[3][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[3][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE3 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE3 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE3, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[3][13][7:0];
+    end
+    /*
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[4][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[4][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE4 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE4 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE4, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[4][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[5][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[5][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE5 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE5 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE5, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[5][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[6][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[6][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE6 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE6 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE6, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[6][13][7:0];
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.ANA_GEN_REG[7][13][7:0]     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.ANA_GEN_REG[7][13][7:0];
+        if (`ANA_TOP.D2A_SPI_SPARE7 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_SPI_SPARE7 :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_SPI_SPARE7, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.ANA_GEN_REG[7][13][7:0];
+    end
+   */ 
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM0_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM0_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM0_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM0_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM1_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM1_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM1_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM1_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM1_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM1_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM2_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM2_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM2_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM2_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM2_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM2_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM3_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM3_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM3_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM3_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM3_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM3_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM4_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM4_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM4_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM4_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM4_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM4_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM5_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM5_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM5_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM5_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM5_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM5_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM6_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM6_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM6_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM6_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM6_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM6_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_TRIM7_SIG_SPARE     = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_TRIM7_SIG_SPARE;
+        if (`ANA_TOP.D2A_TRIM7_SIG_SPARE !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("D2A_TRIM7_SIG_SPARE :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_TRIM7_SIG_SPARE, rand_num[7:0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_TRIM7_SIG_SPARE;
+    end
+    
+    for (int i=0; i < 100; i++) begin
+        force `ANA_TOP.A2D_SPARE_RO_REG_0     = $random;
+        #10000ns;
+        rand_num = `ANA_TOP.A2D_SPARE_RO_REG_0;
+        if (`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0 !== rand_num[7:0]) begin
+        `nnc_error("ANA", $sformatf("A2D_SPARE_RO_REG_0 :%b is not as expectation of rand_num : %b",`ANA_WRAPPER_TOP.A2D_SPARE_RO_REG_0, rand_num[7:0]))
+        end
+        release `ANA_TOP.A2D_SPARE_RO_REG_0;
     end
     
     //for (int i=0; i < 100; i++) begin

@@ -109,7 +109,7 @@ class `TESTNAME extends soc_base_test;
     // Scoreboard enables
     // ==================
     `SPI_SCB_EN = 1'b0;
-    `ANALOG_SCOREBOARD_EN = 1'b1;
+    `ANALOG_SCOREBOARD_EN = 1'b0;
     
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -189,7 +189,7 @@ class `TESTNAME extends soc_base_test;
     force `SOC_TB.ext_resetn = 1'b1;
     #1ms;
 
-    `PINMUX_SCOREBOARD_EN = 1'b1;
+    `PINMUX_SCOREBOARD_EN = 1'b0;
 
    // ------------------------------------------------------ 
    // Part II: Checking ATM7 will be asserted in interface

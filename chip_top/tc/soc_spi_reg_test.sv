@@ -455,6 +455,11 @@ class `TESTNAME extends soc_base_test;
       top_test_cfg.wr_data[0] = 8'hFF;
       if(i== `SOC_GPIO_PD_CTRL_REG) continue;
       if(i== `SOC_STIM_PAD_CTRL1) continue;
+      if(i== `SOC_GENERAL_INT_STS_7_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_8_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_9_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_A_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_B_REG) continue; 
       if(i== `SOC_GPIO_SR_PDRV0_1_CTRL_REG) continue;
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = 8'h15; // maximum supported address value has been set
@@ -571,7 +576,12 @@ class `TESTNAME extends soc_base_test;
       if(i== `SOC_GPIO_PD_CTRL_REG) continue;
       // if(i== `SOC_GPIO_DS_CTRL_REG) continue;
       if(i== `SOC_GPIO_SR_PDRV0_1_CTRL_REG) continue;
-      if(i== `SOC_STIM_PAD_CTRL1) continue; 
+      if(i== `SOC_STIM_PAD_CTRL1) continue;
+      if(i== `SOC_GENERAL_INT_STS_7_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_8_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_9_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_A_REG) continue;
+      if(i== `SOC_GENERAL_INT_STS_B_REG) continue; 
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = $urandom_range(0,21); // address range suuporte is 8'h0 to 8'h15
       //if(i== `SOC_ANA_ENABLE_REG_0 && `DUT_IF.ext_clk_en == 1'b0)  top_test_cfg.wr_data[0][1] =1'b1; // keep OSC2MHZ_EN==1

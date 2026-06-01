@@ -492,11 +492,12 @@ always @ (posedge sysclk or negedge presetn) begin
 end
 
 always @ (posedge sysclk or negedge presetn) begin
-  if (~presetn)  
-	A2D_ADC_DATA_min <= 10'h3ff;  	
+  if (~presetn) begin 
+	A2D_ADC_DATA_min  <= 10'h3ff;  	
+	A2D_ADC_DATA_min2 <= 10'h3ff;  	
   //else if(check_pulse_d1) 
   //else if(check_pulse) 
-  else if(check_pulse_mode) begin 
+  end else if(check_pulse_mode) begin 
 	A2D_ADC_DATA_min  <= 10'h3ff;  	
 	A2D_ADC_DATA_min2 <= 10'h3ff;  	
   end else if(A2D_ADC_DATA_VLD & (A2D_ADC_DATA_CAP <= A2D_ADC_DATA_min)) begin 

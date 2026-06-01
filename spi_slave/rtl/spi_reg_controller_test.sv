@@ -143,31 +143,53 @@ reg cmd_reg_4, cmd_reg_5;
 reg cmd_reg_6, cmd_reg_7;
 reg rdata_rdatac_cmd;
 
-
 //--------------------------------------------------//
 //        dual control    													//
 //--------------------------------------------------//
 reg dual_pending;
-reg  dual_en;
+reg  dual_en, dual_wr_reg_neg, dual_wr_reg;
 assign o_dual_en = dual_en;
-assign o_dual_wr = (dual_en && !rd_data_rdy);
+assign o_dual_wr = dual_wr_reg; //(dual_en && !rd_data_rdy);
+
+/*
+  On falling edge of the 6'h10, switch to read mode for mosi/miso -  dual_wr_reg
+  Use dual_wr_reg_neg on the rising edge at bit_cnt == 6'h0E for timing closure 
+  Same for reset it at the end - 8'h18 - Need Mohsen to review this
+*/
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin
+  if(!i_rst_n)
+    dual_wr_reg_neg <= 1'b1;
+  else if (bit_cnt == 6'h16)  
+    dual_wr_reg_neg <= 1'b1; 
+  else if (bit_cnt == 6'h0E && rd_data_rdy)  
+    dual_wr_reg_neg <= 1'b0; 
+end
+
+always@(posedge i_sclk, negedge i_rst_n) begin
+  if(!i_rst_n)
+    dual_wr_reg <= 1'b1;
+  else
+    dual_wr_reg <= dual_wr_reg_neg;
+end
+
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
     dual_pending <= 1'b0;
   else if (bit_cnt == 6'h12)   // one cycle after cmd_reg_0 is decoded at 0x11
-    dual_pending <= cmd_reg_0; // sclk is running here, no cs_n_d needed
+    dual_pending <= (cmd_reg_7 && cmd_reg_0); // sclk is running here, no cs_n_d needed
 end
  
 /*
   One cycle after cmd_reg_0 decoded -> raise dual_pending
-  At bit_cnt == 0, new transaction starts -> switch to dual
+  At bit_cnt == 1f, at the end of the current transaction -> switch to dual
   No logical mechanism to exit dual mode. Assert reset to go back to single!
 */
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
     dual_en <= 1'b0;
-  else if (bit_cnt == 6'h00 && dual_pending)
+  else if (bit_cnt == 6'h1f && dual_pending)
     dual_en <= 1'b1;
 end
 
@@ -343,10 +365,11 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
+
 assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
 
-assign cmd_reg          = dual_en ? (!cmd_reg_7 && cmd_reg_6 ) : cmd_reg_7;
+assign cmd_reg          = dual_en ? (!cmd_reg_7 && !cmd_reg_6 ) : cmd_reg_7;
 assign wavegen_cmd_reg  = dual_en ? (cmd_reg_5 && !cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
 assign nirs_cmd_reg     = dual_en ? (cmd_reg_5 &&  cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
 
@@ -356,7 +379,6 @@ assign nirs_cmd_reg     = dual_en ? (cmd_reg_5 &&  cmd_reg_4 ) : (cmd_reg_6 && (
 assign rdata_rdatac_cmd = dual_en ? (cmd_reg_7 && !cmd_reg_6) : 1'b0;  
 assign rdata_cmd        = dual_en ? (rdata_rdatac_cmd && !cmd_reg_5) :((cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd);
 assign rdatac_cmd       = dual_en ? (rdata_rdatac_cmd && cmd_reg_5) :(cmd_reg_6 && (!cmd_reg_5 &&  cmd_reg_4));
-
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
@@ -368,8 +390,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     cmd_reg_7 <= 1'b0;
   //end else if (bit_cnt == 6'h0b )begin        // 9th bit is the command bit(9+2 =11)
   end else if(dual_en) begin
-    if (bit_cnt == 6'h0c ) // 9th bit is the command bit(9+1 =10)
-    cmd_reg_7 <= rx_buf[1];  
+    if (bit_cnt == 6'h0a ) // 9th bit is the command bit(9+1 =10)
+    cmd_reg_7 <= i_mosi1_d;  
   end else begin
     if (bit_cnt == 6'h0a )  //single       // 9th bit is the command bit(9+1 =10)
     cmd_reg_7 <= rx_buf[0];
@@ -386,8 +408,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     cmd_reg_6 <= 1'b0;
 //end else if (bit_cnt == 6'h0d )begin        // 11th bit is the command bit(11+2=13)
   end else if (dual_en) begin
-    if (bit_cnt == 6'h0c)         // dual mode: command bit arrives 1 cycle earlier
-      cmd_reg_6 <= rx_buf[0];
+    if (bit_cnt == 6'h0a)         // dual mode: command bit arrives 1 cycle earlier
+      cmd_reg_6 <= i_mosi_d;
   end else begin
     if (bit_cnt == 6'h0b)
       cmd_reg_6 <= rx_buf[0];
@@ -686,7 +708,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     if (rd_data_rdy == 1) begin
       tx_d <= tx_buf[DATA_WIDTH-2];
     end else begin
-      tx_d <= rx_buf[4]; // just send what is received //original 2  
+      tx_d <= 1'b0; // just send what is received //original 2  
     end
   end else begin
     if (rd_data_rdy == 1) begin
@@ -708,7 +730,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if (rd_data_rdy == 1) begin
     tx_d1 <= tx_buf[DATA_WIDTH-1];
   end else begin
-    tx_d1 <= rx_buf[5]; 
+    tx_d1 <= 1'b0; 
   end
 end
 
@@ -721,9 +743,9 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     rd_data_rdy <= 1'b0;
   end else if (bit_cnt ==6'h4 ) begin  // bit_cnt == 2) begin   //when sampling the cmd instruction 2
     rd_data_rdy <= 1'b0; 
-//end else if (dual_en) begin
-//  if (bit_cnt > 6'h8 && byte_bit_count==3'h3 && cmd_reg == 1'b0) 
-//    rd_data_rdy <= 1'b1;
+  end else if (dual_en) begin
+    if (bit_cnt > 6'h8 && byte_bit_count==3'h4 && cmd_reg == 1'b0) 
+      rd_data_rdy <= 1'b1;
   end else begin
     if (bit_cnt > 6'h8 && byte_bit_count==3'h2 && cmd_reg == 1'b0)  // @ the end of the 2nd byte(cmd byte)
 //end else if (bit_cnt > 6'h8 && byte_bit_count==3'h3 && cmd_reg == 1'b0) begin // @ the end of the 2nd byte(cmd byte)
@@ -740,8 +762,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
   end else if (dual_en) begin
-    if (bit_cnt > 6'h8 && byte_bit_count==3'h2) begin
-      tx_buf <= (!mode[1] && !status_done && rdata_cmd && !next_dev_valid) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
+    if (bit_cnt > 6'h8 && byte_bit_count== 3'h4) begin
+      tx_buf <= (!mode[1] && !status_done && rdata_cmd ) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
     end
@@ -920,7 +942,7 @@ assign o_imeas_intr_clr = (rdata_cmd & (byte_cnt == 7'h01) && (bit_cnt < 6'h18))
 //------------------------------STATUS HANDLE------------------------------//
 assign num_status_byte = !mode[1] ? 3'h5 : 3'h0;
 
-assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd && bit_cnt == 6'h18; // affected by byte_cnt = 1 -> should check
+assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd ; // affected by byte_cnt = 1 -> should check
 
 assign status_5th_byte = !mode[1] ? i_status_words[39:32] : 8'h00;
 assign status_4th_byte = !mode[1] ? i_status_words[31:24] : 8'h00;
@@ -971,7 +993,7 @@ always @(posedge i_sclk_neg or negedge i_rst_n) begin
     shift_reg <= 8'h0;
     index_cnt <= 3'd0;
     byte_ptr  <= 7'd0;
-  end else if(bit_cnt > 6'h0f && daisy_en && rdata_cmd) begin
+  end else if(bit_cnt > 6'h0f && daisy_en && rdata_cmd && !rdatac_cmd) begin
     shift_reg <= {shift_reg[6:0], daisy_in};
     index_cnt <= index_cnt + 1'b1;
     if(index_cnt == 3'd7) begin

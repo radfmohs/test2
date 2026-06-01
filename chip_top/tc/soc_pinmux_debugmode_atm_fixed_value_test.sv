@@ -1098,7 +1098,7 @@ class `TESTNAME extends soc_base_test;
     if(`ANA_TOP.D2A_OSC8MHZEN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_OSC8MHZEN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_OSC8MHZEN)); 
     if(`ANA_TOP.D2A_BGBUFFER_CPTEST_EN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_BGBUFFER_CPTEST_EN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_BGBUFFER_CPTEST_EN));
     if(`ANA_TOP.D2A_NIRS4_EN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_NIRS4_EN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_NIRS4_EN));
-    if(`ANA_TOP.D2A_NIRS4_IDAC_EN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_NIRS4_IDAC_EN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_NIRS4_IDAC_EN));
+    if(`ANA_TOP.D2A_NIRS4_IDAC_EN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_NIRS4_IDAC_EN error, Real data:%b not match 1'b0",`ANA_TOP.D2A_NIRS4_IDAC_EN));
     if(`ANA_TOP.D2A_NIRS_TEST_EN !== 1'b1) `nnc_error("ATM20",$sformatf("D2A_NIRS_TEST_EN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_NIRS_TEST_EN));
    `nnc_info("Checking ATM - Done", "Checking ATM20 Done", UVM_LOW);
     
@@ -1772,10 +1772,11 @@ class `TESTNAME extends soc_base_test;
     if(`ANA_TOP.D2A_EEGPGA_EN !== 16'h0100) `nnc_error("ATM28",$sformatf("D2A_EEFPGA_EN error, Real data:%4h not match 16'h0100",`ANA_TOP.D2A_EEGPGA_EN));
     if(`ANA_TOP.D2A_SDMBUFF_EN !== 16'h0100) `nnc_error("ATM28",$sformatf("D2A_SDMBUFF_EN error, Real data:%4h not match 16'h0100",`ANA_TOP.D2A_SDMBUFF_EN));
     if(`ANA_TOP.D2A_SDMEN !== 16'h0100) `nnc_error("ATM28",$sformatf("D2A_SDMEN error, Real data:%4h not match 16'h0100",`ANA_TOP.D2A_SDMEN));
+    if(`ANA_TOP.D2A_RLD_EN !== 1'b1) `nnc_error("ATM28",$sformatf("D2A_RLD_EN error, Real data:%b not match 1'b1",`ANA_TOP.D2A_RLD_EN));
    `nnc_info("Checking ATM - Done", "Checking ATM28 Done", UVM_LOW);
     
     // ATM29 FIXED VALUE SESSION
-    // Before ATM29 Mode
+    // Before ATM29 Modr
     // Chaging the fixed value
 /*    `nnc_info("ANA_EN_SEC", "Changing ANA_EN Section to 0\n", UVM_LOW);
 
@@ -2723,6 +2724,7 @@ class `TESTNAME extends soc_base_test;
     if(`ANA_TOP.D2A_EEGPGA_EN !== {reg_ana_en_0_9, reg_ana_en_0_8}) `nnc_error("ATM28",$sformatf("D2A_EEGPGA_EN error, Real data:%4h not match %4h",`ANA_TOP.D2A_EEGPGA_EN,{reg_ana_en_0_9, reg_ana_en_0_8}));
     if(`ANA_TOP.D2A_SDMBUFF_EN !== {reg_ana_en_1_4, reg_ana_en_1_3}) `nnc_error("ATM28",$sformatf("D2A_SDMBUFF_EN error, Real data:%4h not match %4h",`ANA_TOP.D2A_SDMBUFF_EN,{reg_ana_en_1_4, reg_ana_en_1_3}));
     if(`ANA_TOP.D2A_SDMEN !== {reg_ana_en_1_2, reg_ana_en_1_1}) `nnc_error("ATM28",$sformatf("D2A_SDMEN error, Real data:%4h not match %4h",`ANA_TOP.D2A_SDMEN,{reg_ana_en_1_2, reg_ana_en_1_1}));
+    if(`ANA_TOP.D2A_RLD_EN !== reg_ana_en_0_3[2]) `nnc_error("ATM28",$sformatf("D2A_RLD_EN error, Real data:%b not match %b",`ANA_TOP.D2A_RLD_EN,reg_ana_en_0_3[2]));
    `nnc_info("Checking ATM - Done", "Checking ATM28 Done", UVM_LOW);
     
     // ATM29 FIXED VALUE SESSION
@@ -3668,6 +3670,7 @@ class `TESTNAME extends soc_base_test;
     if(`ANA_TOP.D2A_EEGPGA_EN !== {reg_ana_en_0_9, reg_ana_en_0_8}) `nnc_error("ATM28",$sformatf("D2A_EEGPGA_EN error, Real data:%4h not match %4h",`ANA_TOP.D2A_EEGPGA_EN,{reg_ana_en_0_9, reg_ana_en_0_8}));
     if(`ANA_TOP.D2A_SDMBUFF_EN !== {reg_ana_en_1_4, reg_ana_en_1_3}) `nnc_error("ATM28",$sformatf("D2A_SDMBUFF_EN error, Real data:%4h not match %4h",`ANA_TOP.D2A_SDMBUFF_EN,{reg_ana_en_1_4, reg_ana_en_1_3}));
     if(`ANA_TOP.D2A_SDMEN !== {reg_ana_en_1_2, reg_ana_en_1_1}) `nnc_error("ATM28",$sformatf("D2A_SDMEN error, Real data:%4h not match %4h",`ANA_TOP.D2A_SDMEN,{reg_ana_en_1_2, reg_ana_en_1_1}));
+    if(`ANA_TOP.D2A_RLD_EN !== reg_ana_en_0_3[2]) `nnc_error("ATM28",$sformatf("D2A_RLD_EN error, Real data:%b not match %b",`ANA_TOP.D2A_RLD_EN,reg_ana_en_0_3[2]));
    `nnc_info("Checking ATM - Done", "Checking ATM28 Done", UVM_LOW);
     
     // ATM29 FIXED VALUE SESSION
@@ -3764,6 +3767,12 @@ task randomize_hardcoded_bist_value;
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 
     reg_ana_en_0_2 = top_test_cfg.data[0];    
+    
+    //Section 0: 0xC4 : Bit[2]:D2A_RLD_EN = 1'b1
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_ANA_EN_REG_0_3; no_of_bytes == 1;});
+    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
+
+    reg_ana_en_0_3 = top_test_cfg.data[0];    
 
     //Section 0: 0xC5 : Bit[7:0]:D2A_EEFLNA_EN = 0
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_ANA_EN_REG_0_4; no_of_bytes == 1;});
@@ -3870,6 +3879,12 @@ task randomize_hardcoded_value;
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 
     reg_ana_en_0_2 = top_test_cfg.data[0];    
+    
+    //Section 0: 0xC4 : Bit[2]:D2A_RLD_EN = 1'b1
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_ANA_EN_REG_0_3; no_of_bytes == 1;});
+    `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
+
+    reg_ana_en_0_3 = top_test_cfg.data[0];    
 
     //Section 0: 0xC5 : Bit[7:0]:D2A_EEFLNA_EN = 0
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_ANA_EN_REG_0_4; no_of_bytes == 1;});

@@ -84,6 +84,7 @@ for (genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
 initial
 //always (posedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk)
   begin
+  #1000;
   if (dut_vif.wg_scoreboard_en == 1'b1) begin 
     while (1) begin
       @(posedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
@@ -106,7 +107,7 @@ initial
          end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b001) begin // POS
            wave_started = 1;
            @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
-           if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b001)) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected to S0: 3'b000", i, i, pre_state[i]))   
+           if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b001) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b1) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b001;
@@ -142,14 +143,14 @@ initial
            pre_state[i] = 3'b000;
          end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b001) begin // POS
            @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
-           if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b001)) `nnc_error("WG_SB", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected to S0: 3'b000", i, i, pre_state[i]))   
+           if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b001) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK POS", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b1) `nnc_error("WG_SB_SNK POS", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b001;
          end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b100) begin // SILENT
            @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
            if ((pre_state[i] != 3'b001) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected to S0: 3'b001", i, i, pre_state[i]))
-           if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
+           if (`ANA_TOP.D2A_PULLD[i] !== 1'b1) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b100; 
            first_wave_done[i] = 1;

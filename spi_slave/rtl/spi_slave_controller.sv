@@ -141,6 +141,7 @@ reg cmd_reg_0, cmd_reg_1;
 //reg cmd_reg_2, cmd_reg_3; 
 reg cmd_reg_4, cmd_reg_5; 
 reg cmd_reg_6, cmd_reg_7;
+reg rdata_rdatac_cmd;
 
 //--------------------------------------------------//
 //        dual control    													//
@@ -341,12 +342,20 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
+
+assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
-assign nirs_cmd_reg     = (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
-assign wavegen_cmd_reg  = (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
-assign rdatac_cmd       = (cmd_reg_6 && (!cmd_reg_5 &&  cmd_reg_4));
-assign rdata_cmd        = (cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd;
-assign cmd_reg          =  cmd_reg_7;
+
+assign cmd_reg          = dual_en ? (!cmd_reg_7 && cmd_reg_6 ) : cmd_reg_7;
+assign wavegen_cmd_reg  = dual_en ? (cmd_reg_5 && !cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
+assign nirs_cmd_reg     = dual_en ? (cmd_reg_5 &&  cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
+
+// Early RDATA/RDATAC detection to start the TX pipeline for both RDATA and RDATAC in dual mode only.
+// At bit_cnt = 0E, CMD[5] distinguishes between RDATA and RDATAC.
+
+assign rdata_rdatac_cmd = dual_en ? (cmd_reg_7 && !cmd_reg_6) : 1'b0;  
+assign rdata_cmd        = dual_en ? (rdata_rdatac_cmd && !cmd_reg_5) :((cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd);
+assign rdatac_cmd       = dual_en ? (rdata_rdatac_cmd && cmd_reg_5) :(cmd_reg_6 && (!cmd_reg_5 &&  cmd_reg_4));
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
@@ -711,9 +720,9 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     rd_data_rdy <= 1'b0;
   end else if (bit_cnt ==6'h4 ) begin  // bit_cnt == 2) begin   //when sampling the cmd instruction 2
     rd_data_rdy <= 1'b0; 
-//end else if (dual_en) begin
-//  if (bit_cnt > 6'h8 && byte_bit_count==3'h3 && cmd_reg == 1'b0) 
-//    rd_data_rdy <= 1'b1;
+  end else if (dual_en) begin
+    if (bit_cnt > 6'h8 && byte_bit_count==3'h4 && cmd_reg == 1'b0) 
+      rd_data_rdy <= 1'b1;
   end else begin
     if (bit_cnt > 6'h8 && byte_bit_count==3'h2 && cmd_reg == 1'b0)  // @ the end of the 2nd byte(cmd byte)
 //end else if (bit_cnt > 6'h8 && byte_bit_count==3'h3 && cmd_reg == 1'b0) begin // @ the end of the 2nd byte(cmd byte)
@@ -730,8 +739,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
   end else if (dual_en) begin
-    if (bit_cnt > 6'h8 && byte_bit_count==3'h2) begin
-      tx_buf <= (!mode[1] && !status_done && rdata_cmd && !next_dev_valid) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
+    if (bit_cnt > 6'h8 && byte_bit_count== 3'h4) begin
+      tx_buf <= (!mode[1] && !status_done && rdata_cmd ) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
     end
@@ -910,7 +919,7 @@ assign o_imeas_intr_clr = (rdata_cmd & (byte_cnt == 7'h01) && (bit_cnt < 6'h18))
 //------------------------------STATUS HANDLE------------------------------//
 assign num_status_byte = !mode[1] ? 3'h5 : 3'h0;
 
-assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd && bit_cnt == 6'h18; // affected by byte_cnt = 1 -> should check
+assign status_done = !mode[1] && (byte_cnt > 7'h4 && byte_cnt != 7'h0) && rdata_cmd ; // affected by byte_cnt = 1 -> should check
 
 assign status_5th_byte = !mode[1] ? i_status_words[39:32] : 8'h00;
 assign status_4th_byte = !mode[1] ? i_status_words[31:24] : 8'h00;
@@ -961,7 +970,7 @@ always @(posedge i_sclk_neg or negedge i_rst_n) begin
     shift_reg <= 8'h0;
     index_cnt <= 3'd0;
     byte_ptr  <= 7'd0;
-  end else if(bit_cnt > 6'h0f && daisy_en && rdata_cmd) begin
+  end else if(bit_cnt > 6'h0f && daisy_en && rdata_cmd && !rdatac_cmd) begin
     shift_reg <= {shift_reg[6:0], daisy_in};
     index_cnt <= index_cnt + 1'b1;
     if(index_cnt == 3'd7) begin

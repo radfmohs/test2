@@ -96,6 +96,9 @@ output wire  check_everyN,
   input  wire [15:0]   A2D_ADC_DATA_TAG,
   input  wire [15:0]   A2D_ADC_DELTA_DATA_TAG,
 
+  input  wire [9:0]      A2D_ADC_DATA,
+  input  wire            A2D_ADC_DATA_EN,
+
   //bps imeas
   input  wire[23:0]    imeas_chdata[EEG_CHN_NUM-1:0],
   input                i_imeas_done,
@@ -130,7 +133,8 @@ output wire  check_everyN,
   output wire  [1:0]   ppg_clk_div,       // ppg clock divider
   output wire          ana_ppgclk_inv,   // ana ppg clock 
   output wire          ppg_clk50duty,            
-  output  wire 	       ppg_rst_reg,
+  output wire 	       ppg_rst_reg,
+  output wire          ppg_clk_gate_bypass,
   
   output wire          o_clk_sel,
 
@@ -530,6 +534,9 @@ spi_reg_u (
   .A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),
   .A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG),
 
+  .A2D_ADC_DATA(A2D_ADC_DATA),
+  .A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),
+
   .atpg_en(SCANMODE),
   .atm_adj_mode(atm_adj_mode),
   .atm_adj_data(atm_adj_data),
@@ -609,6 +616,7 @@ spi_reg_u (
   .ana_ppgclk_inv(ana_ppgclk_inv),   // ana ppg clock 
   .ppg_clk50duty(ppg_clk50duty),            
   .ppg_rst_reg(ppg_rst_reg),
+  .ppg_clk_gate_bypass(ppg_clk_gate_bypass),
 
   .anac_reset(anac_reset),
   .temp_sar_reset(temp_sar_reset),

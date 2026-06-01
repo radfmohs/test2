@@ -430,6 +430,8 @@ set_app_var compile_no_new_cells_at_top_level false
 remove_attribute [get_cells {DNT*} -hierarchical] dont_touch
 remove_attribute [get_nets IOBUF_PD] dont_touch
 remove_attribute [get_nets scan_*] dont_touch
+remove_attribute [get_nets -hierarchical *test_se*] dont_touch
+remove_attribute [get_nets -hierarchical *scan_en*] dont_touch
 
 # -----------------------------------------------------------------------------
 # DFT: Post DFT incremental optimization

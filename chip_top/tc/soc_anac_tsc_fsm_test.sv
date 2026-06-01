@@ -228,24 +228,29 @@ class `TESTNAME extends soc_base_test;
         // check analog_top interface 
         #500ns;
 
-        if(top_test_cfg.tsc_ctrl[2:0] !== {`ANA_TOP.tsc_monitoring_ch1.D2A_VDAC8B_EN_CHx, `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_COMP_EN_CHx, `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_EN_CHx})begin
+        if(top_test_cfg.tsc_ctrl[0] !== `ANA_TOP.tsc_monitoring_ch1.D2A_TSC_EN_CHx)begin
             `nnc_error("SOC_TEST", "tsc_ctrl error in spi mode");
         end
         if(top_test_cfg.Dhigh_tsc !== `ANA_TOP.tsc_monitoring_ch1.D2A_VDAC8B_DIN_CHx)begin
             `nnc_error("SOC_TEST", "8bit_dac_din error in spi mode");
         end
 
-        if( `SOC_TOP.IOBUF_PAD[7] === 1) `nnc_error("SOC_TEST", "tsc int error");    
+	// room_temp <= Dhigh_tsc (no heat) 
+        if( `SOC_TOP.IOBUF_PAD[8] === 1) `nnc_error("SOC_TEST", "tsc int error");    
 
+	// Modeling the temperature of chip to be inreased 
         while(`DUT_IF.sensor_temperature < top_test_cfg.Dhigh_tsc)begin
             #200000ns;
             `DUT_IF.sensor_temperature = `DUT_IF.sensor_temperature + 5;
         end
+	// making sure `DUT_IF.sensor_temperature >= top_test_cfg.Dhigh_tsc ->
+	// over heat
 
+	// expecting interrupt of over heat 
         repeat(6) @(posedge `CLK_CTRL_TOP.pclk); //wait for int
         #10ns;
-        if(top_test_cfg.tsc_ctrl[2:0] === 3'h7 && (top_test_cfg.tsc_int_en !== `SOC_TOP.IOBUF_PAD[7])) `nnc_error("SOC_TEST", "tsc int error");
-        if(top_test_cfg.tsc_ctrl[2:0] !== 3'h7 && (1'b1 === `SOC_TOP.IOBUF_PAD[7])) `nnc_error("SOC_TEST", "tsc int error");        
+        if(top_test_cfg.tsc_ctrl[2:0] === 3'h7 && (top_test_cfg.tsc_int_en !== `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");
+        if(top_test_cfg.tsc_ctrl[2:0] !== 3'h7 && (1'b1 === `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");        
         
         #200000ns;
         `DUT_IF.sensor_temperature = top_test_cfg.room_temp; 
@@ -254,7 +259,7 @@ class `TESTNAME extends soc_base_test;
         `WR_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, 8'h1, top_test_cfg.pads);
         repeat(6) @(posedge `CLK_CTRL_TOP.pclk); //wait for int clr
         #20ns; //pad delay
-        if( `SOC_TOP.IOBUF_PAD[7] === 1) `nnc_error("SOC_TEST", "tsc int not clr");
+        if( `SOC_TOP.IOBUF_PAD[8] === 1) `nnc_error("SOC_TEST", "tsc int not clr");
     end
 
 `endif

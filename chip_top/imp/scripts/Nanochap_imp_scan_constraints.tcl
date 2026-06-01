@@ -37,6 +37,8 @@ set_input_delay  -clock scan_clk -min 20                                   [get_
 
 set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[1]]    -add_delay
 set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[1]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[2]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[2]]    -add_delay
 set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[3]]    -add_delay
 set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[3]]    -add_delay
 set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[4]]    -add_delay
@@ -45,21 +47,35 @@ set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get
 set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[5]]    -add_delay
 set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[6]]    -add_delay
 set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[6]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[7]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[7]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[8]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[8]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[9]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[9]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[10]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[10]]    -add_delay
+set_input_delay  -clock scan_clk -max [expr {0.40 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[11]]    -add_delay
+set_input_delay  -clock scan_clk -min 20                                   [get_ports IOBUF_PAD[11]]    -add_delay
 
-set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[7]]    -add_delay
-set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[7]]    -add_delay
-set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[8]]      -add_delay
-set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[8]]      -add_delay
-set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[9]]      -add_delay
-set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[9]]      -add_delay
-set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[10]]      -add_delay
-set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[10]]      -add_delay
-#set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[11]]      -add_delay
-#set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[11]]      -add_delay
-#set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[12]]      -add_delay
-#set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[12]]      -add_delay
-#set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[13]]      -add_delay
-#set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[13]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[12]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[12]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[13]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[13]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[14]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[14]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[15]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[15]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[16]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[16]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[17]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[17]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[18]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[18]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[19]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[19]]      -add_delay
+set_output_delay -clock scan_clk -max [expr {0.20 * ${scan_clock_period}}]  [get_ports IOBUF_PAD[20]]    -add_delay
+set_output_delay -clock scan_clk -min 0                                   [get_ports IOBUF_PAD[20]]      -add_delay
 
  
  set_false_path -through [get_ports iopad_testmode*]

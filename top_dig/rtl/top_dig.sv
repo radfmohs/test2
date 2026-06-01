@@ -368,7 +368,8 @@ wire         ppg_dis;           //ppg disble
 wire  [1:0]  ppg_clk_div;       // ppg clock divider
 wire         ana_ppgclk_inv_config;   // ana ppg clock setting 
 wire         ppg_clk50duty;            
- wire ppg_rst_reg;
+wire         ppg_rst_reg;
+wire         ppg_clk_gate_bypass;
 
  wire 	    ppg_clk_running;
  wire        clk_ppg;           //digital ppg clock 
@@ -1567,6 +1568,8 @@ u_spi_top (
 .A2D_ADC_DATA_TAG(A2D_ADC_DATA_TAG),
 .A2D_ADC_DELTA_DATA_TAG(A2D_ADC_DELTA_DATA_TAG),	
 
+.A2D_ADC_DATA(A2D_ADC_DATA), //from analog // 
+.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
 
   .imeas_en             (imeas_en),
   .imeas_reg_0          (imeas_reg_0),
@@ -1590,6 +1593,7 @@ u_spi_top (
   .ana_ppgclk_inv	(ana_ppgclk_inv_config),   // ana ppg clock 
   .ppg_clk50duty	(ppg_clk50duty),            
   .ppg_rst_reg	(ppg_rst_reg),
+  .ppg_clk_gate_bypass  (ppg_clk_gate_bypass),
 
   //tsc int
  .tsc_intr_en(tsc_intr_en),
@@ -1888,7 +1892,7 @@ u_temp_sar_ctrl
   .stable_duration  (stable_duration),
 
 
-  .a2d_tsc_comp_out_ch1   (spi_ana_if.A2D_ANA_GEN_REG[0][3]),   //from analog
+  .a2d_tsc_comp_out_ch1   (spi_ana_if.A2D_ANA_GEN_REG[0][1]),   //from analog
 
   .tsc_comp_low_ch1       (tsc_comp_low_ch1),   //from spi_reg
   .d2a_vdac8b_din_ch1_in  (tsc_vdac8b_din_ch1), //from spi_reg
@@ -1938,19 +1942,20 @@ u_anac(
 nirs_ppg_wrapper #(
   .NO_OF_NIRS(NO_OF_NIRS)
 ) u_nirs_wrapper (
-  .scan_mode        (atpg_en),
-  .rst_n            (ppg_resetn),  // Temporary - Xin will provide the alternative later
-  //.clk_ana          (ana_ppgclk_inv_config),
-  .clk_ana          (ana_clk_ppg),
-  .clk_ppg          (clk_ppg),     // Temporary - Xin will provide the alternative later
-  .clk_sys          (clk_sys_ppg),     // Temporary - Xin will provide the alternative later
+  .scan_en              (scan_en),
+  .scan_mode            (atpg_en),
+  .rst_n                (ppg_resetn),
+  .clk_ana              (ana_clk_ppg),
+  .clk_ppg              (clk_ppg),
+  .clk_sys              (clk_sys_ppg),
+  .clk_gate_bypass      (ppg_clk_gate_bypass),
 
-  .LED_ON_IO        (NIRS_LED_ON),
-  .int_length_slct  (int_length_slct),
-  .INT_IO           (o_nirs_int),
+  .LED_ON_IO            (NIRS_LED_ON),
+  .int_length_slct      (int_length_slct),
+  .INT_IO               (o_nirs_int),
 
-  .ana_nirs_if      (ana_nirs_if),
-  .spi_nirs_if      (spi_nirs_if)
+  .ana_nirs_if          (ana_nirs_if),
+  .spi_nirs_if          (spi_nirs_if)
 );
 
 endmodule
