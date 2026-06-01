@@ -216,14 +216,14 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
                                                      threshold_l_7_0 inside {[0:10]};
                                                      en_config_led0 ==  top_test_cfg.temp_en_config_leds[0] ; //'h1; // led0 and led1 configuration one by one to have different random value
                                                      en_config_led1 ==  top_test_cfg.temp_en_config_leds[1]; //'h0; // led0 and led1 configuration one by one to have different random value
-                                                     nirs_ppg_led_signle_en == 'h0;
-                                                     idac_min_int_en == 'h1;
-                                                     idac_max_int_en == 'h1;
-                                                     iref_fine_on_not_off_en == 'h1;
-                                                     iref_fine_not_on_en == 'h1;
-                                                     iref_coarse_en == 'h1;
+                                                     //nirs_ppg_led_signle_en == 'h0;
+                                                     idac_min_int_en == 'h0;
+                                                     idac_max_int_en == 'h0;
+                                                     iref_fine_on_not_off_en == 'h0;
+                                                     iref_fine_not_on_en == 'h0;
+                                                     iref_coarse_en == 'h0;
                                                      data_ready_en == 'h1;
-                                                     nirs_int_pin_en == 1'b1;  //testing
+                                                     //nirs_int_pin_en == 1'b0;  //testing
                                                      idac_en == 'h1;
                                                      bypass_or_gateclk == 1'b1; //tetsing
                                                      //debug_channel == (top_test_cfg.ch +1'b1);
@@ -415,33 +415,97 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     //9.clear interrupt status 
     clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ);
-//
-//    //dual mode led enabled
-//    if(`NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en === 1'b0)begin
-//
-//       //9.re send command
-//       nirs_start_cmd_mcu_master_single_mode(/*top_test_cfg.ch, top_test_cfg.num_leds*/);
-//
-//       //10. wait for Data ready interrupt
-//       `nnc_info("PPG_TEST",$sformatf("nirs_int_pin_en %0h (==0 don't output to pin, ==1 output INT pin) ", `NIRS_PPG_CTRL_CFG.nirs_int_pin_en),NNC_LOW); 
-//       //for( int ch_n =0 ; ch_n <8; ch_n++)begin
-//       //    automatic int dual_led_local_ch = ch_n; 
-//       //   
-//       //     `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h, dual_led_local_ch = %0d ", top_test_cfg.ch_en_mask,dual_led_local_ch),NNC_LOW);
-//       //     if(top_test_cfg.ch_en_mask[ch_n])begin            
-//       //        fork 
-//       //          begin
-//       //            `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt dual_led_local_ch =%0d, ch_en_mask[%0d]= %0h) ", dual_led_local_ch, dual_led_local_ch, top_test_cfg.ch_en_mask[dual_led_local_ch]),NNC_LOW);
-//       //             top_test_cfg.temp_num_ch_en++;
-//       //             monitor_nirs_interrupt(8'h1, dual_led_local_ch, top_test_cfg.temp_num_ch_en); 
-//       //          end
-//       //        join_none
-//       //     end
-//       // end
-//        //8. read data all channels data
-//        read_nirs_idac_data;
-//    end
-//    #10ms;
+
+    //dual mode led enabled
+/*    if(`NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en === 1'b0)begin
+
+       //9.re send command
+       nirs_start_cmd_mcu_master_single_mode();//top_test_cfg.ch, top_test_cfg.num_leds
+
+       //10. wait for Data ready interrupt
+       `nnc_info("PPG_TEST",$sformatf("nirs_int_pin_en %0h (==0 don't output to pin, ==1 output INT pin) ", `NIRS_PPG_CTRL_CFG.nirs_int_pin_en),NNC_LOW); 
+       //for( int ch_n =0 ; ch_n <8; ch_n++)begin
+       //    automatic int dual_led_local_ch = ch_n; 
+       //   
+       //     `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h, dual_led_local_ch = %0d ", top_test_cfg.ch_en_mask,dual_led_local_ch),NNC_LOW);
+       //     if(top_test_cfg.ch_en_mask[ch_n])begin            
+       //        fork 
+       //          begin
+       //            `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt dual_led_local_ch =%0d, ch_en_mask[%0d]= %0h) ", dual_led_local_ch, dual_led_local_ch, top_test_cfg.ch_en_mask[dual_led_local_ch]),NNC_LOW);
+       //             top_test_cfg.temp_num_ch_en++;
+       //             monitor_nirs_interrupt(8'h1, dual_led_local_ch, top_test_cfg.temp_num_ch_en); 
+       //          end
+       //        join_none
+       //     end
+       // end
+       fork
+         `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h\n", `NIRS_PPG_IF.ch_en_mask),NNC_LOW);
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH0= %0h \n", `NIRS_PPG_IF.ch_en_mask[0]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask, 0);  
+           end
+         end //CH0
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[1] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH1= %0h \n", `NIRS_PPG_IF.ch_en_mask[1]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,1);  
+           end
+         end  //CH1
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[2] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH2= %0h \n", `NIRS_PPG_IF.ch_en_mask[2]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en,`NIRS_PPG_IF.ch_en_mask,2);  
+           end
+         end  //CH2
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[3] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH3= %0h \n", `NIRS_PPG_IF.ch_en_mask[3]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,3);  
+           end
+         end  //CH3
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[4] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH4= %0h \n", `NIRS_PPG_IF.ch_en_mask[4]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,4); 
+           end
+         end  //CH4
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[5] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH5= %0h \n", `NIRS_PPG_IF.ch_en_mask[5]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,5);  
+           end
+         end  //CH5
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[6] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH6= %0h \n", `NIRS_PPG_IF.ch_en_mask[6]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,6);  
+           end
+         end  //CH7
+
+         begin
+           if(`NIRS_PPG_IF.ch_en_mask[7] === 1'b1) begin
+             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH7= %0h \n", `NIRS_PPG_IF.ch_en_mask[7]),NNC_MEDIUM);
+              monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,7);  
+           end
+         end  //CH8
+       join
+
+        //8. read data all channels data
+        read_nirs_idac_data;
+
+        //9.clear interrupt status 
+        clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ);
+
+    end
+    #10ms;*/
       
     // --------------------------------------------------------
     // End of test and add any needed delay time 

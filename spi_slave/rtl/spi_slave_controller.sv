@@ -147,9 +147,32 @@ reg rdata_rdatac_cmd;
 //        dual control    													//
 //--------------------------------------------------//
 reg dual_pending;
-reg  dual_en;
+reg  dual_en, dual_wr_reg_neg, dual_wr_reg;
 assign o_dual_en = dual_en;
-assign o_dual_wr = (dual_en && !rd_data_rdy);
+assign o_dual_wr = dual_wr_reg; //(dual_en && !rd_data_rdy);
+
+/*
+  On falling edge of the 6'h10, switch to read mode for mosi/miso -  dual_wr_reg
+  Use dual_wr_reg_neg on the rising edge at bit_cnt == 6'h0E for timing closure 
+  Same for reset it at the end - 8'h18
+*/
+//always@(posedge i_sclk, negedge i_rst_n) begin
+always@(posedge i_sclk_neg, negedge i_rst_n) begin  // negedge: half-cycle earlier
+  if(!i_rst_n)
+    dual_wr_reg_neg <= 1'b1;
+  else if (bit_cnt == 6'h16)  
+    dual_wr_reg_neg <= 1'b1; 
+  else if (bit_cnt == 6'h0E && rd_data_rdy)  
+    dual_wr_reg_neg <= 1'b0; 
+end
+
+always@(posedge i_sclk, negedge i_rst_n) begin
+  if(!i_rst_n)
+    dual_wr_reg <= 1'b1;
+  else
+    dual_wr_reg <= dual_wr_reg_neg;
+end
+
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
@@ -346,7 +369,7 @@ end
 assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
 
-assign cmd_reg          = dual_en ? (!cmd_reg_7 && cmd_reg_6 ) : cmd_reg_7;
+assign cmd_reg          = dual_en ? (!cmd_reg_7 && !cmd_reg_6 ) : cmd_reg_7;
 assign wavegen_cmd_reg  = dual_en ? (cmd_reg_5 && !cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
 assign nirs_cmd_reg     = dual_en ? (cmd_reg_5 &&  cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
 
@@ -367,8 +390,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     cmd_reg_7 <= 1'b0;
   //end else if (bit_cnt == 6'h0b )begin        // 9th bit is the command bit(9+2 =11)
   end else if(dual_en) begin
-    if (bit_cnt == 6'h0c ) // 9th bit is the command bit(9+1 =10)
-    cmd_reg_7 <= rx_buf[1];  
+    if (bit_cnt == 6'h0a)       // 1 count earlier
+      cmd_reg_7 <= i_mosi1_d;   // direct: latched MOSI1 bit
   end else begin
     if (bit_cnt == 6'h0a )  //single       // 9th bit is the command bit(9+1 =10)
     cmd_reg_7 <= rx_buf[0];
@@ -385,8 +408,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     cmd_reg_6 <= 1'b0;
 //end else if (bit_cnt == 6'h0d )begin        // 11th bit is the command bit(11+2=13)
   end else if (dual_en) begin
-    if (bit_cnt == 6'h0c)         // dual mode: command bit arrives 1 cycle earlier
-      cmd_reg_6 <= rx_buf[0];
+    if (bit_cnt == 6'h0a)     // same cycle as cmd_reg_7, 3 counts earlier
+      cmd_reg_6 <= i_mosi_d;  // direct: the freshly latched MOSI0 bit
   end else begin
     if (bit_cnt == 6'h0b)
       cmd_reg_6 <= rx_buf[0];
@@ -403,8 +426,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_5 <= 1'b0;
   end else if (dual_en) begin
-    if(bit_cnt == 6'h0e)
-      cmd_reg_5 <= rx_buf[1];
+    if(bit_cnt == 6'h0c)       // 1 count earlier
+      cmd_reg_5 <= i_mosi1_d;  // direct: latched MOSI1 bit
   end else begin
     if(bit_cnt == 6'h0c)  //single 
       cmd_reg_5 <= rx_buf[0];
@@ -419,8 +442,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt == 6'h00) begin
     cmd_reg_4 <= 1'b0;
   end else if (dual_en) begin   // dual mode: command bit arrives 1 cycle earlier
-    if (bit_cnt == 6'h0e)
-      cmd_reg_4 <= rx_buf[0];
+    if (bit_cnt == 6'h0c)     // same cycle as cmd_reg_5, 3 counts earlier
+      cmd_reg_4 <= i_mosi_d;  // direct: the freshly latched MOSI0 bit
   end else begin
     if (bit_cnt == 6'h0d)
       cmd_reg_4 <= rx_buf[0];
@@ -465,8 +488,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     cmd_reg_1 <= 1'b0;
 //end else if (bit_cnt == 6'h0c )begin        // 10th bit is the command bit(10+2=12)
   end else if (dual_en) begin
-    if (bit_cnt == 6'h12 )       
-    cmd_reg_1 <= rx_buf[1]; 
+    if (bit_cnt == 6'h10 )   // 1 count earlier       
+    cmd_reg_1 <= i_mosi1_d;  // direct: latched MOSI1 bit 
   end else begin
     if (bit_cnt == 6'h10 )       //single 
     cmd_reg_1 <= rx_buf[0];           
@@ -480,8 +503,8 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if (cs_n_d == 1'b1) begin
     cmd_reg_0 <= cmd_reg_0; 
   end else if (dual_en) begin
-    if (bit_cnt == 6'h12)
-      cmd_reg_0 <= rx_buf[0];
+    if (bit_cnt == 6'h10)     // same cycle as cmd_reg_1, 3 counts earlier
+      cmd_reg_0 <= i_mosi_d;  // direct: the freshly latched MOSI0 bit
   end else begin
     if (bit_cnt == 6'h11)
       cmd_reg_0 <= rx_buf[0];

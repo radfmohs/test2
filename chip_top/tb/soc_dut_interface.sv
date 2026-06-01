@@ -568,6 +568,8 @@ interface dut_interface();
    integer      exp_stim_tag =0;
    logic [9:0]  max_a2d_data = 0;
    logic [9:0]  min_a2d_data = 'h3FF; // 10 bit biggest value
+   logic [9:0]  prev_a2d_data_max = 0;
+   logic [9:0]  prev_a2d_data_min = 'h3FF; // 10 bit biggest value
    logic [9:0]  delta_a2d_data = 0;
    integer      exp_stim_delta_tag =0;
    logic        adc_delta_data_in_manual_en;

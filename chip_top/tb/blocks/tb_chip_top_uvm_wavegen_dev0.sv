@@ -18,7 +18,7 @@ logic [0:`WAVEGEN_DRIVER_NUM-1] wg_drive_sw_tmp;
 
 logic [3:0] wavegen_dev_src;
 logic [3:0] wavegen_dev_snk;
-
+/*
 function automatic int get_wavegen_dev_snk();
   get_wavegen_dev_snk = 0;
   if (!dut_vif.python_wavegen_en)
@@ -44,6 +44,42 @@ function automatic int get_wavegen_dev_src();
 endfunction
 
 assign wavegen_dev_src = get_wavegen_dev_src();
+*/
+assign wavegen_dev_snk = !`SOC_TB.dut_vif.python_wavegen_en ? 0: 
+                            `SOC_TB.dut_vif.wavegen_drv_mode[0] & `SOC_TB.dut_vif.wavegen_drv_en[0] ? 0 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[1] & `SOC_TB.dut_vif.wavegen_drv_en[1] ? 1 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[2] & `SOC_TB.dut_vif.wavegen_drv_en[2] ? 2 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[3] & `SOC_TB.dut_vif.wavegen_drv_en[3] ? 3 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[4] & `SOC_TB.dut_vif.wavegen_drv_en[4] ? 4 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[5] & `SOC_TB.dut_vif.wavegen_drv_en[5] ? 5 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[6] & `SOC_TB.dut_vif.wavegen_drv_en[6] ? 6 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[7] & `SOC_TB.dut_vif.wavegen_drv_en[7] ? 7 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[8] & `SOC_TB.dut_vif.wavegen_drv_en[8] ? 8 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[9] & `SOC_TB.dut_vif.wavegen_drv_en[9] ? 9 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[10] & `SOC_TB.dut_vif.wavegen_drv_en[10] ? 10 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[11] & `SOC_TB.dut_vif.wavegen_drv_en[11] ? 11 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[12] & `SOC_TB.dut_vif.wavegen_drv_en[12] ? 12 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[13] & `SOC_TB.dut_vif.wavegen_drv_en[13] ? 13 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[14] & `SOC_TB.dut_vif.wavegen_drv_en[14] ? 14 :
+                            `SOC_TB.dut_vif.wavegen_drv_mode[15] & `SOC_TB.dut_vif.wavegen_drv_en[15] ? 15 : 0;
+
+assign wavegen_dev_src = !`SOC_TB.dut_vif.python_wavegen_en ? 0: 
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[0] & `SOC_TB.dut_vif.wavegen_drv_en[0] ? 0 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[1] & `SOC_TB.dut_vif.wavegen_drv_en[1] ? 1 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[2] & `SOC_TB.dut_vif.wavegen_drv_en[2] ? 2 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[3] & `SOC_TB.dut_vif.wavegen_drv_en[3] ? 3 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[4] & `SOC_TB.dut_vif.wavegen_drv_en[4] ? 4 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[5] & `SOC_TB.dut_vif.wavegen_drv_en[5] ? 5 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[6] & `SOC_TB.dut_vif.wavegen_drv_en[6] ? 6 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[7] & `SOC_TB.dut_vif.wavegen_drv_en[7] ? 7 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[8] & `SOC_TB.dut_vif.wavegen_drv_en[8] ? 8 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[9] & `SOC_TB.dut_vif.wavegen_drv_en[9] ? 9 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[10] & `SOC_TB.dut_vif.wavegen_drv_en[10] ? 10 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[11] & `SOC_TB.dut_vif.wavegen_drv_en[11] ? 11 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[12] & `SOC_TB.dut_vif.wavegen_drv_en[12] ? 12 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[13] & `SOC_TB.dut_vif.wavegen_drv_en[13] ? 13 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[14] & `SOC_TB.dut_vif.wavegen_drv_en[14] ? 14 :
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[15] & `SOC_TB.dut_vif.wavegen_drv_en[15] ? 15 : 0;
 
 assign dut_vif.wg_dev_src = wavegen_dev_src;
 assign dut_vif.wg_dev_snk = wavegen_dev_snk;
@@ -90,6 +126,7 @@ initial
       @(posedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
       
       if (!dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i]) begin // source
+          //@(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
          if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b0)) begin // IDLE
            @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
            if ((pre_state[i] != 3'b000) || (first_wave_done[i] == 1)) 
@@ -127,11 +164,12 @@ initial
          end
       end  
       else if (dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i]) begin // sink
+         //@(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk); 
          if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b0)) begin // IDLE
            @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
            if ((pre_state[i] != 3'b000) || (first_wave_done[i] == 1)) 
               `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - pre_state[%2d]: %b, first_wave_done[%2d]: %b is not expected 3'b000 or 3'b100", i, i, pre_state[i], i, first_wave_done[i]))
-           if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
+           if ((`ANA_TOP.D2A_PULLD[i] !== 1'b0) && (wave_started == 1'b0)) `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b000;
          end else if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b1)) begin // IDLE
