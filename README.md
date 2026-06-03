@@ -157,509 +157,546 @@ Added general register 0x07/0x08
 0.66	18/5/2026	Xin		Rearrange the INT_EN/adc_en bit in STIM_PAD_CTRL, STIM_MON_INT, and STIM_PAD_CTRL1 and add more option for configuration
 	Add burst read cycle data feature
 0.67	20/5/2026	Xin	 Add 0x51-0x5A registers for leadoff/short detection
+0.68	20/5/2026	Zhen		Updated special waveform for silent time，see 9.9.11
+	Added DDS mode，see 9.9.16
+	Added mul-waveform repetition function， see，9.9.17
+	Added enable signals for DDS、mul-waveform repetition，see wavegen register 0x38 bit[2]/bit[3]
+0.69	20/5/2026	Xin	Bit7:6 of PMU_REG reserved and remove leadoff_pclk and leadoff_resetn
+0.70	21/5/2026	Xin	Add bit6 MULTI_INTB_PIN in PMU_REG for multiple INTB pin
+0.71	21/5/2026	My	Add 13.5.5 GPIO_NORMAL_OUT_CTRL for GPIO[8]
+0.72	22/5/2026	Xin		Update the clock and reset diagram
+2) add stim_on_flag on status field
+
+0.73	25/5/2026	Zhen 	Remap wavegen register
+0x00->0x02
+0x01->0x03
+0x02->0x04
+0x03->0x01
+0x04->0x00
+0.74	26/5/2026	Xin		Add bit10 w/r of STIM_ADC_DELTA_DATA_TAG for delta data capture in manual mode
+	Add bit11 w/r of STIM_ADC_DELTA_DATA_TAG for 2nd max/min data
+0.75	27/5/2026	Xin	Rearrange 2 register address and add more register for general int 
+	TSC_VDAC_NOR address is changed from 0x73 to 0x69
+	TSC_SMP_STS address is changed from 0x74 to 0x6A
+	Add GENERAL_INTERUPT_STATUS_REG07 to GENERAL_INTERUPT_STATUS_REG0B address (0x73-0x77)
+0.76	28/5/2026	Xin	Change the 0x43 register name to STIM_MON_CTRL2 and add bit6 for more option of adc controller
+0.77	29/5/2026	Xin	Add STIM_ORIG_ADC_DATA(0xF4-0xF5) for debug purpose
+This data is from analog directly
+0.78	2/6/2026	Xin	Add 0x5B/0x5C for longer stim monitor period
+STIM_MON_PERIOD_H
+
 
  
 
 Contents
-1.	Overview	6
-Applications	7
-Features	7
-Block Diagram	9
-2.	Pin Description	10
-Pin and Package definition	11
-3.	Power-up sequence	11
-4.	System Control Unit (SCU)	13
-This block contains the clock control, reset control and PMU.	14
-4.1.	PMU (Power Management Unit)	14
-4.2.	Reset Control	14
-4.3.	Clock Control	15
-4.3.1.	Clock Tree Structure	15
-5.	Interrupt Sources to INTB Pin	16
-5.1.	Diagram	17
-5.2.	Interrupt Source Table	17
-6.	Serial Peripheral Interface (SPI)	18
-6.1.	Overview	19
-6.2.	Block Diagram	19
-6.3.	Functional Description	19
-6.4.	Interface	20
-6.5.	SPI Slave Controller Specification	21
-6.5.1.	SPI Slave Controller Features:	22
-6.5.2.	Communication:	22
-6.5.3.	SPI Modes:	22
-6.5.4.	Data communication format between Master and Slave	23
-6.5.5.	SPI-Timing Characteristics:	31
-7.	One Time Program	31
-7.1.	Introduction	32
-7.2.	Architecture	33
-7.3.	Feature List	34
-7.4.	Interface	34
-7.5.	Model and Timing	36
-7.5.1.	Supported user operating mode	37
-7.5.2.	Timing parameters	37
-7.5.3.	Timing waveforms	38
-7.5.4.	USER MODE - READ operation timing	39
-7.5.5.	USER MODE -WRITE operation timing	40
-7.6.	Function and Registers	40
-7.6.1.	Function description	41
-7.6.2.	ANALOG TRIM BY GPIO	43
-7.7.	VPP timing	45
-7.8.	Registers	45
-8.	OTP BIST	46
-8.1.	Introduction	47
-8.2.	Architecture	47
-8.2.1.	Block Diagram	47
-8.2.2.	Feature List	47
-8.2.3.	Interface	47
-8.3.	Functional Description	48
-8.3.1.	Operation Mode	48
-8.3.2.	OTP Cell State by Program operation and XDIN	48
-8.3.3.	Program Operation	49
-8.3.4.	Read Operation	50
-8.3.5.	Margin Read Operation (Test)	50
-8.4.	Timing	51
-8.5.	VPP TIMING	52
-8.5.1.	Access timing via Master	52
-8.6.	Serial TDI Input Definition	52
-8.7.	Serial TDO Input Definition	53
-8.8.	Serial TDI Input Timing	54
-8.9.	Serial TDO output Timing	54
-9.	Arbitrary Wave Generator	54
-9.1.	Overview	55
-9.2.	Block Diagram of Wave Generator	55
-9.3.	Pin definition	56
-9.4.	Registers	58
-9.5.	Preloaded function	58
-9.5.1.	ENS2 supports preloaded sine, triangle and pulse waveforms. It is hardwired. And be controlled by AWG_DRV_CTRL_REG0 register	58
-9.5.2.	Pre-loaded waveform select table:	59
-9.6.	PULLB AND PULLA (Glitch removal time)	59
-9.7.	Operation mode	60
-9.8.	Specification	61
-9.9.	Block’s design	61
-9.9.1.	Negative edge	61
-9.9.2.	The AWG block consists of a state machine which has 8 states:	62
-9.9.3.	State table	62
-9.9.4.	Test Waveform	64
-9.9.5.	Alternating function	66
-9.9.6.	Multi-waveform function	67
-9.9.7.	Waveform Scaling	69
-9.9.8.	Interrupt	70
-9.9.9.	multi-electrode	71
-9.9.10.	Source B	73
-9.9.11.	Special waveform processing for silent time	74
-9.9.12.	EMS waveform without interrupts	74
-9.9.13.	two consecutive positive or negative waveforms without using interrupts	78
-9.9.14.	BURST function for wavegen shape registers	79
-9.9.15.	mul-wavegen access function	80
-10.	LEAD OFF DETECTOR	80
-10.1.	Analog Part (Analog Model)	81
-10.2.	Digital Part	85
-11.	ANAC (Analog Controller)	88
-11.1.	LVD (Low Voltage Detection)	89
-11.1.1.	Block Diagram (Analog LVD Model)	89
-11.1.2.	Feature	89
-11.1.3.	Analog LVD Interrupt:	89
-11.2.	Analog Comparators Interrupts:	89
-11.3.	Register 0x55 ：	90
-11.4.	Short Circuit Detection Design	90
-11.4.1.	Analog Circuit Design (Analog Model)	90
-11.4.2.	Digital Short Circuit Detection using A2D_COMP_OUT_STIMU0 to 3	92
-11.5.	Over-Temperature Protection (TSC)	93
-11.5.1.	Functional Overview	94
-11.5.2.	SAR state machine	96
-11.5.3.	Registers of Over-temperature Protection	97
-11.5.4.	TSC Comparators Interrupts:	99
-11.6.	Stimulator Voltage Measurement and Resistor Monitor Block:	99
-12.	NIRS/PPG CONTROLLER – MISSING LED DRIVER in ANA	107
-Index Terms - Photoplethysmogram (PPG), near-infrared spectroscopy (NIRS)	108
-12.6.1.	NIRS/PPG_TOP Registers Illustration	108
-12.6.2.	NIRS/PPG Control Method	109
-12.6.3.	FSM Methods	109
-13.	Register Map	112
-13.1.	Register Map	113
-13.2.	Register Name Change Log	120
-13.3.	General Register	123
-13.3.1.	PMU_REG: 0x01 (General Register)	123
-13.3.2.	CLK_CTRL_REG: Offset - 0x02 (General Register)	124
-13.3.3.	WAVEGEN_GLOBAL_REG_0: 0x03 (General Register)	125
-13.3.4.	ANAC_CTRL: 0x04 (General Register)	125
-13.3.5.	PMU_REG1: 0x05 (General Register)	126
-13.3.6.	O_CLK_SEL: 0x06 (General Register)	126
-13.3.7.	WAVEGEN_GLOBAL_REG_01: 0x07 (General Register)	126
-13.3.8.	WAVEGEN_GLOBAL_REG_02: 0x08 (General Register)	127
-13.4.	OTP registers	127
-13.4.1.	Debug1 register: 0x0A	127
-13.4.2.	Debug2 register: 0x0B	128
-13.4.3.	Trim Tag register: 0x0C (General Register)	128
-13.4.4.	TRIM_DATA_1 register: 0x0D (General Register)	129
-13.4.5.	TRIM_DATA_2 register: 0x0E (General Register)	129
-13.4.6.	TRIM_DATA_3 register: 0x0F (General Register)	129
-13.4.7.	TRIM_DATA_4 register: 0x10 (General Register)	129
-13.4.8.	TRIM_DATA_5 register: 0x11(General Register)	129
-13.4.9.	TRIM_DATA_6 register: 0x12(General Register)	129
-13.4.10.	TRIM_DATA_7 register: 0x13 (General Register)	129
-13.4.11.	TRIM_DATA_8 register: 0x14 (General Register)	129
-13.4.12.	TRIM_DATA_9 register: 0x15 (General Register)	130
-13.4.13.	TRIM_DATA_10 register: 0x16 (General Register)	130
-13.4.14.	TRIM_DATA_11 register: 0x17 (General Register)	130
-13.4.15.	TRIM_DATA_12 register: 0x18 (General Register)	130
-13.4.16.	TRIM_DATA_13 register: 0x19 (General Register)	130
-13.4.17.	TRIM_DATA_14 register: 0x1A (General Register)	130
-13.4.18.	TRIM_DATA_15 register: 0x1B (General Register)	130
-13.4.19.	TRIM_DATA_16 register: 0x1C (General Register)	130
-13.4.20.	OTP_UNLOCK Register: 0x1D (General Register)	131
-13.4.21.	OTP_DATA (0x1E) register (General Register)	131
-13.4.22.	OTP_ADDR (0x1F) register:	131
-13.4.23.	OTP_EME_DATA (0x20) register (General Register)	132
-13.4.24.	OTP_WAVEGEN_NUMBER (0x21) register (General Register)	132
-13.5.	GPIO Registers	132
-13.5.1.	GPIO_PU_CTRL: 0x30 (General Register)	132
-13.5.2.	GPIO_PD_CTRL: 0x31 (General Register)	133
-13.5.3.	GPIO_SR_PDRV0_1_CTRL: 0x32 (General Register)	133
-13.5.4.	GPIO_COMP_OUT_CTRL: 0x33 (General Register) – NOT SUPPORTED	133
-13.5.5.	GPIO_NIRS_OUT_CTRL: 0x33 (General Register)	134
-13.6.	Lead Off Detection Register	134
-13.6.1.	LEAD_OFF_CTRL: LEAD OFF detection control: 0x26 (General Register)	134
-13.6.2.	RESERVED: Reserved Register – Offset: 0x27 (General Register)	135
-13.6.3.	LEAD_OFF_INT: Lead Off Detection Interrupt Control: 0x28 (General Register)	135
-13.6.4.	COUNTER_TH_TGT_CH: channel comparator status counter target 0x29-0x2C (General Register)	135
-13.6.5.	TIMER_CNT_TGT_CH1: Channel check duration target 0x2D-0x30 (General Register)	135
-13.6.6.	LEAD_OFF_BLK_SLCT:  channel number of leadoff config 0x31 (General Register)	135
-13.6.7.	LEAD_OFF_DAC_EN: lead off channel enable 0x32 (General Register)	136
-13.6.8.	LEAD_OFF_STOP_EN: lead off stop wavegen enable 0x33 (General Register)	136
-13.6.9.	LEAD_OFF_INT_EN: lead off interrupt output enable 0x34 (General Register)	136
-13.6.10.	LEAD_OFF_COMP_LOW_EN: low is lead off indicator 0x35 (General Register)	136
-13.6.11.	LEAD_OFF_STOP: state of wavegen should be when lead off happen 0x36 (General Register)	137
-13.6.12.	LEAD_OFF_ANA: Lead Off detection compare result from Analog: 0x39(General Register)	137
-13.7.	Analog registers	137
-13.7.1.	ANA_EN_SECTION_SEL: Offset: 0xC0	138
-13.7.2.	ANA_ENABLE_REG[0][0]: Offset: 0xC1	138
-13.7.3.	ANA_ENABLE_REG[0][1]: Offset: 0xC2	139
-13.7.4.	ANA_ENABLE_REG[0][2]: Offset: 0xC3	139
-13.7.5.	ANA_ENABLE_REG[0][3]: Offset: 0xC4	140
-13.7.6.	ANA_ENABLE_REG[0][4]: Offset: 0xC5	140
-13.7.7.	ANA_ENABLE_REG[0][5]: Offset: 0xC6	140
-13.7.8.	ANA_ENABLE_REG[0][6]: Offset: 0xC7	141
-13.7.9.	ANA_ENABLE_REG[0][7]: Offset: 0xC8	141
-13.7.10.	ANA_ENABLE_REG[0][8]: Offset: 0xC9	141
-13.7.11.	ANA_ENABLE_REG[0][9]: Offset: 0xCA	141
-13.7.12.	ANA_ENABLE_REG[0][10]: Offset: 0xCB	142
-13.7.13.	ANA_ENABLE_REG[0][11]: Offset: 0xCC	142
-13.7.14.	ANA_ENABLE_REG[0][12]: Offset: 0xCD	142
-13.7.15.	ANA_ENABLE_REG[0][13]: Offset: 0xCE	142
-13.7.16.	ANA_ENABLE_REG[0][14]: Offset: 0xCF	142
-13.7.17.	ANA_ENABLE_REG[1][0]: Offset: 0xC1	143
-13.7.18.	ANA_ENABLE_REG[1][1]: Offset: 0xC2	143
-13.7.19.	ANA_ENABLE_REG[1][2]: Offset: 0xC3	143
-13.7.20.	ANA_ENABLE_REG[1][3]: Offset: 0xC4	143
-13.7.21.	ANA_ENABLE_REG[1][4]: Offset: 0xC5	143
-13.7.22.	ANA_ENABLE_REG[1][5]: Offset: 0xC6	143
-13.7.23.	ANA_ENABLE_REG[1][6]: Offset: 0xC7	144
-13.7.24.	ANA_GEN_SECTION_SEL: Offset: 0xD0	144
-13.7.25.	ANA_GEN_REG[0][0]: Offset: 0xD1	144
-13.7.26.	ANA_GEN_REG[0][1]: Offset: 0xD2	145
-13.7.27.	ANA_GEN_REG[0][2]: Offset: 0xD3	145
-13.7.28.	ANA_GEN_REG[0][3]: Offset: 0xD4	145
-13.7.29.	ANA_GEN_REG[0][4]: Offset: 0xD5	146
-13.7.30.	ANA_GEN_REG[0][5]: Offset: 0xD6	146
-13.7.31.	ANA_GEN_REG[0][6]: Offset: 0xD7	146
-13.7.32.	ANA_GEN_REG[0][7]: Offset: 0xD8	146
-13.7.33.	ANA_GEN_REG[0][8]: Offset: 0xD9	146
-13.7.34.	ANA_GEN_REG[0][9]: Offset: 0xDA	147
-13.7.35.	ANA_GEN_REG[0][10]: Offset: 0xDB	147
-13.7.36.	ANA_GEN_REG[0][11]: Offset: 0xDC	147
-13.7.37.	ANA_GEN_REG[0][12]: Offset: 0xDD	147
-13.7.38.	ANA_GEN_REG[1][0]: Offset: 0xD1	147
-13.7.39.	ANA_GEN_REG[1][1]: Offset: 0xD2	148
-13.7.40.	ANA_GEN_REG[1][2]: Offset: 0xD3	148
-13.7.41.	ANA_GEN_REG[1][3]: Offset: 0xD4	148
-13.7.42.	ANA_GEN_REG[1][4]: Offset: 0xD5	148
-13.7.43.	ANA_GEN_REG[1][5]: Offset: 0xD6	148
-13.7.44.	ANA_GEN_REG[1][6]: Offset: 0xD7	148
-13.7.45.	ANA_GEN_REG[1][7]: Offset: 0xD8	149
-13.7.46.	ANA_GEN_REG[1][8]: Offset: 0xD9	149
-13.7.47.	ANA_GEN_REG[1][9]: Offset: 0xDA	149
-13.7.48.	ANA_GEN_REG[1][10]: Offset: 0xDB	149
-13.7.49.	ANA_GEN_REG[1][11]: Offset: 0xDC	149
-13.7.50.	ANA_GEN_REG[1][12]: Offset: 0xDD	149
-13.7.51.	ANA_GEN_REG[2][0]: Offset: 0xD1	150
-13.7.52.	ANA_GEN_REG[2][1]: Offset: 0xD2	150
-13.7.53.	ANA_GEN_REG[2][2]: Offset: 0xD3	150
-13.7.54.	ANA_GEN_REG[2][3]: Offset: 0xD4	150
-13.7.55.	ANA_GEN_REG[2][4]: Offset: 0xD5	150
-13.7.56.	ANA_GEN_REG[2][5]: Offset: 0xD6	150
-13.7.57.	ANA_GEN_REG[2][6]: Offset: 0xD7	150
-13.7.58.	ANA_GEN_REG[2][7]: Offset: 0xD8	150
-13.7.59.	ANA_GEN_REG[2][8]: Offset: 0xD9	151
-13.7.60.	ANA_GEN_REG[2][9]: Offset: 0xDA	151
-13.7.61.	ANA_GEN_REG[2][10]: Offset: 0xDB	151
-13.7.62.	ANA_GEN_REG[2][11]: Offset: 0xDC	151
-13.7.63.	ANA_GEN_REG[2][12]: Offset: 0xDD	151
-13.7.64.	ANA_GEN_REG[3][0]: Offset: 0xD1	151
-13.7.65.	ANA_GEN_REG[3][1]: Offset: 0xD2	151
-13.7.66.	ANA_GEN_REG[3][2]: Offset: 0xD3	152
-13.7.67.	ANA_GEN_REG[3][3]: Offset: 0xD4	152
-13.7.68.	ANA_GEN_REG[3][4]: Offset: 0xD5	152
-13.7.69.	ANA_GEN_REG[3][5]: Offset: 0xD6	152
-13.7.70.	ANA_GEN_REG[3][6]: Offset: 0xD7	152
-13.7.71.	ANA_GEN_REG[3][7]: Offset: 0xD8	152
-13.7.72.	ANA_GEN_REG[3][8]: Offset: 0xD9	152
-13.7.73.	ANA_GEN_REG[3][9]: Offset: 0xDA	152
-13.7.74.	ANA_GEN_REG[3][10]: Offset: 0xDB	153
-13.7.75.	ANA_GEN_REG[3][11]: Offset: 0xDC	153
-13.7.76.	ANA_GEN_REG[3][12]: Offset: 0xDD	153
-13.7.77.	ANA_GEN_REG[4][0]: Offset: 0xD1	153
-13.7.78.	ANA_GEN_REG[4][1]: Offset: 0xD2	153
-13.7.79.	ANA_GEN_REG[4][2]: Offset: 0xD3	153
-13.7.80.	ANA_GEN_REG[4][3]: Offset: 0xD4	153
-13.7.81.	ANA_GEN_REG[4][4]: Offset: 0xD5	154
-13.7.82.	ANA_GEN_REG[4][5]: Offset: 0xD6	154
-13.7.83.	ANA_GEN_REG[4][6]: Offset: 0xD7	154
-13.7.84.	ANA_GEN_REG[4][7]: Offset: 0xD8	154
-13.7.85.	ANA_GEN_REG[4][8]: Offset: 0xD9	154
-13.7.86.	ANA_GEN_REG[4][9]: Offset: 0xDA	154
-13.7.87.	ANA_GEN_REG[4][10]: Offset: 0xDB	154
-13.7.88.	ANA_GEN_REG[4][11]: Offset: 0xDC	154
-13.7.89.	ANA_GEN_REG[4][12]: Offset: 0xDD	154
-13.7.90.	ANA_GEN_REG[5][0]: Offset: 0xD1	155
-13.7.91.	ANA_GEN_REG[5][1]: Offset: 0xD2	155
-13.7.92.	ANA_GEN_REG[5][2]: Offset: 0xD3	155
-13.7.93.	ANA_GEN_REG[5][3]: Offset: 0xD4	155
-13.7.94.	ANA_GEN_REG[5][4]: Offset: 0xD5	155
-13.7.95.	ANA_GEN_REG[5][5]: Offset: 0xD6	155
-13.7.96.	ANA_GEN_REG[5][6]: Offset: 0xD7	155
-13.7.97.	ANA_GEN_REG[5][7]: Offset: 0xD8	155
-13.7.98.	ANA_GEN_REG[5][8]: Offset: 0xD9	155
-13.7.99.	ANA_GEN_REG[5][9]: Offset: 0xDA	156
-13.7.100.	ANA_GEN_REG[5][10]: Offset: 0xDB	156
-13.7.101.	ANA_GEN_REG[5][11]: Offset: 0xDC	156
-13.7.102.	ANA_GEN_REG[5][12]: Offset: 0xDD	156
-13.7.103.	ANA_GEN_REG[6][0]: Offset: 0xD1	156
-13.7.104.	ANA_GEN_REG[6][1]: Offset: 0xD2	156
-13.7.105.	ANA_GEN_REG[6][2]: Offset: 0xD3	156
-13.7.106.	ANA_GEN_REG[6][3]: Offset: 0xD4	156
-13.7.107.	ANA_GEN_REG[6][4]: Offset: 0xD5	156
-13.7.108.	ANA_GEN_REG[6][5]: Offset: 0xD6	156
-13.7.109.	ANA_GEN_REG[6][6]: Offset: 0xD7	157
-13.7.110.	ANA_GEN_REG[6][7]: Offset: 0xD8	157
-13.7.111.	ANA_GEN_REG[6][8]: Offset: 0xD9	157
-13.7.112.	ANA_GEN_REG[6][9]: Offset: 0xDA	157
-13.7.113.	ANA_GEN_REG[6][10]: Offset: 0xDB	157
-13.7.114.	ANA_GEN_REG[0][13]: Offset: 0xDE	157
-13.7.115.	ANA_GEN_REG[1][13]: Offset: 0xDE	157
-13.7.116.	ANA_GEN_REG[2][13]: Offset: 0xDE	157
-13.7.117.	ANA_GEN_REG[3][13]: Offset: 0xDE	158
-13.7.118.	ANA_GEN_REG[0][14]: Offset: 0xDF	158
-13.7.119.	ANA_GEN_REG[1][14]: Offset: 0xDF	158
-13.7.120.	ANA_GEN_REG[2][14]: Offset: 0xDF	159
-13.7.121.	ANA_GEN_REG[3][14]: Offset: 0xDF	159
-13.7.122.	ANA_GEN_REG[4][14]: Offset: 0xDF	159
-13.7.123.	ANA_GEN_REG[5][14]: Offset: 0xDF	159
-13.7.124.	ANA_GEN_REG[6][14]: Offset: 0xDF	159
-13.7.125.	ANA_GEN_REG[7][14]: Offset: 0xDF	159
-13.7.126.	A2D_ANA_GEN_REG_0: 0xA0 (General Register)	160
-13.7.127.	A2D_ANA_GEN_REG_1: 0xA1 (General Register)	160
-13.7.128.	A2D_ANA_GEN_REG_2: 0xA2  (General Register)	160
-13.7.129.	A2D_ANA_GEN_REG_3: 0xA3 (General Register)	160
-13.7.130.	A2D_ANA_GEN_REG_4: 0xA4 (General Register)	161
-13.7.131.	A2D_SPARE_RO_REG_0: 0xA5 (General Register)	161
-13.8.	ANAC registers	161
-13.8.1.	ANA_LVD_INT_EN: 0x50 (General Register)	161
-13.8.2.	ANA_COMP_INT_EN: 0x51 (General Register)	161
-13.8.3.	ANA_COMP_INT_TRANS_EN: 0x52 (General Register)	161
-13.8.4.	ANA_INT_STOP_WAVEGEN: 0x53 (General Register)	162
-13.8.5.	ANA_STUMI_INT_EN: 0x54 (General Register)	163
-13.8.6.	ANA_STIMU_INT_DIG_EN: 0x55 (General Register)	163
-13.8.7.	ANA_STIMU_INT_POL_EN: 0x56 (General Register)	164
-13.8.8.	ANA_SHORT_BLOCK_SLCT: 0x57 (General Register)	165
-13.8.9.	ANA_STIM _CH_TIMER_CNT_TH00: 0x58 (General Register)	165
-13.8.10.	ANA_STIM _CH_TIMER_CNT_TH01: 0x59 (General Register)	165
-13.8.11.	ANA_STIM _CH_TIMER_CNT_TH02: 0x5A (General Register)	165
-13.8.12.	ANA_STIM _CH_TIMER_CNT_TH03: 0x5B (General Register)	166
-13.8.13.	ANA_STIM _CH1_COUNTER_CNT_TH00: 0x5C (General Register)	166
-13.8.14.	ANA_STIM _CH_COUNTER_CNT_TH01: 0x5D (General Register)	166
-13.8.15.	ANA_STIM _CH_COUNTER_CNT_TH02: 0x5E（General Register)	166
-13.8.16.	ANA_STIM _CH_COUNTER_CNT_TH03: 0x5F (General Register)	166
-13.8.17.	ANA_INTR_STIMU_STS: 0x60 (General Register)	166
-13.8.18.	ANA_INT_COMP_STS: 0x61General Register)	168
-13.8.19.	ANA_INT_LVD_STS: 0x62 (General Register)	168
-13.9.	TSC registers	169
-13.9.1.	TSC_EN_REG_CTRL: 0x6B (General Register)	169
-13.9.2.	TSC_CTRL: 0x6C (General Register)	169
-13.9.3.	SMP_DURATION: 0x6D (General Register)	169
-13.9.4.	STABLE_DURATION: 0x6E-0x6F (General Register)	169
-13.9.5.	TSC_VDAC8B_DIN_CH1: 0x70 (General Register)	169
-13.9.6.	TSC_INT_CTRL: 0x71 (General Register)	170
-13.9.7.	TSC_INT_ STATUS: 0x72 (General Register)	170
-13.9.8.	TSC_VDAC_NOR: 0x73 (General Register)	170
-13.9.9.	TSC_SMP_STS: 0x74 (General Register)	170
-13.10.	General Interrupt Registers	170
-13.10.1.	GENERAL_INTERUPT_CTRL_REG: Offset:0x78 (General Register)	170
-13.10.2.	GENERAL_INTERUPT_STATUS_REG01: 0x79 (General Register)	171
-13.10.3.	GENERAL_INTERUPT_STATUS_REG02: 0x7A (General Register)	171
-13.10.4.	GENERAL_INTERUPT_STATUS_REG03: 0x7B (General Register)	172
-13.10.5.	GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)	174
-13.10.6.	GENERAL_INTERUPT_STATUS_REG05: 0x7D (General Register)	175
-13.10.7.	GENERAL_INTERUPT_STATUS_REG06: 0x7E (General Register)	176
-13.10.8.	GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)	178
-13.11.	PINMUX registers	178
-13.11.1.	ATM_HC_SEL: Offset Address: 0x7F	178
-13.12.	DEBUG registers	179
-13.12.1.	COUNTER_CNT_DBG_SEL: 0x80 (General Register)	179
-13.12.2.	COUNTER_CNT_DBG: 0x81-0x84 (General Register)	179
-13.12.3.	LEAD_OFF_COUNTER_CNT_DAC: Lead Off DAC counter for level 0x85 (General Register)	179
-13.12.4.	OTP_TRIMS_DBG_SEL: 0x87 (General Register)	179
-13.12.5.	OTP_TRIMS_DBG_DATA: 0x88 (General Register)	179
-13.13.	EEG Register	180
-13.13.1.	IMEAS_REG_0: 0x90 (Normal Register)	180
-13.13.2.	IMEAS_REG_1: 0x91 (Normal Register)	180
-13.13.3.	IMEAS_REG_2: 0x92 (Normal Register)	181
-13.13.4.	STABLE_TIME: 0x93-0x94 (Normal Register)	181
-13.13.5.	IMEAS_DATA: 0x95-0x98 (Normal Register)	182
-13.13.6.	IMEAS_CTRL: 0x99 (Normal Register)	182
-13.13.7.	IMEAS_EN_DIS_CH: 0x9A-0x9B (Normal Register)	182
-13.13.8.	FILTER_HPF_BP: 0xB1-0xB2 (Normal Register)	182
-13.13.9.	FILTER_LPF_BP: 0xB3-0xB4 (Normal Register)	183
-13.13.10.	FILTER_NOF_BP: 0xB5-0xB6 (Normal Register)	183
-13.13.11.	FILTER_INT_CTRL: 0xB7 (Normal Register)	183
-13.13.12.	FILTER_INT_STS: 0xB8 (Normal Register)	184
-13.13.13.	FILTER_NOTCH_DATA_GONE: 0xB9-0xBA (Normal Register)	184
-13.13.14.	FILTER_COEFF_ADDR: 0xBB (Normal Register)	184
-13.13.15.	FILTER_COEFF_DATA: 0xBC - 0xBE (Normal Register)	184
-13.14.	FILTER SYNC CTRL Registers	185
-13.15.	NIRS Registers	185
-13.15.1.	NIRS_CTRL_CHANNEL: 0x00 (NIRS register)	185
-13.15.2.	NIRS_CTRL_LED: 0x01 (NIRS register)	186
-13.15.3.	NIRS_CTRL_0: 0x02 (NIRS register)	186
-13.15.4.	NIRS_CTRL_1: 0x03 (NIRS register)	187
-13.15.5.	NIRS_CTRL_2: 0x04 (NIRS register)	188
-13.15.6.	NIRS_CTRL_3: 0x05 (NIRS register)	188
-13.15.7.	NIRS_CTRL_4: 0x06 (NIRS register)	188
-13.15.8.	NIRS_CTRL_5: 0x07 (NIRS register)	188
-13.15.9.	NIRS_CTRL_6: 0x08 (NIRS register)	189
-13.15.10.	NIRS_CTRL_7: 0x09 (NIRS register)	189
-13.15.11.	NIRS_CTRL_8: 0x0A (NIRS register)	189
-13.15.12.	NIRS_CTRL_MODE: 0x0B (NIRS register)	190
-13.15.13.	NIRS_CTRL_INT: 0x0C (NIRS register) – Applied for both LED	190
-13.15.14.	NIRS_CTRL_ADJ0: 0x0D (NIRS register) – ALL channels and LEDs work on the same setting!	191
-13.15.15.	NIRS_CTRL_CLK: 0x0E (NIRS register) - PPG CLOCK – ALL channels and LEDs work on the same setting!	191
-13.15.16.	NIRS_CTRL_CMD: 0x0F (NIRS register)	192
-13.15.17.	01: START	192
-13.15.18.	10: MEAS – MCU mode only	192
-13.15.19.	11: STOP – CONTINOUS mode only	192
-13.15.20.	NIRS_DEBUG_SEL 0x10 (NIRS register) - Virtual memory approach	192
-13.15.21.	NIRS_DEBUG_0 0x11 (NIRS register)	193
-13.15.22.	NIRS_DEBUG_1 0x12 (NIRS register)	193
-13.15.23.	NIRS_DEBUG_2 0x13 (NIRS register)	193
-13.15.24.	NIRS_DEBUG_3 0x14 (NIRS register)	193
-13.15.25.	NIRS_DEBUG_4: 0x15  (NIRS register)	193
-13.15.26.	NIRS_INT_STATUS 0x20 (NIRS register)	194
-13.15.27.	NIRS_DOUT0_0 0x21 (NIRS register)	194
-13.15.28.	NIRS_DOUT0_1 0x22 (NIRS register)	194
-13.15.29.	NIRS_DOUT0_2 0x23 (NIRS register)	194
-13.15.30.	NIRS_DOUT0_3 0x24 (NIRS register)	195
-13.15.31.	NIRS_DOUT1_0 0x25 (NIRS register)	195
-13.15.32.	NIRS_DOUT1_1 0x26 (NIRS register)	195
-13.15.33.	NIRS_DOUT1_2 0x27 (NIRS register)	195
-13.15.34.	NIRS_DOUT1_3 0x28 (NIRS register)	195
-13.15.35.	NIRS_DOUT2_0 0x29 (NIRS register)	195
-13.15.36.	NIRS_DOUT2_1 0x2A (NIRS register)	196
-13.15.37.	NIRS_DOUT2_2 0x2B (NIRS register)	196
-13.15.38.	NIRS_DOUT2_3 0x2C (NIRS register)	196
-13.15.39.	NIRS_DOUT3_0 0x2D (NIRS register)	196
-13.15.40.	NIRS_DOUT3_1 0x2E (NIRS register)	196
-13.15.41.	NIRS_DOUT3_2 0x2F (NIRS register)	196
-13.15.42.	NIRS_DOUT3_3 0x30 (NIRS register)	196
-13.15.43.	NIRS_DOUT4_0 0x31 (NIRS register)	197
-13.15.44.	NIRS_DOUT4_1 0x32 (NIRS register)	197
-13.15.45.	NIRS_DOUT4_2 0x33 (NIRS register)	197
-13.15.46.	NIRS_DOUT4_3 0x34 (NIRS register)	197
-13.15.47.	NIRS_DOUT5_0 0x35 (NIRS register)	197
-13.15.48.	NIRS_DOUT5_1 0x36 (NIRS register)	197
-13.15.49.	NIRS_DOUT5_2 0x37 (NIRS register)	198
-13.15.50.	NIRS_DOUT5_3 0x38 (NIRS register)	198
-13.15.51.	NIRS_DOUT6_0 0x39 (NIRS register)	198
-13.15.52.	NIRS_DOUT6_1 0x3A (NIRS register)	198
-13.15.53.	NIRS_DOUT6_2 0x3B (NIRS register)	198
-13.15.54.	NIRS_DOUT6_3 0x3C (NIRS register)	198
-13.15.55.	NIRS_DOUT7_0 0x3D (NIRS register)	199
-13.15.56.	NIRS_DOUT7_1 0x3E (NIRS register)	199
-13.15.57.	NIRS_DOUT7_2 0x3F (NIRS register)	199
-13.15.58.	NIRS_DOUT7_3 0x40 (NIRS register)	199
-13.16.	AWG Register	199
-13.16.1.	AWG_CONFIG_REG0: 0x00 (AWG Register)	199
-13.16.2.	AWG_CTRL_REG0: 0x01 (AWG Register)	200
-13.16.3.	AWG_POINT_CONFIG_REG: 0x02 (AWG Register)	201
-13.16.4.	AWG_IN_WAVE_ADDR_REG: 0x03 (AWG Register)	202
-13.16.5.	AWG_IN_WAVE_REG: 0x04 (AWG Register)	202
-13.16.6.	AWG_REST_CLK_REG: 0x05~0x07 (AWG Register)	202
-13.16.7.	AWG_SILENT_CLK_REG: 0x08~0x0B (AWG Register)	202
-13.16.8.	AWG_POS_PHASE_CLK_PNT_REG: 0x0C~0x0D (AWG Register)	202
-13.16.9.	AWG_NEG_PHASE_CLK_PNT_REG: 0x0E~0x0F (AWG Register)	202
-13.16.10.	AWG_REST_CLK1_REG: 0x10~0x11 (AWG Register)	203
-13.16.11.	AWG_SILENT_CLK1_REG: 0x12~0x15 (AWG Register)	203
-13.16.12.	AWG_POS_PHASE_CLK_PNT1_REG: 0x16~0x17 (AWG Register)	203
-13.16.13.	AWG_NEG_PHASE_CLK_PNT1_REG: 0x18~0x19 (AWG Register)	203
-13.16.14.	AWG_REST_CLK2_REG: 0x1A~0x1B (AWG Register)	203
-13.16.15.	AWG_SILENT_CLK2_REG: 0x1C~0x1F (AWG Register)	203
-13.16.16.	AWG_POS_PHASE_CLK_PNT2_REG: 0x20~0x21 (4 AWG Register)	204
-13.16.17.	AWG_NEG_PHASE_CLK_PNT2_ REG: 0x22~0x23 (4 AWG Register)	204
-13.16.18.	AWG_DELAY_LIM_REG: 0x24~0x25 (AWG Register)	204
-13.16.19.	AWG_NEG_SCALE_REG: 0x26 (AWG Register)	204
-13.16.20.	AWG_NEG_OFFSET_REG: 0x27 (AWG Register)	204
-13.16.21.	AWG_POS_SCALE_REG: 0x28 (AWG Register)	204
-13.16.22.	AWG_POS_OFFSET_REG0: 0x29 (AWG Register)	205
-13.16.23.	AWG_DEBOUNCE_REG (Old Name: ADDR_WG_DRV_PULLBA_REG): 0x2A (AWG Register)	205
-13.16.24.	AWG_INT_NUM_WAVE_REG: 0x2B (AWG Register)	205
-13.16.25.	AWG_INT_REG: 0x2C~0x2E (AWG Register)	205
-13.16.26.	AWG_ALT_LIM_REG: 0x2F~0x30 (AWG Register)	206
-13.16.27.	AWG_ALT_SILENT_LIM_REG: 0x31~0x32 (AWG Register)	206
-13.16.28.	AWG_ALT_REST_LIM_REG: 0x33~0x34 (AWG Register)	206
-13.16.29.	DRIVE_REG_CTRL0: Offset: 0x35 (AWG Register)	206
-13.16.30.	DRIVE_REG_CTRL1: Offset: 0x36 (AWG Register)	207
-13.16.31.	DRIVE_REG_CTRL2: Offset: 0x37 (AWG Register)	207
-13.16.32.	NO_OF_NUM_SLIENT_CTR0: Offset: 0x38 (AWG Register)	207
-13.16.33.	NO_OF_NUM_SLIENT_TAR_LSB: Offset: 0x39 (AWG Register)	207
-13.16.34.	NO_OF_NUM_SLIENT_TAR_MSB: Offset:0x3A (AWG Register)	208
-13.16.35.	ADDR_IS_VALID_FOR_CAL: Offset: 0x3B (AWG Register)	208
-13.16.36.	EMS_REG_CTRL: Offset: 0x3C (AWG Register)	208
-13.16.37.	EMS_REG_NUM: Offset: 0x3D (AWG Register)	209
-13.16.38.	AWG_DRIVEC_SW_CFG: Offset: 0x3E ~ 0x3F (AWG Register)	209
-13.16.39.	AWG MAP	212
-14.	EEG FILTER	212
-14.1.	Block Diagram	213
-14.2.	Interface Table	214
-14.3.	Timing Sequence	214
-14.3.1.	One shot conversion mode	214
-14.3.2.	Channel continuous conversion mode	215
-14.4.	Integer Multiple Decimation of Signal	216
-14.5.	CIC Decimation Filter Design	220
-14.5.1.	Four-stage CIC Decimation Filter	220
-14.5.2.	Digital Filter Technical Index	221
-14.5.3.	Maximum Register Growth in CIC Decimator	224
-14.6.	CIC Decimation Filter RTL Implementation	226
-14.7.	Filter Wrapper	228
-14.7.1.	Overview	228
-14.7.2.	Data Rate	229
-14.7.3.	Disable Filter	230
-14.7.4.	Interrupt	230
-14.7.5.	Unstable time for filter	230
-14.7.6.	Low-Pass Filter	232
-14.7.7.	Stopband_Notch Filter(50HZ)	235
-14.7.8.	High-pass filter	238
-15.	Data Acquisition	247
-15.1.	Start Mode	248
-15.2.	Data Ready (DRDY)	248
-15.3.	Data Retrieval	248
-15.4.	Single-Shot Mode	248
-15.5.	Continuous Conversion Mode	249
-15.6.	Multiple-Device Configuration	249
-15.6.1.	Cascade Configuration	249
-15.6.2.	Daisy-Chain Configuration	250
-16.	PPG controller	251
-APPENDIX	266
-Stimulation parameters	267
-Stimulation channel	267
-Waveform example	267
+1.	Overview	20
+Applications	20
+Features	20
+Block Diagram	22
+2.	Pin Description	24
+Pin and Package definition	24
+3.	Power-up sequence	25
+4.	System Control Unit (SCU)	27
+This block contains the clock control, reset control and PMU.	27
+4.1.	PMU (Power Management Unit)	27
+4.2.	Reset Control	27
+4.3.	Clock Control	28
+4.3.1.	Clock Tree Structure	28
+5.	Interrupt Sources to INTB Pin	31
+5.1.	Diagram	31
+5.2.	Interrupt Source Table	31
+6.	Serial Peripheral Interface (SPI)	33
+6.1.	Overview	33
+6.2.	Block Diagram	33
+6.3.	Functional Description	34
+6.4.	Interface	34
+6.5.	SPI Slave Controller Specification	36
+6.5.1.	SPI Slave Controller Features:	36
+6.5.2.	Communication:	36
+6.5.3.	SPI Modes:	36
+6.5.4.	Data communication format between Master and Slave	37
+6.5.5.	SPI-Timing Characteristics:	45
+7.	One Time Program	46
+7.1.	Introduction	46
+7.2.	Architecture	47
+7.3.	Feature List	48
+7.4.	Interface	49
+7.5.	Model and Timing	51
+7.5.1.	Supported user operating mode	51
+7.5.2.	Timing parameters	52
+7.5.3.	Timing waveforms	53
+7.5.4.	USER MODE - READ operation timing	53
+7.5.5.	USER MODE -WRITE operation timing	54
+7.6.	Function and Registers	55
+7.6.1.	Function description	55
+7.6.2.	ANALOG TRIM BY GPIO	57
+7.7.	VPP timing	61
+7.8.	Registers	62
+8.	OTP BIST	64
+8.1.	Introduction	64
+8.2.	Architecture	64
+8.2.1.	Block Diagram	64
+8.2.2.	Feature List	64
+8.2.3.	Interface	64
+8.3.	Functional Description	65
+8.3.1.	Operation Mode	65
+8.3.2.	OTP Cell State by Program operation and XDIN	66
+8.3.3.	Program Operation	66
+8.3.4.	Read Operation	67
+8.3.5.	Margin Read Operation (Test)	67
+8.4.	Timing	68
+8.5.	VPP TIMING	69
+8.5.1.	Access timing via Master	69
+8.6.	Serial TDI Input Definition	70
+8.7.	Serial TDO Input Definition	71
+8.8.	Serial TDI Input Timing	71
+8.9.	Serial TDO output Timing	71
+9.	Arbitrary Wave Generator	72
+9.1.	Overview	72
+9.2.	Block Diagram of Wave Generator	73
+9.3.	Pin definition	73
+9.4.	Registers	75
+9.5.	Preloaded function	75
+9.5.1.	ENS2 supports preloaded sine, triangle and pulse waveforms. It is hardwired. And be controlled by AWG_DRV_CTRL_REG0 register	75
+9.5.2.	Pre-loaded waveform select table:	76
+9.6.	PULLB AND PULLA (Glitch removal time)	77
+9.7.	Operation mode	77
+9.8.	Specification	78
+9.9.	Block’s design	79
+9.9.1.	Negative edge	79
+9.9.2.	The AWG block consists of a state machine which has 8 states:	79
+9.9.3.	State table	80
+9.9.4.	Test Waveform	81
+9.9.5.	Alternating function	84
+9.9.6.	Multi-waveform function	85
+9.9.7.	Waveform Scaling	87
+9.9.8.	Interrupt	88
+9.9.9.	multi-electrode	89
+9.9.10.	Source B	91
+9.9.11.	Special waveform processing for silent time	92
+9.9.12.	EMS waveform without interrupts	93
+9.9.13.	two consecutive positive or negative waveforms without using interrupts	96
+9.9.14.	BURST function for wavegen shape registers	97
+9.9.15.	mul-wavegen access function	98
+9.9.16.	DDS Mode	99
+9.9.17.	Multiple waveform repetition	103
+10.	LEAD OFF DETECTOR	105
+10.1.	Analog Part (Analog Model)	105
+10.2.	Digital Part	109
+11.	ANAC (Analog Controller)	113
+11.1.	LVD (Low Voltage Detection)	113
+11.1.1.	Block Diagram (Analog LVD Model)	113
+11.1.2.	Feature	113
+11.1.3.	Analog LVD Interrupt:	113
+11.2.	Analog Comparators Interrupts:	114
+11.3.	Register 0x55 ：	114
+11.4.	Short Circuit Detection Design	114
+11.4.1.	Analog Circuit Design (Analog Model)	114
+11.4.2.	Digital Short Circuit Detection using A2D_COMP_OUT_STIMU0 to 3	116
+11.5.	Over-Temperature Protection (TSC)	117
+11.5.1.	Functional Overview	118
+11.5.2.	SAR state machine	120
+11.5.3.	Registers of Over-temperature Protection	121
+11.5.4.	TSC Comparators Interrupts:	123
+11.6.	Stimulator Voltage Measurement and Resistor Monitor Block:	123
+12.	NIRS/PPG CONTROLLER – MISSING LED DRIVER in ANA	140
+Index Terms - Photoplethysmogram (PPG), near-infrared spectroscopy (NIRS)	140
+12.1.1.	NIRS/PPG_TOP Registers Illustration	140
+12.1.2.	NIRS/PPG Control Method	141
+12.1.3.	FSM Methods	142
+13.	Register Map	145
+13.1.	Register Map	145
+13.2.	Register Name Change Log	153
+13.3.	General Register	155
+13.3.1.	PMU_REG: 0x01 (General Register)	155
+13.3.2.	CLK_CTRL_REG: Offset - 0x02 (General Register)	156
+13.3.3.	WAVEGEN_GLOBAL_REG_0: 0x03 (General Register)	157
+13.3.4.	ANAC_CTRL: 0x04 (General Register)	157
+13.3.5.	PMU_REG1: 0x05 (General Register)	158
+13.3.6.	O_CLK_SEL: 0x06 (General Register)	158
+13.3.7.	WAVEGEN_GLOBAL_REG_01: 0x07 (General Register)	158
+13.3.8.	WAVEGEN_GLOBAL_REG_02: 0x08 (General Register)	159
+13.4.	OTP registers	159
+13.4.1.	Debug1 register: 0x0A	159
+13.4.2.	Debug2 register: 0x0B	160
+13.4.3.	Trim Tag register: 0x0C (General Register)	161
+13.4.4.	TRIM_DATA_1 register: 0x0D (General Register)	161
+13.4.5.	TRIM_DATA_2 register: 0x0E (General Register)	161
+13.4.6.	TRIM_DATA_3 register: 0x0F (General Register)	161
+13.4.7.	TRIM_DATA_4 register: 0x10 (General Register)	161
+13.4.8.	TRIM_DATA_5 register: 0x11(General Register)	161
+13.4.9.	TRIM_DATA_6 register: 0x12(General Register)	161
+13.4.10.	TRIM_DATA_7 register: 0x13 (General Register)	161
+13.4.11.	TRIM_DATA_8 register: 0x14 (General Register)	161
+13.4.12.	TRIM_DATA_9 register: 0x15 (General Register)	162
+13.4.13.	TRIM_DATA_10 register: 0x16 (General Register)	162
+13.4.14.	TRIM_DATA_11 register: 0x17 (General Register)	162
+13.4.15.	TRIM_DATA_12 register: 0x18 (General Register)	162
+13.4.16.	TRIM_DATA_13 register: 0x19 (General Register)	162
+13.4.17.	TRIM_DATA_14 register: 0x1A (General Register)	162
+13.4.18.	TRIM_DATA_15 register: 0x1B (General Register)	162
+13.4.19.	TRIM_DATA_16 register: 0x1C (General Register)	162
+13.4.20.	OTP_UNLOCK Register: 0x1D (General Register)	163
+13.4.21.	OTP_DATA (0x1E) register (General Register)	163
+13.4.22.	OTP_ADDR (0x1F) register:	163
+13.4.23.	OTP_EME_DATA (0x20) register (General Register)	164
+13.4.24.	OTP_WAVEGEN_NUMBER (0x21) register (General Register)	164
+13.5.	GPIO Registers	164
+13.5.1.	GPIO_PU_CTRL: 0x30 (General Register)	164
+13.5.2.	GPIO_PD_CTRL: 0x31 (General Register)	165
+13.5.3.	GPIO_SR_PDRV0_1_CTRL: 0x32 (General Register)	165
+13.5.4.	GPIO_NIRS_OUT_CTRL: 0x33 (General Register)	165
+13.5.5.	GPIO_NORMAL_OUT_CTRL: 0x34 (General Register) –	166
+13.6.	Lead Off Detection Register	166
+13.6.1.	LEAD_OFF_CTRL: LEAD OFF detection control: 0x26 (General Register)	166
+13.6.2.	RESERVED: Reserved Register – Offset: 0x27 (General Register)	166
+13.6.3.	LEAD_OFF_INT: Lead Off Detection Interrupt Control: 0x28 (General Register)	166
+13.6.4.	COUNTER_TH_TGT_CH: channel comparator status counter target 0x29-0x2C (General Register)	167
+13.6.5.	TIMER_CNT_TGT_CH1: Channel check duration target 0x2D-0x30 (General Register)	167
+13.6.6.	LEAD_OFF_BLK_SLCT:  channel number of leadoff config 0x31 (General Register)	167
+13.6.7.	LEAD_OFF_DAC_EN: lead off channel enable 0x32 (General Register)	167
+13.6.8.	LEAD_OFF_STOP_EN: lead off stop wavegen enable 0x33 (General Register)	168
+13.6.9.	LEAD_OFF_INT_EN: lead off interrupt output enable 0x34 (General Register)	168
+13.6.10.	LEAD_OFF_COMP_LOW_EN: low is lead off indicator 0x35 (General Register)	168
+13.6.11.	LEAD_OFF_STOP: state of wavegen should be when lead off happen 0x36 (General Register)	168
+13.6.12.	LEAD_OFF_ANA: Lead Off detection compare result from Analog: 0x39(General Register)	169
+13.7.	Analog registers	169
+13.7.1.	ANA_EN_SECTION_SEL: Offset: 0xC0	169
+13.7.2.	ANA_ENABLE_REG[0][0]: Offset: 0xC1	170
+13.7.3.	ANA_ENABLE_REG[0][1]: Offset: 0xC2	171
+13.7.4.	ANA_ENABLE_REG[0][2]: Offset: 0xC3	171
+13.7.5.	ANA_ENABLE_REG[0][3]: Offset: 0xC4	171
+13.7.6.	ANA_ENABLE_REG[0][4]: Offset: 0xC5	172
+13.7.7.	ANA_ENABLE_REG[0][5]: Offset: 0xC6	172
+13.7.8.	ANA_ENABLE_REG[0][6]: Offset: 0xC7	172
+13.7.9.	ANA_ENABLE_REG[0][7]: Offset: 0xC8	173
+13.7.10.	ANA_ENABLE_REG[0][8]: Offset: 0xC9	173
+13.7.11.	ANA_ENABLE_REG[0][9]: Offset: 0xCA	173
+13.7.12.	ANA_ENABLE_REG[0][10]: Offset: 0xCB	173
+13.7.13.	ANA_ENABLE_REG[0][11]: Offset: 0xCC	174
+13.7.14.	ANA_ENABLE_REG[0][12]: Offset: 0xCD	174
+13.7.15.	ANA_ENABLE_REG[0][13]: Offset: 0xCE	174
+13.7.16.	ANA_ENABLE_REG[0][14]: Offset: 0xCF	174
+13.7.17.	ANA_ENABLE_REG[1][0]: Offset: 0xC1	174
+13.7.18.	ANA_ENABLE_REG[1][1]: Offset: 0xC2	174
+13.7.19.	ANA_ENABLE_REG[1][2]: Offset: 0xC3	175
+13.7.20.	ANA_ENABLE_REG[1][3]: Offset: 0xC4	175
+13.7.21.	ANA_ENABLE_REG[1][4]: Offset: 0xC5	175
+13.7.22.	ANA_ENABLE_REG[1][5]: Offset: 0xC6	175
+13.7.23.	ANA_ENABLE_REG[1][6]: Offset: 0xC7	175
+13.7.24.	ANA_GEN_SECTION_SEL: Offset: 0xD0	176
+13.7.25.	ANA_GEN_REG[0][0]: Offset: 0xD1	176
+13.7.26.	ANA_GEN_REG[0][1]: Offset: 0xD2	176
+13.7.27.	ANA_GEN_REG[0][2]: Offset: 0xD3	177
+13.7.28.	ANA_GEN_REG[0][3]: Offset: 0xD4	177
+13.7.29.	ANA_GEN_REG[0][4]: Offset: 0xD5	177
+13.7.30.	ANA_GEN_REG[0][5]: Offset: 0xD6	178
+13.7.31.	ANA_GEN_REG[0][6]: Offset: 0xD7	178
+13.7.32.	ANA_GEN_REG[0][7]: Offset: 0xD8	178
+13.7.33.	ANA_GEN_REG[0][8]: Offset: 0xD9	178
+13.7.34.	ANA_GEN_REG[0][9]: Offset: 0xDA	178
+13.7.35.	ANA_GEN_REG[0][10]: Offset: 0xDB	178
+13.7.36.	ANA_GEN_REG[0][11]: Offset: 0xDC	179
+13.7.37.	ANA_GEN_REG[0][12]: Offset: 0xDD	179
+13.7.38.	ANA_GEN_REG[1][0]: Offset: 0xD1	179
+13.7.39.	ANA_GEN_REG[1][1]: Offset: 0xD2	179
+13.7.40.	ANA_GEN_REG[1][2]: Offset: 0xD3	179
+13.7.41.	ANA_GEN_REG[1][3]: Offset: 0xD4	180
+13.7.42.	ANA_GEN_REG[1][4]: Offset: 0xD5	180
+13.7.43.	ANA_GEN_REG[1][5]: Offset: 0xD6	180
+13.7.44.	ANA_GEN_REG[1][6]: Offset: 0xD7	180
+13.7.45.	ANA_GEN_REG[1][7]: Offset: 0xD8	180
+13.7.46.	ANA_GEN_REG[1][8]: Offset: 0xD9	180
+13.7.47.	ANA_GEN_REG[1][9]: Offset: 0xDA	181
+13.7.48.	ANA_GEN_REG[1][10]: Offset: 0xDB	181
+13.7.49.	ANA_GEN_REG[1][11]: Offset: 0xDC	181
+13.7.50.	ANA_GEN_REG[1][12]: Offset: 0xDD	181
+13.7.51.	ANA_GEN_REG[2][0]: Offset: 0xD1	181
+13.7.52.	ANA_GEN_REG[2][1]: Offset: 0xD2	181
+13.7.53.	ANA_GEN_REG[2][2]: Offset: 0xD3	182
+13.7.54.	ANA_GEN_REG[2][3]: Offset: 0xD4	182
+13.7.55.	ANA_GEN_REG[2][4]: Offset: 0xD5	182
+13.7.56.	ANA_GEN_REG[2][5]: Offset: 0xD6	182
+13.7.57.	ANA_GEN_REG[2][6]: Offset: 0xD7	182
+13.7.58.	ANA_GEN_REG[2][7]: Offset: 0xD8	182
+13.7.59.	ANA_GEN_REG[2][8]: Offset: 0xD9	182
+13.7.60.	ANA_GEN_REG[2][9]: Offset: 0xDA	183
+13.7.61.	ANA_GEN_REG[2][10]: Offset: 0xDB	183
+13.7.62.	ANA_GEN_REG[2][11]: Offset: 0xDC	183
+13.7.63.	ANA_GEN_REG[2][12]: Offset: 0xDD	183
+13.7.64.	ANA_GEN_REG[3][0]: Offset: 0xD1	183
+13.7.65.	ANA_GEN_REG[3][1]: Offset: 0xD2	183
+13.7.66.	ANA_GEN_REG[3][2]: Offset: 0xD3	183
+13.7.67.	ANA_GEN_REG[3][3]: Offset: 0xD4	183
+13.7.68.	ANA_GEN_REG[3][4]: Offset: 0xD5	184
+13.7.69.	ANA_GEN_REG[3][5]: Offset: 0xD6	184
+13.7.70.	ANA_GEN_REG[3][6]: Offset: 0xD7	184
+13.7.71.	ANA_GEN_REG[3][7]: Offset: 0xD8	184
+13.7.72.	ANA_GEN_REG[3][8]: Offset: 0xD9	184
+13.7.73.	ANA_GEN_REG[3][9]: Offset: 0xDA	184
+13.7.74.	ANA_GEN_REG[3][10]: Offset: 0xDB	184
+13.7.75.	ANA_GEN_REG[3][11]: Offset: 0xDC	185
+13.7.76.	ANA_GEN_REG[3][12]: Offset: 0xDD	185
+13.7.77.	ANA_GEN_REG[4][0]: Offset: 0xD1	185
+13.7.78.	ANA_GEN_REG[4][1]: Offset: 0xD2	185
+13.7.79.	ANA_GEN_REG[4][2]: Offset: 0xD3	185
+13.7.80.	ANA_GEN_REG[4][3]: Offset: 0xD4	185
+13.7.81.	ANA_GEN_REG[4][4]: Offset: 0xD5	185
+13.7.82.	ANA_GEN_REG[4][5]: Offset: 0xD6	185
+13.7.83.	ANA_GEN_REG[4][6]: Offset: 0xD7	186
+13.7.84.	ANA_GEN_REG[4][7]: Offset: 0xD8	186
+13.7.85.	ANA_GEN_REG[4][8]: Offset: 0xD9	186
+13.7.86.	ANA_GEN_REG[4][9]: Offset: 0xDA	186
+13.7.87.	ANA_GEN_REG[4][10]: Offset: 0xDB	186
+13.7.88.	ANA_GEN_REG[4][11]: Offset: 0xDC	186
+13.7.89.	ANA_GEN_REG[4][12]: Offset: 0xDD	186
+13.7.90.	ANA_GEN_REG[5][0]: Offset: 0xD1	186
+13.7.91.	ANA_GEN_REG[5][1]: Offset: 0xD2	186
+13.7.92.	ANA_GEN_REG[5][2]: Offset: 0xD3	187
+13.7.93.	ANA_GEN_REG[5][3]: Offset: 0xD4	187
+13.7.94.	ANA_GEN_REG[5][4]: Offset: 0xD5	187
+13.7.95.	ANA_GEN_REG[5][5]: Offset: 0xD6	187
+13.7.96.	ANA_GEN_REG[5][6]: Offset: 0xD7	187
+13.7.97.	ANA_GEN_REG[5][7]: Offset: 0xD8	187
+13.7.98.	ANA_GEN_REG[5][8]: Offset: 0xD9	187
+13.7.99.	ANA_GEN_REG[5][9]: Offset: 0xDA	187
+13.7.100.	ANA_GEN_REG[5][10]: Offset: 0xDB	187
+13.7.101.	ANA_GEN_REG[5][11]: Offset: 0xDC	187
+13.7.102.	ANA_GEN_REG[5][12]: Offset: 0xDD	188
+13.7.103.	ANA_GEN_REG[6][0]: Offset: 0xD1	188
+13.7.104.	ANA_GEN_REG[6][1]: Offset: 0xD2	188
+13.7.105.	ANA_GEN_REG[6][2]: Offset: 0xD3	188
+13.7.106.	ANA_GEN_REG[6][3]: Offset: 0xD4	188
+13.7.107.	ANA_GEN_REG[6][4]: Offset: 0xD5	188
+13.7.108.	ANA_GEN_REG[6][5]: Offset: 0xD6	188
+13.7.109.	ANA_GEN_REG[6][6]: Offset: 0xD7	188
+13.7.110.	ANA_GEN_REG[6][7]: Offset: 0xD8	188
+13.7.111.	ANA_GEN_REG[6][8]: Offset: 0xD9	189
+13.7.112.	ANA_GEN_REG[6][9]: Offset: 0xDA	189
+13.7.113.	ANA_GEN_REG[6][10]: Offset: 0xDB	189
+13.7.114.	ANA_GEN_REG[0][13]: Offset: 0xDE	189
+13.7.115.	ANA_GEN_REG[1][13]: Offset: 0xDE	189
+13.7.116.	ANA_GEN_REG[2][13]: Offset: 0xDE	189
+13.7.117.	ANA_GEN_REG[3][13]: Offset: 0xDE	189
+13.7.118.	ANA_GEN_REG[4][13]: Offset: 0xDE	189
+13.7.119.	ANA_GEN_REG[5][13]: Offset: 0xDE	190
+13.7.120.	ANA_GEN_REG[6][13]: Offset: 0xDE	190
+13.7.121.	ANA_GEN_REG[7][13]: Offset: 0xDE	190
+13.7.122.	ANA_GEN_REG[0][14]: Offset: 0xDF	190
+13.7.123.	ANA_GEN_REG[1][14]: Offset: 0xDF	190
+13.7.124.	ANA_GEN_REG[2][14]: Offset: 0xDF	191
+13.7.125.	ANA_GEN_REG[3][14]: Offset: 0xDF	191
+13.7.126.	ANA_GEN_REG[4][14]: Offset: 0xDF	191
+13.7.127.	ANA_GEN_REG[5][14]: Offset: 0xDF	191
+13.7.128.	ANA_GEN_REG[6][14]: Offset: 0xDF	191
+13.7.129.	ANA_GEN_REG[7][14]: Offset: 0xDF	192
+13.7.130.	A2D_ANA_GEN_REG_0: 0xA0 (General Register)	192
+13.7.131.	A2D_ANA_GEN_REG_1: 0xA1 (General Register)	192
+13.7.132.	A2D_ANA_GEN_REG_2: 0xA2  (General Register)	192
+13.7.133.	A2D_ANA_GEN_REG_3: 0xA3 (General Register)	192
+13.7.134.	A2D_ANA_GEN_REG_4: 0xA4 (General Register)	193
+13.7.135.	A2D_SPARE_RO_REG_0: 0xA5 (General Register)	193
+13.8.	ANAC registers	193
+13.8.1.	ANA_LVD_INT_EN: 0x50 (General Register)	193
+13.8.2.	ANA_COMP_INT_EN: 0x51 (General Register)	193
+13.8.3.	ANA_COMP_INT_TRANS_EN: 0x52 (General Register)	194
+13.8.4.	ANA_INT_STOP_WAVEGEN: 0x53 (General Register)	195
+13.8.5.	ANA_STUMI_INT_EN: 0x54 (General Register)	195
+13.8.6.	ANA_STIMU_INT_DIG_EN: 0x55 (General Register)	196
+13.8.7.	ANA_STIMU_INT_POL_EN: 0x56 (General Register)	196
+13.8.8.	ANA_SHORT_BLOCK_SLCT: 0x57 (General Register)	197
+13.8.9.	ANA_STIM _CH_TIMER_CNT_TH00: 0x58 (General Register)	197
+13.8.10.	ANA_STIM _CH_TIMER_CNT_TH01: 0x59 (General Register)	198
+13.8.11.	ANA_STIM _CH_TIMER_CNT_TH02: 0x5A (General Register)	198
+13.8.12.	ANA_STIM _CH_TIMER_CNT_TH03: 0x5B (General Register)	198
+13.8.13.	ANA_STIM _CH1_COUNTER_CNT_TH00: 0x5C (General Register)	198
+13.8.14.	ANA_STIM _CH_COUNTER_CNT_TH01: 0x5D (General Register)	198
+13.8.15.	ANA_STIM _CH_COUNTER_CNT_TH02: 0x5E（General Register)	198
+13.8.16.	ANA_STIM _CH_COUNTER_CNT_TH03: 0x5F (General Register)	199
+13.8.17.	ANA_INTR_STIMU_STS: 0x60 (General Register)	199
+13.8.18.	ANA_INT_COMP_STS: 0x61General Register)	200
+13.8.19.	ANA_INT_LVD_STS: 0x62 (General Register)	201
+13.9.	TSC registers	201
+13.9.1.	TSC_VDAC_NOR: 0x69 (General Register)	201
+13.9.2.	TSC_SMP_STS: 0x6A (General Register)	201
+13.9.3.	TSC_EN_REG_CTRL: 0x6B (General Register)	201
+13.9.4.	TSC_CTRL: 0x6C (General Register)	201
+13.9.5.	SMP_DURATION: 0x6D (General Register)	202
+13.9.6.	STABLE_DURATION: 0x6E-0x6F (General Register)	202
+13.9.7.	TSC_VDAC8B_DIN_CH1: 0x70 (General Register)	202
+13.9.8.	TSC_INT_CTRL: 0x71 (General Register)	202
+13.9.9.	TSC_INT_ STATUS: 0x72 (General Register)	202
+13.10.	General Interrupt Registers	203
+13.10.1.	GENERAL_INTERUPT_STATUS_REG07-08 : 0x73-0x74 (General Register)	203
+13.10.2.	GENERAL_INTERUPT_STATUS_REG09-0A: 0x75-0x76 (General Register)	203
+13.10.3.	GENERAL_INTERUPT_STATUS_REG0B (General Register)	203
+13.10.4.	GENERAL_INTERUPT_CTRL_REG: Offset:0x78 (General Register)	204
+13.10.5.	GENERAL_INTERUPT_STATUS_REG01: 0x79 (General Register)	204
+13.10.6.	GENERAL_INTERUPT_STATUS_REG02: 0x7A (General Register)	205
+13.10.7.	GENERAL_INTERUPT_STATUS_REG03: 0x7B (General Register)	206
+13.10.8.	GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)	207
+13.10.9.	GENERAL_INTERUPT_STATUS_REG05: 0x7D (General Register)	209
+13.10.10.	GENERAL_INTERUPT_STATUS_REG06: 0x7E (General Register)	210
+13.10.11.	GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)	211
+13.11.	PINMUX registers	212
+13.11.1.	ATM_HC_SEL: Offset Address: 0x7F	212
+13.12.	DEBUG registers	212
+13.12.1.	COUNTER_CNT_DBG_SEL: 0x80 (General Register)	212
+13.12.2.	COUNTER_CNT_DBG: 0x81-0x84 (General Register)	212
+13.12.3.	LEAD_OFF_COUNTER_CNT_DAC: Lead Off DAC counter for level 0x85 (General Register)	212
+13.12.4.	OTP_TRIMS_DBG_SEL: 0x87 (General Register)	213
+13.12.5.	OTP_TRIMS_DBG_DATA: 0x88 (General Register)	213
+13.13.	EEG Register	213
+13.13.1.	IMEAS_REG_0: 0x90 (Normal Register)	213
+13.13.2.	IMEAS_REG_1: 0x91 (Normal Register)	214
+13.13.3.	IMEAS_REG_2: 0x92 (Normal Register)	215
+13.13.4.	STABLE_TIME: 0x93-0x94 (Normal Register)	215
+13.13.5.	IMEAS_DATA: 0x95-0x98 (Normal Register)	215
+13.13.6.	IMEAS_CTRL: 0x99 (Normal Register)	215
+13.13.7.	IMEAS_EN_DIS_CH: 0x9A-0x9B (Normal Register)	216
+13.13.8.	FILTER_HPF_BP: 0xB1-0xB2 (Normal Register)	216
+13.13.9.	FILTER_LPF_BP: 0xB3-0xB4 (Normal Register)	216
+13.13.10.	FILTER_NOF_BP: 0xB5-0xB6 (Normal Register)	217
+13.13.11.	FILTER_INT_CTRL: 0xB7 (Normal Register)	217
+13.13.12.	FILTER_INT_STS: 0xB8 (Normal Register)	217
+13.13.13.	FILTER_NOTCH_DATA_GONE: 0xB9-0xBA (Normal Register)	218
+13.13.14.	FILTER_COEFF_ADDR: 0xBB (Normal Register)	218
+13.13.15.	FILTER_COEFF_DATA: 0xBC - 0xBE (Normal Register)	218
+13.14.	FILTER SYNC CTRL Registers	218
+13.15.	NIRS Registers	219
+13.15.1.	NIRS_CTRL_CHANNEL: 0x00 (NIRS register)	219
+13.15.2.	NIRS_CTRL_LED: 0x01 (NIRS register)	219
+13.15.3.	NIRS_CTRL_0: 0x02 (NIRS register)	220
+13.15.4.	NIRS_CTRL_1: 0x03 (NIRS register)	221
+13.15.5.	NIRS_CTRL_2: 0x04 (NIRS register)	221
+13.15.6.	NIRS_CTRL_3: 0x05 (NIRS register)	222
+13.15.7.	NIRS_CTRL_4: 0x06 (NIRS register)	222
+13.15.8.	NIRS_CTRL_5: 0x07 (NIRS register)	222
+13.15.9.	NIRS_CTRL_6: 0x08 (NIRS register)	222
+13.15.10.	NIRS_CTRL_7: 0x09 (NIRS register)	222
+13.15.11.	NIRS_CTRL_8: 0x0A (NIRS register)	223
+13.15.12.	NIRS_CTRL_MODE: 0x0B (NIRS register)	223
+13.15.13.	NIRS_CTRL_INT: 0x0C (NIRS register) – Applied for both LED	224
+13.15.14.	NIRS_CTRL_ADJ0: 0x0D (NIRS register) – ALL channels and LEDs work on the same setting!	224
+13.15.15.	NIRS_CTRL_CLK: 0x0E (NIRS register) - PPG CLOCK – ALL channels and LEDs work on the same setting!	225
+13.15.16.	NIRS_CTRL_CMD: 0x0F (NIRS register)	226
+13.15.17.	01: START	226
+13.15.18.	10: MEAS – MCU mode only	226
+13.15.19.	11: STOP – CONTINOUS mode only	226
+13.15.20.	NIRS_DEBUG_SEL 0x10 (NIRS register) - Virtual memory approach	226
+13.15.21.	NIRS_DEBUG_0 0x11 (NIRS register)	226
+13.15.22.	NIRS_DEBUG_1 0x12 (NIRS register)	227
+13.15.23.	NIRS_DEBUG_2 0x13 (NIRS register)	227
+13.15.24.	NIRS_DEBUG_3 0x14 (NIRS register)	227
+13.15.25.	NIRS_DEBUG_4: 0x15  (NIRS register)	227
+13.15.26.	NIRS_INT_STATUS 0x20 (NIRS register)	228
+13.15.27.	NIRS_DOUT0_0 0x21 (NIRS register)	228
+13.15.28.	NIRS_DOUT0_1 0x22 (NIRS register)	228
+13.15.29.	NIRS_DOUT0_2 0x23 (NIRS register)	228
+13.15.30.	NIRS_DOUT0_3 0x24 (NIRS register)	229
+13.15.31.	NIRS_DOUT1_0 0x25 (NIRS register)	229
+13.15.32.	NIRS_DOUT1_1 0x26 (NIRS register)	229
+13.15.33.	NIRS_DOUT1_2 0x27 (NIRS register)	229
+13.15.34.	NIRS_DOUT1_3 0x28 (NIRS register)	229
+13.15.35.	NIRS_DOUT2_0 0x29 (NIRS register)	229
+13.15.36.	NIRS_DOUT2_1 0x2A (NIRS register)	230
+13.15.37.	NIRS_DOUT2_2 0x2B (NIRS register)	230
+13.15.38.	NIRS_DOUT2_3 0x2C (NIRS register)	230
+13.15.39.	NIRS_DOUT3_0 0x2D (NIRS register)	230
+13.15.40.	NIRS_DOUT3_1 0x2E (NIRS register)	230
+13.15.41.	NIRS_DOUT3_2 0x2F (NIRS register)	230
+13.15.42.	NIRS_DOUT3_3 0x30 (NIRS register)	231
+13.15.43.	NIRS_DOUT4_0 0x31 (NIRS register)	231
+13.15.44.	NIRS_DOUT4_1 0x32 (NIRS register)	231
+13.15.45.	NIRS_DOUT4_2 0x33 (NIRS register)	231
+13.15.46.	NIRS_DOUT4_3 0x34 (NIRS register)	231
+13.15.47.	NIRS_DOUT5_0 0x35 (NIRS register)	232
+13.15.48.	NIRS_DOUT5_1 0x36 (NIRS register)	232
+13.15.49.	NIRS_DOUT5_2 0x37 (NIRS register)	232
+13.15.50.	NIRS_DOUT5_3 0x38 (NIRS register)	232
+13.15.51.	NIRS_DOUT6_0 0x39 (NIRS register)	232
+13.15.52.	NIRS_DOUT6_1 0x3A (NIRS register)	232
+13.15.53.	NIRS_DOUT6_2 0x3B (NIRS register)	233
+13.15.54.	NIRS_DOUT6_3 0x3C (NIRS register)	233
+13.15.55.	NIRS_DOUT7_0 0x3D (NIRS register)	233
+13.15.56.	NIRS_DOUT7_1 0x3E (NIRS register)	233
+13.15.57.	NIRS_DOUT7_2 0x3F (NIRS register)	233
+13.15.58.	NIRS_DOUT7_3 0x40 (NIRS register)	234
+13.16.	AWG Register	234
+13.16.1.	AWG_CONFIG_REG0: 0x02 (AWG Register)	234
+13.16.2.	AWG_CTRL_REG0: 0x03 (AWG Register)	234
+13.16.3.	AWG_POINT_CONFIG_REG: 0x04 (AWG Register)	235
+13.16.4.	AWG_IN_WAVE_ADDR_REG: 0x01 (AWG Register)	236
+13.16.5.	AWG_IN_WAVE_REG: 0x00 (AWG Register)	236
+13.16.6.	AWG_REST_CLK_REG: 0x05~0x07 (AWG Register)	237
+13.16.7.	AWG_SILENT_CLK_REG: 0x08~0x0B (AWG Register)	237
+13.16.8.	AWG_POS_PHASE_CLK_PNT_REG: 0x0C~0x0D (AWG Register)	237
+13.16.9.	AWG_NEG_PHASE_CLK_PNT_REG: 0x0E~0x0F (AWG Register)	237
+13.16.10.	AWG_REST_CLK1_REG: 0x10~0x11 (AWG Register)	237
+13.16.11.	AWG_SILENT_CLK1_REG: 0x12~0x15 (AWG Register)	237
+13.16.12.	AWG_POS_PHASE_CLK_PNT1_REG: 0x16~0x17 (AWG Register)	238
+13.16.13.	AWG_NEG_PHASE_CLK_PNT1_REG: 0x18~0x19 (AWG Register)	238
+13.16.14.	AWG_REST_CLK2_REG: 0x1A~0x1B (AWG Register)	238
+13.16.15.	AWG_SILENT_CLK2_REG: 0x1C~0x1F (AWG Register)	238
+13.16.16.	AWG_POS_PHASE_CLK_PNT2_REG: 0x20~0x21 (4 AWG Register)	238
+13.16.17.	AWG_NEG_PHASE_CLK_PNT2_ REG: 0x22~0x23 (4 AWG Register)	238
+13.16.18.	AWG_DELAY_LIM_REG: 0x24~0x25 (AWG Register)	239
+13.16.19.	AWG_NEG_SCALE_REG: 0x26 (AWG Register)	239
+13.16.20.	AWG_NEG_OFFSET_REG: 0x27 (AWG Register)	239
+13.16.21.	AWG_POS_SCALE_REG: 0x28 (AWG Register)	239
+13.16.22.	AWG_POS_OFFSET_REG0: 0x29 (AWG Register)	239
+13.16.23.	AWG_DEBOUNCE_REG (Old Name: ADDR_WG_DRV_PULLBA_REG): 0x2A (AWG Register)	239
+13.16.24.	AWG_INT_NUM_WAVE_REG: 0x2B (AWG Register)	240
+13.16.25.	AWG_INT_REG: 0x2C~0x2E (AWG Register)	240
+13.16.26.	AWG_ALT_LIM_REG: 0x2F~0x30 (AWG Register)	240
+13.16.27.	AWG_ALT_SILENT_LIM_REG: 0x31~0x32 (AWG Register)	241
+13.16.28.	AWG_ALT_REST_LIM_REG: 0x33~0x34 (AWG Register)	241
+13.16.29.	DRIVE_REG_CTRL0: Offset: 0x35 (AWG Register)	241
+13.16.30.	DRIVE_REG_CTRL1: Offset: 0x36 (AWG Register)	241
+13.16.31.	DRIVE_REG_CTRL2: Offset: 0x37 (AWG Register)	242
+13.16.32.	NO_OF_NUM_SLIENT_CTR0: Offset: 0x38 (AWG Register)	242
+13.16.33.	NO_OF_NUM_SLIENT_TAR_LSB: Offset: 0x39 (AWG Register)	242
+13.16.34.	NO_OF_NUM_SLIENT_TAR_MSB: Offset:0x3A (AWG Register)	242
+13.16.35.	ADDR_IS_VALID_FOR_CAL: Offset: 0x3B (AWG Register)	243
+13.16.36.	EMS_REG_CTRL: Offset: 0x3C (AWG Register)	243
+13.16.37.	EMS_REG_NUM: Offset: 0x3D (AWG Register)	244
+13.16.38.	AWG_DRIVEC_SW_CFG: Offset: 0x3E ~ 0x3F (AWG Register)	244
+13.16.39.	AWG MAP	247
+14.	EEG FILTER	248
+14.1.	Block Diagram	248
+14.2.	Interface Table	249
+14.3.	Timing Sequence	249
+14.3.1.	One shot conversion mode	249
+14.3.2.	Channel continuous conversion mode	250
+14.4.	Integer Multiple Decimation of Signal	251
+14.5.	CIC Decimation Filter Design	254
+14.5.1.	Four-stage CIC Decimation Filter	254
+14.5.2.	Digital Filter Technical Index	256
+14.5.3.	Maximum Register Growth in CIC Decimator	258
+14.6.	CIC Decimation Filter RTL Implementation	261
+14.7.	Filter Wrapper	263
+14.7.1.	Overview	263
+14.7.2.	Data Rate	264
+14.7.3.	Disable Filter	264
+14.7.4.	Interrupt	264
+14.7.5.	Unstable time for filter	265
+14.7.6.	Low-Pass Filter	266
+14.7.7.	Stopband_Notch Filter(50HZ)	269
+14.7.8.	High-pass filter	273
+15.	Data Acquisition	282
+15.1.	Start Mode	282
+15.2.	Data Ready (DRDY)	282
+15.3.	Data Retrieval	282
+15.4.	Single-Shot Mode	282
+15.5.	Continuous Conversion Mode	283
+15.6.	Multiple-Device Configuration	283
+15.6.1.	Cascade Configuration	284
+15.6.2.	Daisy-Chain Configuration	284
+16.	PPG controller	286
+APPENDIX	301
+Stimulation parameters	301
+Stimulation channel	301
+Waveform example	301
 
 
 
@@ -785,7 +822,8 @@ A system reset is generated by the following events:
 	Power on reset
 	External reset pin
 	Reset register
- 
+	 
+
 
 
 Clock Control
@@ -796,6 +834,7 @@ Two different clock sources can be used:
  
 The clock tree structure as below: 
  
+
 Figure 3 Clock Tree
  
 One of the following clocks can be selected as system clock:
@@ -984,7 +1023,10 @@ Bit6:4	0	1
 0XX	Read General Register	Write General Register
 110	Read Waveform generator register	Write Waveform generator register
 111	Read NIRS generator register	Write NIRS generator register
+
  
+Decode for Dual SPI CMD only
+
  Write cycle:
 Whenever Master wants to write into the registers of the SPI Register Block. Master initiates the Transmission by making Chip Select (CSn) to be Low level and supply the SCLK, then send’s the 4 bytes of write cycle data on MOSI. 
 The write cycle data contains 8-bit Write Instruction followed by 8-bit WR_ADDR, 8-bit WR_DATA and 8-bit PADDING bits.
@@ -1021,6 +1063,7 @@ Similar to read burst, during the RDATA operation, from SCLK 0 to SCLK 16, the S
 At the same time, the MISO line starts transmitting data — beginning with RD_ADDR at SCLK 8.
 After SCLK 16, the IMEAS data is sent out.
 Each data channel requires 4 bytes to be fully transmitted. 
+In addition to the EEG payload, the data packet includes a 40-bit status field. Within this field, the lower 32 bits are allocated to LOFF_STATP and LOFF_STATN in ascending order (from LSB to MSB), while the remaining 8 bits field consists of a 1-bit status flag (stim_on_flag) and 7 reserved bits for feature use. A logic high on stim_on_flag indicates that a stimulation event occurred during the current EEG sampling window. 
  
 DAISY READ:
   Enable daisy mode by config bit 4 of register IMEAS_REG_1(0x91) to 1. The following Figure shows the daisy chain configuration. In this configuration, SCLK, DIN, and CS are shared across multiple devices. Connect the MISO pin of the ENS2_1 to the DAISY_IN pin of the ENS2_0, thereby creating a chain. Short the DAISY_IN pin to digital ground if not used. 
@@ -1533,9 +1576,9 @@ Overview
   Arbitrary Wave Generator (AWG) digital block was designed for working with the analogue block Driver C for different types of applications such as TENS, IFT/IFC, EMS Therapy (Driver C), nervous system stimulations (SCS and DBS). For details of the interfaces and requirements of the Drivers, refer to its manual “ENS2 Stimulators (Drivers) Specification”.
 Note*: all registers should not be changed after enable driver apart from interrupt registers, if user want to config registers, the better way is:
 disabled AWG -> config registers -> enable AWG.
- 
-Figure  1 Stimulus Waveform
 
+Figure  1 Stimulus Waveform
+ 
 Driver function
   
 
@@ -1616,7 +1659,7 @@ I_period_num	output	The wave(wave0/wave1/wave2) that is currently running
 Int_sts[1:0] 	output 	Interrupt states
  
 Registers
-Please refer to “11.15 waveform regenerator function &&Register table”
+Please refer to “13.16 waveform regenerator function &&Register table”
 
 Preloaded function
 ENS2 supports preloaded sine, triangle and pulse waveforms. It is hardwired. And be controlled by AWG_DRV_CTRL_REG0 register
@@ -1627,7 +1670,7 @@ ENS2 supports preloaded sine, triangle and pulse waveforms. It is hardwired. And
 Pre-loaded waveform select table: 
 
 Registers address  	Waveform	Shape of Waveform
-0x01(AWG_DRV_CTRL_REG0)	0x01(AWG_DRV_CTRL_REG0)	
+0x03(AWG_DRV_CTRL_REG0)	0x03(AWG_DRV_CTRL_REG0)	
 bit5~bit3	Bit2~Bit1	
 000	00	sine
 	01	pulse
@@ -1648,11 +1691,11 @@ PULLB AND PULLA (Glitch removal time)
  
 Operation mode
   We have two modes: Manual mode and Automatic mode
-  We have waveform registers to directly and independently control switches for source A/B and pull-down A/B as well as an 8 (12) bit (bit[5] of 0x32/0x72) register for directly controlling the waveform value (IDAC) and another bit(bit[4] of 0x32/0x72) to switch between manual control or automatic (wavegen module) control, for example (drive0):
-	bit[5] of 0x32=0 and bit[4] of 0x32=0: automatic mode, data is 8 bits, data comes from internal 128 wave points registers (filled up by SPI using reg 0x11)/preload data
-	bit[5] of 0x32=0 and bit[4] of 0x32=1: manual mode, data is 12 bits, data comes from waveform registers 0x33, 0x34
-	bit[5] of 0x32=1 and bit[4] of 0x32=0: automatic mode, data is 12 bits, data comes from waveform registers 0x33, 0x34
-	bit[5] of 0x32=1 and bit[4] of 0x32=1: manual mode, data is 12 bits, data comes from waveform registers 0x33, 0x34
+  We have waveform registers to directly and independently control switches for source  and pull-down  as well as an 8 (12) bit (bit[5] of 0x35) register for directly controlling the waveform value (IDAC) and another bit(bit[4] of 0x35) to switch between manual control or automatic (wavegen module) control, for example (drive0):
+	bit[5] of 0x35=0 and bit[4] of 0x35=0: automatic mode, data is 8 bits, data comes from internal 64 wave points registers (filled up by SPI using reg 0x00)/preload data
+	bit[5] of 0x35=0 and bit[4] of 0x35=1: manual mode, data is 12 bits, data comes from waveform registers 0x36, 0x37
+	bit[5] of 0x35=1 and bit[4] of 0x35=0: automatic mode, data is 12 bits, data comes from waveform registers 0x36, 0x37
+	bit[5] of 0x35=1 and bit[4] of 0x35=1: manual mode, data is 12 bits, data comes from waveform registers 0x36, 0x37
 Specification
   Customized waveform (many other input arrays) is set by the upper-level register where it is read from an array of wave values. The max of the array can have 128 values; values are stored in an unpacked memory in the interface. An example of a sine wave (64 points) input value at the registers is below. 
 12,  24,  37,  49,  61,  74,  85,  97, 109, 120, 131, 141, 151, 161, 171, 180, 188, 197, 204, 212, 218, 224, 230, 235, 240, 244, 247, 250, 252, 253, 254, 255, 254, 253, 252, 250, 247, 244, 240, 235, 230, 224, 218, 212, 204, 197, 188, 180, 171, 161, 151, 141, 131, 120, 109,  97,  85,  74,  61,  49,  37,  24,  12,   0
@@ -1852,44 +1895,57 @@ AWG_DRV_CONFIG_REG0 (0x00)	Waveform composition
 8'h80	No waveform
 
 Alternating function
-  Alternating function (0x00, bit4) is used to generate alternating positive and negative waves when the state machine is operating in the S1 state, we have two registers to control the time of alternating, see AWG_DRV_ALT_LIM_REG
-  And AWG_DRV_ALT_SILENT_LIM_REG, the positive and negative waveform times in the alterative function are the same: AWG_DRV_ALT_LIM_REG/2
-Note : in this project, negative edge of alt function will be used as rest/silent
+  Alternating function (0x02, bit4) is used to generate alternating positive and negative waves when the state machine is operating in the S1 state, we have two registers to control the time of alternating, see AWG_DRV_ALT_LIM_REG
+  And AWG_DRV_ALT_REST_LIM_REG, AWG_DRV_ALT_SILENT_LIM_REG the positive and negative waveform times in the alterative function are the same: AWG_DRV_ALT_LIM_REG/2
+Note : in this project, negative edge of alt function will be used as rest
  
 
+STEPs
+D0：SINK，POS TIME:P0, REST TIME:R0, NEG TIME ：N0, SILENT TIME:S0
+D1:  source，POS TIME:P1, REST TIME:R1, NEG TIME ：N1, SILENT TIME:S1
+	Config AWG_DRV_ALT_LIM_REG to SET P0/N0,P1/N1（P*=N*= AWG_DRV_ALT_LIM_REG/2）
+	Config  AWG_DRV_ALT_REST_LIM_REG to set R0、R1; AWG_DRV_ALT_SILENT_LIM_REG to set S0、S1
+	Config  silent registers（AWG 0x08~0x0b）to control the timing
+For T0,  T0=P1+R1
+For T1,  T1=P0+R0
 
+
+	Config data, period and points registers and so on
+	Enable driver
+Waveform
+ 
 
 Multi-waveform function
-  Chip supports up to three waveforms working together, called wave0, wave1, wave2, which have independent positive cycle registers, negative cycle registers, rest registers, silent registers, we can control the number of waves by AWG_DRV_CTRL_REG0[5:3] (0x01) yin.
+  Chip supports up to three waveforms working together, called wave0, wave1, wave2, which have independent positive cycle registers, negative cycle registers, rest registers, silent registers, we can control the number of waves by AWG_DRV_CTRL_REG0[5:3] (0x03) yin.
 Data Ready
-   There are 128x8 bits registers array, we stored the data into those registers by SPI, 
-the method of writing data is to write the address to the address register (0x03) first, and then write data to the data register (0x04), so that the data is written to the corresponding address in the address register.
- 
+   There are 64x8 bits registers array, we stored the data into those registers by SPI, 
+the method of writing data is to write the address to the address register (0x01) first, and then write data to the data register (0x00), so that the data is written to the corresponding address in the address register.
 
+ 
 Read Data
 The data which is stored in SPI registers can be load by Wavegen:
-- Firstly, set the point register(0x02) to tell Wavegen how many points to load for half a cycle (positive and negative cycles)
-- Set AWG_DRV_CTRL_REG0[6] (0x01, bit6) to decides whether to load all points or only load the points set by point register:
+- Firstly, set the point register(0x04) to tell Wavegen how many points to load for half a cycle (positive and negative cycles)
+- Set AWG_DRV_CTRL_REG0[6] (0x03, bit6) to decides whether to load all points or only load the points set by point register:
 Bit6=0: only load the points set by point register, repeats the wave data    after the reaching number of points 
 Bit6=1: load all points
-- For 1 waveform:  goes through pos and neg periods for number of periods in bits[5:3] and loads data from wave data (0x04) continuously until reaches number of points (0x03) multiply X (the number of periods next) which will larger than 128
-- For 2 waveforms or 3 waveforms: go through pos and neg periods for number of periods in bits[5:3] and loads data from wave data (0x11) continuously until reaches number of points (0x02) multiply by number of waves (bit[5:3] + 1).
-Set AWG_DRV_CTRL_REG0[7] (0x01, bit7) to decides positive side and negative neg whether to load data from same data registers)
+- For 1 waveform:  goes through pos and neg periods for number of periods in bits[5:3] and loads data from wave data (0x00) continuously until reaches number of points (0x01) multiply X (the number of periods next) which will larger than 64
+- For 2 waveforms or 3 waveforms: go through pos and neg periods for number of periods in bits[5:3] and loads data from wave data (0x00) continuously until reaches number of points (0x00) multiply by number of waves (bit[5:3] + 1).
+Set AWG_DRV_CTRL_REG0[7] (0x03, bit7) to decides positive side and negative neg whether to load data from same data registers)
 
-0: in one period, positive side and negative neg load data from different data registers(0x04)
-1: in one period, positive side and negative neg load data from same data registers(0x04) when waveform is symmetric.
+0: in one period, positive side and negative neg load data from different data registers(0x00)
+1: in one period, positive side and negative neg load data from same data registers(0x00) when waveform is symmetric.
 
 For an example
-When point register (0x02) is 8'h14, there are 20 points for positive period and 20 points for negative period.
-- If bit6 is 0, both pos and neg load data from point0~point19 of data register (0x04). 
+When point register (0x04) is 8'ha, there are 10 points for positive period and 10 points for negative period.
+- If bit6 is 0, both pos and neg load data from point0~point9 of data register (0x00). 
 - If bit6 is 1 and bit7 is 0,  
-For waveform 0: pos period loads data from point0~point19 and neg period loads data from point20~point39；
-For waveform 1:  pos period loads data from point40~point59, neg period loads data from point60~point79; 
-For waveform 2:  pos period loads data from point80~point99, neg period loads data from point100~point119; 
+For waveform 0: pos period loads data from point0~point9 and neg period loads data from point10~point19；
+For waveform 1:  pos period loads data from point20~point29, neg period loads data from point30~point39; 
+For waveform 2:  pos period loads data from point40~point49, neg period loads data from point50~point59; 
 - If bit6 is 1 and bit7 is 1
-For waveform 0: pos period loads data from point0~point19 and neg period loads data from point0~point19；
-For waveform 1: pos period loads data from point20~point39, neg period loads data from point20~point39; 
-For waveform 2: pos period loads data from point40~point59, neg period loads data from point40~point59; that means if we set bit7 to 1, we can get a higher resolution.
+For waveform 0: pos period loads data from point0~point9 and neg period loads data from point0~point9；
+For waveform 1: pos period loads data from point10~point19, neg period loads data from point10~point19; 
+For waveform 2: pos period loads data from point20~point29, neg period loads data from point20~point29; that means if we set bit7 to 1, we can get a higher resolution.
 Notes: 
 If using 2 or 3 waveforms, bit 6 must set 1.
 Waveform Scaling
@@ -1911,18 +1967,18 @@ For example, User can change a waveform so that it has different amplitude and o
   As another example, User can use preloaded waveforms (pulse, sine and triangle) and change their amplitude and offset without requiring loading any waveforms into the chip.
 Interrupt
  Interrupt function
-  The interrupt has two interrupt addresses (int_addr0: 0x29, int_addr1: 0x2A). After the interrupt is enabled, the internal register reads the data on the interrupt address and generates an interrupt signal for changing the address. The two addresses correspond to two interrupt signals. This interrupt supports two functions:
-  One is that the interrupt indicates how many waveform cycles have been run, that is, an interrupt is generated after the number of cycles we set. This number of interrupts can be set in register 0x27.
+  The interrupt has two interrupt addresses (int_addr0: 0x2D, int_addr1: 0x2E). After the interrupt is enabled, the internal register reads the data on the interrupt address and generates an interrupt signal for changing the address. The two addresses correspond to two interrupt signals. This interrupt supports two functions:
+  One is that the interrupt indicates how many waveform cycles have been run, that is, an interrupt is generated after the number of cycles we set. This number of interrupts can be set in register 0x2B.
   The other is to detect if the first address is missed, if the first address is not interrupted and the second address is interrupted, the first address is missed.
-  The interrupts can be cleared by writing register (see 0x28).
+  The interrupts can be cleared by writing register (see 0x2C).
 Interrupt with repeating waveform
-  If int_addr1 generates an interrupt, it indicates that the next waveform is incorrect, at which time we can set whether to continue generating the next waveform by the register: AWG_DRV_CONFIG_REG0[5] (0x00, bit 5).
+  If int_addr1 generates an interrupt, it indicates that the next waveform is incorrect, at which time we can set whether to continue generating the next waveform by the register: AWG_DRV_CONFIG_REG0[5] (0x02, bit 5).
 Bit5=1: continue repeating the waveform.
 Bit5=0: doesn’t continue repeating the waveform.
 
 multi-electrode
   There are 16 drivers in ENS2, test 16 electrodes are completely independent and require timing control.
-  They are controlled by AWG_DRV_CONFIG_REG0[6] (0x00, bit 6): 
+  They are controlled by AWG_DRV_CONFIG_REG0[6] (0x02, bit 6): 
 0: this electrode is used as source
 1: this electrode is used as sink
 For source, use silent time to control the timing, the silent time is :
@@ -1937,11 +1993,11 @@ NOTE: It is recommended to use only positive edges (although we also support neg
  
 
 Source B
-  The function is set by AWG_DRV_CONFIG_REG0[3] (0x00, bit 3), It is used to control whether negative waveforms are generated after negative waveforms are enabled,
+  The function is set by AWG_DRV_CONFIG_REG0[3] (0x02, bit 3), It is used to control whether negative waveforms are generated after negative waveforms are enabled,
 Bit3=1: generating negative waveform in S3 state,
 Bit3=0: generating positive waveform in S3 state,
 Special waveform processing for silent time
-  This item is mainly used to generate special waveforms for silent time, that is when we set bit[0] of Wavegen register at address 0x38, then this feature is enabled, next, during the waveform generation, there will be no silent time, even if you enable it and set the clock count for it. The waveform will continue to run until the number of cycles reaches the value set in register 0x39&&0x3A. Only then will it enter the silent time. After exiting the silent time, this process will repeat.
+  This item is mainly used to generate special waveforms for silent time, that is when we set bit[0] of Wavegen register at address 0x38, then this feature is enabled, next, during the waveform generation, there will be no silent time, even if you enable it and set the clock count for it. The waveform will continue to run until the number of cycles reaches the value set in register 0x39&0x3A. Only then will it enter the silent time. After exiting the silent time, this process will repeat.
 Notes: 
 1. It is necessary to enable silent and set the number of clocks for it.
 2. The maximum number of clock cycles before entering the silent period is 0xFFFF.
@@ -1956,20 +2012,23 @@ EMS waveform without interrupts
 Data distribution
   Wavegen has a total of 64 data points. Under this function, it is divided into two parts: one part is the envelope data points and the other part is the carrier data points. When the point register is set to X, then X represents the carrier data points and the envelope data points are 64 - X.
  
+
 Data algorithm
   The data is divided into two parts: one part is the envelope signal and the other part is the carrier signal. To generate the EMS waveform, each point of the envelope signal is multiplied by the carrier signal in sequence
-  
+ 
  
 High-frequency carrier
-  It can be used for the register 0x3A to achieve high-frequency carrier. By using this register, the number of repetitions for each envelope point can be set to obtain a higher carrier frequency.
+  It can be used for the register 0x3C&0x3D to achieve high-frequency carrier. By using this register, the number of repetitions for each envelope point can be set to obtain a higher carrier frequency.
   
  
+ 
+
 Decimal configurability
-  By register 0x25, it is able to set the envelope data to be optional fractional data. By default, all envelope points are integers.
-  Envelope data(E) is 12its with scale and offset，arrier data(C) is 8bits
+  By register 0x3c, it is able to set the envelope data to be optional fractional data. By default, all envelope points are integers.
+  Envelope data(E) is 12its with scale and offset, carrier data(C) is 8bits
 So, envelope data * carrier data(Y) is 20 bits
 Y[19:0] = E*C
-ANALOG_DATA=Y>>A (the value of 0x25
+ANALOG_DATA=Y>>A (the value of 0x3c
 Note that ANALOG_DATA shouldn’t be overflowed
 A	C	E	ANALOG_DATA
 000	8-bit integer
@@ -1991,15 +2050,16 @@ A	C	E	ANALOG_DATA
   
 Setup steps
 
-  Envelope data and carrier data are written through registers 0x03 and 0x04.
+  Envelope data and carrier data are written through registers 0x00 and 0x01.
   Set the period (0x0B & 0x0C) of the positive periodic point to P1
-  Set the configuration register (0x00) to 0x50
-  Set the point register (0x02) to X.
+  Set the configuration register (0x02) to 0x50
+  Set the point register (0x04) to X.
   Set alter_lim (0x1Ax1B)  to X*P1*2
-(Note if use rest and slient time, then set alter_lim (0x1Ax1B)+ alter_slient_lim (0x1Cx1D) alter_rest_lim (0x1Ex1F) to X*P1*2, It is recommended that the values set for the three registers be multiples of P1 or can be divided by P1.）
-  Set EMS_REG_CTRL(0x25)
-  Set EMS_DATA_NUM(0x26)
-  Set control register (0x01) to enable wavegen
+Set silent time (0x09~0x0B)  to X*P1
+(Note if use rest and slient time, then set alter_lim (0x2Fx30)+ alter_slient_lim (0x31x32) alter_rest_lim (0x33x34) to alter_lim, It is recommended that the values set for the three registers be multiples of P1 or can be divided by P1.）
+  Set EMS_REG_CTRL(0x3C)
+  Set EMS_DATA_NUM(0x3D)
+  Set control register (0x03) to enable wavegen
 
 
 
@@ -2011,21 +2071,104 @@ This feature is not suitable for alter mode. It is compatible with rest, silent 
 
 
 BURST function for wavegen shape registers
-For wavegen shape registers(wavegen reg 0x03/0x04) , there are 2 ways to write:
-	One address, one data, first, write the target address of the data to register 0x03, and then write the data to register 0x04. Using this method, each piece of data requires two SPI communications.
+For wavegen shape registers(wavegen reg 0x00/0x0) , there are 2 ways to write:
+	One address, one data, first, write the target address of the data to register 0x01, and then write the data to register 0x00. Using this method, each piece of data requires two SPI communications.
 	Use burst function, no need to write address, only write data, address can increase automatically, the steps can be done as below:
 	Config WAVEGEN_GLOBAL_REG(0x03 of general register) bit[4]
-	Use burst function write the data to ADDR_WG_DRV_IN_WAVE_REG01(0x04 of wavegen register) via SPI bus
+	Use burst function write the data to ADDR_WG_DRV_IN_WAVE_REG01(0x00 of wavegen register) via SPI bus
 
  
-Note : Here, 0x04 is the data address of driver0. If it is drive1, it is 0x44; for driver2, it is 0x84, and so on.
-Note ： 1. if use this feature, must be write all 64 datas for shape register, if user doesn’t write all 64 datas, need to reset shape address register by writing 0x00 to ADDR_WG_DRV_IN_ADDR_REG0(0x03 of wavegen register) via SPI bus before next write operation, normally, if user write all 64 datas, the address can be reset automatically
+Note : Here, 0x00 is the data address of driver0. If it is drive1, it is 0x40; for driver2, it is 0x80, and so on.
+Note ： 1. if use this feature, must be write all 64 datas for shape register, if user doesn’t write all 64 datas, need to reset shape address register by writing 0x00 to ADDR_WG_DRV_IN_ADDR_REG0(0x01 of wavegen register) via SPI bus before next write operation, normally, if user write all 64 datas, the address can be reset automatically
 
 mul-wavegen access function
 This function is used to simultaneously access multiple wavegen register modules and perform write operations on them. However, the prerequisite is that all the wavegen register modules must have exactly the same configuration, including configuration registers and waveform shape registers. For registers with different configurations, this function needs to be disabled and they should be written to separately.
 Steps：
 	config general register 0x07/0x08 to select The target wavgen module to be written this time(for example if user want write same data to driver1,driver3,driver9,driver14, then set bit[1]/bit[3] of 0x07 to 1, bit[1]/bit[6] of 0x08 to 1, other bits keep 0)
 	use spi to accress target registers, these register addresses must be based on drive0, the range is from 0x00 to 0x3f
+
+
+
+
+
+
+
+
+DDS Mode
+introduction
+This module is used to generate Temporal Interference Stimulation (TIS), TIS is a brain stimulation method that uses two or more high-frequency electrical signals to create a low-frequency stimulation effect deep inside the brain
+
+How it works
+• Two AC currents with slightly different frequencies are applied through 
+electrodes on the scalp. 
+• Example: 
+	Signal 1 = 5000 Hz 
+	Signal 2 = 5010 Hz 
+• Inside the brain, these signals interfere with each other. 
+• The difference frequency appears as a low-frequency “envelope”:
+5010 − 5000 = 10 Hz
+• Neurons do not respond strongly to the individual 5kHz signals, but they can 
+respond to the 10 Hz envelope. 
+This allows stimulation of deeper brain regions without strongly stimulating the 
+surface cortex.
+
+ 
+
+ 
+
+Theory
+In this project, we use 32-bit register to do DDS, set those parameters as below : 
+	CPP: the number of clocks per point
+	Fdds : frequency of clock to the wavegen (after this divider)
+	Fsin  : frequency of sine wave required
+	Phlf  : number of points per period (64)
+	Regw : width of DDS reg (32 bits)
+	M      : how many clock cycles are required in total during the Fsin period, it is 2 * Phlf * CPP, 
+	FCW: The proportion occupied by each point after quantization； FCW= round[(2^regw) * (Fsin*M/Fpclk] = round[(2^32)*128*CPP*Fsin/8MHz]= round[68719.476736*CPP*Fsin]. Fdds is Fsin * M. Fdds should be always less than 8 MHz so Fsin * CPP <= 625000. if Fsin increased, CPP should be reduced. Number of clocks per period is M*(2^32)/FCW.
+
+What we need to config is that，the value of FCW should be written into 32 bits DDS_STEP registers(shared mul-waveform register, the base address is 0x12~0x15, Note, it means The multi-waveform function and DDS mode cannot be used simultaneously.)
+
+
+Step :
+	Enable DDS MODE by writing wavegen register 0x38 bit[3]
+	Write FCW into DDS_STEP registers
+	Configure cycle，point register, etc.
+	Enable drivers
+
+Based on the above parameters, we have the following formula:
+
+FCW= 68719.476736(64 points & 8mhz) * CPP * Fsin;
+
+Set CPP = 8, then 
+    If Fsin = 1000hz, FCW=68719.476736 * 8 * 1000= 549755813.888=549755813
+If Fsin = 1001hz, FCW=68719.476736 * 8 * 1001= 550305569.701888=550305569
+
+Waveform 
+Here, use d0/d1 to generate the Fsin with1000hz, use d2/d3 to generate the Fsin with1001hz
+The result of envelope = (d1-d0) – (d3-d2) = 1hz
+Source : d1/d3
+Sink     : d0/d2
+ 
+
+
+ 
+Multiple waveform repetition
+We previously introduced the multi-waveform function, which by default cycles through wave0-wave1-wave2-wave0, meaning each waveform appears only once per complete cycle.
+This section introduces a new feature—the multi-waveform repetition function—allowing wave0, wave1, and wave2 to repeat multiple times within a complete cycle. This enables waveform sequences such as wave0-wave0-wave0-wave1-wave1-wave2-wave2-wave2-wave2-wave2-wave2-wave0.
+
+STEP
+	Enable multi-waveform repetition function by writing wavegen register 0x38 bit[2]
+	Configure the number of repetitions for wave0 waveform by writing wavegen register 0x39/0x3A(This register shares functionality with the one described in 9.9.11, so these two features cannot be used simultaneously.)
+	Configure the number of repetitions for wave1 waveform by writing wavegen register 0x31(This register shares functionality with the one described in 9.9.5, so these two features cannot be used simultaneously.)
+	Configure the number of repetitions for wave2 waveform by writing wavegen register 0x32(This register shares functionality with the one described in 9.9.5, so these two features cannot be used simultaneously.)
+	Configure the period of each waveform according to the multi-waveform function, and set the number of points register(if N is the points for each waveform, then 3N < 64)
+	Enable drivers
+
+Waveform 
+Wave0 ： repeat 16 times
+Wave1 ： repeat 32 times
+Wave2 ： repeat 8 times
+ 
 LEAD OFF DETECTOR 
 
 This module is used to detect Lead Off which means the stimulation pad is unconnected with stimulation load
@@ -2114,7 +2257,7 @@ Figure 101 Functional diagram for over-temperature protection.
 Analog model
  
 Functional Overview
-Upon power-up or before initiating temperature monitoring, the TEMP_SAR_T_NOR module performs a binary search using a Successive Approximation Register (SAR) algorithm to determine the digital input Dnom_tsc<7:0> that corresponds to the real-time temperature voltage (VTSC) of the chip. This digital value is stored in the TSC_VDAC_NOR register (0x77) and serves as reference of the comparator.
+Upon power-up or before initiating temperature monitoring, the TEMP_SAR_T_NOR module performs a binary search using a Successive Approximation Register (SAR) algorithm to determine the digital input Dnom_tsc<7:0> that corresponds to the real-time temperature voltage (VTSC) of the chip. This digital value is stored in the TSC_n register (0x77) and serves as reference of the comparator.
 The search process is internally controlled by a dedicated state machine, which manipulates several control signals:
 D2A_VDAC_EN: Enables the DAC
 D2A_COMP_EN: Enables the comparator
@@ -2162,8 +2305,8 @@ Register Name	Address	Default	Description
 TSC_EN_REG_SEL	0x6B	0x00	Analog block control source selection
 TSC_CTRL	0x6C	0x00	Comparator behavior control
 TSC_VDAC8B_DIN_CH1	0x70	0xFF	DAC threshold value for over-temp
-TSC_VDAC_NOR	0x73	0x00	Output of SAR-based room temperature DAC
-TSC_SMP_STS	0x74	0x00	Indicates comparator activity status
+TSC_VDAC_NOR	0x69	0x00	Output of SAR-based room temperature DAC
+TSC_SMP_STS	0x6A	0x00	Indicates comparator activity status
 STABLE_DURATION	0x6E–0x6F	0x1FF	Analog stabilization delay after enable
 SMP_DURATION	0x6D	0x10	Comparator sample duration
 
@@ -2184,12 +2327,7 @@ Bit	Field Name	Attribute	Default	Description
 7:4	 RESERVED	RO	0	 No use
 3	 TSC_COMP_LOW_CH1	RW	0	 0:  A2D_TSC_COMP 0 means normal  temperature, 1 is over temperature
  1: A2D_TSC_COMP 1 means normal temperature, 0 is over temperature
-2	 D2A_VDAC8B_EN_CH1	RW	0	 VDAC 8B Driver Enable
- 1: Enabled
- 0: Disabled
-1	 TSC_COMP_EN_CH1	RW	0	 Temperature Sensor Comparator Enable
- 1: Enabled
- 0: Disable
+2:1	 RESERVED	RO	0	 No use
 0	 TSC_EN_CH1	RW	0	 Temperature Sensor Module Enable
  1: Enable
  0: Disable
@@ -2199,14 +2337,14 @@ TSC_VDAC8B_DIN_CH1: 0x70 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	 TSC_VDAC8B_DIN_CH1	RW	8'hFF	DIN for 8bit DAC (Dhigh_tsc[7:0])
 
-TSC_SMP_STS: 0x74 (General Register)
+TSC_SMP_STS: 0x6A (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:1	 RESERVED	RO	0	 
 0	 BUSY	RO	0	 Comparator status
  0: Finish
  1: In progress
 
-TSC_VDAC_NOR: 0x73 (General Register)
+TSC_VDAC_NOR: 0x69 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	 TSC_VDAC_NOR	RO	0x00	 Room temperature VDAC value (Dnom_tsc[7:0])
 
@@ -2226,7 +2364,7 @@ Whenever the TSC comparator output transitions to logic '1', and the TSC_INT_EN 
 Stimulator Voltage Measurement and Resistor Monitor Block:
 The device integrates an auxiliary ADC and a flexible digital control engine to monitor the stimulation voltage across active electrode pairs. By analyzing the measured voltage/impedance data transmitted to the host MCU, users can diagnostic the electrode-tissue interface status, including Lead-Off (open circuit), Normal Operation, and Short-Circuit conditions.
 The system supports up to 16 channels, which can be flexibly paired into up to 16 independent measurement pairs (N <=16) via a multiplexed Analog Front-End (AFE).
-.
+
  
 
 Key Features
@@ -2252,8 +2390,19 @@ Each measurement pair is defined by mapping source and sink channels to the corr
  
 ADC value meaning
  
-If current from point A to point B is positive current, then the 10’h200 means no current pass the load, the 10’h3FF is max positive current and 10’h0 is max negative current
-For example, if the max current is 10mA, then 10’h3FF means 10mA, 10’h200 means 0 mA and 10’h0 means -10mA.
+
+
+Differential Output Voltage Mapping (Offset Binary Format)
+The differential voltage (VA - VB) is represented in a 10-bit offset binary format, where mid-scale corresponds to a zero-voltage condition:
+	10'h3FF: Positive Full-Scale (+VFS), representing the maximum positive voltage (e.g., +1.8V).
+	10'h200: Mid-Scale (Zero Volts), representing a null/no-load voltage condition (0.0V).
+	10'h000: Negative Full-Scale (-VFS), representing the maximum negative voltage (e.g., -1.8V).
+
+Transfer Function and Data Coding
+The load voltage is driven differentially from node A to node B. The digital control word utilizes a 10-bit coding scheme centered at a mid-scale bias of 10'h200 to represent a zero-voltage state across the load.
+The dynamic range spans from negative full-scale to positive full-scale. For a reference maximum voltage of 1.8V, the transfer function maps 10'h3FF to +1.8V (maximum positive swing), 10'h200 to 0V(idle state), and 10'h000 to -1.8V (maximum negative swing).
+
+Note:  If user want to change any parameters during the stimulation monitoring process, user need to first set the reset bit STIM_MON_RST_REG to 1, then modify the parameters, and finally release STIM_MON_RST_REG back to 0. We do not support changing parameters while monitoring is in progress.
 Registers：
 STIM_PAD_CTRL: 0x40 (General Register)
 Bit	Field Name	Attribute	Default	Description
@@ -2269,7 +2418,9 @@ Cycle value mean only output 1 data each pair and when all PAIR_NUM of data are 
 1: automatic
 Manual means the pair is selected by register directly and stimulator also need to be controlled manually
 The pair selected is the pair0 when used as manual mode
-3:0	PAIR_NUM	RW	0xF	How many pairs be Measured
+3:0	PAIR_NUM	RW	0xF	When CHECK_EVERY_N is set to 1, then this 4 bits is for adc sample interrupt, this means is number of samples to interrupt and should disable the cycle interrupt.
+When CHECK_EVERY_N is set to 0;
+How many pairs be Measured
 0: 1 pair
 1: 2 pair
 …
@@ -2277,10 +2428,20 @@ F: 16 pair
 STIM_MON_PERIOD: 0x41 – 0x42(General Register)
 Bit	Field Name	Attribute	Default	Description
 15:0	 STIM_MON_PERIOD	RW	0x0	How long the measurement should be done for one pair(based on ADC sampling clock)
-0x41 is lower bytes
-STIM_MON_CLK_RST_CTRL: 0x43  (General Register)
+    STIM_MON_PERIOD_H: 0x5B – 0x5C(General Register)
 Bit	Field Name	Attribute	Default	Description
-7:6	RESERVED	RO	0	-
+15:0	 STIM_MON_PERIOD_H	RW	0x0	How long the measurement should be done for one pair(based on ADC sampling clock)
+
+0x41 is lower bytes, 0x5B is lower bytes
+So the total period is { STIM_MON_PERIOD_H , STIM_MON_PERIOD }, 32 bits
+STIM_MON_CTRL2: 0x43  (General Register)
+Bit	Field Name	Attribute	Default	Description
+7	RESERVED	RO	0	-
+6	CHECK_EVERY_N	RW	0	Interrupt Generation Mode for ADC sample interrupt(INT_MOD)
+	0: Individual Sample Interrupt Mode. An interrupt is triggered upon the completion of every single ADC sample.
+	1: Sample Accumulation Interrupt Mode. Interrupts are issued only after aggregating a programmable number of samples, specified by PAIR_NUM.
+Note: When this bit is asserted (set to 1), the standard cycle interrupt must be disabled. The PAIR_NUM field defines the exact block size (number of samples) required to trigger the interrupt.
+
 5	STIM_MON_RST_REG	RW	0	Stim monitor software reset
 0: not reset
 1: reset
@@ -2310,6 +2471,7 @@ Bit	Field Name	Attribute	Default	Description
 9:0	A2D_ADC_DATA_CAP	RO	0x0	Data captured from ADC
 0x44 is lower bytes
 STIM_MON_INT: 0x46 (General Register)
+Bit2:0 of this register is same as GENERAL_INTERRUPT_STATUS_REG0B
 Bit	Field Name	Attribute	Default	Description
 7:5	STIM_MON_INT_TO_PIN_EN	RW	0x0	Output to the sampling or delta value to INT pin enable
 7: cycle value int to pin enable
@@ -2321,22 +2483,25 @@ Bit	Field Name	Attribute	Default	Description
 01: Min data
 10: Max data
 11: the last sample data during this pair
-2	STIM_MON_CYCLE_INT	RW/RC/W1C	0x0	Stimulator adc cycle value interrupt status or write to clear or read to clear depend on which interrupt clear
-1	STIM_MON_INT	RW/RC/W1C	0x0	Stimulator adc interrupt status or write to clear or read to clear depend on which interrupt clear 
-0	STIM_MON_DELTA_INT	RW/RC/W1C	0x0	Stimulator adc delta value interrupt status or write to clear or read to clear depend on which interrupt clear 
+2	STIM_MON_CYCLE_INT	RW/RC/W1C	0x0	The interrupt generate has higher priority then clear interrupt, for example, if generate interrupt and clear interrupt happens at the same time, then will generate interrupt, ignore clear action
+Stimulator adc cycle value interrupt status or write to clear or read to clear depend on which interrupt clear
+1	STIM_MON_INT	RW/RC/W1C	0x0	The interrupt generate has higher priority then clear interrupt, for example, if generate interrupt and clear interrupt happens at the same time, then will generate interrupt, ignore clear action
+Stimulator adc interrupt status or write to clear or read to clear depend on which interrupt clear 
+0	STIM_MON_DELTA_INT	RW/RC/W1C	0x0	The interrupt generate has higher priority then clear interrupt, for example, if generate interrupt and clear interrupt happens at the same time, then will generate interrupt, ignore clear action
+Stimulator adc delta value interrupt status or write to clear or read to clear depend on which interrupt clear 
 STIM_PAD_CTRL1: 0x47 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	BYPASS_ADC_DATA_EN	RW	0x0	Bypass the A2D_DATA_EN from analog, consider every data from analog is valid
 0: keep A2D_DATA_EN from analog
 1: ignore the  A2D_DATA_EN from analog
-6	READ_ADC_DATA_EN	RW	0	Read adc cycle data enable(max 32 bytes depends on how many pairs are stimulation in one cycle). If this bit is set to 1, then address 0xC0 – 0xDF are used as cycle adc data address instead of analog register,which make cycle data can be easily read burst
+6	READ_ADC_DATA_EN	RW	0	Read adc cycle data enable (max 32 bytes depends on how many pairs are stimulation in one cycle). If this bit is set to 1, then address 0xC0 – 0xDF are used as cycle adc data address instead of analog register,which make cycle data can be easily burst read 
 so the 0xC1-0xC0 is the ADC data of pair number
 The 0xC3-0xC2 is the ADC data of pair number -1
 …..
-5	BYPASS_IGNORE_FIRST	RW	1	Bypass ignore first analog adc_data_en feature
+5	BYPASS_IGNORE_FIRST	RW	1	Bypass ignore first analog adc_data_en, which means every adc_data_en is valid
 0: ignore first analog adc_data_en
 1: consider the first analog adc_data_en is valid
-Because analog adc_data_en always running, the adc_data_en can be in the middle of stimulation, if this, we consider to ignore this adc_data_en if we want.
+Because analog adc_data_en always running, the stimulation can be in the middle of adc_data_en, if this happens, we consider to ignore this adc_data_en if this bit is set to 0
 4	ADC_EN	RW	0x0	Analog ADC enable and digital ADC controller enable
 0: disable
 1: enable
@@ -2387,14 +2552,18 @@ Bit	Field Name	Attribute	Default	Description
 15:12 PairF
 
 STIM_MON_LOFF_INT_STS0: 0x51-0x52 (General Register)
+these registers are same as GENERAL_INTERRUPT_STATUS_REG07/08
 Bit	Field Name	Attribute	Default	Description
-15:0	 STIM_MON_LOFF_INT_STS0	RW	0xFEDC	0: pair0 leadoff status
+15:0	 STIM_MON_LOFF_INT_STS0	RW/RC/W1C	0x0	Leadoff interrupt status or write to clear or read to clear depend on which interrupt clear
+0: pair0 leadoff status
 1: pair1 leadoff status
 …
 15: pair15 leadoff status
 STIM_MON_SHORT_INT_STS0: 0x53-0x54 (General Register)
+these registers are same as GENERAL_INTERRUPT_STATUS_REG09/0A
 Bit	Field Name	Attribute	Default	Description
-15:0	 STIM_MON_SHORT_INT_STS0	RW	0xFEDC	0: pair0 short status
+15:0	 STIM_MON_SHORT_INT_STS0	RW/RC/W1C	0x0	Short interrupt status or write to clear or read to clear depend on which interrupt clear
+0: pair0 short status
 1: pair1 short status
 …
 15: pair15 short status
@@ -2417,15 +2586,56 @@ Bit	Field Name	Attribute	Default	Description
 15:10	reserved	RO	0x0	
 9:0	STIM_MON_SHORT_TH	RW	0	short threshold,  less than this value will be treaded short one time
 
+
+ 
+
+
+Threshold Voltage Mapping and Interrupt Detection Window
+The system utilizes a 10-bit Offset Binary coding scheme to digitize the differential input voltage (Vdiff = VA - VB). The total dynamic range spans from -1.8V to +1.8V(example). Two pairs of symmetrical digital thresholds—LOFF_TH (Lead-Off Threshold) and SHORT_TH (Short-Circuit Threshold)—are implemented to monitor the real-time channel status and trigger corresponding hardware interrupts.
+
+Window Comparator and Interrupt Detection Logic
+The digital monitoring logic divides the entire input range into distinct functional zones based on window comparison:
+	Zone A: Lead-Off Detection Window (LEAD_OFF)
+This window detects electrode or lead detachment, which typically causes the instrumentation amplifier to saturate toward the supply rails due to extremely high input impedance.
+	Positive Lead-Off: Triggered when Vdiff > +1.7V(for example, the digital code exceeds the upper LOFF_TH boundary).
+	Negative Lead-Off: Triggered when Vdiff < -1.7V(for example,the digital code drops below the lower LOFF_TH boundary).
+	Behavior: When the digitized signal enters either of these outer saturation zones, a LEAD_OFF interrupt pulse is asserted.
+	Zone B: Short-Circuit Detection Window (SHORT)
+This window identifies physical short-circuits between differential leads or severe signal attenuation where the input voltage abnormally collapses toward the zero-voltage baseline.
+	Detection Range: Triggered when the differential voltage falls within the narrow central band: -0.1V <= Vdiff <= 0.1V(for example, the digital code drops in the  SHORT_TH boundary).
+	Behavior: In terms of digital codes, a SHORT interrupt is asserted if the code is simultaneously less than or equal to the positive short threshold (corresponding to +0.1V,around 10’h201 for example) and greater than or equal to the negative short threshold (corresponding to -0.1V, around 10'h1FF for example). Effectively, it triggers whenever the absolute differential voltage satisfies Vdiff <= 0.1V(for example).
+	Zone C: Normal Operation Window
+	Range: Consists of the two symmetrical bands between the short and lead-off thresholds: -1.7V<= Vdiff < -0.1V and  +0.1V < Vdiff <= +1.7V(for example).
+	Behavior: Within these zones, both LEAD_OFF and SHORT interrupts remain de-asserted, indicating valid biopotential signal acquisition.
 STIM_MON_TH_TGT: 0x5A(General Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	STIM_MON_TH_TGT	RW	0	Leadoff/short target number to be treated as real leadoff/short and issue interrupt.
 Leadoff/short share this target number, but leadoff/short will count itself number
 
+Note: STIM_MON_TH_TGT must not exceed STIM_MON_PERIOD; otherwise, leadoff/short detection will never be triggered.
+
+STIM_ORIG_ADC_DATA: 0xF4 – 0xF5 (General Register)
+Bit	Field Name	Attribute	Default	Description
+15	 A2D_ADC_DATA_EN	RO	0x0	Indicate adc data enable from analog 
+14:10	RESERVED	Ro	0x0	
+9:0	 A2D_ADC_DATA	RO	0x0	Indicate adc data from analog 
+
 STIM_ADC_DELTA_DATA_TAG: 0xF6 – 0xF7 (General Register)
 Bit	Field Name	Attribute	Default	Description
 15:12	 A2D_DELTA_ADC_TAG_CAP	RO	0x0	Indicate which pair data 
-11:10	RESERVED	RO	0x0	
+11	SELECT_2ND_MAX_MIN	RW	0x0	Select 2nd max/min value
+0: max/min value
+1: 2nd max/min value
+10	ADC_DELTA_DATA_CAP_IN_MANUAL	RW	0x0	Delta Data Capture Trigger (Manual Mode Only) This bit triggers a delta data capture when the device operates in manual mode. It is ignored and has no effect in auto mode.
+	0: Capture disabled / No action.
+	1: Initiate delta data capture.
+Usage Note: before switch the monitored channel pair in manual mode, software must follow this sequence:
+	Clear this bit to 0 to reset the capture logic.
+	Set this bit to 1 to capture the current delta data(keep longer than 3 adc clocks)
+	Wait for interrupt, then clear the int status
+	Read the delta data
+	Switch to the target channel pair.
+	Do the step 1,2 again
 9:0	A2D_ADC_DELTA_DATA_CAP	RO	0x0	Delta(vpeak, max-min or max or min depend on STIM_DELTA_DATA_SEL) Data captured from ADC during defined sampling period
 
 STIM_PAD1_TGT0: 0xF8-0xF9 (General Register)
@@ -2594,7 +2804,7 @@ MON_ADC	MON_ADC_ADDR	0xF8
 Offset address	Register name	Attribute	Default
 Part I- General Register Map (refer to SPI command to access to General Registers)
 0x00	-	-	-
-0x01	PMU_REG0	WR	0x01
+0x01	PMU_REG	WR	0x01
 0x02	CLK_CRTL_REG	WR	0x00
 0x03	WAVEGEN_GLOBAL_REG	WR	0x00
 0x04	CLOCK_GATING_REG_0	WR	0x00
@@ -2701,6 +2911,8 @@ SHORT DETECTION
 0x64	ANA_INTR_STS_REG	R	0x00
 0x65~0x6a	Reserved	-	-
 TSC			
+0x69	VDAC_NOR_L	RW	0x00
+0x6A	SMP_STS	RW	0x00
 0x6B	TSC_EN_REG_SEL	RW	0x00
 0x6C	TSC_CTRL	RW	0x00
 0x6D	SAMP_DURATION	RW	0x10
@@ -2709,10 +2921,13 @@ TSC
 0x70	TSC_VDAC8B_DIN_CH1	RW	0xff
 0x71	TSC_INT_CTRL	RW	0x00
 0x72	TSC_INT_STATUS	RW	0x00
-0x73	VDAC_NOR_L	RW	0x00
-0x74	SMP_STS	RW	0x00
-0x75~0x77	Reserved	-	-
+		-	-
 INT REG			
+0x73	GENERAL_INTERRUPT_STATUS_REG07	RW	0x00
+0x74	GENERAL_INTERRUPT_STATUS_REG08	RW	0x00
+0x75	GENERAL_INTERRUPT_STATUS_REG09	RW	0x00
+0x76	GENERAL_INTERRUPT_STATUS_REG0A	RW	0x00
+0x77	GENERAL_INTERRUPT_STATUS_REG0B	RW	0x00
 0x78	GENERAL_INTERRUPT_CTRL_REG	RW	0x00
 0x79	GENERAL_INTERRUPT_STATUS_REG01	RW	0x00
 0x7A	GENERAL_INTERRUPT_STATUS_REG02	RW	0x00
@@ -2983,12 +3198,9 @@ Drive A2
 General Register
 PMU_REG: 0x01 (General Register)
 Bit	Field Name	Attribute	Default	Description
-7	LEAD_OFF_RESET	RW	1’b0	SW Lead-Off Reset
-0: Inactive Reset
-1: Active Reset
-6	LEAD_OFF_DISABLE	RW	1’b0	Lead Off Disable Signal
-0: Lead Off is enabled
-1: Lead off is disabled
+7	Reserved	RW	0	
+6	MULTI_INTB_PIN	RW	1	0: All interrupts are combined into a single pin.
+1: Interrupts are separated into four pins.
 5	WAVE_GEN_RESET	RW	1’b0	SW Wave Generator Reset
 0: Inactive Reset
 1: Active reset
@@ -2998,9 +3210,9 @@ Bit	Field Name	Attribute	Default	Description
 3	OTP_DEEPSLEEP_STANDBY_EN	RW	1’b0	OTP Gated Clock Enable
 0: Disable OTP clock gating
 1: Enable OTP clock gating
-2	HRESET_REQ	RW	1’b0	Software System Reset Request
-0: Inactive Reset
-1: Active Reset
+2	HRESET_REQ	RW	1’b0	Software active clock Request
+0: don’t active clock
+1: Active clock
 1	SLEEP_DEEP_EN	RW	1’b0	Sleep Deep Mode Enable
 0: Disable
 1: Enable
@@ -3052,7 +3264,7 @@ Bit	Field Name	Attribute	Default	Description
 4	BURST_FOR_SHAPE_REG	RW	1’b0	0: burst function for wavegen config register
 1: burst function for wavegen shape register
 
-Note : must be enable burst of spi bus
+Note: must be enable burst of spi bus
 3	STIMU_EN	RW	1’b0	D2A_STIMU_EN：
 Control signal for two big power switch (5V and 1.8V)
 2:1	DRIVE_SLCT	RW	2’b00	This register is used to control the selection of Wavegen. When writing to or reading from the Wavegen registers using SPI:
@@ -3108,65 +3320,61 @@ Bit	Field Name	Attribute	Default	Description
 0: Internal OSC
 1: Mux of Internal and external OSC
 
-
 WAVEGEN_GLOBAL_REG_01: 0x07 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	WAVEGEN_REG_ACCE7	RW	0	Driver7：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 6	WAVEGEN_REG_ACCE6	RW	0	Driver6：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 5	WAVEGEN_REG_ACCE5	RW	0	Driver5：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 4	WAVEGEN_REG_ACCE4	RW	0	Driver4：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 3	WAVEGEN_REG_ACCE3	RW	0	Driver3：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 2	WAVEGEN_REG_ACCE2	RW	0	Driver2：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 1	WAVEGEN_REG_ACCE1	RW	0	Driver1：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 0	WAVEGEN_REG_ACCE0	RW	0	Driver0：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
-
 
 WAVEGEN_GLOBAL_REG_02: 0x08 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	WAVEGEN_REG_ACCE15	RW	0	Driver15：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 6	WAVEGEN_REG_ACCE14	RW	0	Driver14：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 5	WAVEGEN_REG_ACCE13	RW	0	Driver13：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 4	WAVEGEN_REG_ACCE12	RW	0	Driver12：
 0 ： disable mul-wavegen access function
-1： enable mul-wavegen access function
+1：enable mul-wavegen access function
 3	WAVEGEN_REG_ACCE11	RW	0	Driver11：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 2	WAVEGEN_REG_ACCE10	RW	0	Driver10：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 1	WAVEGEN_REG_ACCE9	RW	0	Driver9：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 0	WAVEGEN_REG_ACCE8	RW	0	Driver8：
-0 ： disable mul-wavegen access function
+0 ：disable mul-wavegen access function
 1： enable mul-wavegen access function
 
-
   OTP registers
-
 Debug1 register: 0x0A
 Bit	Field Name	 Type	Default	Description
 7 	LOADING_SHADOWS	RO 	1’b1	Shadow Register Loading Status 
@@ -3335,7 +3543,7 @@ GPIO_PD_CTRL: 0x31 (General Register)
 In normal mode IO cell configuration of DS common bits used for GPIO0 ~ GPIO10
 Bit	Field Name	Attribute	Default	Description
 7:5	RESERVED	RO	3’b0	Reserved
-4	GPIO[11] - INT_OSC_OUT_EN	RW	1’b1	0:  FLOATING
+4	GPIO[13] - INT_OSC_OUT_EN	RW	1’b1	0:  FLOATING
 1:  PULLDOWN
 3	GPIO[2] - CPHA	RW	1’b1	0:  FLOATING
 1:  PULLDOWN
@@ -3359,32 +3567,6 @@ Bit	Field Name	Attribute	Default	Description
 0:  Fast
 1:  Slow
 
-GPIO_COMP_OUT_CTRL: 0x33 (General Register) – NOT SUPPORTED
-In normal mode IO cell configuration of SR/PDRV0/PDRV1 common bits used for GPIO0 ~ GPIO10
-Bit	Field Name	Attribute	Default	Description
-7:0	RESERVED	RO	8’b0	Reserved
-3	COMP_OUT_SEL_STIM	RW	1’b0	Select which comparator to output
-0: lead off comparator
-1: short comparator
-2	COMP_OUT_SEL	RW	1’b0	Select which comparator to output
-0: COMP_OUT_CH1/COMP_OUT_STIM01
-1: COMP_OUT_CH2/ COMP_OUT_STIM23
-1	COMP_OUT_EN	RW	1’b0	Comparator Output Enable
-0: VPP_EN
-1: COMP_OUT
-Notes: With COMP_OUT_EN = 1:
--When COMP_OUT_SEL=0:
-  . if COMP_OUT_SEL_STIM=0, 
-COMP_OUT=COMP_OUT_CH1
-  . if COMP_OUT_SEL_STIM =1, 
-COMP_OUT=COMP_OUT_STIM01
--When COMP_OUT_SEL=1: 
-  . if COMP_OUT_SEL_STIM=0, 
-COMP_OUT=COMP_OUT_CH2
-  . if COMP_OUT_SEL_STIM=1, 
-COMP_OUT=COMP_OUT_STIM23
-0	NORMAL_OUT_SEL	RW	1’b0	0: INTB
-1: VPP_EN/COMP_OUT – Follow [1] setting
 
 GPIO_NIRS_OUT_CTRL: 0x33 (General Register) 
 Controls the output of NIRS module during Normal Mode for GPIO[15]-GPIO[19]
@@ -3404,6 +3586,12 @@ Bit	Field Name	Attribute	Default	Description
 - IO_PAD[18] = NIRS_LED_ON4
 - IO_PAD[19] = NIRS_LED_ON5
 
+GPIO_NORMAL_OUT_CTRL: 0x34 (General Register) – 
+Controls the output of GPIO8 during Normal Mode
+Bit	Field Name	Attribute	Default	Description
+7:1	RESERVED	RO	7’b0	Reserved
+0	NORMAL_OUT_CTRL	RW	1’b0	0: INT0
+1: VPP_EN
 
 Lead Off Detection Register
 LEAD_OFF_CTRL: LEAD OFF detection control: 0x26 (General Register)
@@ -3698,6 +3886,7 @@ ANA_ENABLE_REG[1][5]: Offset: 0xC6
 Bit	Field Name	Attribute	Default	Description
 7:0	D2A_DCLOFFEN [7:0]	RW	8’b00	DC LEAD OFF Enable to detect for each 16 channel
 
+
 ANA_ENABLE_REG[1][6]: Offset: 0xC7
 Bit	Field Name	Attribute	Default	Description
 7:0	D2A_DCLOFFEN[15:8]	RW	8’b00	DC LEAD OFF Enable to detect for each 16 channel
@@ -3714,7 +3903,6 @@ Bit	Field Name	Attribute	Default	Description
   3’h5: section 5 (ANA_GEN_REG[5][n])
   3’h6: section 6 (ANA_GEN_REG[6][n])
   3’h7: section 7 (ANA_GEN_REG[7][n])
-
 ANA_GEN_REG[0][0]: Offset: 0xD1
 Bit	Field Name	Attribute	Default	Description
 7:4	RESERVED	RO	4’h0	No use
@@ -4097,6 +4285,7 @@ Bit	Field Name	Attribute	Default	Description
 7:6	RESERVED	RO	2’h0	No use
 5:1	D2A_DRIVERC_SHORT_DET_VIPSEL	RW	5’h0	short detedtion function comparator positive input selection
 0	D2A_DRIVERC_SHORT_DET_VINSEL– MSB [4]	RW	1’h0	short detection function comparator negative input selection
+
 Spare register table
 ANA_GEN_REG[0][13]: Offset: 0xDE
 Bit	Field Name	Attribute	Default	Description
@@ -4110,10 +4299,22 @@ Bit	Field Name	Attribute	Default	Description
 ANA_GEN_REG[3][13]: Offset: 0xDE
 Bit	Field Name	Attribute	Default	Description
 7:0	SPARE_REGISTER	RW	8'h0	Spare Register for User Purpose
+ANA_GEN_REG[4][13]: Offset: 0xDE
+Bit	Field Name	Attribute	Default	Description
+7:0	SPARE_REGISTER	RW	8'h0	Spare Register for User Purpose
+ANA_GEN_REG[5][13]: Offset: 0xDE
+Bit	Field Name	Attribute	Default	Description
+7:0	SPARE_REGISTER	RW	8'h0	Spare Register for User Purpose
+ANA_GEN_REG[6][13]: Offset: 0xDE
+Bit	Field Name	Attribute	Default	Description
+7:0	SPARE_REGISTER	RW	8'h0	Spare Register for User Purpose
+ANA_GEN_REG[7][13]: Offset: 0xDE
+Bit	Field Name	Attribute	Default	Description
+7:0	SPARE_REGISTER	RW	8'h0	Spare Register for User Purpose
+
 ANA_GEN_REG[0][14]: Offset: 0xDF
 This register is only considered under CP TEST MODE.
-During normal mode, please refer to TSC_CTRL (0x6C) to control this signal.
-
+During normal mode, please refer to TSC_VDAC8B_DIN_CH1: 0x70 to control this signal.
 Bit	Field Name	Attribute	Default	Description
 7:0	D2A_VDAC8B_DIN	RW	8'h0	Adjust bits for 8bit DAC inside TSC
 ANA_GEN_REG[1][14]: Offset: 0xDF
@@ -4531,7 +4732,6 @@ Clear Condition:
  This bit can be cleared by writing 1 to this bit.
 This bit can be cleared by reading this bit 1
 
-
 ANA_INT_COMP_STS: 0x61General Register)
 Bit	Field Name	Attribute	Default	Description
 7	ANA_COMP_CH7_INTR_STS	RRW1C*/R1C*	1’b0	Analog Comparator Channel 7 Interrupt Status
@@ -4591,6 +4791,17 @@ Bit	Field Name	Attribute	Default	Description
 1: Interrupt is active
 
 TSC registers
+TSC_VDAC_NOR: 0x69 (General Register)
+Bit	Field Name	Attribute	Default	Description
+7:0	 TSC_VDAC_NOR	RO	8’b0	 Room temperature VDAC value (Dnom_tsc[7:0])
+
+TSC_SMP_STS: 0x6A (General Register)
+Bit	Field Name	Attribute	Default	Description
+7:1	 RESERVED	RO	0	
+0	 BUSY_DOING	RO	0	 Doing the comparator status
+ 0: Finish
+ 1: Doing in progress
+
 TSC_EN_REG_CTRL: 0x6B (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:5	RESERVED	RW	0	 No use
@@ -4606,16 +4817,10 @@ Bit	Field Name	Attribute	Default	Description
 
 TSC_CTRL: 0x6C (General Register)
 Bit	Field Name	Attribute	Default	Description
-74	RESERVED	RO	0	No use
+7:4	RESERVED	RO	0	No use
 3	TSC_COMP_LOW_CH1	RW	1’b0	0:  A2D_TSC_COMP 0 means normal temperature, 1 is over temperature
 1: A2D_TSC_COMP 1 means normal temperature, 0 is over temperature
-2	D2A_VDAC8B_EN_CH1	RW	1’b0	VDAC 8B enable
-1: Enabled
-0: Disabled
-1	TSC_COMP_EN_CH1	RW	1’b0	Temperature sensor comp enable
-1: Enabled
-0: Disable
-
+2:1	RESERVED	RO	0	No use
 0	TSC_EN_CH1	RW	1’b0	Temperature Sensor Module Enable
 1: Enable
 0: Disable
@@ -4627,7 +4832,6 @@ STABLE_DURATION: 0x6E-0x6F (General Register)
 Bit	Field Name	Attribute	Default	Description
 11:0	 STABLE_DURATION	RW	12’h1ff	Temp sensor analog stable time
 0x86 is LSB 8-bit, 0x87 is MSB 4-bit
-
 TSC_VDAC8B_DIN_CH1: 0x70 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	 TSC_VDAC8B_DIN_CH1	RW	8'hFF	DIN for 8bit DAC (Dhigh_tsc[7:0])
@@ -4648,19 +4852,46 @@ Bit	Field Name	Attribute	Default	Description
 1: overheat
 0: no overheat
 
-TSC_VDAC_NOR: 0x73 (General Register)
-Bit	Field Name	Attribute	Default	Description
-7:0	 TSC_VDAC_NOR	RO	8’b0	 Room temperature VDAC value (Dnom_tsc[7:0])
-
-TSC_SMP_STS: 0x74 (General Register)
-Bit	Field Name	Attribute	Default	Description
-7:1	 RESERVED	RO	0	
-0	 BUSY_DOING	RO	0	 Doing the comparator status
- 0: Finish
- 1: Doing in progress
 
 General Interrupt Registers
-GENERAL_INTERUPT_CTRL_REG: Offset:0x78 (General Register)
+ GENERAL_INTERUPT_STATUS_REG07-08 : 0x73-0x74 (General Register)
+STIM_MON_LOFF_INT_STS0: 0x51-0x52 (General Register)
+   Write STIM_MON_LOFF_INT_STS0 or GENERAL_INTERUPT_STATUS_REG07-08  is same result
+	
+Bit	Field Name	Attribute	Default	Description
+15:0	 STIM_MON_LOFF_INT_STS0/
+GENERAL_INTERRUPT_STATUS_REG07-08	RW/RC/W1C	0x0	Leadoff interrupt status or write to clear or read to clear depend on which interrupt clear
+0: pair0 leadoff status
+1: pair1 leadoff status
+…
+15: pair15 leadoff status
+
+ GENERAL_INTERUPT_STATUS_REG09-0A: 0x75-0x76 (General Register)
+STIM_MON_SHORT_INT_STS0: 0x53-0x54 (General Register)
+Write STIM_MON_SHORT_INT_STS0 or GENERAL_INTERUPT_STATUS_REG09-0A is same result
+Bit	Field Name	Attribute	Default	Description
+15:0	 STIM_MON_SHORT_INT_STS0/
+GENERAL_INTERRUPT_STATUS_REG09-0A	RW/RC/W1C	0x0	Short interrupt status or write to clear or read to clear depend on which interrupt clear
+0: pair0 short status
+1: pair1 short status
+…
+15: pair15 short status
+ GENERAL_INTERUPT_STATUS_REG0B (General Register)
+	STIM_MON_INT: 0x46 (General Register)
+Write bit2:0 STIM_MON_INT or GENERAL_INTERUPT_STATUS_REG0B  is same result
+The bit7:4 of GENERAL_INTERUPT_STATUS_REGB is 0 for reading
+The bit7:4 of STIM_MON_INT has other meaning
+So, reading bit7:4 of these 2 registers is different.
+Bit	Field Name	Attribute	Default	Description
+7:4	 Reserved	RO	0	
+2	STIM_MON_CYCLE_INT/ GENERAL_INTERRUPT_STATUS_REG0B[2]	RW/RC/W1C	0x0	Stimulator adc cycle value interrupt status or write to clear or read to clear depend on which interrupt clear
+1	STIM_MON_INT/
+GENERAL_INTERRUPT_STATUS_REG0B[1]	RW/RC/W1C	0x0	Stimulator adc interrupt status or write to clear or read to clear depend on which interrupt clear 
+0	STIM_MON_DELTA_INT/
+GENERAL_INTERRUPT_STATUS_REG0B[0]	RW/RC/W1C	0x0	Stimulator adc delta value interrupt status or write to clear or read to clear depend on which interrupt clear 
+
+
+ GENERAL_INTERUPT_CTRL_REG: Offset:0x78 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:3	RESERVED	RO	6’h0	No use
 2	INT_ACTIVE_LEVEL	RW	1’b1	Control the active level of interrupts
@@ -4671,9 +4902,10 @@ Bit	Field Name	Attribute	Default	Description
 1: Read 1 to clear automatically (R1C)
 0	INT_LENGTH_SLCT	RW	4’h0	Selecting INTB is level active or pulse active
 0：Level Active
-1：Pulse Active (1 PCLK)
+1：Pulse Active (1 module CLK)
+For example, for EEG module, then will be 1 EEG clock
 
-GENERAL_INTERUPT_STATUS_REG01: 0x79 (General Register)
+ GENERAL_INTERUPT_STATUS_REG01: 0x79 (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	TSC_INT_STATUS	RW1C*/R1C*	1’h0	TSC Interrupt Status
 0: Interrupt is inactive
@@ -4692,7 +4924,7 @@ R1C*: this bit can be cleared automatically when read 1’b1
 0: Interrupt is inactive
 1: Interrupt is active
 
-GENERAL_INTERUPT_STATUS_REG02: 0x7A (General Register)
+ GENERAL_INTERUPT_STATUS_REG02: 0x7A (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	I_WG_DRIVER_INT_STS[3][1]	RW1C*/R1C*	1’b0	INT ADDR2 of  Channel 3 Interrupt Status
 0: Interrupt is inactive
@@ -4743,8 +4975,7 @@ Clear Condition:
 RW1C*: This bit can be cleared by writing 1 to bit[1] of wavegen 0x28 or read  bit [4] of AWG Register 0x28 1
 R1C*: this bit can be cleared automatically when read 1
 
-
-GENERAL_INTERUPT_STATUS_REG03: 0x7B (General Register)
+ GENERAL_INTERUPT_STATUS_REG03: 0x7B (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	I_WG_DRIVER_INT_STS[7][1]	RW1C*/R1C*	1’b0	INT ADDR2 of  Channel 7 Interrupt Status
 0: Interrupt is inactive
@@ -4795,7 +5026,7 @@ Clear Condition:
 RW1C*: This bit can be cleared by writing 1 to bit[1] of wavegen 0x28 or read  bit [4] of AWG Register 0x28 1
 R1C*: this bit can be cleared automatically when read 1
 
-GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)
+ GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	I_WG_DRIVER_INT_STS[7][1]	RW1C*/R1C*	1’b0	INT ADDR2 of  Channel 11 inerrupt Status
 0: Interrupt is inactive
@@ -4846,7 +5077,7 @@ Clear Condition:
 RW1C*: This bit can be cleared by writing 1 to bit[1] of wavegen 0x28 or read  bit [4] of AWG Register 0x28 1
 R1C*: this bit can be cleared automatically when read 1
 
-GENERAL_INTERUPT_STATUS_REG05: 0x7D (General Register)
+ GENERAL_INTERUPT_STATUS_REG05: 0x7D (General Register)
 Bit	Field Name	Attribute	Default	Description
 7	I_WG_DRIVER_INT_STS[7][1]	RW1C*/R1C*	1’b0	INT ADDR2 of  Channel 15 Interrupt Status
 0: Interrupt is inactive
@@ -4897,58 +5128,58 @@ Clear Condition:
 RW1C*: This bit can be cleared by writing 1 to bit[1] of wavegen 0x28 or read  bit [4] of AWG Register 0x28 1
 R1C*: this bit can be cleared automatically when read 1
 
-GENERAL_INTERUPT_STATUS_REG06: 0x7E (General Register)
+ GENERAL_INTERUPT_STATUS_REG06: 0x7E (General Register)
 Bit	Field Name	Attribute	Default	Description
-7	 NIRS_INT_STS[7]	RW1C*/R1C*	1’b0	NIRS Channel 7 Interrupt Status
+7	 NIRS_INT_STS[7]	R1C*	1’b0	NIRS Channel 7 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[7] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-6	 NIRS_INT_STS[6]	RW1C*/R1C*	1’b0	NIRS Channel 6 Interrupt Status
+6	 NIRS_INT_STS[6]	R1C*	1’b0	NIRS Channel 6 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[6] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-5	 NIRS_INT_STS[5]	RW1C*/R1C*	1’b0	NIRS Channel 5 Interrupt Status
+5	 NIRS_INT_STS[5]	R1C*	1’b0	NIRS Channel 5 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[5] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-4	 NIRS_INT_STS[4]	RW1C*/R1C*	1’b0	NIRS Channel 4 Interrupt Status
+4	 NIRS_INT_STS[4]	R1C*	1’b0	NIRS Channel 4 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[4] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-3	 NIRS_INT_STS[3]	RW1C*/R1C*	1’b0	NIRS Channel 3 Interrupt Status
+3	 NIRS_INT_STS[3]	R1C*	1’b0	NIRS Channel 3 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[3] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-2	 NIRS_INT_STS[2]	RW1C*/R1C*	1’b0	 NIRS Channel 2 Interrupt Status
+2	 NIRS_INT_STS[2]	R1C*	1’b0	 NIRS Channel 2 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[2] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-1	 NIRS_INT_STS[1]	RW1C*/R1C*	1’b0	NIRS Channel 1 Interrupt Status
+1	 NIRS_INT_STS[1]	R1C*	1’b0	NIRS Channel 1 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[1] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
-0	 NIRS_INT_STS[0]	RW1C*/R1C*	1’b0	NIRS Channel 0 Interrupt Status
+0	 NIRS_INT_STS[0]	R1C*	1’b0	NIRS Channel 0 Interrupt Status
 0: Interrupt is inactive
 1: Interrupt is active
 Clear Condition:
 RW1C*: This bit can be cleared by reading/writing 1 to bit[0] NIRS_INT_STATUS 0x20
 R1C*: this bit can be cleared automatically when read 1
 
-GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)
+ GENERAL_INTERUPT_STATUS_REG04: 0x7C (General Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	LEAD_OFF_CHx_RESULT	RW1C*/R1C*	0	Lead Off Channel x Status
 1: Lead Off Status is active
@@ -4957,7 +5188,7 @@ RW1C*: This bit can be cleared by writing 1 to bit[x] of normal 0x28 or read bit
 R1C*: this bit can be cleared automatically when read 1
 
 PINMUX registers
-ATM_HC_SEL: Offset Address: 0x7F
+ ATM_HC_SEL: Offset Address: 0x7F
 Bit	Field Name	Attribute	Default	Description
 7:2	RESERVED	RO	6’b0	No use
 1	ANA_BIST_HC_SEL	R/W	1’b0	For CP TEST ONLY and ATM_HC_SEL = 1
@@ -5034,11 +5265,11 @@ Next imeas_manual_en can be sent at least 2 ADC clock after previous sampling do
 IMEAS_REG_1: 0x91 (Normal Register)
 Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	R/W	0	
-6:5	FILTER_DATA_FORMAT_MODE	R/W	01	00: 40 bits status + 32 bits data per channel
+6:5	FILTER_DATA_FORMAT_MODE	R/W	01	00: 40 bits status + 16 bits data per channel
 01: 40 bits status + 24 bits data per channel
 10: 32 bits data per channel only 
+10: 16 bits data per channel only
 11: 24 bits data per channel only
-Now, only support 01 and 11
 4	DAISY_EN	R/W	0	Daisy enable:
 1: Enable
 0: Disable
@@ -5645,7 +5876,7 @@ Bit	Field Name	Attribute	Default	Field Description
 
 AWG Register
 AWG has a total of 2 identical modules, each module has 64 registers, a total of 64*2=128 registers are used for waveform generator. 
-AWG_CONFIG_REG0: 0x00 (AWG Register)
+AWG_CONFIG_REG0: 0x02 (AWG Register)
 Bit	Field	Type	Default	Description
 7 	POSITIVE_PHASE_DISABLE_BIT	R/W	0	Positive Phase Disable 
 0：Active
@@ -5665,7 +5896,7 @@ Bit	Field	Type	Default	Description
 0	REST_TIME_ENABLE	R/W	0	0：Disabled Rest Time
 1：Enabled Rest Time
 
-AWG_CTRL_REG0: 0x01 (AWG Register)
+AWG_CTRL_REG0: 0x03 (AWG Register)
 Bit	Field	Type	Default	Description
 7	RESOLUTION_CTRL	R/W	0	0: if, in one period we have positive and negative side, then neg side loads data from different wave data address 
 1: if, in one period we have positive and negative side, then neg side loads data from the same wave data address as positive side (which makes waveform symmetric).
@@ -5695,7 +5926,7 @@ Others: 1 waveform
 11: use the waveform loaded by SPI  
 0	WAVEGEN_EN	0		1 ：Enable the wave gen; 
 0 ：Disable the wave gen
-AWG_POINT_CONFIG_REG: 0x02 (AWG Register)
+AWG_POINT_CONFIG_REG: 0x04 (AWG Register)
 Name	Address	Default	Attribute	Description
 POINTS_NUM_SEL_PER_PHASE
 
@@ -5713,11 +5944,11 @@ Normal waveform:
 - If 3 waveforms used and both pos and neg enabled and load value from same registers, then max value is 21
 Preload function:
 The number of points only can be the power of 2: 1, 2, 4, 8, 16, 32, 64
-AWG_IN_WAVE_ADDR_REG: 0x03 (AWG Register) 
+AWG_IN_WAVE_ADDR_REG: 0x01 (AWG Register) 
 Name	Address	Default	Attribute	Description
 AWG_IN_WAVE_ADDR_REG0 	0x03	0x00	RW	Address for SPI writing the next 8 bit of the wave form value to the register where the wave values are stored.
 The value is 0~63
-AWG_IN_WAVE_REG: 0x04 (AWG Register) 
+AWG_IN_WAVE_REG: 0x00 (AWG Register) 
 Name	Address	Default	Attribute	Description
 AWG_IN_WAVE_REG01 
  	0x04	0x00	RW	Next half wave point value to be 
@@ -5751,7 +5982,7 @@ AWG_REST_CLK1_REG: 0x10~0x11 (AWG Register)
 Name	Address	Default	Attribute	Description
 AWG_REST_CLK1_REG01
  	0x10	0x00	RW	Waveform1： Number of clocks for resting time between the positive side and the 
-negative side of the wave 1 in a period
+``negative side of the wave 1 in a period
 AWG_REST_CLK1_REG02	0x11	0x00	RW	
 AWG_SILENT_CLK1_REG: 0x12~0x15 (AWG Register) 
 Name	Address	Default	Attribute	Description
@@ -5862,12 +6093,12 @@ Support read 1 to clear
 bit -7:  read back the value of bit3 written in write access.
 AWG_INT_REG02 
  	0x2D	0x00	RW	First Address Interrupt. 
-Enable the SPI interrupt signal when wave gen arrives at this waveform address (there are 128 points 
-wave form, hence, 128 addresses to 
+Enable the SPI interrupt signal when wave gen arrives at this waveform address (there are 64 points 
+wave form, hence,64 addresses to 
 be used as first address interrupt).
 AWG_INT_REG03 
  	0x2E	0x00	RW	Second Address Interrupt. 
-Enable the interrupt signal when wave gen arrives at this wave form address (there are 128 points wave form, hence, 128 addresses to be used as second address interrupt).
+Enable the interrupt signal when wave gen arrives at this wave form address (there are 64 points wave form, hence, 64 addresses to be used as second address interrupt).
 AWG_ALT_LIM_REG: 0x2F~0x30 (AWG Register)
 Name	Address	Default	Attribute	Description
 AWG_ALT_LIM_REG01 
@@ -5920,7 +6151,11 @@ Others: bit[11:4]
 3:0	D2A_IDAC_DIN_MSB	RW	4’b0000	D2A_IDAC_DIN (MSB [3:0]) 
 NO_OF_NUM_SLIENT_CTR0: Offset: 0x38 (AWG Register)
 Bit	Field Name	Attribute	Default	Description
-7:2	RESERVED	RO	6’h00	No use
+7:4	RESERVED	RO	6’h00	No use
+3	DDS_MODE	RW	1’b0	0 ：disable DDS_MODE
+1： enable DDS_MODE
+2	MUL_WAVE_REPEAT	RW	1’b0	0 ： disable 
+1 ： enable
 1	DRIVER_ISEL	RW	1’b0	D2A_CBUF_EN:
 Current buffer enable for each driver
 (only go to analog） 
@@ -5938,6 +6173,7 @@ Bit[15:8]
 ADDR_IS_VALID_FOR_CAL: Offset: 0x3B (AWG Register)
 Bit	Field Name	Attribute	Default	Description
 7:0	ADDR_IS_VALID_FOR_CAL	RW	0x00	The effective address of scale/offset/MSB_SEL/DECIMAL_SEL
+（0x26/0x27/0x28/0x29/0x37 bit[6:4]/0x3c bit[3:0]）
 Note: When the value is 0x00, the address is POINT  REG - 1
  
 EMS_REG_CTRL: Offset: 0x3C (AWG Register)
