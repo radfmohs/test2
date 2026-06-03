@@ -181,7 +181,7 @@ assign state3_end = ((hlf_wave_cnt[15:0] == hlf_wave_cnt_max_m1) && ((nxt_wave_v
 assign state4_end = (((hlf_wave_cnt == (silent_lim-1)      ) && (state == S4))); 
 
 assign waveform_change_flag= (config_reg[7] &&  config_reg[0] && config_reg[1] && config_reg[2] && (!(&(rest_lim -1))))? state2_end : 
-                             ( config_reg[2] && (!(&(silent_lim -1))))? state4_end : 
+                             ( !start_with_silent && config_reg[2] && (!(&(silent_lim -1))))? state4_end: 
                              ( config_reg[1] && (!(&(neg_nxt_wave_val_lim -1))))? state3_end : 
                              ( config_reg[0] && (!(&(rest_lim -1))))? state2_end : 
                              (!config_reg[7] && (!(&(hlf_wave_lim -1))))? state1_end : 1'b0;
@@ -317,7 +317,7 @@ always @(posedge clk, negedge reset) begin
                 if((state==S1) & ((hlf_wave_cnt[15:0] == 16'h0000) && (nxt_wave_val_cnt == (nxt_wave_val_lim-1))))begin
                  no_of_num_before_slient <= no_of_num_before_slient + 16'b1;
                 end
-               else if((state==S4) & (hlf_wave_cnt == (silent_lim-1)) & mul_wave_repeat_valid)begin
+               else if( waveform_change_flag & mul_wave_repeat_valid)begin
                  no_of_num_before_slient <= 16'h00;
                end
             end

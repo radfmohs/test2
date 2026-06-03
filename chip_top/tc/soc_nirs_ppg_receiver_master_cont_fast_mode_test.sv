@@ -211,7 +211,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
    
           // // 1. Randomize a fresh configuration for this channel
           assert(`NIRS_PPG_CTRL_CFG.randomize() with{nirs_ppg_mode_sel inside {2,6};
-                                                     nirs_ppg_led_ambient_en == 'h0;
+                                                     nirs_ppg_led_ambient_en == ((ctrl_ambient_mode == 1'b1) ? 1'b1 : 1'b0);
                                                      threshold_h_18_16 == 'h0;
                                                      threshold_h_15_8  == 'h0; 
                                                      threshold_h_7_0 inside {[0:10]};
@@ -261,7 +261,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
             config_nirs_intr_en_reg;
             //6.
             config_nirs_ctrl_mode_reg;
-           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW); 
+           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test CFG_ctrl_ambient_mode =%0h, nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.ctrl_ambient_mode,  `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW); 
            `nnc_info("PPG_TEST","Disable common regs configuration for each loop",NNC_LOW);
             top_test_cfg.first_time_config =1'b0; 
             `nnc_info("PPG_TEST",$sformatf("for common nirs reg configuration first_time_config=%0h",top_test_cfg.first_time_config),NNC_LOW);
@@ -338,7 +338,11 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
 
     //
-    receiver_master_cont_fast_mode_operation();
+     receiver_master_cont_fast_mode_operation();
+   
+
+    #10ms;
+
 
 //    //6.send command
 //    nirs_start_cmd_receiver_single_cont_mode;
@@ -594,73 +598,77 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
          //end
      //end
 
-     fork
-       `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h\n", `NIRS_PPG_IF.ch_en_mask),NNC_LOW);
+     // wait for couple of interrupts
+     //repeat (16)begin
+        fork
+          `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h\n", `NIRS_PPG_IF.ch_en_mask),NNC_LOW);
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH0= %0h \n", `NIRS_PPG_IF.ch_en_mask[0]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask, 0);  
-         end
-       end //CH0
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH0= %0h \n", `NIRS_PPG_IF.ch_en_mask[0]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask, 0);  
+            end
+          end //CH0
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[1] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH1= %0h \n", `NIRS_PPG_IF.ch_en_mask[1]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,1);  
-         end
-       end  //CH1
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[1] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH1= %0h \n", `NIRS_PPG_IF.ch_en_mask[1]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,1);  
+            end
+          end  //CH1
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[2] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH2= %0h \n", `NIRS_PPG_IF.ch_en_mask[2]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en,`NIRS_PPG_IF.ch_en_mask,2);  
-         end
-       end  //CH2
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[2] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH2= %0h \n", `NIRS_PPG_IF.ch_en_mask[2]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en,`NIRS_PPG_IF.ch_en_mask,2);  
+            end
+          end  //CH2
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[3] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH3= %0h \n", `NIRS_PPG_IF.ch_en_mask[3]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,3);  
-         end
-       end  //CH3
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[3] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH3= %0h \n", `NIRS_PPG_IF.ch_en_mask[3]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,3);  
+            end
+          end  //CH3
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[4] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH4= %0h \n", `NIRS_PPG_IF.ch_en_mask[4]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,4); 
-         end
-       end  //CH4
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[4] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH4= %0h \n", `NIRS_PPG_IF.ch_en_mask[4]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,4); 
+            end
+          end  //CH4
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[5] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH5= %0h \n", `NIRS_PPG_IF.ch_en_mask[5]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,5);  
-         end
-       end  //CH5
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[5] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH5= %0h \n", `NIRS_PPG_IF.ch_en_mask[5]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,5);  
+            end
+          end  //CH5
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[6] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH6= %0h \n", `NIRS_PPG_IF.ch_en_mask[6]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,6);  
-         end
-       end  //CH7
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[6] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH6= %0h \n", `NIRS_PPG_IF.ch_en_mask[6]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,6);  
+            end
+          end  //CH7
 
-       begin
-         if(`NIRS_PPG_IF.ch_en_mask[7] === 1'b1) begin
-           `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH7= %0h \n", `NIRS_PPG_IF.ch_en_mask[7]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,7);  
-         end
-       end  //CH8
+          begin
+            if(`NIRS_PPG_IF.ch_en_mask[7] === 1'b1) begin
+              `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH7= %0h \n", `NIRS_PPG_IF.ch_en_mask[7]),NNC_MEDIUM);
+               monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask,7);  
+            end
+          end  //CH8
 
-     join
+        join
     
-    //8. read data all channels data
-    read_nirs_idac_data;
+        //8. read data all channels data
+        read_nirs_idac_data;
 
 
-    //9.clear interrupt status 
-    clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ);
+        //9.clear interrupt status 
+        clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.nirs_int_pin_en);
+
+     //end //repeat loop of "N"interrupts
 
   endtask 
   // ------------------------------

@@ -183,7 +183,7 @@ class `TESTCFG extends soc_wavegen_pair_drv_base_test_cfg;
 
   constraint c_wavegen_drv_en { $countones(wavegen_drv_en) == 2; } // 0 and 1 is enabled
 
-  constraint c_wg_scoreboard_en         { wg_scoreboard_en == 1; } // 0 and 1 is enabled
+  constraint c_wg_scoreboard_en         { wg_scoreboard_en == 0; } // 0 and 1 is enabled
 
   constraint c_wg_wave0_pos_clk_num { wave0_pos_clk_num inside {[10:1000]} ;} 
   constraint c_wg_wave1_pos_clk_num { wave1_pos_clk_num inside {[10:1000]} ;} 

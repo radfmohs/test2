@@ -210,7 +210,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
    
           // // 1. Randomize a fresh configuration for this channel
           assert(`NIRS_PPG_CTRL_CFG.randomize() with{nirs_ppg_mode_sel inside {1,3,5,7,9,11,13,15};
-                                                     nirs_ppg_led_ambient_en == 'h0; 
+                                                     nirs_ppg_led_ambient_en == ((ctrl_ambient_mode == 1'b1) ? 1'b1 : 1'b0);  
                                                      threshold_h_18_16 == 'h0;
                                                      threshold_h_15_8  == 'h0; 
                                                      threshold_h_7_0 inside {[0:10]};
@@ -259,7 +259,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
             config_nirs_intr_en_reg;
             //6.
             config_nirs_ctrl_mode_reg; 
-           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW);
+           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test CFG_ctrl_ambient_mode =%0h, nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.ctrl_ambient_mode, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW);
            `nnc_info("PPG_TEST","Disable common regs configuration for each loop",NNC_LOW);
             top_test_cfg.first_time_config =1'b0; 
             `nnc_info("PPG_TEST",$sformatf("for common nirs reg configuration first_time_config=%0h",top_test_cfg.first_time_config),NNC_LOW);
@@ -351,6 +351,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
       mcu_master_single_mode_operation();
     end
 
+    #10ms;
 //    //6.send command
 //    nirs_start_cmd_mcu_master_single_mode(/*top_test_cfg.ch, top_test_cfg.num_leds*/);
 //
@@ -579,7 +580,21 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
        begin
          if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
            `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH0= %0h \n", `NIRS_PPG_IF.ch_en_mask[0]),NNC_MEDIUM);
-            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask, 0);  
+            monitor_nirs_interrupt(top_test_cfg.temp_num_ch_en, `NIRS_PPG_IF.ch_en_mask, 0);
+             
+            //if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin
+            ////4. ACTIVE LOW,  PULSE ACTIVE (1 to 0 transition, 1PCLK))
+            //if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin 
+            //@( posedge `CLK_CTRL_TOP.clk_ppg); 
+            //@( negedge `CLK_CTRL_TOP.clk_ppg);
+            //@( posedge `CLK_CTRL_TOP.clk_ppg);
+            ////for(int i=0; i<8; i++)begin   //if each channel interrupt comes one after the other then IOPAD PIN won;t be one ppg clock
+            ////if(`NIRS_PPG_IF.ch_en_mask[i])begin
+            //if(`NIRS_PPG_IF.nirs_int_io[channel_num] !== 1'b0) begin
+            //    
+            //    `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! INT_IO[%0d] =%0h, For CH =%0h\n", channel_num, `NIRS_PPG_IF.nirs_int_io[channel_num], channel_num)) 
+            //end
+ 
          end
        end //CH0
 
@@ -639,7 +654,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
 
     //9.clear interrupt status 
-    clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ);
+    clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.nirs_int_pin_en);
 
    endtask
   // ------------------------------

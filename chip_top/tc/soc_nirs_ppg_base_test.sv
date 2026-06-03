@@ -1030,13 +1030,13 @@ class `TESTNAME extends soc_base_test;
         `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h20,top_test_cfg.nirs_rd_data_burst); 
    endtask   
 
-   task clear_interrupt_status(bit gen_reg_int_clr_typ);
+   task clear_interrupt_status(bit gen_reg_int_clr_typ, bit poll_pin_or_stsreg);
        if(`NIRS_PPG_IF.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg ===1'b1)begin  //general nirs sts reg
          if(gen_reg_int_clr_typ === 1'b1)begin
            `uvm_info("NIRS_INT",$sformatf("SOC_GENERAL_INT_STS_6_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW)     
             `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.nirs_read_intr_status); //R1C
             //cross  check status
-            check_status_reg_r1c(top_test_cfg.nirs_read_intr_status, `NIRS_PPG_IF.ch_en_mask);
+            check_status_reg_r1c(top_test_cfg.nirs_read_intr_status, `NIRS_PPG_IF.ch_en_mask,poll_pin_or_stsreg);
          end
          else begin
            `uvm_info("NIRS_INT",$sformatf("SOC_GENERAL_INT_STS_6_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW) 
@@ -1051,7 +1051,7 @@ class `TESTNAME extends soc_base_test;
            `uvm_info("NIRS_INT",$sformatf("SOC_NIRS_INT_STATUS_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW)     
             `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, 8'h00, top_test_cfg.nirs_read_intr_status); //R1C
             //cross check sattus
-            check_status_reg_r1c(top_test_cfg.nirs_read_intr_status, `NIRS_PPG_IF.ch_en_mask);
+            check_status_reg_r1c(top_test_cfg.nirs_read_intr_status, `NIRS_PPG_IF.ch_en_mask,poll_pin_or_stsreg);
          end
          else begin
            `uvm_info("NIRS_INT",$sformatf("SOC_NIRS_INT_STATUS_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW) 
@@ -1069,16 +1069,40 @@ class `TESTNAME extends soc_base_test;
         `uvm_info("NIRS_INT",$sformatf("int_active_high_level_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
    endtask
 
-   task pin_int_active_high_pulse_active(int channel_num);
+   task automatic pin_int_active_high_pulse_active(int channel_num);
         `uvm_info("NIRS_INT",$sformatf("WAIT FOR pin_int_active_high_pulse_active INTERRUPT!!!! For CH =%0h\n", channel_num),UVM_LOW )
+         //@(posedge `NIRS_PPG_IF.nirs_int_io[channel_num]); 
+         //RD STS
+         //if STS == expected --> check PIN
+         //  
          @(posedge `SOC_TOP.IOBUF_PAD[11])//wait(`SOC_TOP.IOBUF_PAD[11]);   // 0 -->1 ( 1 PPG CLK)
-        `uvm_info("NIRS_INT",$sformatf("pin_int_active_high_pulse_active INTERRUPT OCCURRED!!!! For CH =%0h\n", channel_num),UVM_LOW )
+         `uvm_info("NIRS_INT",$sformatf("pin_int_active_high_pulse_active INTERRUPT OCCURRED!!!! For CH =%0h, INT_IO[%0d] =%0h\n", channel_num, channel_num, `NIRS_PPG_IF.nirs_int_io[channel_num]),UVM_LOW )
+         
         @( posedge `CLK_CTRL_TOP.clk_ppg); 
         @( negedge `CLK_CTRL_TOP.clk_ppg);
         @( posedge `CLK_CTRL_TOP.clk_ppg);
+//        //for(int i=0; i<8; i++)begin   //if each channel interrupt comes one after the other then IOPAD PIN won;t be one ppg clock
+//           //if(`NIRS_PPG_IF.ch_en_mask[i])begin
+//             if(`NIRS_PPG_IF.nirs_int_io[channel_num] !== 1'b0) begin
+//                
+//                `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! INT_IO[%0d] =%0h, For CH =%0h\n", channel_num, `NIRS_PPG_IF.nirs_int_io[channel_num], channel_num)) 
+//             end
+//           //end
+//        //end
         if(`SOC_TOP.IOBUF_PAD[11] !== 1'b0) begin
           `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num)) 
         end
+          //if(`NIRS_PPG_IF.nirs_int_io[channel_num] === 1'b1)begin
+          //  if(`SOC_TOP.IOBUF_PAD[11] !== 1'b1)begin
+          //    `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num))
+          //  end            
+          //end
+          //@( posedge `CLK_CTRL_TOP.clk_ppg); 
+          //@( negedge `CLK_CTRL_TOP.clk_ppg);
+          //@( posedge `CLK_CTRL_TOP.clk_ppg);
+          //if(`NIRS_PPG_IF.nirs_int_io[channel_num] === 1'b1)begin 
+          //  `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! INT_IO[%0d] =%0h, For CH =%0h\n", channel_num, `NIRS_PPG_IF.nirs_int_io[channel_num], channel_num)) 
+          //end 
    endtask
 
    task pin_int_active_low_level_active(int channel_num);
@@ -1116,14 +1140,16 @@ class `TESTNAME extends soc_base_test;
   endtask
 
   //
-  task check_status_reg_r1c(logic [7:0] read_status, logic[7:0] expected_status);
+  task check_status_reg_r1c(logic [7:0] read_status, logic[7:0] expected_status, bit in_poll_pin_or_stsreg);
        logic [7:0] gen_nirs_rd_intr_status, nirs_rd_intr_status;
 
-       if(read_status !== expected_status)begin
-         `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", read_status, expected_status))
-       end
-       else begin
-         `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
+       if(in_poll_pin_or_stsreg === 1'b1)begin
+         if(read_status !== expected_status)begin
+           `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", read_status, expected_status))
+         end
+         else begin
+           `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
+         end
        end
        //check interrupt line
        check_interrupt_after_clear_sts();

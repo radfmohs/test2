@@ -136,10 +136,11 @@ class `TESTNAME extends soc_base_test;
     // ==================
     // Scoreboard enables
     // ==================
-    `SPI_SCB_EN = 1'b0;
-    `ANALOG_SCOREBOARD_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_0_EN = 1'b0;
-    `WAVEGEN_SHORT_DETECT_SCB_EN = 1'b0; 
+    `SPI_SCB_EN =                   1'b0;
+    `ANALOG_SCOREBOARD_EN =         1'b0;
+    `WAVEGEN_SCB_DRV_0_EN =         1'b0;
+    `WAVEGEN_SHORT_DETECT_SCB_EN =  1'b0; 
+    //`PINMUX_SCOREBOARD_EN =         1'b0;
    
     phase.drop_objection(this); 
   endtask

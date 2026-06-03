@@ -117,11 +117,13 @@ generate
       if (!`NIRS_PPG_TOP.rst_n)begin
         nirs_ppg_vif.nirs_ppg_en[i] <= 1'b0;
         nirs_ppg_vif.nirs_ppg_meas[i] <= 1'b0;
+        nirs_ppg_vif.nirs_int_io[i]   <= 1'b0;
       end
       else begin
         // constant hierarchical reference per instance (macro expands to the path)
         nirs_ppg_vif.nirs_ppg_en[i]  <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_EN;
         nirs_ppg_vif.nirs_ppg_meas[i] <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_MEAS;
+        nirs_ppg_vif.nirs_int_io[i]   <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_ppg_int.INT_IO;
       end
     end
   end

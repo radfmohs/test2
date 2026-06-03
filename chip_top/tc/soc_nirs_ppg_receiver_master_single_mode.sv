@@ -210,7 +210,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
    
           // // 1. Randomize a fresh configuration for this channel
           assert(`NIRS_PPG_CTRL_CFG.randomize() with{nirs_ppg_mode_sel inside {8,10,12,14};
-                                                     nirs_ppg_led_ambient_en == 'h0;
+                                                     nirs_ppg_led_ambient_en == ((ctrl_ambient_mode == 1'b1) ? 1'b1 : 1'b0);
                                                      threshold_h_18_16 == 'h0;
                                                      threshold_h_15_8  == 'h0; 
                                                      threshold_h_7_0 inside {[0:10]};
@@ -258,7 +258,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
             config_nirs_intr_en_reg;
             //6.
             config_nirs_ctrl_mode_reg;
-           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW); 
+           `nnc_info("PPG_TEST",$sformatf("nirs pgg base test CFG_ctrl_ambient_mode =%0h, nirs_ppg_led_ambient_en =%0h, nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.ctrl_ambient_mode,  `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en,`NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW); 
            `nnc_info("PPG_TEST","Disable common regs configuration for each loop",NNC_LOW);
             top_test_cfg.first_time_config =1'b0; 
             `nnc_info("PPG_TEST",$sformatf("for common nirs reg configuration first_time_config=%0h",top_test_cfg.first_time_config),NNC_LOW);
@@ -770,7 +770,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
 
     //9.clear interrupt status 
-    clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ);
+    clear_interrupt_status(`NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.nirs_int_pin_en);
 
    endtask
   // ------------------------------

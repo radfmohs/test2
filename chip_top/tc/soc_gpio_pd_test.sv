@@ -101,7 +101,7 @@ class `TESTNAME extends soc_base_test;
 
     `ifdef BEHAVIORAL
     // Check the initial pads
-        top_test_cfg.GPIO_PD = {{10{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {8{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};  
+        top_test_cfg.GPIO_PD = {{8{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {10{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};  
                
         if(`SPI_TOP.spi_reg_u.gpio_pd_ctrl !== `INIT_SOC_GPIO_PD_CTRL_REG) begin
             `nnc_error("PINMUX", $sformatf("`SPI_TOP.spi_reg_u.gpio_pd_ctrl = %h is not as expectation of INIT_SOC_GPIO_PD_CTRL_REG: %h",`SPI_TOP.spi_reg_u.gpio_pd_ctrl, `INIT_SOC_GPIO_PD_CTRL_REG))
@@ -122,7 +122,7 @@ class `TESTNAME extends soc_base_test;
 	#1000ns;    
 
 	//top_test_cfg.GPIO_PD = {8'b0,`DIG_TOP.u_gpio.i_gpio_pd_ctrl};
-	top_test_cfg.GPIO_PD = {{10{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {8{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};
+	top_test_cfg.GPIO_PD = {{8{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[4], {10{1'b0}},`SPI_TOP.spi_reg_u.gpio_pd_ctrl[3:1]};
 
 	#1000ns;
     

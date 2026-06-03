@@ -1163,7 +1163,7 @@ end
 
       // Updating for DUT Interface for Wave0
       if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_en[i] == 1'b1)) begin
-      `DUT_IF.wg_hlf_wave0_lim[i] = 0; // top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
+      `DUT_IF.wg_hlf_wave0_lim[i] =  `DUT_IF.wg_wave0_pos_clk_num[i]; // top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
       `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
       `DUT_IF.wg_rest_wave0_lim[i] = 0;
       `DUT_IF.wg_silent_wave0_lim[i] = 0;
@@ -1522,9 +1522,9 @@ end
     // Write to ADDR_WG_DRV_CONFIG_REG0(//bit 0:rest enable, 1:negative enable, 2: silent enable, 3: source B enable, 4: alternate, 5: continue mode, 6: multi-electrode, 7: positive disable)
     // --------------------------------------------------------
     if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_en[drv_num] == 1'b1))
-      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {1'b1, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b1};});
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
     else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_en[drv_num] == 1'b1))
-      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b1};});
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
     else
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b1, top_test_cfg.NEG_ON, 1'b1};});
     `nnc_info("SOC_TEST", "Set driver configuration register", NNC_LOW)

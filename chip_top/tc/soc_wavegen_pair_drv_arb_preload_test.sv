@@ -188,7 +188,7 @@ class `TESTCFG extends soc_wavegen_pair_drv_base_test_cfg;
   constraint c_wg_wave1_rest_clk_num { wg_rest_en == 1 -> wave1_rest_clk_num inside {[10:1000]} ; wg_rest_en == 0 -> wave1_rest_clk_num == 0; } 
   constraint c_wg_wave2_rest_clk_num { wg_rest_en == 1 -> wave2_rest_clk_num inside {[10:1000]} ; wg_rest_en == 0 -> wave2_rest_clk_num == 0; } 
 
-  constraint c_wg_rest_en            { wg_rest_en inside {[0:0]};} // 0 and 1 is enabled
+  constraint c_wg_rest_en            { wg_rest_en inside {[0:1]};} // 0 and 1 is enabled
 
   // -----------------------------------------------
   // End of adding constraints of randomization
