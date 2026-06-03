@@ -799,13 +799,12 @@ end
 
 // ------------------------------CONTROL SIGNAL---------------------------------//
 
-// mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
+// imeas_16bit_sel=1 (mode[0]=0) -> 2 bytes per channel (16-bit)
+// imeas_16bit_sel=0 (mode[0]=1) -> 3 bytes per channel (24-bit)
 
 assign adc_inc_val = imeas_16bit_sel ? 2'b01 : 2'b10;
 
 
-// mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
-//assign chdata_size = mode[0] ? 3'h3 : 3'h4;
 assign chdata_size = imeas_16bit_sel ? 3'h2  : 3'h3;
 
 /*********************************************
