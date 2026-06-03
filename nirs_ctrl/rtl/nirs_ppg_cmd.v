@@ -16,7 +16,7 @@ module nirs_ppg_cmd (
 ); 
   reg   NIRS_PPG_EN_d;
   reg   NIRS_PPG_MEAS_d;
-  wire  STOP, START_tmp, MEAS_tmp;
+  wire  STOP, START, START_tmp, MEAS, MEAS_tmp;
   /*
     CMD:
       00: HOLD - NOTHING
@@ -28,7 +28,7 @@ module nirs_ppg_cmd (
   assign MEAS_tmp   = (CMD == 2'b10);
   assign STOP       = (CMD == 2'b11);
 
-  reg START_tmp_d, START, START_d;
+  reg START_tmp_d, START_d;
   always @ (posedge i_clk_sys or negedge rst_n) begin
     if (~rst_n) begin
       START_tmp_d <= 1'b0;
@@ -41,7 +41,7 @@ module nirs_ppg_cmd (
 
   assign START = !START_tmp_d & START_tmp;  // START local clock
 
-  reg MEAS_tmp_d, MEAS, MEAS_d;
+  reg MEAS_tmp_d, MEAS_d;
   always @ (posedge i_clk_sys or negedge rst_n) begin
     if (~rst_n) begin
       MEAS_tmp_d  <= 1'b0;

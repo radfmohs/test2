@@ -525,7 +525,34 @@ end
 assign cic_data_ok = cic_data_counter==cic_data_counter_tar_temp;
 
 //int
-assign meas_done = !(&notch_filter_bypass_temp)? |(filter_chdata_en & ~notch_filter_bypass_temp) :
+wire hpf_nf_lpf_en;
+wire nf_lpf_en;
+wire nf_hpf_en;
+wire lpf_hpf_en;
+
+wire [CHN_NUM-1:0] hpf_nf_lpf_ch;
+wire [CHN_NUM-1:0] nf_lpf_ch;
+wire [CHN_NUM-1:0] nf_hpf_ch;
+wire [CHN_NUM-1:0] lpf_hpf_ch;
+
+
+
+assign hpf_nf_lpf_en = !(&(notch_filter_bypass_temp | lpf_filter_bypass_temp | hpf_filter_bypass_temp));//lpf
+assign nf_lpf_en     = !(&(notch_filter_bypass_temp | lpf_filter_bypass_temp));//lpf
+assign nf_hpf_en     = !(&(notch_filter_bypass_temp | hpf_filter_bypass_temp));//nf
+assign lpf_hpf_en    = !(&(lpf_filter_bypass_temp | hpf_filter_bypass_temp));//lpf
+
+
+assign hpf_nf_lpf_ch = ~(notch_filter_bypass_temp | lpf_filter_bypass_temp | hpf_filter_bypass_temp);//lpf
+assign nf_lpf_ch     = ~(notch_filter_bypass_temp | lpf_filter_bypass_temp);//lpf
+assign nf_hpf_ch     = ~(notch_filter_bypass_temp | hpf_filter_bypass_temp);//nf
+assign lpf_hpf_ch    = ~(lpf_filter_bypass_temp | hpf_filter_bypass_temp);//lpf
+
+assign meas_done =   hpf_nf_lpf_en? |(filter_chdata_en & hpf_nf_lpf_ch) :
+                     nf_lpf_en?     |(filter_chdata_en & nf_lpf_ch) :    
+                     nf_hpf_en?     |(filter_chdata_en & nf_hpf_ch) :   
+                    !(&notch_filter_bypass_temp)? |(filter_chdata_en & ~notch_filter_bypass_temp) :
+                     lpf_hpf_en?     |(filter_chdata_en & lpf_hpf_ch) :                                
                    !(&lpf_filter_bypass_temp)  ? |(filter_chdata_en & ~lpf_filter_bypass_temp) :
                    !(&hpf_filter_bypass_temp)  ? |(filter_chdata_en & ~hpf_filter_bypass_temp) : |filter_chdata_en;
                   

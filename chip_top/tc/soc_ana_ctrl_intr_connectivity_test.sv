@@ -34,6 +34,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic        int_active_level_high_or_low;
   rand logic        clear_intr_manual_or_auto;
   rand logic        intr_length_slct_level_or_pulse;
+  rand logic        multi_pins;
   rand logic [2:0]  lvd_sel;
   rand logic        lvd_en;
        integer      cnt;
@@ -89,9 +90,10 @@ class `TESTNAME extends soc_base_test;
 
   `TESTCFG top_test_cfg;
 
-  typedef enum {LVD_INT=0} selected_intr ;
+  typedef enum {INT_LVD = 0, INT_TSC = 7, INT_STI = 1} selected_intr ;
   selected_intr sel_int;
   bit use_old_intr_reg_or_general_reg_to_clr;
+  logic [7:0] multi; //
 
   // -----------------------------------------
   // Declare the new function 
@@ -171,23 +173,29 @@ class `TESTNAME extends soc_base_test;
     phase.raise_objection(this);
 
     check_ana_lvd_connectivity();
+    
+    top_test_cfg.wr_data[0] = {1'b0, top_test_cfg.multi_pins, 5'b0, `DUT_IF.intr_length_slct_level_or_pulse};
+    `WR_NORMAL_REG(`SOC_PMU_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    #10000ns;
 
     top_test_cfg.wr_data[0] = {5'b0,`DUT_IF.int_active_level_high_or_low,`DUT_IF.clear_intr_manual_or_auto,`DUT_IF.intr_length_slct_level_or_pulse};
     `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
     #10000ns;
 
+	`nnc_info("MULTI_PINS", $sformatf("Multi_pins is %b", top_test_cfg.multi_pins), NNC_LOW)
+
     // check INTB RESET value
     if(`DUT_IF.int_active_level_high_or_low === 0) begin
-	if(`SOC_TB.INTB !== 1)
-	  `nnc_error("SOC_TEST", "Error! RESET VALUE INTB not active low as expected!!")
+	if(`SOC_TB.INTB !== 1 || `SOC_TB.INT[0] !== 1|| `SOC_TB.INT[1] !== 1|| `SOC_TB.INT[2] !== 1|| `SOC_TB.INT[3] !== 1)
+	  `nnc_error("INTB Reset", "Error! RESET VALUE INTB not active low as expected!!")
 	else
-	  `nnc_info("SOC_TEST", "Active low INTB selected!", NNC_LOW)
+	  `nnc_info("INTB Reset", "Active low INTB selected!", NNC_LOW)
     end
     else begin
-	if(`SOC_TB.INTB !== 0)
-	  `nnc_error("SOC_TEST", "Error! RESET VALUE INTB not active high as expected!!")
+	if(`SOC_TB.INTB !== 0 || `SOC_TB.INT[0] !== 0|| `SOC_TB.INT[1] !== 0|| `SOC_TB.INT[2] !== 0|| `SOC_TB.INT[3] !== 0)
+	  `nnc_error("INTB Reset", "Error! RESET VALUE INTB not active high as expected!!")
 	else
-	   `nnc_info("SOC_TEST", "Active high INTB selected!", NNC_LOW)
+	   `nnc_info("INTB Reset", "Active high INTB selected!", NNC_LOW)
     end
 
     #10000ns;
@@ -195,17 +203,32 @@ class `TESTNAME extends soc_base_test;
     while(top_test_cfg.cnt < 3) begin
       `nnc_info("SOC_TEST", $sformatf("inside repeat loop for LVD intr check = %0d",top_test_cfg.cnt), NNC_LOW)
       top_test_cfg.cnt++;
-      sel_int = LVD_INT;
-      a2d_lvd_int_check();
+      sel_int = INT_TSC;
+      intr_tsc_check();
+    end/*
+    top_test_cfg.cnt = 0;
+    while(top_test_cfg.cnt < 3) begin
+      `nnc_info("SOC_TEST", $sformatf("inside repeat loop for LVD intr check = %0d",top_test_cfg.cnt), NNC_LOW)
+      top_test_cfg.cnt++;
+      sel_int = INT1;
+      int1_check();
+    end*/
+    top_test_cfg.cnt = 0;
+    while(top_test_cfg.cnt < 3) begin
+      `nnc_info("SOC_TEST", $sformatf("inside repeat loop for LVD intr check = %0d",top_test_cfg.cnt), NNC_LOW)
+      top_test_cfg.cnt++;
+      sel_int = INT_LVD;
+      intr_lvd_check();
     end
+/*
     top_test_cfg.cnt = 0;
     while(top_test_cfg.cnt < 3) begin
       `nnc_info("SOC_TEST", $sformatf("inside repeat loop for back to back diff intr check = %0d",top_test_cfg.cnt), NNC_LOW)
       top_test_cfg.cnt++;
-      sel_int = LVD_INT;
-      a2d_lvd_int_check();
+      sel_int = INT3;
+      int3_check();
     end
-
+*/
     phase.drop_objection(this);
   endtask: main_phase
 
@@ -215,12 +238,86 @@ class `TESTNAME extends soc_base_test;
   function void report_phase(nnc_phase phase) ;
   super.report_phase(phase);
   endfunction
-
-  task a2d_lvd_int_check();
+  
+  task intr_tsc_check();
     logic [7:0] rd_data = 0;
     logic [7:0] wr_data = 0;
     logic [7:0] exp_ana_intr_sts_val = 0;
-    logic [7:0] multi; //intr will generate when it detects (0: posedge , 1 :negedge) of ana_comp signal
+
+    use_old_intr_reg_or_general_reg_to_clr =$random;
+    
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_PMU_REG; wr_data[0] == 8'h40;});//enable interrupt
+    `nnc_info("MULTI_PIN", ("MULTIL_INTB_PIN == 1"), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    multi = top_test_cfg.wr_data[0];
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_TSC_INT_CTLR_REG; wr_data[0] == 8'h01;});//enable interrupt
+    `nnc_info("SOC_TEST", $sformatf("will be writing intr en register with wr_data =%0h",top_test_cfg.wr_data[0]), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    `nnc_info("SOC_TEST", $sformatf("%s intr enable",sel_int.name), NNC_LOW)
+
+    check_intr(sel_int,multi);
+
+    exp_ana_intr_sts_val[sel_int] = 1;
+    check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
+  
+    clear_intr();
+ 
+    `nnc_info("SOC_TEST", $sformatf("waiting for INTB to deassert"), NNC_LOW)
+    if(`DUT_IF.int_active_level_high_or_low == 1) 
+      wait(`SOC_TB.INT[2] === 0);
+    else 
+      wait(`SOC_TB.INT[2] === 1);
+    `nnc_info("INT", $sformatf("Finish deassert"), NNC_LOW)
+    
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_TSC_INT_CTLR_REG; wr_data[0] == 8'h00;});//disable interrupt
+    `nnc_info("SOC_TEST", $sformatf("will be writing intr en register with wr_data =%0h",top_test_cfg.wr_data[0]), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    
+    //check interrupt status reg
+    exp_ana_intr_sts_val[sel_int] = 0;
+    check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
+    force `ANA_WRAPPER_TOP.A2D_TSC_COMP_OUT_CH1_tmp = 0;
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_PMU_REG; wr_data[0] == 8'h00;});//enable interrupt
+    `nnc_info("MULTI_PIN", ("MULTIL_INTB_PIN == 0"), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    multi = top_test_cfg.wr_data[0];
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_TSC_INT_CTLR_REG; wr_data[0] == 8'h01;});//enable interrupt
+    `nnc_info("SOC_TEST", $sformatf("will be writing intr en register with wr_data =%0h",top_test_cfg.wr_data[0]), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    `nnc_info("SOC_TEST", $sformatf("%s intr enable",sel_int.name), NNC_LOW)
+
+    check_intr(sel_int,multi);
+
+    exp_ana_intr_sts_val[sel_int] = 1;
+    check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
+    
+    clear_intr();
+    
+    `nnc_info("SOC_TEST", $sformatf("waiting for INTB to deassert"), NNC_LOW)
+    if(`DUT_IF.int_active_level_high_or_low == 1) 
+      wait(`SOC_TB.INT[0] === 0);
+    else 
+      wait(`SOC_TB.INT[0] === 1);
+    `nnc_info("INT", $sformatf("Finish deassert"), NNC_LOW)
+    
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_TSC_INT_CTLR_REG; wr_data[0] == 8'h00;});//disable interrupt
+    `nnc_info("SOC_TEST", $sformatf("will be writing intr en register with wr_data =%0h",top_test_cfg.wr_data[0]), NNC_LOW)
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    
+    //check interrupt status reg
+    exp_ana_intr_sts_val[sel_int] = 0;
+    check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
+    force `ANA_WRAPPER_TOP.A2D_TSC_COMP_OUT_CH1_tmp = 0;
+
+  endtask: intr_tsc_check
+
+  task intr_lvd_check();
+    logic [7:0] rd_data = 0;
+    logic [7:0] wr_data = 0;
+    logic [7:0] exp_ana_intr_sts_val = 0;
 
     use_old_intr_reg_or_general_reg_to_clr =$random;
     
@@ -238,7 +335,9 @@ class `TESTNAME extends soc_base_test;
 
     exp_ana_intr_sts_val[sel_int] = 1;
     check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
-    
+  
+    clear_intr();
+ 
     `nnc_info("SOC_TEST", $sformatf("waiting for INTB to deassert"), NNC_LOW)
     if(`DUT_IF.int_active_level_high_or_low == 1) 
       wait(`SOC_TB.INT[2] === 0);
@@ -270,6 +369,8 @@ class `TESTNAME extends soc_base_test;
     exp_ana_intr_sts_val[sel_int] = 1;
     check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
     
+    clear_intr();
+    
     `nnc_info("SOC_TEST", $sformatf("waiting for INTB to deassert"), NNC_LOW)
     if(`DUT_IF.int_active_level_high_or_low == 1) 
       wait(`SOC_TB.INT[0] === 0);
@@ -286,44 +387,112 @@ class `TESTNAME extends soc_base_test;
     check_intr_sts_reg(exp_ana_intr_sts_val,sel_int);
     `DUT_IF.vbat_level = 7;
 
-  endtask
+  endtask: intr_lvd_check
 
   task check_intr(input int sel_int,logic [7:0] multi);
+    logic[7:0] rd_data;
+    
     begin // LVD_INT
       `nnc_info("SOC_TEST", $sformatf("FORCE the A2D signals to 1 , and check status registers"), NNC_LOW)
       fork
         begin
           force_selected_intr(sel_int,1);
         end
-        begin
-            `nnc_info("SOC_TEST", $sformatf("waiting for INTB assert"), NNC_LOW)
-            if(multi == 8'h40)
+        begin 
+            if(sel_int == INT_LVD)
                 begin
-                    if(`DUT_IF.int_active_level_high_or_low == 1)
-                        begin 
-                        wait(`SOC_TB.INT[2] === 1);
-                        `nnc_info("INT", $sformatf("Interrupt is on"), NNC_LOW)
-                        end
-                    else 
-                        begin 
-                        wait(`SOC_TB.INT[2] === 0);
-                        `nnc_info("INT", $sformatf("Interrupt is on"), NNC_LOW)
-                        end
-                end     
-            else         
+                `nnc_info("CHECK INTR 0", $sformatf("Waiting for INTB to assert, Multi = %h", multi), NNC_LOW)
+                if(multi == 8'h40)
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            `nnc_info("INT", $sformatf("Interrupt is high INT2 %b", `SOC_TB.INT[2]), NNC_LOW)
+                            wait(`SOC_TB.INT[2] === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[2] === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                else         
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            wait(`SOC_TB.INT[0] === 1 || `SOC_TB.INTB === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[0] === 0 || `SOC_TB.INTB === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                `nnc_info("CHECK INTR 0", $sformatf("INTB asserted"), NNC_LOW)
+                end
+            else if(sel_int == INT_TSC)
                 begin
-                    if(`DUT_IF.int_active_level_high_or_low == 1)
-                        begin 
-                        wait(`SOC_TB.INT[0] === 1);
-                        `nnc_info("INT", $sformatf("Interrupt is on"), NNC_LOW)
-                        end
-                    else 
-                        begin 
-                        wait(`SOC_TB.INT[0] === 0);
-                        `nnc_info("INT", $sformatf("Interrupt is on"), NNC_LOW)
-                        end
-                end     
-            `nnc_info("SOC_TEST", $sformatf("INTB asserted"), NNC_LOW)
+                `nnc_info("CHECK INTR 1", $sformatf("Waiting for INTB to assert, Multi = %h", multi), NNC_LOW)
+                if(multi == 8'h40)
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            wait(`SOC_TB.INT[2] === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[2] === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                else         
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            wait(`SOC_TB.INT[0] === 1 || `SOC_TB.INTB === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[0] === 0 || `SOC_TB.INTB === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                `nnc_info("CHECK INTR 1", $sformatf("INTB asserted"), NNC_LOW)
+                end
+            else if(sel_int == INT_STI)
+                begin
+                `nnc_info("CHECK INTR 2", $sformatf("waiting for INTB assert"), NNC_LOW)
+                if(multi == 8'h40)
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            wait(`SOC_TB.INT[2] === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[2] === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                else         
+                    begin
+                        if(`DUT_IF.int_active_level_high_or_low == 1)
+                            begin 
+                            wait(`SOC_TB.INT[0] === 1 || `SOC_TB.INTB === 1);
+                            `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                            end
+                        else 
+                            begin 
+                            wait(`SOC_TB.INT[0] === 0 || `SOC_TB.INTB === 0);
+                            `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                            end
+                    end     
+                `nnc_info("CHECK INTR 2", $sformatf("INTB asserted"), NNC_LOW)
+                end
         end
       join
     end
@@ -333,53 +502,120 @@ class `TESTNAME extends soc_base_test;
     bit [7:0] rd_data;
     `nnc_info("SOC_TEST", $sformatf("inside force_selected_intr, sel_int=%d, force_val=%0d",sel_int,force_val), NNC_LOW)
 
-    if(sel_int == LVD_INT)begin
-      //if(force_val==1) force `ANA_TOP.A2D_LVD = 1;
-      //if(force_val==0) force `ANA_TOP.A2D_LVD = 0;
-      if(force_val==1) `DUT_IF.vbat_level = $urandom_range(0,`DUT_IF.lvd_sel-1); // when vbat < threshold(lvd_sel),  A2D_LVD =1
-      if(force_val==0) `DUT_IF.vbat_level = $urandom_range(`DUT_IF.lvd_sel,7); // when vbat >= threshold(lvd_sel), A2D_LVD = 0
+    if(sel_int == INT_TSC) 
+        begin
+           force `ANA_WRAPPER_TOP.A2D_TSC_COMP_OUT_CH1_tmp = 1;
+        end
+    else if(sel_int == INT_STI) 
+        begin
 
-      // check A2D_LVD status
-      `RD_NORMAL_REG(`SOC_A2D_ANA_GEN_REG_0,top_test_cfg.pads, rd_data);
-      if(rd_data[0] !== force_val) `uvm_error("SOC_TEST",$sformatf("A2D_LVD STS reg value is=%b ,Expected=%b", rd_data[0],force_val))
-      else `nnc_info("SOC_TEST", $sformatf("A2D_LVD STS reg value is=%b ,Expected=%b", rd_data[0],force_val), NNC_LOW) 
-    end
+        end
+    else if(sel_int == INT_LVD)
+        begin
+            if(force_val==1) `DUT_IF.vbat_level = $urandom_range(0,`DUT_IF.lvd_sel-1); // when vbat < threshold(lvd_sel),  A2D_LVD =1
+            if(force_val==0) `DUT_IF.vbat_level = $urandom_range(`DUT_IF.lvd_sel,7); // when vbat >= threshold(lvd_sel), A2D_LVD = 0
+
+            // check A2D_LVD status
+            `RD_NORMAL_REG(`SOC_A2D_ANA_GEN_REG_0,top_test_cfg.pads, rd_data);
+            if(rd_data[0] !== force_val) `uvm_error("SOC_TEST",$sformatf("A2D_LVD STS reg value is=%b ,Expected=%b", rd_data[0],force_val))
+            else `nnc_info("SOC_TEST", $sformatf("A2D_LVD STS reg value is=%b ,Expected=%b", rd_data[0],force_val), NNC_LOW) 
+        end
   endtask : force_selected_intr
 
   task check_intr_sts_reg(input bit[7:0] exp_ana_intr_sts_val,int sel_int);
     bit [7:0] rd_data;
 
-    // turn off SPI VIP specific register checker as manually checking below - this is w1c reg
-    //`SPI_STATUS_REG_CHECK_EN = 0;
-
-    if(use_old_intr_reg_or_general_reg_to_clr == 0) begin // old intr status register
-      `nnc_info("SOC_TEST", $sformatf("read old intr status register"), NNC_LOW)
-      `RD_NORMAL_REG(`SOC_ANA_INT_LVD_STS_REG,top_test_cfg.pads, rd_data);
-      if(rd_data !== exp_ana_intr_sts_val) `uvm_error("SOC_TEST",$sformatf("ANA INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val))
-      else `nnc_info("SOC_TEST", $sformatf("ANA INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val), NNC_LOW)
-      //repeat(3)@(posedge `DUT_IF.sys_clk); // atleast 3 pclk between 2 SPI read cmd required by design as per Zhen
-      //while(rd_data != exp_ana_intr_sts_val)begin
-      //  repeat(3)@(posedge `DUT_IF.sys_clk); // atleast 3 pclk between 2 SPI read cmd required by design as per Zhen
-      //  `RD_NORMAL_REG(`SOC_ANA_INT_COMP_STS_REG,top_test_cfg.pads, rd_data);
-      //end
-      //`nnc_info("SOC_TEST", $sformatf("ANA INTR STS MATCHED register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val), NNC_LOW)
-    end 
-    else begin // new general intr sts reg
-      `nnc_info("SOC_TEST", $sformatf("read new general intr status register"), NNC_LOW)
-      `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, rd_data); // ch0  and ch1 sts
-      if(rd_data !== exp_ana_intr_sts_val) `uvm_error("SOC_TEST",$sformatf("GENERAL INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val))
-      else `nnc_info("SOC_TEST", $sformatf("GENERAL INTR STS register value is='h%h ,Expected='h%h", rd_data,exp_ana_intr_sts_val), NNC_LOW)
-      //repeat(3)@(posedge `DUT_IF.sys_clk); // atleast 3 pclk between 2 SPI read cmd required by design as per Zhen
-      //while(rd_data != exp_ana_intr_sts_val)begin
-      //  repeat(3)@(posedge `DUT_IF.sys_clk);// atleast 3 pclk between 2 SPI read cmd required by design as per Zhen
-      //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, rd_data); // ch0  and ch1 sts
-      //end
-      //`nnc_info("SOC_TEST", $sformatf("GENERAL INTR STS MATCHED register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val), NNC_LOW)
-    end
-
-    // turn on specific reg checker again
-    //`SPI_STATUS_REG_CHECK_EN = 1;
-
+    if(sel_int == INT_LVD)
+        begin
+            if(use_old_intr_reg_or_general_reg_to_clr == 0) begin // old intr status register
+              `nnc_info("SOC_TEST", $sformatf("read old intr status register"), NNC_LOW)
+              `RD_NORMAL_REG(`SOC_ANA_INT_LVD_STS_REG,top_test_cfg.pads, rd_data);
+              if(rd_data[0] !== exp_ana_intr_sts_val[sel_int]) `uvm_error("SOC_TEST",$sformatf("ANA INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]))
+              else `nnc_info("SOC_TEST", $sformatf("ANA INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]), NNC_LOW)
+            end 
+            else begin // new general intr sts reg
+              `nnc_info("SOC_TEST", $sformatf("read new general intr status register"), NNC_LOW)
+              `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, rd_data); // ch0  and ch1 sts
+              if(rd_data[0] !== exp_ana_intr_sts_val[sel_int]) `uvm_error("SOC_TEST",$sformatf("GENERAL INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]))
+              else `nnc_info("SOC_TEST", $sformatf("GENERAL INTR STS register value is='h%h ,Expected='h%h", rd_data,exp_ana_intr_sts_val[sel_int]), NNC_LOW)
+            end
+        end
+    else if(sel_int == INT_TSC) 
+        begin
+            if(use_old_intr_reg_or_general_reg_to_clr == 0) begin // old intr status register
+              `nnc_info("SOC_TEST", $sformatf("read old intr status register"), NNC_LOW)
+              `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG,top_test_cfg.pads, rd_data);
+              if(rd_data[0] !== exp_ana_intr_sts_val[sel_int]) `uvm_error("SOC_TEST",$sformatf("TSC INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]))
+              else `nnc_info("SOC_TEST", $sformatf("TSC INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]), NNC_LOW)
+            end 
+            else begin // new general intr sts reg
+              `nnc_info("SOC_TEST", $sformatf("read new general intr status register"), NNC_LOW)
+              `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG,top_test_cfg.pads, rd_data); // ch0  and ch1 sts
+              if(rd_data[7] !== exp_ana_intr_sts_val[sel_int]) `uvm_error("SOC_TEST",$sformatf("GENERAL INTR STS register value is='h%0h ,Expected='h%0h", rd_data,exp_ana_intr_sts_val[sel_int]))
+              else `nnc_info("SOC_TEST", $sformatf("GENERAL INTR STS register value is='h%h ,Expected='h%h", rd_data,exp_ana_intr_sts_val[sel_int]), NNC_LOW)
+            end
+        end
   endtask : check_intr_sts_reg
+ 
+  task clear_intr();
+    logic [7:0] rd_data;
+
+    if(sel_int == INT_TSC)
+        begin
+            if(!`DUT_IF.clear_intr_manual_or_auto)
+                begin
+                    `nnc_info("CLR", $sformatf("RW1C: %b",`DUT_IF.clear_intr_manual_or_auto), NNC_LOW) 
+                    //Expected ANA_LVD_STS raise.
+                    `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
+                    
+                    assert(top_test_cfg.randomize with {wr_data[0] == 8'h01;});     
+                    `WR_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
+                    `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
+                    //Expected ANA_LVD_STS raise with 2 conditions enable
+                    if(rd_data[0] !== 1'b0)
+                        `nnc_error("STS", $sformatf("INT_TSC_STS don't fall, the value is %b",rd_data[0])) 
+                    else 
+                        `nnc_info("STS", $sformatf("INT_TSC_STS fall, the value is %b",rd_data[0]), NNC_LOW) 
+                    `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.pads, rd_data);
+                    
+                    assert(top_test_cfg.randomize with {wr_data[0] == 8'h80;});     
+                    `WR_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    
+                    `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.pads, rd_data);
+
+                    //Expected ANA_LVD_STS raise with 2 conditions enable
+                    if(rd_data[0] !== 1'b0)
+                        `nnc_error("STS", $sformatf("GENERAL_INT_CTRL_TSC don't fall, the value is %b",rd_data[0])) 
+                    else 
+                        `nnc_info("STS", "GENERAL_INT_CTRL_TSC fall", NNC_LOW) 
+                end
+            else
+                begin
+                    `nnc_info("CLR", $sformatf("R1C: %b",`DUT_IF.clear_intr_manual_or_auto), NNC_LOW) 
+                     
+                    //Expected ANA_LVD_STS raise.
+                    `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
+                    `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
+
+                    //Expected ANA_LVD_STS raise with 2 conditions enable
+                    if(rd_data[0] !== 1'b0)
+                        `nnc_error("STS", $sformatf("INT_LVD_TSC don't fall, the value is %b",rd_data[0])) 
+                    else 
+                        `nnc_info("STS", $sformatf("INT_LVD_TSC fall, the value is %b",rd_data[0]), NNC_LOW) 
+    
+                    `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.pads, rd_data);
+                    `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.pads, rd_data);
+
+                    //Expected ANA_LVD_STS raise with 2 conditions enable
+                    if(rd_data[0] !== 1'b0)
+                        `nnc_error("STS", $sformatf("GENERAL_INT_CTRL_LVD don't fall, the value is %b",rd_data[0])) 
+                    else 
+                        `nnc_info("STS", "GENERAL_INT_CTRL_LVD fall", NNC_LOW) 
+                end
+        end
+    else if(sel_int == INT_LVD)
+        `DUT_IF.vbat_level = 7;
+  endtask
 
 endclass : `TESTNAME

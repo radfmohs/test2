@@ -67,7 +67,7 @@ if {[string match *_max $i]} {
       -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)] \
       -min $operating_condition_name($slow_corner_pvt) -min_lib [get_libs $target_library_name($slow_corner_pvt)] \
       -analysis_type on_chip_variation
-    echo "max op cond applied"
+  echo "max op cond applied"
 }
 
 if {[string match DC $i]} {
@@ -75,7 +75,7 @@ if {[string match DC $i]} {
       -max $operating_condition_name($slow_corner_pvt) -max_lib [get_libs $target_library_name($slow_corner_pvt)] \
       -min $operating_condition_name($fast_corner_pvt) -min_lib [get_libs $target_library_name($fast_corner_pvt)] \
       -analysis_type on_chip_variation
-    echo "max op cond applied"
+  echo "min max op cond applied"
 }
 
 # Timing derate

@@ -52,6 +52,7 @@ o_miso           ,
 o_miso1           ,
 o_imeas_intr_clr ,     
 mode             ,
+imeas_16bit_sel  ,
 imeas_chdata
 );
 
@@ -87,6 +88,7 @@ output reg [ADDR_WIDTH-1:0] o_addr;
 output wire             o_miso;
 output wire             o_miso1;
 output wire             o_imeas_intr_clr;
+input  wire             imeas_16bit_sel;
 
 //output reg            o_addr_vld_for_int_clr;
 //output reg            burst_cmd_reg;
@@ -157,10 +159,11 @@ assign o_dual_wr = dual_wr_reg; //(dual_en && !rd_data_rdy);
   Same for reset it at the end - 8'h18
 */
 //always@(posedge i_sclk, negedge i_rst_n) begin
+/*
 always@(posedge i_sclk_neg, negedge i_rst_n) begin  // negedge: half-cycle earlier
   if(!i_rst_n)
     dual_wr_reg_neg <= 1'b1;
-  else if (bit_cnt == 6'h16)  
+  else if (burst_cmd_reg == 1'b0 && bit_cnt == 6'h16)  
     dual_wr_reg_neg <= 1'b1; 
   else if (bit_cnt == 6'h0E && rd_data_rdy)  
     dual_wr_reg_neg <= 1'b0; 
@@ -172,7 +175,23 @@ always@(posedge i_sclk, negedge i_rst_n) begin
   else
     dual_wr_reg <= dual_wr_reg_neg;
 end
+*/
 
+wire dual_wr_reset_n = i_rst_n & !i_cs_n;
+
+always@(posedge i_sclk_neg, negedge dual_wr_reset_n) begin  // negedge: half-cycle earlier
+  if(!dual_wr_reset_n)
+    dual_wr_reg_neg <= 1'b1;
+  else if (bit_cnt == 6'h0E && rd_data_rdy)  
+    dual_wr_reg_neg <= 1'b0; 
+end
+
+always@(posedge i_sclk, negedge dual_wr_reset_n) begin
+  if(!dual_wr_reset_n)
+    dual_wr_reg <= 1'b1;
+  else
+    dual_wr_reg <= dual_wr_reg_neg;
+end
 
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if(!i_rst_n)
@@ -335,7 +354,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     if (bit_cnt == 6'h0a ) begin //original 8
       o_addr  <= rx_buf[ADDR_WIDTH-1:0];    
       o_pre_addr <= o_addr;
-    end else if ((cmd_reg==1 && burst_cmd_reg && bit_cnt>6'h18 && byte_done ) || (dual_en && cmd_reg==0 && burst_cmd_reg &&  bit_cnt >6'h12 && byte_bit_count==3'h4)) begin
+    end else if ((cmd_reg==1 && burst_cmd_reg && bit_cnt>6'h18 && byte_done ) || (cmd_reg==0 && burst_cmd_reg &&  bit_cnt >6'h10 && byte_bit_count==3'h6)) begin
       o_addr   <= o_addr + 1'b1; 
     //o_addr_vld_for_int_clr <=1;
       o_pre_addr <= o_addr;
@@ -365,13 +384,15 @@ end
 //                 CMD                              //
 //--------------------------------------------------//
 
-
-assign dual_cmd_reg     =  cmd_reg_0;
 assign burst_cmd_reg    =  cmd_reg_1 ;
 
 assign cmd_reg          = dual_en ? (!cmd_reg_7 && !cmd_reg_6 ) : cmd_reg_7;
-assign wavegen_cmd_reg  = dual_en ? (cmd_reg_5 && !cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
-assign nirs_cmd_reg     = dual_en ? (cmd_reg_5 &&  cmd_reg_4 ) : (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
+
+assign cmd_reg_5_early  = dual_en ? ((bit_cnt == 6'h0c) && i_mosi1_d) : 1'b0;
+assign cmd_reg_4_early  = dual_en ? ((bit_cnt == 6'h0c) && i_mosi_d)  : 1'b0;
+
+assign wavegen_cmd_reg  = dual_en ? ((cmd_reg_5 && !cmd_reg_4) || (cmd_reg_5_early && !cmd_reg_4_early)) : (cmd_reg_6 && ( cmd_reg_5 && !cmd_reg_4));
+assign nirs_cmd_reg     = dual_en ? ((cmd_reg_5 &&  cmd_reg_4) || (cmd_reg_5_early &&  cmd_reg_4_early)) : (cmd_reg_6 && ( cmd_reg_5 &&  cmd_reg_4));
 
 // Early RDATA/RDATAC detection to start the TX pipeline for both RDATA and RDATAC in dual mode only.
 // At bit_cnt = 0E, CMD[5] distinguishes between RDATA and RDATAC.
@@ -394,7 +415,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
       cmd_reg_7 <= i_mosi1_d;   // direct: latched MOSI1 bit
   end else begin
     if (bit_cnt == 6'h0a )  //single       // 9th bit is the command bit(9+1 =10)
-    cmd_reg_7 <= rx_buf[0];
+      cmd_reg_7 <= rx_buf[0];
   end
 end
 
@@ -706,7 +727,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     tx_d <= 1'b0;
   end else if (dual_en) begin
     if (rd_data_rdy == 1) begin
-      tx_d <= tx_buf[DATA_WIDTH-2];
+      tx_d <= tx_buf[DATA_WIDTH-1];
     end else begin
       tx_d <= 1'b0; // just send what is received //original 2  
     end
@@ -728,7 +749,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if (!dual_en) begin
     tx_d1 <= 1'b0;
   end else if (rd_data_rdy == 1) begin
-    tx_d1 <= tx_buf[DATA_WIDTH-1];
+    tx_d1 <= tx_buf[DATA_WIDTH-2];
   end else begin
     tx_d1 <= 1'b0; 
   end
@@ -762,7 +783,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
   end else if (dual_en) begin
-    if (bit_cnt > 6'h8 && byte_bit_count== 3'h4) begin
+    if ((bit_cnt > 6'h8 && byte_bit_count== 3'h4) || (burst_cmd_reg && bit_cnt > 6'h10 && byte_bit_count== 3'h4)) begin
       tx_buf <= (!mode[1] && !status_done && rdata_cmd ) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
@@ -780,12 +801,12 @@ end
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
 
-assign adc_inc_val = 2'b10;
+assign adc_inc_val = imeas_16bit_sel ? 2'b01 : 2'b10;
 
 
 // mode[0] == 1'b0 -> 4 byte data per channel --- mode[0] == 1'b1 -> 3 byte data per channel
 //assign chdata_size = mode[0] ? 3'h3 : 3'h4;
-assign chdata_size = 3'h3;
+assign chdata_size = imeas_16bit_sel ? 3'h2  : 3'h3;
 
 /*********************************************
 - When master chip has not finished sending its imeas data (!next_dev_valid) 

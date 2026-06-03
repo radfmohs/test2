@@ -21,7 +21,7 @@ module nirs_ppg_int (
 /*
   Clear logic
 */
-  wire  INT_CLR_valid;
+  wire  INT, INT_CLR_valid;
 
   common_pulse_async_clr u_common_pulse_async_clr_nirs (
     .d_in       (INT_CLR),

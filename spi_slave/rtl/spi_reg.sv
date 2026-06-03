@@ -205,6 +205,9 @@
 `define  STIM_MON_SHORT_TH1           		`ANA_SHORT_BASE_ADDR+8'h09//59
 `define  STIM_MON_TH_TGT           		`ANA_SHORT_BASE_ADDR+8'h0A//5A
 
+`define  STIM_MON_PERIOD_L_H           `ANA_SHORT_BASE_ADDR+8'h0B//5B // 
+`define  STIM_MON_PERIOD_H_H           `ANA_SHORT_BASE_ADDR+8'h0C//5C // 
+
 
 //`define  ANAC_COMP_INT_EN                `ANA_SHORT_BASE_ADDR+8'h01//51
 //`define  ANAC_COMP_INT_TRANS_SEL         `ANA_SHORT_BASE_ADDR+8'h02//52
@@ -415,7 +418,7 @@ output wire  check_everyN,
 
   output wire             adc_en,
   output wire             adc_mode,
-  output wire [15:0]      adc_cap_period,
+  output wire [31:0]      adc_cap_period,
   output wire [3:0]       pair_num,
   output wire [15:0] [3:0] stim_pad0_tgt,
   output wire [15:0] [3:0] stim_pad1_tgt,
@@ -439,6 +442,7 @@ output wire  check_everyN,
   output  wire 	          single_shot,
 
   output                  imeas_en,
+  output  wire            imeas_16bit_sel,
   output  reg  [7:0]      imeas_reg_0,
   output  wire [15:0]     imeas_en_chn,
   output  wire [3:0]      DR,
@@ -649,8 +653,9 @@ assign reset_cmd   = imeas_reg_2[2:0] == 3'h4;
 //wire dummy_cmd;
 //assign          dummy_cmd =     imeas_reg_2[2:0] == 3'h7;
 
-assign single_shot    = imeas_ctrl[3];
-assign imeas_data_sel = imeas_ctrl[7:4];
+assign imeas_16bit_sel  = !mode[0];
+assign single_shot      = imeas_ctrl[3];
+assign imeas_data_sel   = imeas_ctrl[7:4];
 
 reg[23:0] imeas_chdata_wire;
 
@@ -796,6 +801,8 @@ reg [7:0] stim_pad_ctrl;
 reg [7:0] stim_pad_ctrl1;
 reg [7:0] stim_mon_period_l;
 reg [7:0] stim_mon_period_h;
+reg [7:0] stim_mon_period_l_h;
+reg [7:0] stim_mon_period_h_h;
 reg [6:0] stim_mon_ctrl2;
 reg [7:0] stim_pad0_tgt0_l;
 reg [7:0] stim_pad0_tgt0_h;
@@ -828,7 +835,7 @@ assign stim_mon_int_topin_en = {stim_mon_loff_short_int_ctrl[3:2],stim_mon_int_t
 assign stim_mon_int_en = {stim_mon_loff_short_int_ctrl[1:0],stim_pad_ctrl[7:5]};   //from spi
 assign adc_mode = stim_pad_ctrl[4];
 assign pair_num = stim_pad_ctrl[3:0];
-assign adc_cap_period = {stim_mon_period_h,stim_mon_period_l};
+assign adc_cap_period = {stim_mon_period_h_h,stim_mon_period_l_h,stim_mon_period_h,stim_mon_period_l};
 assign iclk_div_stim_monitor = stim_mon_ctrl2[3:0];
 assign iclk_stim_monitor_inv = stim_mon_ctrl2[4];
 assign stim_monitor_rst_reg = stim_mon_ctrl2[5];
@@ -920,6 +927,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	stim_pad_ctrl1        <= 8'h20;
 	stim_mon_period_l    <= 8'h0;
 	stim_mon_period_h    <= 8'h0;
+	stim_mon_period_l_h    <= 8'h0;
+	stim_mon_period_h_h    <= 8'h0;
 	stim_mon_ctrl2<= 7'h04;
 	stim_pad0_tgt0_l     <= 8'h10;
 	stim_pad0_tgt0_h     <= 8'h32;
@@ -955,6 +964,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl1;        
        `STIM_MON_PERIOD_L   :   stim_mon_period_l <= i_wr ? i_wr_data : stim_mon_period_l;     
        `STIM_MON_PERIOD_H   :   stim_mon_period_h <= i_wr ? i_wr_data : stim_mon_period_h;      
+       `STIM_MON_PERIOD_L_H   :   stim_mon_period_l_h <= i_wr ? i_wr_data : stim_mon_period_l_h;     
+       `STIM_MON_PERIOD_H_H   :   stim_mon_period_h_h <= i_wr ? i_wr_data : stim_mon_period_h_h;      
        `STIM_MON_CTRL2:  stim_mon_ctrl2 <= i_wr ? i_wr_data[6:0] : stim_mon_ctrl2;      
 
        `STIM_MON_INT_STS    : begin  
@@ -2069,6 +2080,8 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `STIM_PAD_CTRL1       :  reg_rd_data  <=  {stim_pad_ctrl1}    ;        
       `STIM_MON_PERIOD_L   :  reg_rd_data  <=  stim_mon_period_l;     
       `STIM_MON_PERIOD_H   :  reg_rd_data  <=  stim_mon_period_h;      
+      `STIM_MON_PERIOD_L_H   :  reg_rd_data  <=  stim_mon_period_l_h;     
+      `STIM_MON_PERIOD_H_H   :  reg_rd_data  <=  stim_mon_period_h_h;      
       `STIM_MON_CTRL2    :  reg_rd_data  <=  {1'b0,stim_mon_ctrl2} ;      
       `STIM_MON_INT_STS    :  reg_rd_data  <= {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
 
@@ -2253,8 +2266,8 @@ always @(*) begin
       `STABLE_TIME_0      : reg_rd_data = stable_time_0 ;
       `STABLE_TIME_1      : reg_rd_data = stable_time_1 ;
 
-      `IMEAS_D0           : reg_rd_data = imeas_chdata_wire[7:0];
-      `IMEAS_D1           : reg_rd_data = imeas_chdata_wire[15:8];
+      `IMEAS_D0           : reg_rd_data = imeas_16bit_sel ? imeas_chdata_wire[23:16]  : imeas_chdata_wire[7:0];
+      `IMEAS_D1           : reg_rd_data = imeas_16bit_sel ? imeas_chdata_wire[15:8]   : imeas_chdata_wire[15:8];
       `IMEAS_D2           : reg_rd_data = imeas_chdata_wire[23:16];
     //`IMEAS_D3           : reg_rd_data = imeas_chdata_wire[31:24];
  
@@ -2346,6 +2359,8 @@ always @(*) begin
       `STIM_PAD_CTRL1       :  reg_rd_data  =  {stim_pad_ctrl1}    ;        
       `STIM_MON_PERIOD_L   :  reg_rd_data  =  stim_mon_period_l;     
       `STIM_MON_PERIOD_H   :  reg_rd_data  =  stim_mon_period_h;      
+      `STIM_MON_PERIOD_L_H   :  reg_rd_data  =  stim_mon_period_l_h;     
+      `STIM_MON_PERIOD_H_H   :  reg_rd_data  =  stim_mon_period_h_h;      
       `STIM_MON_CTRL2    :  reg_rd_data  =  {1'b0,stim_mon_ctrl2} ;      
       `STIM_MON_INT_STS    :  reg_rd_data  = {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
 

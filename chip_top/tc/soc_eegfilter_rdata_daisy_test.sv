@@ -21,6 +21,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // -----------------------------------------------
   rand int               no_of_samples;
 
+
   function new (string name = "soc_eegfilter_rdata_daisy_test_cfg");
     super.new(name);
   endfunction: new
@@ -35,13 +36,16 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_imeas_en_dis_ch     {  imeas_en_dis_ch == 'h0 ;} // all channels enabled 
 
-  constraint c_iclk_sel            { iclk_sel inside {[3:3]};} 
+  constraint c_iclk_sel            { iclk_sel inside {[2:2]};} 
 
-  constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
+  //constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
+  constraint c_spi_sclk_freq       { spi_sclk_freq == 19000;} 
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate == 5; }
+  constraint c_imeas_cic_rate      { imeas_cic_rate == 2; }
 
   constraint c_daisy_en            { daisy_en == 1;} 
+
+  constraint c_spi_dual_mode_en    { spi_dual_mode_en == 1'b0; } // dual SPI not supported in Daisy
 
   //constraint c_no_of_conversions   {  no_of_samples  inside {[1:30]}; }  
   constraint c_no_of_conversions   {  no_of_samples  inside {[7:10]}; }  
@@ -60,6 +64,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                             (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[6:7]};
                                             (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[7:7]}; }
 
+  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -129,6 +134,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
     `DUT_IF.imeas_en_dis_ch = top_test_cfg.imeas_en_dis_ch;
     `DUT_IF.daisy_en = top_test_cfg.daisy_en;
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en;
 
     `DUT_IF.mult_chip_en = top_test_cfg.mult_chip_en;
     `DUT_IF.mult_chip_same_clk_en = top_test_cfg.mult_chip_same_clk_en;
@@ -139,6 +145,9 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.no_of_adc_dev2 = top_test_cfg.no_of_adc_dev2;
     `DUT_IF.no_of_samples = top_test_cfg.no_of_samples;
 
+    `DUT_IF.imeas_status_en   = top_test_cfg.imeas_status_en   ;
+    `DUT_IF.imeas_24bitdata_en= top_test_cfg.imeas_24bitdata_en;
+
     `nnc_info("SOC_TEST", $sformatf("`DUT_IF.mult_chip_en == %0d !!!",`DUT_IF.mult_chip_en),UVM_LOW)
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -147,7 +156,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     phase.raise_objection(this);
 
     `nnc_info("SOC_TEST", "soc_eegfilter_rdata_daisy_test start", UVM_LOW)
-     imeas_config();
+    imeas_config();
 
     fork 
       begin

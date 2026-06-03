@@ -285,7 +285,7 @@ test_SINC_4_24B #(
 	.POR(`ANA_TOP.A2D_POR),
         .ADC_CLK(sdm_adc_clk),
 	.ADC_RST(sdm_adc_rst),
-	.ADC_IN(`ANA_TOP.A2D_SDM12),
+	.ADC_IN(`ANA_TOP.A2D_SDM13),
         .CH_EN(imeas_vif.ch_en[13]),
 	.OSR(`IMEAS_WRAPPER_TOP.DR),
 	.OFFSET(offset[13]),
@@ -732,8 +732,19 @@ assign dut_vif.filter_data_out_dev2   = `IMEAS_WRAPPER_TOP_S1.imeas_chdata_out;
 //                               : dut_vif.no_of_adc_dev2 == 6 ? 14 
 //                               : dut_vif.no_of_adc_dev2 == 7 ? 16 :0  ;
 
-assign `SPI_TOP.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
-assign `SPI_TOP_S1.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
+//assign `SPI_TOP.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
+//assign `SPI_TOP_S1.spi_slv_ctrl_u.i_status_words[39:0] = 40'hAA_BBCC_DDEE;
+
+assign dut_vif.pull_source_stim_on = /*dut_vif.imeas_pos_done 
+                                     & */(`ANA_WRAPPER_TOP.i_pulldn_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD0[3:0]] 
+                                       | `ANA_WRAPPER_TOP.i_pulldn_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD1[3:0]] 
+                                       | `ANA_WRAPPER_TOP.i_source_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD0[3:0]]  
+                                       | `ANA_WRAPPER_TOP.i_source_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD1[3:0]]);
+
+assign dut_vif.exp_status_bits = {7'b0, 
+                                 `SPI_TOP.stim_on_flag, 
+                                 `ANA_WRAPPER_TOP.A2D_LOFF_STATN[15:0],
+                                 `ANA_WRAPPER_TOP.A2D_LOFF_STATP[15:0]};
 
 //assign dut_vif.max_ch_dev1 = `SPI_TOP.i_channel_max ;
 //assign dut_vif.max_ch_dev2 = `SPI_TOP_S1.i_channel_max ;

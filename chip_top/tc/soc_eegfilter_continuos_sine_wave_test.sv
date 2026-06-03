@@ -30,17 +30,17 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // -----------------------------------------------
   // Adding constraints of randomization
   // -----------------------------------------------
- constraint c_iclk_sel            { iclk_sel inside {[2:5]}; // fast adc_clk  256Khz to 2Mhz. (real sdm analog supports upto 2Mhz adc clk only)
-                                     solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate >=3) ->  iclk_sel == 2;}
-
+// constraint c_iclk_sel            { iclk_sel inside {[2:5]}; // fast adc_clk  256Khz to 2Mhz. (real sdm analog supports upto 2Mhz adc clk only)
+//                                     solve imeas_cic_rate before iclk_sel;
+//                                     (imeas_cic_rate >=3) ->  iclk_sel == 2;}
+//
   constraint c_spi_sclk_freq       { solve iclk_sel before spi_sclk_freq; spi_sclk_freq > (8192/(2**iclk_sel));} // spi clk always faster than adc_clk
 
   constraint c_imeas_en            { imeas_en inside {0,1}; } // 1. imeas_en=1 (always continous mode) , 1. imeas_en=0,single_shot_en=0 (also continuos mode)  
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:6]};} // upto 512 only considered
+//  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:6]};} // upto 512 only considered
 
   //constraint c_no_of_conversions   {  no_of_samples  == 64; } // 2*32; atleast 2 sine wave
 

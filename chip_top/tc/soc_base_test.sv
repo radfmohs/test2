@@ -223,9 +223,9 @@ class `TESTCFG extends nnc_object;
     rand bit            imeas_noise_gen_en;
     rand bit            imeas_overlap_en;
    
-    rand bit [31:0] nirs_irefcoarse_length[7:0];         // High pulse length of SW2  - Unit: ns
-    rand bit [31:0] nirs_irefcoarse_iref_delay[7:0];     // Delay between SW2 and SW3 - Unit: ns 
-    rand bit [31:0] nirs_ireffine_length[7:0];           // High pulse length of SW3  - Unit: ns
+    randc bit [31:0] nirs_irefcoarse_length[7:0];         // High pulse length of SW2  - Unit: ns
+    randc bit [31:0] nirs_irefcoarse_iref_delay[7:0];     // Delay between SW2 and SW3 - Unit: ns 
+    randc bit [31:0] nirs_ireffine_length[7:0];           // High pulse length of SW3  - Unit: ns
 
     // ======================================================================================
     // reg_normal[i] struture 
@@ -274,7 +274,7 @@ class `TESTCFG extends nnc_object;
 
     constraint c_wg_scoreboard_en         { wg_scoreboard_en == 0; } // 0 and 1 is enabled
 
-    constraint c_spi_dual_mode_en         { spi_dual_mode_en == 1'b0; }
+    constraint c_spi_dual_mode_en         { spi_dual_mode_en inside {[0:1]}; }
 
     constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b0; } // Sine is enable
 
@@ -755,6 +755,8 @@ function void `TESTNAME::build_phase(nnc_phase phase);
   `SET_CFG_REG(`REG59_8);
   `SET_CFG_REG(`REG59_9);
   `SET_CFG_REG(`REG59_10);
+  `SET_CFG_REG(`REG59_11);
+  `SET_CFG_REG(`REG59_12);
   /* Lead off and short registers
   `SET_CFG_REG(`REG60);
   `SET_CFG_REG(`REG61);
@@ -1463,6 +1465,10 @@ endtask : pre_reset_phase
 task `TESTNAME::reset_phase(nnc_phase phase);
     phase.raise_objection(this);
 
+    if (`DUT_IF.spi_dual_mode_en == 1'b1) begin
+          `SPI_SCB_EN = 1'b0;
+    end
+
     //if (`DUT_IF.altf_sel !== 2'b00) begin      
     if ((`DUT_IF.no_of_adc_dev1 !== 3'b000)) begin
 
@@ -1604,7 +1610,16 @@ task `TESTNAME::reset_phase(nnc_phase phase);
       if (`DUT_IF.spi_dual_mode_en === 1'b1) begin
         `nnc_info("SOC_TEST", "DUAL SPI MODE ENABLE", NNC_LOW)
         `SPI_CHANGE_TO_DUAL_MODE();
-      end      
+      
+         $display("## ============================================================================ ##");
+         $display("##         ENS2 changed to SPI DUAL MODE successfully                           ##");      
+         $display("## ============================================================================ ##");
+      end
+      else begin
+         $display("## ============================================================================ ##");
+         $display("##         ENS2 is running at SPI SINGLE MODE                                   ##");      
+         $display("## ============================================================================ ##");
+      end
 
       if (`DUT_IF.spi_o_clk_sel !== 1'b0) begin
         `nnc_info("SOC_TEST", "Single Writing to SOC_OUT_CLK_SEL_REG Register to use MULTI CHIP with Unaligned clock", NNC_LOW)

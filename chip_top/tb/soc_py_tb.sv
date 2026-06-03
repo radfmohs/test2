@@ -374,7 +374,7 @@ wire special_match_dac_snk = (`WG_DRIVER_TOP.o_source_driver[wavegen_dev_snk] ==
 
 always @(wavegen_addr_src)
 begin
-  if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_0 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
+  if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_0 < `SOC_TB.dut_vif.python_length) /* && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)*/) begin
  
     if (`SOC_TB.dut_vif.clk_per_point_short_dac[wavegen_dev_src] === 1'b1) begin
        if (wavegen_addr_src == 0) begin
@@ -434,7 +434,7 @@ end
 
 always @(wavegen_addr_snk)
 begin
-  if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_1 < `SOC_TB.dut_vif.python_length) && (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)) begin
+  if ((`WG_DRIVER_TOP.i_presetn == 1'b1) && (python_data_num_1 < `SOC_TB.dut_vif.python_length) /*&& (`SOC_TB.dut_vif.python_wavegen_en === 1'b1)*/) begin
 
     if (`SOC_TB.dut_vif.clk_per_point_short_dac[wavegen_dev_snk] === 1'b1) begin
        if (wavegen_addr_snk == 0) begin

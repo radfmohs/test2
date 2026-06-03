@@ -86,7 +86,7 @@ output wire  check_everyN,
 
   output wire          adc_en,
   output wire          adc_mode,
-  output wire [15:0]   adc_cap_period,
+  output wire [31:0]   adc_cap_period,
   output wire [3:0]    pair_num,
   output wire [15:0] [3:0] stim_pad0_tgt,
   output wire [15:0] [3:0] stim_pad1_tgt,
@@ -329,9 +329,6 @@ output wire  check_everyN,
 */
 );
 
-wire        daisy_in;
-assign daisy_in = DAISY_IN_Y;
-
 //for testing
 //assign rd_cmd_ind = 1'b0;
 //assign first_neg_sclk = 1'b0;
@@ -375,6 +372,8 @@ wire sclk_latch_out_tmp;
 
 wire daisy_en;
 wire [1:0]  mode;
+
+wire imeas_16bit_sel;
 
 //assign iopad_cpha=1'b0;  //need to be connected to the external pin
 //assign iopad_cpol=1'b0;  //need to be connented to the external pin
@@ -459,7 +458,8 @@ spi_slv_ctrl_u (
   .o_nirs_wr     (nirs_wr),
   .o_nirs_rd     (nirs_rd),
   .o_wr_data     (wr_data),
-  .o_imeas_intr_clr (o_imeas_intr_clr)
+  .o_imeas_intr_clr (o_imeas_intr_clr),
+  .imeas_16bit_sel  (imeas_16bit_sel)
   
 //.burst_cmd_reg (burst_cmd),
 //.o_pre_addr    (pre_addr)
@@ -571,6 +571,7 @@ spi_reg_u (
   .iclk_div_ina_pga(iclk_div_ina_pga),
   .iclk_ina_pga_disable(iclk_ina_pga_disable),
   .imeas_en(imeas_en),
+  .imeas_16bit_sel(imeas_16bit_sel),
   .imeas_reg_0(imeas_reg_0),
   .imeas_en_chn(imeas_en_chn),
   .DR(DR),

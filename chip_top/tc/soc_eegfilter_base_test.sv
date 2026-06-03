@@ -68,14 +68,35 @@ class `TESTCFG extends soc_base_test_cfg;
   // -----------------------------------------------
   constraint c_pclk_sel            { pclk_sel inside {[0:0]};} 
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[3:5]};} // randomize this later
+  //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[3:5]};} // randomize this later
 
   constraint c_daisy_en            { daisy_en == 0;} 
 
-  constraint c_iclk_sel            { iclk_sel inside {[0:11]}; 
-                                     solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate >=3) ->  iclk_sel == 0 ;}
+  //constraint c_iclk_sel            { iclk_sel inside {[0:11]}; 
+  //                                   solve imeas_cic_rate before iclk_sel;
+  //                                   (imeas_cic_rate >=3) ->  iclk_sel == 0 ;}
+
+  constraint c_iclk_sel      { solve spi_dual_mode_en before iclk_sel;
+                               spi_dual_mode_en == 0 -> iclk_sel inside {[0:11]};
+                               spi_dual_mode_en == 1 -> iclk_sel inside {[0:3]};} 
                                      
+  constraint c_imeas_cic_rate        { solve spi_dual_mode_en before imeas_cic_rate;
+                                       solve iclk_sel before imeas_cic_rate;
+				       // for single mode, sample rate <= 64Khz 
+                                       (spi_dual_mode_en == 0 & iclk_sel == 0)  ->  imeas_cic_rate inside {[4:11]};
+                                       (spi_dual_mode_en == 0 & iclk_sel == 1)  ->  imeas_cic_rate inside {[3:11]};
+                                       (spi_dual_mode_en == 0 & iclk_sel == 2)  ->  imeas_cic_rate inside {[2:11]};
+                                       (spi_dual_mode_en == 0 & iclk_sel == 3)  ->  imeas_cic_rate inside {[1:11]};
+                                       (spi_dual_mode_en == 0 & iclk_sel >= 4)  ->  imeas_cic_rate inside {[0:11]};
+
+                                       // for dual mode, sample rate > 64khz
+                                       (spi_dual_mode_en == 1 & iclk_sel == 0)  ->  imeas_cic_rate inside {[0:3]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 1)  ->  imeas_cic_rate inside {[0:2]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 2)  ->  imeas_cic_rate inside {[0:1]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 3)  ->  imeas_cic_rate inside {[0:0]};}
+                     
+  // ***************************************************
+
   //constraint c_spi_sclk_freq       { solve iclk_sel before spi_sclk_freq; spi_sclk_freq > (8192/(2**iclk_sel));} // spi clk always faster than adc_clk
   constraint c_spi_sclk_freq       {spi_sclk_freq == 20000 ;} // spi clk always faster than adc_clk
 
@@ -146,8 +167,8 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 1000; }//sine frequency precision 100: imeas_sin_expected_freq in Hz/100
 
-  constraint c_imeas_status_en { imeas_status_en == 0; }// default no Imeas status 
-  constraint c_imeas_24bitdata_en { imeas_24bitdata_en == 1; }// latest - only 24 bit supported
+  constraint c_imeas_status_en { imeas_status_en inside {0,1}; }// default no Imeas status 
+  constraint c_imeas_24bitdata_en { imeas_24bitdata_en inside {0,1}; }// 0: 16 bit , 1: 24 bit
 
   constraint c_no_of_samples   {  no_of_samples  inside {[5:5]}; }  
 
@@ -206,7 +227,7 @@ class `TESTNAME extends soc_base_test;
   int total_adc_ch_to_read;
   int data_bytes_per_sample;
   bit [39:0] act_status_bits;
-  bit [39:0] exp_status_bits;
+  //bit [39:0] exp_status_bits;
   logic [`FILTER_DATA_WIDTH-1:0] exp_chdata[`FILTER_NUM-1:0] ;
 
   function new(string name, nnc_component parent);
@@ -251,6 +272,8 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.tcsh     = top_test_cfg.tcsh;
     `DUT_IF.tdist    = top_test_cfg.tdist;  
     `DUT_IF.tch      = top_test_cfg.tch; 
+
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en; 
 
     `DUT_IF.iclk_sel        = top_test_cfg.iclk_sel;
     `DUT_IF.imeas_adc_freq  = top_test_cfg.imeas_adc_freq;
@@ -308,6 +331,8 @@ class `TESTNAME extends soc_base_test;
     super.post_reset_phase(phase);
 
     if(`DUT_IF.daisy_en === 1) `DUT_IF.total_chip_num = 2;
+    force `ANA_TOP.A2D_LOFF_STATP = $random;                                      
+    force `ANA_TOP.A2D_LOFF_STATN = $random;                                      
 
     phase.drop_objection(this);
   endtask : post_reset_phase
@@ -355,7 +380,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", $sformatf("DR:%h", `DUT_IF.cic_rate), NNC_LOW)
 
     //Write SOC_IMEAS_CTRL_REG
-    assert(top_test_cfg.randomize() with { reg_addr == `SOC_IMEAS_CTRL_REG; wr_data[0] == {`DUT_IF.imeas_data_sel,`DUT_IF.single_shot_en,3'h0};});
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_IMEAS_CTRL_REG; wr_data[0] == {`DUT_IF.imeas_data_sel,`DUT_IF.single_shot_en,3'h0};}); // 16bit adc en
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
     `nnc_info("SOC_TEST", "Enable Single-Shot conversion", NNC_LOW)
 
@@ -719,12 +744,12 @@ class `TESTNAME extends soc_base_test;
     else
       total_adc_ch_to_read = `DUT_IF.max_ch_dev1;
 
-    // 5 bytes status, data : 4 bytes/3 bytes
-    data_bytes_per_sample =  (`DUT_IF.imeas_status_en == 0 && `DUT_IF.imeas_24bitdata_en == 0) ? total_adc_ch_to_read*4
+    // 5 bytes status, data : 16 bit or 24 bit so 2 bytes/3 bytes
+    data_bytes_per_sample =  (`DUT_IF.imeas_status_en == 0 && `DUT_IF.imeas_24bitdata_en == 0) ? total_adc_ch_to_read*2
                             :(`DUT_IF.imeas_status_en == 0 && `DUT_IF.imeas_24bitdata_en == 1) ? total_adc_ch_to_read*3
-                            :(`DUT_IF.daisy_en == 0 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 0) ? (total_adc_ch_to_read*4) + 5
+                            :(`DUT_IF.daisy_en == 0 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 0) ? (total_adc_ch_to_read*2) + 5
                             :(`DUT_IF.daisy_en == 0 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 1) ? (total_adc_ch_to_read*3) + 5 
-                            :(`DUT_IF.daisy_en == 1 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 0) ? (total_adc_ch_to_read*4) + 5 + 5 // 2 times status 5 status bytes as daisy - 2 device
+                            :(`DUT_IF.daisy_en == 1 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 0) ? (total_adc_ch_to_read*2) + 5 + 5 // 2 times status 5 status bytes as daisy - 2 device
                             :(`DUT_IF.daisy_en == 1 && `DUT_IF.imeas_status_en == 1 && `DUT_IF.imeas_24bitdata_en == 1) ? (total_adc_ch_to_read*3) + 5 + 5 // 2 times status 5 status bytes as daisy - 2 device
                             : 0;
 
@@ -778,7 +803,7 @@ class `TESTNAME extends soc_base_test;
     int status_byte_loc;
     if(`DUT_IF.imeas_status_en == 1)begin 
 
-      exp_status_bits = 40'hAABB_CCDD_EE;
+      //exp_status_bits = 40'hAABB_CCDD_EE;
 
       if(rdatac_cmd_en == 1)begin // RDATAC cmd status check
         // conv-0 : 5 byte status    [25:21]
@@ -792,11 +817,11 @@ class `TESTNAME extends soc_base_test;
         for(int j = 0; j < `DUT_IF.no_of_samples;j++)begin
           act_status_bits = {top_test_cfg.rd_data[status_byte_loc - 1],top_test_cfg.rd_data[status_byte_loc - 2],top_test_cfg.rd_data[status_byte_loc - 3],
                             top_test_cfg.rd_data[status_byte_loc - 4],top_test_cfg.rd_data[status_byte_loc - 5]}; 
-          if(act_status_bits != exp_status_bits)begin
-            `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for STATUS status_byte_loc =%0d exp_status_bits= %0h, act_status_bits=%0h", status_byte_loc,exp_status_bits,act_status_bits))
+          if(act_status_bits != `DUT_IF.exp_status_bits)begin
+            `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for STATUS status_byte_loc =%0d exp_status_bits= %0h, act_status_bits=%0h", status_byte_loc,`DUT_IF.exp_status_bits,act_status_bits))
           end
           else begin
-            `nnc_info("TEST", $sformatf("DEV1 MATCH for STATUS status_byte_loc = %0d exp_status_bits = %0h, act_status_bits=%0h", status_byte_loc, exp_status_bits,act_status_bits),NNC_LOW)
+            `nnc_info("TEST", $sformatf("DEV1 MATCH for STATUS status_byte_loc = %0d exp_status_bits = %0h, act_status_bits=%0h", status_byte_loc, `DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
           end
           status_byte_loc = status_byte_loc + data_bytes_per_sample;
         end
@@ -807,46 +832,47 @@ class `TESTNAME extends soc_base_test;
         act_status_bits = {top_test_cfg.rd_data[data_bytes_per_sample - 1],top_test_cfg.rd_data[data_bytes_per_sample - 2],top_test_cfg.rd_data[data_bytes_per_sample - 3],
                           top_test_cfg.rd_data[data_bytes_per_sample - 4],top_test_cfg.rd_data[data_bytes_per_sample - 5]}; 
         
-        if(act_status_bits != exp_status_bits)begin
-          `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", exp_status_bits,act_status_bits))
+        if(act_status_bits != `DUT_IF.exp_status_bits)begin
+          `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits))
         end
         else begin
-          `nnc_info("TEST", $sformatf("DEV1 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", exp_status_bits,act_status_bits),NNC_LOW)
+          `nnc_info("TEST", $sformatf("DEV1 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
         end
 
         // DEV2 status check
 	if(`DUT_IF.daisy_en == 1) begin
           if(`DUT_IF.imeas_24bitdata_en == 0) 
-            status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*4);
+            status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*2);
           else
             status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*3);
 
           act_status_bits = {top_test_cfg.rd_data[status_byte_loc - 1],top_test_cfg.rd_data[status_byte_loc - 2],top_test_cfg.rd_data[status_byte_loc - 3],
                             top_test_cfg.rd_data[status_byte_loc - 4],top_test_cfg.rd_data[status_byte_loc - 5]}; 
 
-          if(act_status_bits != exp_status_bits)begin
-            `nnc_error("TEST", $sformatf("DEV2 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", exp_status_bits,act_status_bits))
+          if(act_status_bits != `DUT_IF.exp_status_bits)begin
+            `nnc_error("TEST", $sformatf("DEV2 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits))
           end
           else begin
-            `nnc_info("TEST", $sformatf("DEV2 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", exp_status_bits,act_status_bits),NNC_LOW)
+            `nnc_info("TEST", $sformatf("DEV2 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
           end
 
           // DEV3 status check
           if(`DUT_IF.total_chip_num == 3)begin
-	    exp_status_bits = ~exp_status_bits;
+	    //exp_status_bits = ~exp_status_bits;
+	    `DUT_IF.exp_status_bits = `DUT_IF.exp_status_bits;
             if(`DUT_IF.imeas_24bitdata_en == 0) 
-              status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*4) - 5 - (`DUT_IF.max_ch_dev2*4);
+              status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*2) - 5 - (`DUT_IF.max_ch_dev2*2);
             else
               status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*3) - 5 - (`DUT_IF.max_ch_dev2*3);
 
 	      act_status_bits = {top_test_cfg.rd_data[status_byte_loc - 1],top_test_cfg.rd_data[status_byte_loc - 2],top_test_cfg.rd_data[status_byte_loc - 3],
                             top_test_cfg.rd_data[status_byte_loc - 4],top_test_cfg.rd_data[status_byte_loc - 5]};
 
-            if(act_status_bits != exp_status_bits)begin
-              `nnc_error("TEST", $sformatf("DEV3 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", exp_status_bits,act_status_bits))
+            if(act_status_bits != `DUT_IF.exp_status_bits)begin
+              `nnc_error("TEST", $sformatf("DEV3 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits))
             end
             else begin
-              `nnc_info("TEST", $sformatf("DEV3 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", exp_status_bits,act_status_bits),NNC_LOW)
+              `nnc_info("TEST", $sformatf("DEV3 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
             end
 
           end
@@ -885,10 +911,11 @@ class `TESTNAME extends soc_base_test;
       for(int k = 0; k < `DUT_IF.no_of_samples;k++)begin
         if (`DUT_IF.imeas_24bitdata_en == 0) begin
           for(int i = 0;i < total_adc_ch_to_read ;i++)begin
-            for (int j = 0;j < 4 ;j++)begin  //32 bits
+            //for (int j = 0;j < 4 ;j++)begin  //32 bits
+            for (int j = 0;j < 2 ;j++)begin  //16 bits
 	    //`nnc_info("SOC_TEST", $sformatf(" data_bytes_per_sample = %0d, total_adc_ch_to_read %0d",data_bytes_per_sample,total_adc_ch_to_read), NNC_LOW)
 	    //`nnc_info("SOC_TEST", $sformatf(" top_test_cfg.rd_data[%0d]= %0h",(total_adc_data_bytes - (k*data_bytes_per_sample)) - (i*4) - 1 - j,top_test_cfg.rd_data[(total_adc_data_bytes - (k*data_bytes_per_sample)) - (i*4) - 1 - j]), NNC_LOW)
-              top_test_cfg.act_chdata_combined_rdatac[k][i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[(total_adc_data_bytes - (k*data_bytes_per_sample)) - (i*4) - 1 - j];
+              top_test_cfg.act_chdata_combined_rdatac[k][i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[(total_adc_data_bytes - (k*data_bytes_per_sample)) - (i*2) - 1 - j];
             end
 	    //`nnc_info("SOC_TEST", $sformatf("act_chdata_combined_rdatac[%0d][%0d] = %0h",k,i,top_test_cfg.act_chdata_combined_rdatac[k][i]), NNC_LOW)
           end
@@ -911,8 +938,9 @@ class `TESTNAME extends soc_base_test;
 	`nnc_info("SOC_TEST", $sformatf(" DEV1 data_bytes_loc = [%0d]",data_bytes_loc), NNC_LOW)
 	if (`DUT_IF.imeas_24bitdata_en == 0) begin
           for(int i = 0;i < `DUT_IF.max_ch_dev1 ;i++)begin
-            for (int j = 0;j < 4 ;j++)begin  //32 bits
-              top_test_cfg.act_chdata_combined[i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc - (i*4)) -1) - j];
+            //for (int j = 0;j < 4 ;j++)begin  //32 bits
+            for (int j = 0;j < 2 ;j++)begin  //16 bits
+              top_test_cfg.act_chdata_combined[i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc - (i*2)) -1) - j];
             end
 	      `nnc_info("SOC_TEST", $sformatf(" DEV1 act_chdata_combined[%0d]= %0h",i,top_test_cfg.act_chdata_combined[i]), NNC_LOW)
           end
@@ -927,11 +955,12 @@ class `TESTNAME extends soc_base_test;
 
         //DEV2 data
         if (`DUT_IF.imeas_24bitdata_en == 0) begin
-          data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*4) - 5;
+          data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*2) - 5;
 	  `nnc_info("SOC_TEST", $sformatf(" DEV2 data_bytes_loc = [%0d]",data_bytes_loc), NNC_LOW)
           for(int i = 0;i < `DUT_IF.max_ch_dev2 ;i++)begin
-            for (int j = 0;j < 4 ;j++)begin  //32 bits
-              top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-(i*4)) -1) - j];
+            //for (int j = 0;j < 4 ;j++)begin  //32 bits
+            for (int j = 0;j < 2 ;j++)begin  //16 bits
+              top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-(i*2)) -1) - j];
             end
 	      `nnc_info("SOC_TEST", $sformatf(" DEV2 act_chdata_combined[%0d]= %0h",i + `DUT_IF.max_ch_dev1,top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1]), NNC_LOW)
           end
@@ -949,11 +978,13 @@ class `TESTNAME extends soc_base_test;
         // DEV3 data
         if(`DUT_IF.total_chip_num == 3)begin
 	  if (`DUT_IF.imeas_24bitdata_en == 0) begin
-            data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*4) - 5 - (`DUT_IF.max_ch_dev2*4) - 5;
+            data_bytes_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*2) - 5 - (`DUT_IF.max_ch_dev2*2) - 5;
 	    `nnc_info("SOC_TEST", $sformatf(" DEV3 data_bytes_loc = [%0d]",data_bytes_loc), NNC_LOW)
             for(int i = 0;i < `DUT_IF.max_ch_dev2 ;i++)begin
-              for (int j = 0;j < 4 ;j++)begin  //32 bits
-                top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-(i*4)) -1) - j];
+              //for (int j = 0;j < 4 ;j++)begin  //32 bits
+              for (int j = 0;j < 2 ;j++)begin  //16 bits
+                //top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-(i*4)) -1) - j];
+                top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-(i*2)) -1) - j];
               end
 	        `nnc_info("SOC_TEST", $sformatf(" DEV3 act_chdata_combined[%0d]= %0h",i + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2,top_test_cfg.act_chdata_combined[i + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2]), NNC_LOW)
             end
@@ -979,8 +1010,9 @@ class `TESTNAME extends soc_base_test;
         data_bytes_loc = total_adc_ch_to_read;
         if (`DUT_IF.imeas_24bitdata_en == 0) begin
           for(int i = 0;i < data_bytes_loc ;i++)begin
-            for (int j = 0;j < 4 ;j++)begin  //32 bits
-              top_test_cfg.act_chdata_combined[i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-i) *4 -1) - j];
+            //for (int j = 0;j < 4 ;j++)begin  //32 bits
+            for (int j = 0;j < 2 ;j++)begin  //16 bits
+              top_test_cfg.act_chdata_combined[i][(3 - j)*8 +: 8] = top_test_cfg.rd_data[((data_bytes_loc-i) *2 -1) - j];
             end
           end
         end
@@ -1001,8 +1033,8 @@ class `TESTNAME extends soc_base_test;
     if(rdatac_cmd_en == 1)begin // RDATAC cmd data check
       for(int j = 0; j < `DUT_IF.no_of_samples;j++)begin
         for(int k = 0; k < `DUT_IF.max_ch_dev1;k++)begin
-          if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k]))
-             //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k][31:8])))begin
+          //if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined_rdatac[j][k] !== top_test_cfg.exp_chdata_combined_rdatac[j][k]))
+          if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:16] !== top_test_cfg.exp_chdata_combined_rdatac[j][k][23:8]))
              || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined_rdatac[j][k][31:8] !== top_test_cfg.exp_chdata_combined_rdatac[j][k])))begin
              `nnc_error("TEST", $sformatf("DEV1 MISMATCH ERROR for exp_chdata[sample_%0d][ch_%0d] = %h, act_chdata_combined[sample_%0d][ch_%0d]=%0h",j,k,top_test_cfg.exp_chdata_combined_rdatac[j][k],j,k,top_test_cfg.act_chdata_combined_rdatac[j][k]))
           end
@@ -1081,8 +1113,8 @@ class `TESTNAME extends soc_base_test;
     if(str == "DEV1") begin
       for(int k = 0; k < `DUT_IF.max_ch_dev1;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
-        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])) 
-           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k][31:8])))begin
+        //if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k] !== exp_chdata[k])) 
+        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k][31:16] !== exp_chdata[k][23:8])) 
            || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k]))
         end
@@ -1094,8 +1126,8 @@ class `TESTNAME extends soc_base_test;
     if(str == "DEV2") begin
       for(int k = 0; k < `DUT_IF.max_ch_dev2;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
-        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1] !== exp_chdata[k])) 
-           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k][31:8])))begin
+        //if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1] !== exp_chdata[k])) 
+        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:16] !== exp_chdata[k][23:8])) 
            || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1]))
         end
@@ -1107,8 +1139,8 @@ class `TESTNAME extends soc_base_test;
     if(str == "DEV3") begin
       for(int k = 0; k < `DUT_IF.max_ch_dev2;k++)begin
         //`nnc_info("SOC_TEST", $sformatf("top_test_cfg.act_chdata_combined = %0h",top_test_cfg.act_chdata_combined[k]), NNC_LOW)
-        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])) 
-           //|| (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k][31:8])))begin
+        //if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2] !== exp_chdata[k])) 
+        if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:16] !== exp_chdata[k][23:8])) 
            || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2][31:8] !== exp_chdata[k])))begin
           `nnc_error("TEST", $sformatf("%s MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata_combined=%0h",str, k,k,exp_chdata[k],top_test_cfg.act_chdata_combined[k + `DUT_IF.max_ch_dev1 + `DUT_IF.max_ch_dev2]))
         end
@@ -1124,26 +1156,26 @@ class `TESTNAME extends soc_base_test;
 
   task overlap_conversion_check();
 
-  fork
-  forever begin
-    @(posedge `DUT_IF.rd_data_cmd_in_progress);
+    fork
+      forever begin
+        @(posedge `DUT_IF.rd_data_cmd_in_progress);
 
-    fork :inside_fork
-      begin
-        wait(`DUT_IF.rd_data_cmd_in_progress == 0);
-      end
+        fork :inside_fork
+          begin
+            wait(`DUT_IF.rd_data_cmd_in_progress == 0);
+          end
 
-      begin
-        wait(`DUT_IF.imeas_pos_done === 1);    
-        if(`DUT_IF.imeas_overlap_en === 1)
-          `nnc_error("SOC_TEST", " ERROR : overlap of conversion during read data cmd")
-        else
-          `nnc_warning("SOC_TEST", " WARNING : overlap of conversion during read data cmd")
+          begin
+            wait(`DUT_IF.imeas_pos_done === 1);    
+            if(`DUT_IF.imeas_overlap_en === 1)
+              `nnc_error("SOC_TEST", " ERROR : overlap of conversion during read data cmd")
+            else
+              `nnc_warning("SOC_TEST", " WARNING : overlap of conversion during read data cmd")
+          end
+        join_any
+        disable inside_fork;
       end
-    join_any
-    disable inside_fork;
-  end
-  join_none
+    join_none
 
   endtask : overlap_conversion_check
 

@@ -178,6 +178,7 @@ module Nanochap_ENS2 #(
   wire        A2D_SDM_OUT14;
   wire        A2D_SDM_OUT15;
   wire        D2A_SDM_CLK;
+  wire        ina_pga_ana_clk;
  
   pinmux_if  #( .TRIM_NUMBER    (TRIM_NUMBER),   
                 .EN_SEC_NUMBER  (EN_SEC_NUMBER),

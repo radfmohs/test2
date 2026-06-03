@@ -178,6 +178,7 @@ class `TESTNAME extends soc_base_test;
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
     //Trying to read default values of TRIM values from OTP , to make sure match with the table from Reference Manual
+    //`WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00);  //Config IOPAD[8] to VPP_EN
      top_test_cfg.rd_data = new[16];
      for(int i=0; i<16 ; i++) begin
 
@@ -558,7 +559,9 @@ task spi_wr_to_trim_reg();
 endtask
 
 task set_unlock_bit();
-   
+  
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // SET NORMALOUT CTRL TO 1 SO IOPAD[8] SELECT VPP_EN INSTEAD OF INT0
+
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b10101_001;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 

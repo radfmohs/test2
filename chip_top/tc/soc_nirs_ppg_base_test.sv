@@ -792,8 +792,8 @@ class `TESTNAME extends soc_base_test;
     `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].data_ready_en           = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].data_ready_en;
     `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_int_pin_en         = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_int_pin_en;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_mode_sel      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_mode_sel;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_led_signle_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_mode_sel      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_mode_sel;
+    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_led_signle_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en;
 
     //`nnc_info("PPG_TEST",$sformatf("nirs_ppg_led_signle_en=%0d ", `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en),NNC_LOW);
 
@@ -911,7 +911,7 @@ class `TESTNAME extends soc_base_test;
   //Config nirs control command reg 
   task config_nirs_ctrl_mode_reg;
       `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ppg_led_signle_en =%0h, nirs_ppg_mode_sel=%0h", `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel),NNC_LOW); 
-      top_test_cfg.data[0] = {3'b0, `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en, `NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel};
+      top_test_cfg.data[0] = {2'b0, `NIRS_PPG_IF.nirs_ppg_led_ambient_en, `NIRS_PPG_IF.nirs_ppg_led_signle_en, `NIRS_PPG_IF.nirs_ppg_mode_sel};
       `WR_NIRS_REG(`SOC_NIRS_CTRL_MODE_REG, top_test_cfg.data[0], top_test_cfg.pads);
       `nnc_info("PPG_TEST",$sformatf("nirs pgg base test nirs_ctrl_mode=%0h", top_test_cfg.data[0]),NNC_LOW);
     
@@ -919,7 +919,7 @@ class `TESTNAME extends soc_base_test;
 
   //Config nirs interuupt enable reg 
   task config_nirs_intr_en_reg;
-      top_test_cfg.data[0] = {1'b0, `NIRS_PPG_CTRL_CFG.idac_min_int_en, `NIRS_PPG_CTRL_CFG.idac_max_int_en, `NIRS_PPG_CTRL_CFG.iref_fine_on_not_off_en, `NIRS_PPG_CTRL_CFG.iref_fine_not_on_en, `NIRS_PPG_CTRL_CFG.iref_coarse_en, `NIRS_PPG_CTRL_CFG.data_ready_en, `NIRS_PPG_CTRL_CFG.nirs_int_pin_en};
+      top_test_cfg.data[0] = {`NIRS_PPG_IF.idac_min_int_en, `NIRS_PPG_IF.idac_max_int_en, `NIRS_PPG_IF.iref_fine_on_not_off_en, `NIRS_PPG_IF.iref_fine_not_on_en, `NIRS_PPG_IF.iref_coarse_on_not_off_en,`NIRS_PPG_IF.iref_coarse_not_on_en, `NIRS_PPG_IF.data_ready_en, `NIRS_PPG_IF.nirs_int_pin_en};
       `WR_NIRS_REG(`SOC_NIRS_CTRL_INT_REG, top_test_cfg.data[0], top_test_cfg.pads);
       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_INT_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)    
   endtask
@@ -960,7 +960,7 @@ class `TESTNAME extends soc_base_test;
        //-----------------------------------------
        // Interrupt output enabled to external pin
        //-----------------------------------------
-       if (`NIRS_PPG_CTRL_CFG.nirs_int_pin_en === 1'b1) begin
+       if (`NIRS_PPG_IF.nirs_int_pin_en === 1'b1) begin
           //1. ACTIVE HIGH, LEVEL ACTIVE (0 to 1 trnsition, level signal until clear teh status)
           if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin
             pin_int_active_high_level_active(channel_num);
@@ -1040,7 +1040,8 @@ class `TESTNAME extends soc_base_test;
          end
          else begin
            `uvm_info("NIRS_INT",$sformatf("SOC_GENERAL_INT_STS_6_REG: gen_reg_int_clr_typ %0d", gen_reg_int_clr_typ),UVM_LOW) 
-            `WR_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, `NIRS_PPG_IF.ch_en_mask, top_test_cfg.pads); //RW1C, clear interrupt status of enabled channels
+            //`WR_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, `NIRS_PPG_IF.ch_en_mask, top_test_cfg.pads); //RW1C, clear interrupt status of enabled channels, Xin cofirm W1C not supported for GENERTAL_INT_STS
+            `WR_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, `NIRS_PPG_IF.ch_en_mask, top_test_cfg.pads); //RW1C, clear interrupt status of enabled channels
            //cross check status
            check_status_reg_w1c();
          end
@@ -1116,14 +1117,25 @@ class `TESTNAME extends soc_base_test;
 
   //
   task check_status_reg_r1c(logic [7:0] read_status, logic[7:0] expected_status);
+       logic [7:0] gen_nirs_rd_intr_status, nirs_rd_intr_status;
+
        if(read_status !== expected_status)begin
          `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", read_status, expected_status))
        end
        else begin
          `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
        end
-       //check interruot line
+       //check interrupt line
        check_interrupt_after_clear_sts();
+       `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, gen_nirs_rd_intr_status);
+       `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, 8'h00, nirs_rd_intr_status); 
+        if((gen_nirs_rd_intr_status !==0) || (nirs_rd_intr_status !==0))begin 
+           `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS GEN AND NIRS REG ERROR!!!! GEN_NIRS_STS_REG =%0h, NIRS_STS_REG =%0h\n", gen_nirs_rd_intr_status, nirs_rd_intr_status))
+       end
+       else begin
+         `uvm_info("NIRS_INT_STS",$sformatf("R1C READ STATUS GEN AND NIRS REG STS MATCH!!!!  GEN_NIRS_STS_REG =%0h, NIRS_STS_REG =%0h", gen_nirs_rd_intr_status, nirs_rd_intr_status),UVM_LOW )
+       end
+
   endtask
   
   //
@@ -1144,7 +1156,7 @@ class `TESTNAME extends soc_base_test;
 
   //
   task check_interrupt_after_clear_sts();                                                        
-     if(`NIRS_PPG_CTRL_CFG.nirs_int_pin_en === 1'b1)begin                     
+     if(`NIRS_PPG_IF.nirs_int_pin_en === 1'b1)begin                     
        if(`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0)begin       //active low                                                     
          if(`SOC_TOP.IOBUF_PAD[11] !== 1'b1)
            `nnc_error("NIRS_INT_STS",$sformatf("INT PIN NOT CLEARED (IOBUF_PAD[11] =%0h)\n", `SOC_TOP.IOBUF_PAD[11]))  
@@ -1159,7 +1171,29 @@ class `TESTNAME extends soc_base_test;
 //     else begin // don't output to pin
 //       
 //     end
-  endtask 
+  endtask
+
+  task first_time_config_drive_to_nirs_if();
+    `NIRS_PPG_IF.nirs_ppg_mode_sel      = `NIRS_PPG_CTRL_CFG.nirs_ppg_mode_sel;
+    `NIRS_PPG_IF.nirs_ppg_led_signle_en = `NIRS_PPG_CTRL_CFG.nirs_ppg_led_signle_en;
+    `NIRS_PPG_IF.nirs_ppg_led_ambient_en =  `NIRS_PPG_CTRL_CFG.nirs_ppg_led_ambient_en;
+    `NIRS_PPG_IF.idac_min_int_en = `NIRS_PPG_CTRL_CFG.idac_min_int_en; 
+    `NIRS_PPG_IF.idac_max_int_en = `NIRS_PPG_CTRL_CFG.idac_max_int_en; 
+    `NIRS_PPG_IF.iref_fine_on_not_off_en = `NIRS_PPG_CTRL_CFG.iref_fine_on_not_off_en;
+    `NIRS_PPG_IF.iref_fine_not_on_en = `NIRS_PPG_CTRL_CFG.iref_fine_not_on_en;
+    `NIRS_PPG_IF.iref_coarse_on_not_off_en = `NIRS_PPG_CTRL_CFG.iref_coarse_on_not_off_en;
+    `NIRS_PPG_IF.iref_coarse_not_on_en    = `NIRS_PPG_CTRL_CFG.iref_coarse_not_on_en;
+    `NIRS_PPG_IF.data_ready_en = `NIRS_PPG_CTRL_CFG.data_ready_en;
+    `NIRS_PPG_IF.nirs_int_pin_en = `NIRS_PPG_CTRL_CFG.nirs_int_pin_en;
+
+
+
+
+
+
+
+  endtask
+   
   // ------------------------------
   // Declare the report_phase task
   // ------------------------------

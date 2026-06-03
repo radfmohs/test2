@@ -44,6 +44,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
+  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -114,6 +115,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.imeas_en_dis_ch = top_test_cfg.imeas_en_dis_ch;
     `DUT_IF.daisy_en = top_test_cfg.daisy_en;
 
+    `DUT_IF.imeas_status_en   = top_test_cfg.imeas_status_en   ;
+    `DUT_IF.imeas_24bitdata_en= top_test_cfg.imeas_24bitdata_en;
     `DUT_IF.mult_chip_en = top_test_cfg.mult_chip_en;
     `DUT_IF.mult_chip_same_clk_en = top_test_cfg.mult_chip_same_clk_en;
     `DUT_IF.no_of_adc_dev1 = top_test_cfg.no_of_adc_dev1;

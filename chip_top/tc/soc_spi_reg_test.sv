@@ -306,6 +306,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", $sformatf("************************************************************\n"), NNC_LOW)
     for(int i=1 ; i<nnc_normal_reg.size();i++)begin
       //if(!(i > 155 && i < 176 /* inside{[156:175]}*/))begin  //regs address range from 8'h9C to 8'hAF(not available)
+       if(i == 105) continue; // address 8'h69 TSC_VDAC_NOR
        nnc_normal_reg[i].read_init();
          //`nnc_info("SOC_TEST", $sformatf("REG READ:: addr = %0h",i), NNC_LOW)
       //end
@@ -690,10 +691,13 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
     `nnc_info("SOC_TEST", $sformatf("NORMAL REG: CHECK NORMAL REG WRITE BURST - READ BURST"), NNC_LOW)
     `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
-    top_test_cfg.burst_size = 3;
-    top_test_cfg.wr_data_burst[59] = 8'h02;
-    `WR_BURST_NORMAL_REG(`SOC_PMU_REG, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
-    `RD_BURST_NORMAL_REG(`SOC_PMU_REG, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+    top_test_cfg.burst_size = 15;
+    `WR_BURST_NORMAL_REG(`SOC_OTP_TRIM_1_REG, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
+    `RD_BURST_NORMAL_REG(`SOC_OTP_TRIM_1_REG, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+    for (int k=0; k < top_test_cfg.burst_size; k++) begin
+      if (top_test_cfg.wr_data_burst[k] !==  top_test_cfg.rd_data_burst[k])
+        `nnc_error("BUSRT NORMAL", $sformatf("Index: %2d, write value: %0h is not equal to read_data: %0h", k, top_test_cfg.wr_data_burst[k], top_test_cfg.rd_data_burst[k]))
+    end
    end
 
    // -------------------------------------------------

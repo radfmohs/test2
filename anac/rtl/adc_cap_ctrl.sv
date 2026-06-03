@@ -54,7 +54,7 @@ input wire int_length_slct,
 
 input wire adc_mode,   //0 is manual mode, 1 is auto mode
 			//wavegen also need in manual mode if adc_mode is 0, should provide fixed stim waveform and source/pull
-input wire [15:0] adc_cap_period, //0 means 1 true sample data out, 1 means 2 true sample data out	
+input wire [31:0] adc_cap_period, //0 means 1 true sample data out, 1 means 2 true sample data out	
 input wire [3:0] pair_num,   //1 means has 2 pair, 2 means has 3 pair, max 16 pair	
 input wire [15:0] [3:0] stim_pad0_tgt,	
 input wire [15:0] [3:0] stim_pad1_tgt,	
@@ -102,10 +102,10 @@ assign latch_ind = (bypass_adc_data_en ? 1'b1 : A2D_ADC_DATA_EN) & final_active_
 wire real_latch;
 reg  real_latch_reg; //when real_latch=1, means the data indicated by A2D_ADC_DATA_EN will be used as sample data
 		 //this signal does just make sure the first latch_ind in current adc_cap_period will be ignored
-wire [15:0] adc_cap_period_tgt; //when bypass_ignore_first=1, then bigest adc_cap_period van be set to 16'hfffe	
-//assign adc_cap_period_tgt = (bypass_ignore_first ? adc_cap_period :  (adc_cap_period + 16'b1));	
+wire [31:0] adc_cap_period_tgt; //when bypass_ignore_first=1, then bigest adc_cap_period van be set to 16'hfffe	
+//assign adc_cap_period_tgt = (bypass_ignore_first ? adc_cap_period :  (adc_cap_period + 32'b1));	
 assign adc_cap_period_tgt =  adc_cap_period ;	
-reg [15:0] adc_cap_period_cnt;	
+reg [31:0] adc_cap_period_cnt;	
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) 
  	real_latch_reg <= 1'b0;
@@ -136,14 +136,14 @@ assign real_latch = bypass_ignore_first ? 1'b1 : real_latch_reg & final_active_s
 
 always @ (posedge sysclk or negedge presetn) begin
   if (~presetn) 
-	adc_cap_period_cnt <= 16'b0;	
-  //else if(latch_ind & (real_latch || (adc_cap_period_cnt == 16'b0))) begin
+	adc_cap_period_cnt <= 32'b0;	
+  //else if(latch_ind & (real_latch || (adc_cap_period_cnt == 32'b0))) begin
   else if(latch_ind) begin
 	 if(real_latch || bypass_ignore_first) begin
 		if(adc_cap_period_cnt >= adc_cap_period_tgt) 
-			adc_cap_period_cnt <= 16'b0;	
+			adc_cap_period_cnt <= 32'b0;	
   		else 
-			adc_cap_period_cnt <= adc_cap_period_cnt + 16'b1;	
+			adc_cap_period_cnt <= adc_cap_period_cnt + 32'b1;	
          end
   end
 end

@@ -384,6 +384,9 @@ interface dut_interface();
   logic [31:0] imeas_sin_expected_freq;
   logic [31:0] imeas_sin_no_clk_per_period;
   logic [31:0] imeas_sample_num_per_period;
+  logic [39:0] exp_status_bits;
+  logic        pull_source_stim_on;
+  logic        exp_stim_flag_on;
 
   logic [31:0] python_imeas_length;
   logic [`ONE_IMEAS_SIZE-1:0]   imeas_data[`FILTER_NUM];
@@ -406,6 +409,7 @@ interface dut_interface();
   logic        imeas_overlap_en;
   logic        imeas_status_en;
   logic        imeas_24bitdata_en;
+  logic        imeas_16bitdata_en;
   logic [31:0] no_of_samples; 
   logic [31:0] sine_num_of_period;
   logic [23:0] filter_dly_val;
@@ -545,7 +549,7 @@ interface dut_interface();
    logic        adc_mode;
    logic [3:0]  pair_num;
    logic [7:0]  expected_data;
-   logic [15:0] stim_mon_period;
+   logic [31:0] stim_mon_period;
    logic        mon_adc_clk_inv;
    logic [3:0]  mon_clk_div;
    logic [2:0]  stim_mon_int_to_pin_en;
@@ -568,6 +572,8 @@ interface dut_interface();
    integer      exp_stim_tag =0;
    logic [9:0]  max_a2d_data = 0;
    logic [9:0]  min_a2d_data = 'h3FF; // 10 bit biggest value
+   logic [9:0]  max_a2d_data_2nd = 0;
+   logic [9:0]  min_a2d_data_2nd = 'h3FF; // 10 bit biggest value
    logic [9:0]  prev_a2d_data_max = 0;
    logic [9:0]  prev_a2d_data_min = 'h3FF; // 10 bit biggest value
    logic [9:0]  delta_a2d_data = 0;
@@ -597,6 +603,7 @@ interface dut_interface();
    logic        spi_dual_mode_en;
 
    // Wavegen
+   logic [7:0]  src_cnt_no = 0; 
   logic [1:0]  waveshape_sel;
 
   logic [31:0] wg_hlf_wave0_lim[`WAVEGEN_DRIVER_NUM]; // number of clocks per point for positive half wave0
@@ -659,6 +666,12 @@ interface dut_interface();
   logic [15:0] wg_wave0_pos_clk_num[`WAVEGEN_DRIVER_NUM]; 
   logic [15:0] wg_wave1_pos_clk_num[`WAVEGEN_DRIVER_NUM]; 
   logic [15:0] wg_wave2_pos_clk_num[`WAVEGEN_DRIVER_NUM];
+
+  logic [31:0] wg_wave0_rest_clk_num[`WAVEGEN_DRIVER_NUM]; 
+  logic [31:0] wg_wave1_rest_clk_num[`WAVEGEN_DRIVER_NUM]; 
+  logic [31:0] wg_wave2_rest_clk_num[`WAVEGEN_DRIVER_NUM];
+
+  logic        wg_rest_en;
   
 endinterface: dut_interface
 `endif

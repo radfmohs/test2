@@ -12,7 +12,7 @@
 `define TESTNAME soc_eegfilter_sync_ctrl_test
 `define TESTCFG soc_eegfilter_sync_ctrl_test_cfg
 
-class `TESTCFG extends soc_eegfilter_base_test_cfg;
+class `TESTCFG extends soc_eegfilter_rdata_cmd_test_cfg;
 
   `nnc_object_utils(`TESTCFG)
 
@@ -22,6 +22,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
  
   rand bit [23:0] filter_dly_val;
   rand bit        filter_sync_en; 
+  rand logic      sar_adc_bypass_pull_src_from_wg; 
 
   // -----------------------------------------------
   // End of decalration of new variables 
@@ -39,13 +40,28 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_filter_sync_en       { filter_sync_en inside {[0:1]}; }
 
+  constraint c_imeas_status_en     { imeas_status_en inside {1,1}; } 
+
+  // SAR VIP Constraints
+  // enable the stimulation from ana model
+  constraint c_sar_adc_sine_wave_en     { sar_adc_sine_wave_en == 1'b1; } // Sine is enable
+
+  constraint c_sar_adc_sine_wave_freq   { sar_adc_sine_wave_freq == 10000; } // 10Khz
+
+  constraint c_sar_adc_vin              { sar_adc_vin == 1000; } // 1000mV
+
+  constraint c_sar_adc_data_timing_t1   { sar_adc_data_timing_t1 inside {[5: 250*75/100 -5]};} // 75% of 4Mhz = 250*0.75 (margin 5ns)
+
+  constraint c_sar_adc_data_timing_t2   { sar_adc_data_timing_t2 inside {[5: 250*25/100 -5]};} // 25% of 4Mhz = 250*0.25 (margin 5ns)
+
+  constraint c_sar_adc_bypass_pull_src_from_wg { sar_adc_bypass_pull_src_from_wg == 1'b1;}
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
 
 endclass : `TESTCFG
 
-class `TESTNAME extends soc_eegfilter_base_test;
+class `TESTNAME extends soc_eegfilter_rdata_cmd_test;
    
   `nnc_component_utils(`TESTNAME)
 
@@ -70,6 +86,21 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
     `DUT_IF.filter_dly_val = top_test_cfg.filter_dly_val;
     `DUT_IF.filter_sync_en = top_test_cfg.filter_sync_en;
+
+    `DUT_IF.imeas_status_en= top_test_cfg.imeas_status_en;
+
+    `DUT_IF.sar_adc_sine_wave_en = top_test_cfg.sar_adc_sine_wave_en;
+
+    `DUT_IF.sar_adc_sine_wave_freq = top_test_cfg.sar_adc_sine_wave_freq;
+
+    `DUT_IF.sar_adc_vin = top_test_cfg.sar_adc_vin;
+
+    `DUT_IF.sar_adc_data_timing_t1 = top_test_cfg.sar_adc_data_timing_t1;
+
+    `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
+
+    `DUT_IF.sar_adc_bypass_pull_src_from_wg = top_test_cfg.sar_adc_bypass_pull_src_from_wg;
+
 
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -105,7 +136,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `WR_NORMAL_REG(`SOC_PMU_REG, {2'b0,1'b0,5'b0}, top_test_cfg.pads);
 
     // again start eeg conversions
-    basic_traffic_with_multi_start_stop();
+    //basic_traffic_with_multi_start_stop();
+    super.main_phase(phase);
 
     `nnc_info("SOC_TEST", "soc_eegfilter_sync_ctrl_test end now", NNC_LOW)
     // ----------------------------------------------------------------------------------

@@ -4098,7 +4098,7 @@ u_gpio9_pinmux (
 // test31: None
 pinmux_1bit 
 #(
-.ALTF_CLKIN(1),
+.ALTF_CLKIN(0),
 .TEST0_CLKIN(0),
 .TEST1_CLKIN(0),
 .TEST2_CLKIN(0),
@@ -5125,7 +5125,7 @@ u_gpio12_pinmux (
 // test31: None
 pinmux_1bit 
 #(
-.ALTF_CLKIN(0),
+.ALTF_CLKIN(1),
 .TEST0_CLKIN(0),
 .TEST1_CLKIN(0),
 .TEST2_CLKIN(0),

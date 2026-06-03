@@ -914,7 +914,7 @@ wire [2:0]  PROD_ID;
 //temporily connected for verification
  assign D2A_ADC_EN = adc_en;      //to analog	
  wire adc_mode;
- wire [15:0] adc_cap_period;
+ wire [31:0] adc_cap_period;
  wire [3:0] pair_num;
  wire [15:0] [3:0] stim_pad0_tgt;
  wire [15:0] [3:0] stim_pad1_tgt;

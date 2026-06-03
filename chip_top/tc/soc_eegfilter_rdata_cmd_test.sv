@@ -28,17 +28,19 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // Adding constraints of randomization
   // -----------------------------------------------
 
+  //constraint c_spi_dual_mode_en         { spi_dual_mode_en == 1'b0; }
+
   constraint c_imeas_en            { imeas_en inside {0,1}; } // 1. imeas_en=1 (always continous mode) , 1. imeas_en=0,single_shot_en=0 (also continuos mode)  
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
   constraint c_imeas_en_dis_ch     {  imeas_en_dis_ch == 'h0 ;} // all channels enabled 
 
-  constraint c_iclk_sel            { iclk_sel inside {[3:3]};} 
+  //constraint c_iclk_sel            { iclk_sel inside {[3:3]};} 
 
   constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate == 5; }
+  //constraint c_imeas_cic_rate      { imeas_cic_rate == 5; }
 
   constraint c_no_of_samples       {  no_of_samples  inside {[10:20]}; }  
 
@@ -46,8 +48,8 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_imeas_status_en     { imeas_status_en inside {0,1}; } // default no Imeas status
  
-  //constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,1}; }// default 32 bit data
-  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {1,1}; }// latest - only 24 bit supported
+  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
+  //constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {1,1}; }// latest - only 24 bit supported
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -67,8 +69,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(2s);
-    //uvm_top.set_timeout(10ms);
+    //uvm_top.set_timeout(2s);
+    uvm_top.set_timeout(10ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -105,6 +107,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.tcsh     = top_test_cfg.tcsh;
     `DUT_IF.tdist    = top_test_cfg.tdist;  
     `DUT_IF.tch      = top_test_cfg.tch; 
+
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en; 
 
     `DUT_IF.iclk_sel        = top_test_cfg.iclk_sel;
     `DUT_IF.imeas_adc_freq  = top_test_cfg.imeas_adc_freq;

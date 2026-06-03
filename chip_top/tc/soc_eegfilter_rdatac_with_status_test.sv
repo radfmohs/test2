@@ -30,6 +30,8 @@ class `TESTCFG extends soc_eegfilter_rdatac_test_cfg;
 
   constraint c_imeas_status_en { imeas_status_en == 1; }// Imeas data with status 
 
+  constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -61,6 +63,7 @@ class `TESTNAME extends soc_eegfilter_rdatac_test;
     assert(top_test_cfg.randomize());
 
     `DUT_IF.imeas_status_en   = top_test_cfg.imeas_status_en   ;
+    `DUT_IF.imeas_24bitdata_en= top_test_cfg.imeas_24bitdata_en;
 
     `nnc_info("SOC_TEST", $sformatf("imeas_status_en = %0d , imeas_24bitdata_en=%0d", `DUT_IF.imeas_status_en,`DUT_IF.imeas_24bitdata_en), UVM_LOW)
  
