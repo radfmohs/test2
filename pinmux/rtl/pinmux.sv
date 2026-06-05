@@ -243,11 +243,11 @@ module pinmux (
   wire [7:0]  CONFIG_ROM14[29:0]; 
   wire [7:0]  CONFIG_ROM15[29:0]; 
   wire [7:0]  CONFIG_ROM16[29:0]; 
-  wire [7:0]  CONFIG_ROM17[29:0]; 
-  wire [7:0]  CONFIG_ROM18[29:0]; 
-  wire [7:0]  CONFIG_ROM19[29:0]; 
-  wire [7:0]  CONFIG_ROM20[29:0]; 
-  wire [7:0]  CONFIG_ROM21[29:0]; 
+//wire [7:0]  CONFIG_ROM17[29:0]; 
+//wire [7:0]  CONFIG_ROM18[29:0]; 
+//wire [7:0]  CONFIG_ROM19[29:0]; 
+//wire [7:0]  CONFIG_ROM20[29:0]; 
+//wire [7:0]  CONFIG_ROM21[29:0]; 
 
 
 //ENABLE_REG
@@ -440,12 +440,12 @@ module pinmux (
     .CONFIG_ROM13  (CONFIG_ROM13),
     .CONFIG_ROM14  (CONFIG_ROM14),
     .CONFIG_ROM15  (CONFIG_ROM15),
-    .CONFIG_ROM16  (CONFIG_ROM16),
-    .CONFIG_ROM17  (CONFIG_ROM17),
-    .CONFIG_ROM18  (CONFIG_ROM18),
-    .CONFIG_ROM19  (CONFIG_ROM19),
-    .CONFIG_ROM20  (CONFIG_ROM20),
-    .CONFIG_ROM21  (CONFIG_ROM21)
+    .CONFIG_ROM16  (CONFIG_ROM16)
+//  .CONFIG_ROM17  (CONFIG_ROM17),
+//  .CONFIG_ROM18  (CONFIG_ROM18),
+//  .CONFIG_ROM19  (CONFIG_ROM19),
+//  .CONFIG_ROM20  (CONFIG_ROM20),
+//  .CONFIG_ROM21  (CONFIG_ROM21)
 );
 
   assign ATM_HC_SEL       = spi_pinmux_if.ATM_HC_SEL;
@@ -482,11 +482,11 @@ genvar i;
       assign pinmux_if.D2A_ANA_ENABLE_REG[0][14][i]  = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM14[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[0][14][i]) : spi_pinmux_if.ANA_ENABLE_REG[0][14][i];
       assign pinmux_if.D2A_ANA_ENABLE_REG[1][0][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM15[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][0][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][0][i];
       assign pinmux_if.D2A_ANA_ENABLE_REG[1][1][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM16[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][1][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][1][i];
-      assign pinmux_if.D2A_ANA_ENABLE_REG[1][2][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM17[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][2][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][2][i];
-      assign pinmux_if.D2A_ANA_ENABLE_REG[1][3][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM18[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][3][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][3][i];
-      assign pinmux_if.D2A_ANA_ENABLE_REG[1][4][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM19[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][4][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][4][i];
-      assign pinmux_if.D2A_ANA_ENABLE_REG[1][5][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM20[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][5][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][5][i];
-      assign pinmux_if.D2A_ANA_ENABLE_REG[1][6][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM21[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][6][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][6][i];
+//    assign pinmux_if.D2A_ANA_ENABLE_REG[1][2][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM17[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][2][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][2][i];
+//    assign pinmux_if.D2A_ANA_ENABLE_REG[1][3][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM18[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][3][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][3][i];
+//    assign pinmux_if.D2A_ANA_ENABLE_REG[1][4][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM19[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][4][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][4][i];
+//    assign pinmux_if.D2A_ANA_ENABLE_REG[1][5][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM20[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][5][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][5][i];
+//    assign pinmux_if.D2A_ANA_ENABLE_REG[1][6][i]   = (ATM_CONFG & (ATM_HC_SEL == 1'b0))  ? (CONFIG_ROM21[ATM_sel][i] ? 1'b1   : spi_pinmux_if.ANA_ENABLE_REG[1][6][i])  : spi_pinmux_if.ANA_ENABLE_REG[1][6][i];
     end
   endgenerate
 
@@ -2482,8 +2482,8 @@ u_gpio5_pinmux (
 .altf3_def  (1'b1),                         
 .altf3_y    (mosi_3),    
 */
-.altf_ie   (dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b1),         //!dual_en || dual_wr
-.altf_oe   (dual_en ? (dual_wr ? 1'b0 : 1'b1)  :1'b0),             //~(dual_en && dual_wr)      
+.altf_ie   ((dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b1) && ~cs_n),         //!dual_en || dual_wr
+.altf_oe   ((dual_en ? (dual_wr ? 1'b0 : 1'b1) : 1'b0) && ~cs_n),             //~(dual_en && dual_wr)      
 .altf_a    (miso1),   //miso                      
 .altf_def  (1'b1),                         
 .altf_y    (pad_mosi),
@@ -2825,8 +2825,8 @@ u_gpio6_pinmux (
 .altf3_def  (1'b0),                         
 .altf3_y    (sclk_3),   
 */
-.altf_ie   (dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b0),         //dual_en && dual_wr
-.altf_oe   (dual_en ? (dual_wr ? 1'b0 : 1'b1) : 1'b1),      //!dual_en || !dual_wr
+.altf_ie   ((dual_en ? (dual_wr ? 1'b1 : 1'b0) : 1'b0) && ~cs_n),         //dual_en && dual_wr
+.altf_oe   ((dual_en ? (dual_wr ? 1'b0 : 1'b1) : 1'b1) && ~cs_n),      //!dual_en || !dual_wr
 //.altf_oe   (~cs_n),
 .altf_a    (miso), //miso1
 .altf_def  (1'b0),

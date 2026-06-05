@@ -287,7 +287,6 @@ class `TESTNAME extends soc_base_test;
     // `DUT_IF.pclk_sel = top_test_cfg.data[8'h0][2:0];
     // `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
     `nnc_info("SOC_TEST", $sformatf("i_start_otp_addr =%h, i_last_otp_addr = %h, read_otp_mem =%h ", i_start_otp_addr, i_last_otp_addr,read_otp_mem), UVM_LOW)
-
     ////1.set valid trim_tag =0x5A
     //assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_0_REG; no_of_bytes == 1; data[0] == 8'h5a;});
     //`WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
@@ -308,6 +307,8 @@ class `TESTNAME extends soc_base_test;
       //2. Data ready, configure the data to SPI register
       `WR_NORMAL_REG(`SOC_OTP_DATA_REG, top_test_cfg.temp_otp_wdata[addr], top_test_cfg.pads); 
 
+      `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0 
+
       //3.Configure OTP_UNLOCK register to set KEY Data
       //4.Configure OTP_UNLOCK regsiter bit0 to set UNLOCK bit to HIGH LEVEL
       `WR_NORMAL_REG(`SOC_OTP_UNLOCK_REG, 8'b01010_001,top_test_cfg.pads);
@@ -315,7 +316,8 @@ class `TESTNAME extends soc_base_test;
       //4.When OTP_VPP_EN to 1(connect to IOPAD[8], boost VPP to 7.5V in 20us
  
 
-      if( addr == 10'd112 || (addr >= 10'd116 && addr <= 123))begin  //for invalid location while keydata set as 5'b01010 of unlock_reg
+     // if( addr == 10'd112 || (addr >= 10'd116 && addr <= 123))begin  //for invalid location while keydata set as 5'b01010 of unlock_reg
+      if(addr >= 10'd0 && addr <= 10'd19)begin
          `nnc_info("SOC_TEST", $sformatf("For Address Range 10'd112 and 10'd116 to 10''d123, so selected now is otp addr =%h", addr ), UVM_LOW) 
          #2ms;  //as writing to invalid location state machine doesn't work 
       end

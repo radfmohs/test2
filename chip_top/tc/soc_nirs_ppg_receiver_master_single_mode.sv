@@ -217,7 +217,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
                                                      threshold_l_7_0 inside {[0:10]};
                                                      en_config_led0 ==  top_test_cfg.temp_en_config_leds[0] ; //'h1; // led0 and led1 configuration one by one to have different random value
                                                      en_config_led1 ==  top_test_cfg.temp_en_config_leds[1]; //'h0; // led0 and led1 configuration one by one to have different random value
-                                                     //nirs_ppg_led_signle_en == 'h0;
+                                                     nirs_ppg_led_signle_en == 'h0;
                                                      idac_min_int_en == 'h0;
                                                      idac_max_int_en == 'h0;
                                                      iref_fine_on_not_off_en == 'h0;
@@ -227,7 +227,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
                                                      data_ready_en == 'h1;
                                                      //nirs_int_pin_en == 1'b0;  //testing
                                                      idac_en == 'h1;
-                                                     //bypass_or_gateclk == 1'b1; //by default 1
+                                                     bypass_or_gateclk == 1'b1; //by default 1
                                                      //debug_channel == (top_test_cfg.ch +1'b1);
                                                      //debug_led     == top_test_cfg.num_leds;
                                                     });
@@ -336,9 +336,9 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
     //6.
     receiver_master_single_mode_operation(); 
 
-    `nnc_info("PPG_TEST","WAIT FOR COUNTER CLEAR UNTIL TRUONG FIX RTL \n",NNC_LOW); 
-    #22ms;    //Truong will fix teh issue, if tperiod is maximum and interrupt genwrate before then sending next time command doesn;t work
-    `nnc_info("PPG_TEST","WAIT DONE UNTIL TRUONG FIX RTL \n",NNC_LOW);
+    //`nnc_info("PPG_TEST","WAIT FOR COUNTER CLEAR UNTIL TRUONG FIX RTL \n",NNC_LOW); 
+    //#22ms;    //Truong will fix teh issue, if tperiod is maximum and interrupt genwrate before then sending next time command doesn;t work
+    //`nnc_info("PPG_TEST","WAIT DONE UNTIL TRUONG FIX RTL \n",NNC_LOW);
     //dual mode led enabled   
     if(`NIRS_PPG_IF.nirs_ppg_led_signle_en === 1'b0)begin
       `nnc_info("PPG_TEST",$sformatf("dual led mode enabled nirs_ppg_led_signle_en= %0h\n", `NIRS_PPG_IF.nirs_ppg_led_signle_en),NNC_LOW);
@@ -351,6 +351,8 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
       
       receiver_master_single_mode_operation();
    end
+    #10ms;
+
 //
 //    //6.send command
 //    nirs_start_cmd_receiver_single_cont_mode;

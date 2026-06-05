@@ -117,17 +117,18 @@ generate
       if (!`NIRS_PPG_TOP.rst_n)begin
         nirs_ppg_vif.nirs_ppg_en[i] <= 1'b0;
         nirs_ppg_vif.nirs_ppg_meas[i] <= 1'b0;
-        nirs_ppg_vif.nirs_int_io[i]   <= 1'b0;
+        //nirs_ppg_vif.nirs_int_io[i]   <= 1'b0;
       end
       else begin
         // constant hierarchical reference per instance (macro expands to the path)
         nirs_ppg_vif.nirs_ppg_en[i]  <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_EN;
         nirs_ppg_vif.nirs_ppg_meas[i] <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_pulse_ctrl.NIRS_MEAS;
-        nirs_ppg_vif.nirs_int_io[i]   <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_ppg_int.INT_IO;
+        //nirs_ppg_vif.nirs_int_io[i]   <= `NIRS_PPG_TOP.u_nirs_ctrl_top[i].u_nirs_ppg_int.INT_IO;
       end
     end
   end
 endgenerate
+
 
 //{soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_nirs_wrapper.u_nirs_ctrl_top[0].u_nirs_pulse_ctrl.NIRS_MEAS}
 
@@ -211,8 +212,79 @@ endgenerate*/
 //D2A_NIRS*_IIN_SW
 //A2D_NIRS*_IREFCOARSE
 //A2D_NIRS*_IREFCOARSE
-    
+
+assign nirs_ppg_vif.nirs_int_io[0]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[0].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[1]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[1].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[2]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[2].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[3]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[3].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[4]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[4].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[5]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[5].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[6]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[6].u_nirs_ppg_int.INT_IO;
+assign nirs_ppg_vif.nirs_int_io[7]   = `NIRS_PPG_TOP.u_nirs_ctrl_top[7].u_nirs_ppg_int.INT_IO;
+
+//checker to check NIRS INT for each channel is one clock
+genvar g_int;
+generate
+  for (g_int=0; g_int<8; g_int++) begin : INT_ASSERT
+
+    property int_pulse_width_check;
+      @(posedge `CLK_CTRL_TOP.clk_ppg)
+      disable iff (!`NIRS_PPG_TOP.rst_n || !nirs_ppg_vif.nirs_int_pin_en)
+
+      ((nirs_ppg_vif.gen_reg_int_active_level && nirs_ppg_vif.gen_reg_int_length_sel &&
+         $rose(nirs_ppg_vif.nirs_int_io[g_int]))
+        ||
+        (!nirs_ppg_vif.gen_reg_int_active_level && nirs_ppg_vif.gen_reg_int_length_sel &&
+         $fell(nirs_ppg_vif.nirs_int_io[g_int]))
+      )
+      |=> (nirs_ppg_vif.nirs_int_io[g_int]
+           == 0);
+
+    endproperty
+
+    assert property (int_pulse_width_check) `nnc_info("SVA INT_IO", $sformatf("INT_IO pulse detected!!![%0d]",g_int), UVM_LOW)
+      else
+        `uvm_error("NIRS_INT",$sformatf("SVA INT_IO pulse width ERROR!!! channel %0d", g_int));
+
+  end
+endgenerate  
+
+//check connectivity  
+bit exp_int_pin;
+bit wire_int_pin;
+//assign     exp_int_pin =
+//                   (`NIRS_PPG_TOP.u_nirs_ctrl_top[0].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[1].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[2].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[3].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[4].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[5].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[6].u_nirs_ppg_int.INT_IO |
+//                   `NIRS_PPG_TOP.u_nirs_ctrl_top[7].u_nirs_ppg_int.INT_IO);
+
+assign wire_int_pin =  nirs_ppg_vif.nirs_int_pin_en ? (`NIRS_PPG_TOP.u_nirs_ctrl_top[0].u_nirs_ppg_int.INT_IO | `NIRS_PPG_TOP.u_nirs_ctrl_top[1].u_nirs_ppg_int.INT_IO |
+                        `NIRS_PPG_TOP.u_nirs_ctrl_top[2].u_nirs_ppg_int.INT_IO |`NIRS_PPG_TOP.u_nirs_ctrl_top[3].u_nirs_ppg_int.INT_IO |
+                        `NIRS_PPG_TOP.u_nirs_ctrl_top[4].u_nirs_ppg_int.INT_IO |`NIRS_PPG_TOP.u_nirs_ctrl_top[5].u_nirs_ppg_int.INT_IO |
+                        `NIRS_PPG_TOP.u_nirs_ctrl_top[6].u_nirs_ppg_int.INT_IO |`NIRS_PPG_TOP.u_nirs_ctrl_top[7].u_nirs_ppg_int.INT_IO) : 1'b0;
+
+assign exp_int_pin = nirs_ppg_vif.gen_reg_int_active_level ? wire_int_pin : ~wire_int_pin;
+
+always @(posedge nirs_ppg_vif.nirs_ppg_clk ) begin
+
+  if(nirs_ppg_vif.nirs_ppg_rst && nirs_ppg_vif.nirs_int_io_checker_en)begin  
+    //if (nirs_ppg_vif.nirs_int_pin_en) begin
+       if (`SOC_TOP.IOBUF_PAD[11] !== exp_int_pin) begin
+             `nnc_error("NIRS_INT",$sformatf("INT pin connectivity error!!! Expected=%0b Actual=%0b",exp_int_pin,`SOC_TOP.IOBUF_PAD[11]))
+       end
+    //end
+    //else begin
+    //   if (`SOC_TOP.IOBUF_PAD[11] !== exp_int_pin) begin
+    //         `nnc_error("NIRS_INT",$sformatf("INT pin connectivity error!!! nirs_ppg_vif.nirs_int_pin_en =%0b(==0 don't output INT to pin) IOBUF_PAD[11]=%0b",nirs_ppg_vif.nirs_int_pin_en, `SOC_TOP.IOBUF_PAD[11]))
+    //   end
+    //end
+  end
+end
 //initial begin
 //    nirs_ppg_vif.cfg = top_cfg.nirs_ppg_cfg; //`NIRS_PPG_CTRL_CFG;   // pass config handle
 //end
-
+//{soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_nirs_wrapper.u_nirs_ctrl_top[0].u_nirs_ppg_int.INT_IO}

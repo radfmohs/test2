@@ -79,7 +79,7 @@ if {$count != 4} {
   remote_execute {update_power}
   fix_eco_power -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max
   fix_eco_timing -verbose -type hold -method {insert_buffer size_cell} -buffer_list {DLY1_X1_A7TULL DLY1_X4_A7TULL DLY2_X1_A7TULL DLY2_X4_A7TULL DLY3_X1_A7TULL DLY3_X4_A7TULL DLY4_X1_A7TULL DLY4_X4_A7TULL BUF_X2_A7TULL BUF_X4_A7TULL BUF_X6_A7TULL BUF_X8_A7TULL BUF_X10_A7TULL BUF_X12_A7TULL BUF_X14_A7TULL BUF_X16_A7TULL BUF_X18_A7TULL BUF_X20_A7TULL } -cell_type {combinational}
-  remote_execute {write_changes -verbose -format dctcl -output ../pteco_fix_${scenario}_${corner}.tcl} -v
+  remote_execute {write_changes -verbose -format dctcl -output ../pteco_fix_${scenario}.tcl} -v
   #choosing the largest tcl file as the final changes file
   set find_output [exec find . -name "pteco_fix_*_m*.tcl" -type f -printf "%s\t%p\n"]
   set sorted_output [exec echo "$find_output" | sort -n -r]

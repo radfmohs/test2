@@ -160,7 +160,8 @@ assign down_rate = (cic_rate == 4'b000) ? 17'h7:
 
   //because resolution  is changed to 24 bits
   //reg [16:0]cic_out_0;
-  reg [32:0]cic_out_0;
+  //reg [32:0]cic_out_0;
+  reg [24:0]cic_out_0;
   //reg [45:0]cic_out_0;
   always @(posedge clk or negedge resetn)
     if(!resetn)

@@ -30,7 +30,10 @@ output wire [9:0] A2D_ADC_DATA, //from analog //ADC use posedge of sysclk to out
 		//digital use negedge to capture, so we have half sysclk cycle margin for it	
 output wire  A2D_ADC_DATA_EN,//from analog	
 input wire[3:0] D2A_STIM_PAD0,    //to analog	
-input wire[3:0] D2A_STIM_PAD1,    //to analog	
+input wire[3:0] D2A_STIM_PAD1,    //to analog
+input wire[3:0] D2A_ADC_DELAY,
+input wire[1:0] D2A_ADBUF_GSEL,
+	
 input wire D2A_ADC_EN,    //to analog	
 input wire D2A_ADC_CLK,    //to analog	
 input wire ina_pga_ana_clk,
@@ -66,6 +69,7 @@ input  wire  D2A_SDM_CLK,
   inout   VDDIO,
   inout   VDD_DIG,
   inout   VSS_DIG,
+  inout   VSSIO,
   //inout   AVDD,
 
   pinmux_if.A2D   pinmux_if,
@@ -173,7 +177,7 @@ wire [15:0] D2A_EEGLNA_EN;
 wire [15:0] D2A_QSTRLNA_EN;
 wire [15:0] D2A_EEGPGA_EN; 
 wire [15:0] D2A_QSTRPGA_EN;          
-wire        D2A_VCMGENBUFF_EN;   
+//wire        D2A_VCMGENBUFF_EN;   
 wire        D2A_SDMVCMBUFF_EN; 
 wire [7:0]  D2A_VCMGENBUFF_IADJ;
 wire [1:0]  D2A_SDMVCMBUFF_IADJ;
@@ -202,106 +206,51 @@ wire [2:0]  D2A_EEG_CH12_SET;
 wire [2:0]  D2A_EEG_CH13_SET;
 wire [2:0]  D2A_EEG_CH14_SET;
 wire [2:0]  D2A_EEG_CH15_SET;
-
-wire [1:0]  D2A_EEGLNA0_IADJ;
-wire [1:0]  D2A_EEGLNA1_IADJ;
-wire [1:0]  D2A_EEGLNA2_IADJ;
-wire [1:0]  D2A_EEGLNA3_IADJ;
-wire [1:0]  D2A_EEGLNA4_IADJ;
-wire [1:0]  D2A_EEGLNA5_IADJ;
-wire [1:0]  D2A_EEGLNA6_IADJ;
-wire [1:0]  D2A_EEGLNA7_IADJ;
-wire [1:0]  D2A_EEGLNA8_IADJ;
-wire [1:0]  D2A_EEGLNA9_IADJ;
-wire [1:0]  D2A_EEGLNA10_IADJ;
-wire [1:0]  D2A_EEGLNA11_IADJ;
-wire [1:0]  D2A_EEGLNA12_IADJ;
-wire [1:0]  D2A_EEGLNA13_IADJ;
-wire [1:0]  D2A_EEGLNA14_IADJ;
-wire [1:0]  D2A_EEGLNA15_IADJ;
-
-wire [5:0]  D2A_EEGLNA0_GAIN;
-wire [5:0]  D2A_EEGLNA1_GAIN;
-wire [5:0]  D2A_EEGLNA2_GAIN;
-wire [5:0]  D2A_EEGLNA3_GAIN;
-wire [5:0]  D2A_EEGLNA4_GAIN;
-wire [5:0]  D2A_EEGLNA5_GAIN;
-wire [5:0]  D2A_EEGLNA6_GAIN;
-wire [5:0]  D2A_EEGLNA7_GAIN;
-wire [5:0]  D2A_EEGLNA8_GAIN;
-wire [5:0]  D2A_EEGLNA9_GAIN;
-wire [5:0]  D2A_EEGLNA10_GAIN;
-wire [5:0]  D2A_EEGLNA11_GAIN;
-wire [5:0]  D2A_EEGLNA12_GAIN;
-wire [5:0]  D2A_EEGLNA13_GAIN;
-wire [5:0]  D2A_EEGLNA14_GAIN;
-wire [5:0]  D2A_EEGLNA15_GAIN;
-
-wire [2:0]  D2A_EEGPGA0A_GAIN;
-wire [4:0]  D2A_EEGPGA0B_GAIN;
-wire [2:0]  D2A_EEGPGA1A_GAIN;
-wire [4:0]  D2A_EEGPGA1B_GAIN;
-wire [2:0]  D2A_EEGPGA2A_GAIN;
-wire [4:0]  D2A_EEGPGA2B_GAIN;
-wire [2:0]  D2A_EEGPGA3A_GAIN;
-wire [4:0]  D2A_EEGPGA3B_GAIN;
-wire [2:0]  D2A_EEGPGA4A_GAIN;
-wire [4:0]  D2A_EEGPGA4B_GAIN;
-wire [2:0]  D2A_EEGPGA5A_GAIN;
-wire [4:0]  D2A_EEGPGA5B_GAIN;
-wire [2:0]  D2A_EEGPGA6A_GAIN;
-wire [4:0]  D2A_EEGPGA6B_GAIN;
-wire [2:0]  D2A_EEGPGA7A_GAIN;
-wire [4:0]  D2A_EEGPGA7B_GAIN;
-wire [2:0]  D2A_EEGPGA8A_GAIN;
-wire [4:0]  D2A_EEGPGA8B_GAIN;
-wire [2:0]  D2A_EEGPGA9A_GAIN;
-wire [4:0]  D2A_EEGPGA9B_GAIN;
-wire [2:0]  D2A_EEGPGA10A_GAIN;
-wire [4:0]  D2A_EEGPGA10B_GAIN;
-wire [2:0]  D2A_EEGPGA11A_GAIN;
-wire [4:0]  D2A_EEGPGA11B_GAIN;
-wire [2:0]  D2A_EEGPGA12A_GAIN;
-wire [4:0]  D2A_EEGPGA12B_GAIN;
-wire [2:0]  D2A_EEGPGA13A_GAIN;
-wire [4:0]  D2A_EEGPGA13B_GAIN;
-wire [2:0]  D2A_EEGPGA14A_GAIN;
-wire [4:0]  D2A_EEGPGA14B_GAIN;
-wire [2:0]  D2A_EEGPGA15A_GAIN;
-wire [4:0]  D2A_EEGPGA15B_GAIN;
-
-wire [3:0]  D2A_EEGPGA0A_IADJ;
-wire [3:0]  D2A_EEGPGA0B_IADJ;
-wire [3:0]  D2A_EEGPGA1A_IADJ;
-wire [3:0]  D2A_EEGPGA1B_IADJ;
-wire [3:0]  D2A_EEGPGA2A_IADJ;
-wire [3:0]  D2A_EEGPGA2B_IADJ;
-wire [3:0]  D2A_EEGPGA3A_IADJ;
-wire [3:0]  D2A_EEGPGA3B_IADJ;
-wire [3:0]  D2A_EEGPGA4A_IADJ;
-wire [3:0]  D2A_EEGPGA4B_IADJ;
-wire [3:0]  D2A_EEGPGA5A_IADJ;
-wire [3:0]  D2A_EEGPGA5B_IADJ;
-wire [3:0]  D2A_EEGPGA6A_IADJ;
-wire [3:0]  D2A_EEGPGA6B_IADJ;
-wire [3:0]  D2A_EEGPGA7A_IADJ;
-wire [3:0]  D2A_EEGPGA7B_IADJ;
-wire [3:0]  D2A_EEGPGA8A_IADJ;
-wire [3:0]  D2A_EEGPGA8B_IADJ;
-wire [3:0]  D2A_EEGPGA9A_IADJ;
-wire [3:0]  D2A_EEGPGA9B_IADJ;
-wire [3:0]  D2A_EEGPGA10A_IADJ;
-wire [3:0]  D2A_EEGPGA10B_IADJ;
-wire [3:0]  D2A_EEGPGA11A_IADJ;
-wire [3:0]  D2A_EEGPGA11B_IADJ;
-wire [3:0]  D2A_EEGPGA12A_IADJ;
-wire [3:0]  D2A_EEGPGA12B_IADJ;
-wire [3:0]  D2A_EEGPGA13A_IADJ;
-wire [3:0]  D2A_EEGPGA13B_IADJ;
-wire [3:0]  D2A_EEGPGA14A_IADJ;
-wire [3:0]  D2A_EEGPGA14B_IADJ;
-wire [3:0]  D2A_EEGPGA15A_IADJ;
-wire [3:0]  D2A_EEGPGA15B_IADJ;
+wire           D2A_INA_CLK;
+wire [3:0]  D2A_GAIN_PGA_CH0_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH1_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH2_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH3_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH4_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH5_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH6_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH7_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH8_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH9_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH10_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH11_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH12_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH13_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH14_ADJ;
+wire [3:0]  D2A_GAIN_PGA_CH15_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH0_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH1_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH2_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH3_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH4_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH5_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH6_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH7_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH8_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH9_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH10_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH11_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH12_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH13_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH14_ADJ;
+wire [2:0]  D2A_GAIN_DDA_CH15_ADJ;
+wire        D2A_INADC_ADJ;
+wire [15:0]  D2A_PGAEN;
+wire [15:0]  D2A_PGA_ENCH;
+wire [2:0]   D2A_PGA_IADJ;
+wire [15:0]  D2A_RLDEN_INA;
+wire [15:0]  D2A_DDAEN;
+wire [2:0]   D2A_DDA_IADJ;
+wire         D2A_EEG_EN;
+wire         D2A_VCM_INA_ADJ;
+wire         D2A_VCM_INAEN;
+wire [1:0]  D2A_SDMVCMBUFF_ADJ;
+wire [1:0]  D2A_SDMVREFP_ADJ;
 
 
 //STIMULATOR
@@ -321,33 +270,26 @@ wire [11:0]  D2A_DATA_12;
 wire [11:0]  D2A_DATA_13;
 wire [11:0]  D2A_DATA_14;
 wire [11:0]  D2A_DATA_15;
+wire [15:0]  D2A_CBUF_EN;
+wire [15:0]  D2A_IDAC_EN;
+wire         D2A_DRIVER_CUR_EN;
+wire  [7:0]  D2A_DRIVER_CUR_TRIM;
+wire [15:0]  D2A_PULLD;
+wire [15:0]  D2A_SOURCE;
 
-
-wire [15:0]  D2A_CBUF_EN;; 
-wire [15:0]  D2A_IDAC_EN;; 
-wire         D2A_DRIVER_CUR_EN;;
-wire [7:0]   D2A_DRIVER_CUR_TRIM;
-wire [15:0]  D2A_PULLD;           
-wire [15:0]  D2A_SOURCE;          
-wire         D2A_STIMU_EN; 
-wire         D2A_DRIVERC_LEAD_OFF_EN;  
-wire [3:0]   D2A_DRIVERC_LEAD_OFF_INSEL; 
-wire         D2A_DRIVERC_SHORT_DET_EN;
-wire [4:0]   D2A_DRIVERC_SHORT_DET_VINSEL;
-wire [4:0]   D2A_DRIVERC_SHORT_DET_VIPSEL;
-wire	       A2D_DRIVERC_LEAD_OFF_OUT;
-wire	       A2D_DRIVERC_SHORT_DET_OUT;
-
-
-wire [15:0] D2A_SDMEN;
-wire [15:0] D2A_SDMBUFF_EN;
-
+wire [15:0]  D2A_SDMEN;
+wire         D2A_STIMU_EN;
 wire [7:0]  D2A_SPI_SPARE0;
 wire [7:0]  D2A_SPI_SPARE1;
 wire [7:0]  D2A_SPI_SPARE2;
 wire [7:0]  D2A_SPI_SPARE3;
+wire [7:0]  D2A_SPI_SPARE4;
+wire [7:0]  D2A_SPI_SPARE5;
+wire [7:0]  D2A_SPI_SPARE6;
+wire [7:0]  D2A_SPI_SPARE7;
 
 
+wire        D2A_SDM_TEST;
 wire        D2A_NIRS4_EN;
 //wire        D2A_NIRS_TEST_EN;
 wire        D2A_NIRS4_IDAC_EN;
@@ -357,49 +299,49 @@ wire [7:0]  D2A_NIRS4_IDAC_ADJ;
 
 //DRIVERA_CH1
 
-wire        D2A_DRIVERA_CSAMP_EN_CH1;
-wire        D2A_COMP_EN_CH1;
-wire        D2A_IDAC_EN_CH1;
-wire        D2A_VDAC_EN_CH1;
+//wire        D2A_DRIVERA_CSAMP_EN_CH1;
+//wire        D2A_COMP_EN_CH1;
+//wire        D2A_IDAC_EN_CH1;
+//wire        D2A_VDAC_EN_CH1;
 //wire [11:0] D2A_VDAC_DIN_CH1;
-wire        D2A_STIMU_COMP_SEL_CH1; 
-wire        D2A_STIMU_COMP_EN_CH1; 
+//wire        D2A_STIMU_COMP_SEL_CH1; 
+//wire        D2A_STIMU_COMP_EN_CH1; 
 //wire  [2:0] D2A_CS_TRIM_CH1;
 //wire        D2A_LEAD_OFF_SEL_SA_SB_CH1;
 
 // WG_CH1
-wire        D2A_DRIVERA_SOURCEA_CH1;
-wire        D2A_DRIVERA_SOURCEB_CH1;
-wire        D2A_DRIVERA_PULLDA_CH1;
-wire        D2A_DRIVERA_PULLDB_CH1;
-wire [11:0] D2A_IDAC_DIN_CH1;
+//wire        D2A_DRIVERA_SOURCEA_CH1;
+//wire        D2A_DRIVERA_SOURCEB_CH1;
+//wire        D2A_DRIVERA_PULLDA_CH1;
+//wire        D2A_DRIVERA_PULLDB_CH1;
+//wire [11:0] D2A_IDAC_DIN_CH1;
 
 //PUMP_CH1
 //wire        D2A_PUMP_CLK_TRIM_CH1;
-wire        D2A_PUMP_5V_EN_CH1;
-wire        D2A_PUMP_LDO_EN_CH1;
+//wire        D2A_PUMP_5V_EN_CH1;
+//wire        D2A_PUMP_LDO_EN_CH1;
 //wire  [1:0] D2A_LDO2P8_PUMP_TRIM_CH1;
 //wire        D2A_LDO1P8_LDO2P8_CH1_SEL;
 
 //DRIVERA_CH2
 //wire  [2:0] D2A_VDAC_VTRIM_CH2;
-wire        D2A_CS_EN_CH_CH2;
-wire        D2A_DRIVERA_CSAMP_EN_CH2;
-wire        D2A_COMP_EN_CH2;
-wire        D2A_IDAC_EN_CH2;
-wire        D2A_VDAC_EN_CH2;
-wire [11:0] D2A_VDAC_DIN_CH2;
-wire        D2A_STIMU_COMP_SEL_CH2; 
-wire        D2A_STIMU_COMP_EN_CH2; 
+//wire        D2A_CS_EN_CH_CH2;
+//wire        D2A_DRIVERA_CSAMP_EN_CH2;
+//wire        D2A_COMP_EN_CH2;
+//wire        D2A_IDAC_EN_CH2;
+//wire        D2A_VDAC_EN_CH2;
+//wire [11:0] D2A_VDAC_DIN_CH2;
+//wire        D2A_STIMU_COMP_SEL_CH2; 
+//wire        D2A_STIMU_COMP_EN_CH2; 
 //wire  [2:0] D2A_CS_TRIM_CH2;
 //wire        D2A_LEAD_OFF_SEL_SA_SB_CH2;
 
 //WG_CH2
-wire        D2A_DRIVERA_SOURCEA_CH2;
-wire        D2A_DRIVERA_SOURCEB_CH2;
-wire        D2A_DRIVERA_PULLDA_CH2;
-wire        D2A_DRIVERA_PULLDB_CH2;
-wire [11:0] D2A_IDAC_DIN_CH2;
+//wire        D2A_DRIVERA_SOURCEA_CH2;
+//wire        D2A_DRIVERA_SOURCEB_CH2;
+//wire        D2A_DRIVERA_PULLDA_CH2;
+//wire        D2A_DRIVERA_PULLDB_CH2;
+//wire [11:0] D2A_IDAC_DIN_CH2;
 
 wire [7:0] ANA_ENABLE_REG   [EN_SEC_NUMBER-1:0][EN_REG_NUMBER-1:0];
 wire [7:0] ANA_GEN_REG      [GEN_SEC_NUMBER-1:0][GEN_REG_NUMBER-1:0];
@@ -407,7 +349,7 @@ wire [7:0] A2D_ANA_GEN_REG  [A2D_REG_NUMBER-1:0];
 
 
 //assign A2D_ANA_GEN_REG_0    = atpg_en ? 8'b0 : {4'b0, A2D_TSC_COMP_OUT_CH1, A2D_COMP_OUT_STIMU2_3, A2D_COMP_OUT_STIMU0_1, A2D_LVD};
-assign A2D_ANA_GEN_REG_0     = atpg_en ? 8'b0 : {4'b0, A2D_DRIVERC_SHORT_DET_OUT, A2D_DRIVERC_LEAD_OFF_OUT, A2D_TSC_COMP_OUT, A2D_LVD};
+assign A2D_ANA_GEN_REG_0     = atpg_en ? 8'b0 : {6'b0, A2D_TSC_COMP_OUT, A2D_LVD};
 assign A2D_ANA_GEN_REG_1     = atpg_en ? 8'b0 : A2D_LOFF_STATP[7:0];
 assign A2D_ANA_GEN_REG_2     = atpg_en ? 8'b0 : A2D_LOFF_STATP[15:8];
 assign A2D_ANA_GEN_REG_3     = atpg_en ? 8'b0 : A2D_LOFF_STATN[7:0];
@@ -465,23 +407,23 @@ assign D2A_LOFF_IPOL				     = D2A_ADJ1_2_IO[3];
 assign D2A_LOFF_ISEL_ADJ         = D2A_ADJ1_2_IO[7:4];
 
 //LNA 
-assign D2A_EEGLNA8_GAIN          = D2A_ADJ6_7_IO[5:0];//D2A_ADJ6_IO //D2A_ADJ7_IO
-assign D2A_EEGLNA8_IADJ          = D2A_ADJ6_7_IO[7:6];
+//assign D2A_EEGLNA8_GAIN          = D2A_ADJ6_7_IO[5:0];//D2A_ADJ6_IO //D2A_ADJ7_IO
+//assign D2A_EEGLNA8_IADJ          = D2A_ADJ6_7_IO[7:6];
 
 //PGA
-assign D2A_EEGPGA8A_GAIN         = D2A_ADJ8_9_IO[2:0];//D2A_ADJ8_IO //D2A_ADJ9_IO
-assign D2A_EEGPGA8B_GAIN         = D2A_ADJ8_9_IO[7:3];
+//assign D2A_EEGPGA8A_GAIN         = D2A_ADJ8_9_IO[2:0];//D2A_ADJ8_IO //D2A_ADJ9_IO
+//assign D2A_EEGPGA8B_GAIN         = D2A_ADJ8_9_IO[7:3];
 
 //VCMGEN (PAD)
-assign D2A_VCMGENBUFF_IADJ       = D2A_ADJ10_IO;//D2A_ADJ10_IO
+//assign D2A_VCMGENBUFF_IADJ       = D2A_ADJ10_IO;//D2A_ADJ10_IO
 
 //SDMVCMBUFF (PAD))
 assign D2A_SDMVCMBUFF_IADJ      = D2A_ADJ11_IO[1:0];//D2A_ADJ11_IO
-assign D2A_SDMVCMBUFF_SEL       = D2A_ADJ11_IO[7:2];
+//assign D2A_SDMVCMBUFF_SEL       = D2A_ADJ11_IO[7:2];
 
 //VREFP (PAD)
 assign D2A_SDMVREFP_IADJ        = D2A_ADJ12_IO[1:0];//D2A_ADJ12_IO
-assign D2A_SDMVREFP_SEL         = D2A_ADJ12_IO[7:2];
+//assign D2A_SDMVREFP_SEL         = D2A_ADJ12_IO[7:2];
 
 //RLD (PAD)
 assign D2A_RLD_IADJ             = D2A_ADJ13_IO;//D2A_ADJ13_IO
@@ -510,16 +452,16 @@ assign D2A_BIST_EN               = ANA_ENABLE_REG[0][0][0];
 assign D2A_BIST_SEL              = ANA_ENABLE_REG[0][0][5:1];
 
 //LEAD OFF
-assign D2A_DCLOFFEN              = {ANA_ENABLE_REG[1][6],ANA_ENABLE_REG[1][5]}; 
+assign D2A_DCLOFFEN              = {ANA_ENABLE_REG[1][1],ANA_ENABLE_REG[1][0]}; 
 
 //RECORDING
 assign D2A_BIAS_MEAS             = ANA_ENABLE_REG[0][3][1];
 assign D2A_BIASREF_INT           = ANA_GEN_REG[0][0][3];  
-assign D2A_EEGLNA_EN             = {ANA_ENABLE_REG[0][5],ANA_ENABLE_REG[0][4]}; 
-assign D2A_QSTRLNA_EN            = {ANA_ENABLE_REG[0][7],ANA_ENABLE_REG[0][6]};  
-assign D2A_EEGPGA_EN             = {ANA_ENABLE_REG[0][9],ANA_ENABLE_REG[0][8]}; 
-assign D2A_QSTRPGA_EN            = {ANA_ENABLE_REG[0][11],ANA_ENABLE_REG[0][10]}; 
-assign D2A_VCMGENBUFF_EN         = ANA_ENABLE_REG[0][2][1];
+//assign D2A_EEGLNA_EN             = {ANA_ENABLE_REG[0][5],ANA_ENABLE_REG[0][4]}; 
+//assign D2A_QSTRLNA_EN            = {ANA_ENABLE_REG[0][7],ANA_ENABLE_REG[0][6]};  
+//assign D2A_EEGPGA_EN             = {ANA_ENABLE_REG[0][9],ANA_ENABLE_REG[0][8]}; 
+//assign D2A_QSTRPGA_EN            = {ANA_ENABLE_REG[0][11],ANA_ENABLE_REG[0][10]}; 
+//assign D2A_VCMGENBUFF_EN         = ANA_ENABLE_REG[0][2][1];
 assign D2A_SDMVCMBUFF_EN         = ANA_ENABLE_REG[0][2][2];
 assign D2A_SDMVREFPBUFF_EN       = ANA_ENABLE_REG[0][2][3];
 assign D2A_RLD_EN                = ANA_ENABLE_REG[0][3][2];
@@ -543,101 +485,53 @@ assign D2A_EEG_CH13_SET          = ANA_GEN_REG[0][7][5:3];
 assign D2A_EEG_CH14_SET          = ANA_GEN_REG[0][8][2:0];
 assign D2A_EEG_CH15_SET          = ANA_GEN_REG[0][8][5:3];
 
-assign D2A_EEGLNA0_IADJ          = ANA_GEN_REG[0][9][1:0];
-assign D2A_EEGLNA1_IADJ          = ANA_GEN_REG[0][9][3:2];
-assign D2A_EEGLNA2_IADJ          = ANA_GEN_REG[0][9][5:4];
-assign D2A_EEGLNA3_IADJ          = ANA_GEN_REG[0][9][7:6];
-assign D2A_EEGLNA4_IADJ          = ANA_GEN_REG[0][10][1:0];
-assign D2A_EEGLNA5_IADJ          = ANA_GEN_REG[0][10][3:2];
-assign D2A_EEGLNA6_IADJ          = ANA_GEN_REG[0][10][5:4];
-assign D2A_EEGLNA7_IADJ          = ANA_GEN_REG[0][10][7:6];
-assign D2A_EEGLNA9_IADJ          = ANA_GEN_REG[0][11][1:0];
-assign D2A_EEGLNA10_IADJ         = ANA_GEN_REG[0][11][3:2];
-assign D2A_EEGLNA11_IADJ         = ANA_GEN_REG[0][11][5:4];
-assign D2A_EEGLNA12_IADJ         = ANA_GEN_REG[0][11][7:6];
-assign D2A_EEGLNA13_IADJ         = ANA_GEN_REG[0][12][1:0];
-assign D2A_EEGLNA14_IADJ         = ANA_GEN_REG[0][12][3:2];
-assign D2A_EEGLNA15_IADJ         = ANA_GEN_REG[0][12][5:4];
 
-assign D2A_EEGLNA0_GAIN          = ANA_GEN_REG[1][0][5:0];
-assign D2A_EEGLNA1_GAIN          = ANA_GEN_REG[1][1][5:0];
-assign D2A_EEGLNA2_GAIN          = ANA_GEN_REG[1][2][5:0];
-assign D2A_EEGLNA3_GAIN          = ANA_GEN_REG[1][3][5:0];
-assign D2A_EEGLNA4_GAIN          = ANA_GEN_REG[1][4][5:0];
-assign D2A_EEGLNA5_GAIN          = ANA_GEN_REG[1][5][5:0];
-assign D2A_EEGLNA6_GAIN          = ANA_GEN_REG[1][6][5:0];
-assign D2A_EEGLNA7_GAIN          = ANA_GEN_REG[1][7][5:0];
-assign D2A_EEGLNA9_GAIN          = ANA_GEN_REG[1][8][5:0];
-assign D2A_EEGLNA10_GAIN         = ANA_GEN_REG[1][9][5:0];
-assign D2A_EEGLNA11_GAIN         = ANA_GEN_REG[1][10][5:0];
-assign D2A_EEGLNA12_GAIN         = ANA_GEN_REG[1][11][5:0];
-assign D2A_EEGLNA13_GAIN         = ANA_GEN_REG[1][12][5:0];
-assign D2A_EEGLNA14_GAIN         = ANA_GEN_REG[2][0][5:0];
-assign D2A_EEGLNA15_GAIN         = ANA_GEN_REG[2][1][5:0];
+assign D2A_GAIN_PGA_CH0_ADJ      = ANA_GEN_REG[0][9][3:0];
+assign D2A_GAIN_PGA_CH1_ADJ      = ANA_GEN_REG[0][9][7:4];
+assign D2A_GAIN_PGA_CH2_ADJ      = ANA_GEN_REG[0][10][3:0];
+assign D2A_GAIN_PGA_CH3_ADJ      = ANA_GEN_REG[0][10][7:4];
+assign D2A_GAIN_PGA_CH4_ADJ      = ANA_GEN_REG[0][11][3:0];
+assign D2A_GAIN_PGA_CH5_ADJ      = ANA_GEN_REG[0][11][7:4];
+assign D2A_GAIN_PGA_CH6_ADJ      = ANA_GEN_REG[0][12][3:0];
+assign D2A_GAIN_PGA_CH7_ADJ      = ANA_GEN_REG[0][12][7:4];
+assign D2A_GAIN_PGA_CH8_ADJ      = ANA_GEN_REG[1][0][3:0];
+assign D2A_GAIN_PGA_CH9_ADJ      = ANA_GEN_REG[1][0][7:4];
+assign D2A_GAIN_PGA_CH10_ADJ     = ANA_GEN_REG[1][1][3:0];
+assign D2A_GAIN_PGA_CH11_ADJ     = ANA_GEN_REG[1][1][7:4];
+assign D2A_GAIN_PGA_CH12_ADJ     = ANA_GEN_REG[1][2][3:0];
+assign D2A_GAIN_PGA_CH13_ADJ     = ANA_GEN_REG[1][2][7:4];
+assign D2A_GAIN_PGA_CH14_ADJ     = ANA_GEN_REG[1][3][3:0];
+assign D2A_GAIN_PGA_CH15_ADJ     = ANA_GEN_REG[1][3][7:4];
 
-assign D2A_EEGPGA0A_GAIN         = ANA_GEN_REG[2][2][2:0];
-assign D2A_EEGPGA0B_GAIN         = ANA_GEN_REG[2][2][7:3];
-assign D2A_EEGPGA1A_GAIN         = ANA_GEN_REG[2][3][2:0];
-assign D2A_EEGPGA1B_GAIN         = ANA_GEN_REG[2][3][7:3];
-assign D2A_EEGPGA2A_GAIN         = ANA_GEN_REG[2][4][2:0];
-assign D2A_EEGPGA2B_GAIN         = ANA_GEN_REG[2][4][7:3];
-assign D2A_EEGPGA3A_GAIN         = ANA_GEN_REG[2][5][2:0];
-assign D2A_EEGPGA3B_GAIN         = ANA_GEN_REG[2][5][7:3];
-assign D2A_EEGPGA4A_GAIN         = ANA_GEN_REG[2][6][2:0];
-assign D2A_EEGPGA4B_GAIN         = ANA_GEN_REG[2][6][7:3];
-assign D2A_EEGPGA5A_GAIN         = ANA_GEN_REG[2][7][2:0];
-assign D2A_EEGPGA5B_GAIN         = ANA_GEN_REG[2][7][7:3];
-assign D2A_EEGPGA6A_GAIN         = ANA_GEN_REG[2][8][2:0];
-assign D2A_EEGPGA6B_GAIN         = ANA_GEN_REG[2][8][7:3];
-assign D2A_EEGPGA7A_GAIN         = ANA_GEN_REG[2][9][2:0];
-assign D2A_EEGPGA7B_GAIN         = ANA_GEN_REG[2][9][7:3];
-assign D2A_EEGPGA9A_GAIN         = ANA_GEN_REG[2][10][2:0];
-assign D2A_EEGPGA9B_GAIN         = ANA_GEN_REG[2][10][7:3];
-assign D2A_EEGPGA10A_GAIN        = ANA_GEN_REG[2][11][2:0];
-assign D2A_EEGPGA10B_GAIN        = ANA_GEN_REG[2][11][7:3];
-assign D2A_EEGPGA11A_GAIN        = ANA_GEN_REG[2][12][2:0];
-assign D2A_EEGPGA11B_GAIN        = ANA_GEN_REG[2][12][7:3];
-assign D2A_EEGPGA12A_GAIN        = ANA_GEN_REG[3][0][2:0];
-assign D2A_EEGPGA12B_GAIN        = ANA_GEN_REG[3][0][7:3];
-assign D2A_EEGPGA13A_GAIN        = ANA_GEN_REG[3][1][2:0];
-assign D2A_EEGPGA13B_GAIN        = ANA_GEN_REG[3][1][7:3];
-assign D2A_EEGPGA14A_GAIN        = ANA_GEN_REG[3][2][2:0];
-assign D2A_EEGPGA14B_GAIN        = ANA_GEN_REG[3][2][7:3];
-assign D2A_EEGPGA15A_GAIN        = ANA_GEN_REG[3][3][2:0];
-assign D2A_EEGPGA15B_GAIN        = ANA_GEN_REG[3][3][7:3];
+assign D2A_GAIN_DDA_CH0_ADJ      = ANA_GEN_REG[1][4][2:0];
+assign D2A_GAIN_DDA_CH1_ADJ      = ANA_GEN_REG[1][4][5:3];
+assign D2A_GAIN_DDA_CH2_ADJ      = ANA_GEN_REG[1][5][2:0];
+assign D2A_GAIN_DDA_CH3_ADJ      = ANA_GEN_REG[1][5][5:3];
+assign D2A_GAIN_DDA_CH4_ADJ      = ANA_GEN_REG[1][6][2:0];
+assign D2A_GAIN_DDA_CH5_ADJ      = ANA_GEN_REG[1][6][5:3];
+assign D2A_GAIN_DDA_CH6_ADJ      = ANA_GEN_REG[1][7][2:0];
+assign D2A_GAIN_DDA_CH7_ADJ      = ANA_GEN_REG[1][7][5:3];
+assign D2A_GAIN_DDA_CH8_ADJ      = ANA_GEN_REG[1][8][2:0];
+assign D2A_GAIN_DDA_CH9_ADJ      = ANA_GEN_REG[1][8][5:3];
+assign D2A_GAIN_DDA_CH10_ADJ     = ANA_GEN_REG[1][9][2:0];
+assign D2A_GAIN_DDA_CH11_ADJ     = ANA_GEN_REG[1][9][5:3];
+assign D2A_GAIN_DDA_CH12_ADJ     = ANA_GEN_REG[1][10][2:0];
+assign D2A_GAIN_DDA_CH13_ADJ     = ANA_GEN_REG[1][10][5:3];
+assign D2A_GAIN_DDA_CH14_ADJ     = ANA_GEN_REG[1][11][2:0];
+assign D2A_GAIN_DDA_CH15_ADJ     = ANA_GEN_REG[1][11][5:3];
 
-assign D2A_EEGPGA0A_IADJ         = ANA_GEN_REG[3][4][3:0];
-assign D2A_EEGPGA0B_IADJ         = ANA_GEN_REG[3][4][7:4];
-assign D2A_EEGPGA1A_IADJ         = ANA_GEN_REG[3][5][3:0];
-assign D2A_EEGPGA1B_IADJ         = ANA_GEN_REG[3][5][7:4];
-assign D2A_EEGPGA2A_IADJ         = ANA_GEN_REG[3][6][3:0];
-assign D2A_EEGPGA2B_IADJ         = ANA_GEN_REG[3][6][7:4];
-assign D2A_EEGPGA3A_IADJ         = ANA_GEN_REG[3][7][3:0];
-assign D2A_EEGPGA3B_IADJ         = ANA_GEN_REG[3][7][7:4];
-assign D2A_EEGPGA4A_IADJ         = ANA_GEN_REG[3][8][3:0];
-assign D2A_EEGPGA4B_IADJ         = ANA_GEN_REG[3][8][7:4];
-assign D2A_EEGPGA5A_IADJ         = ANA_GEN_REG[3][9][3:0];
-assign D2A_EEGPGA5B_IADJ         = ANA_GEN_REG[3][9][7:4];
-assign D2A_EEGPGA6A_IADJ         = ANA_GEN_REG[3][10][3:0];
-assign D2A_EEGPGA6B_IADJ         = ANA_GEN_REG[3][10][7:4];
-assign D2A_EEGPGA7A_IADJ         = ANA_GEN_REG[3][11][3:0];
-assign D2A_EEGPGA7B_IADJ         = ANA_GEN_REG[3][11][7:4];
-assign D2A_EEGPGA8A_IADJ         = ANA_GEN_REG[3][12][3:0];
-assign D2A_EEGPGA8B_IADJ         = ANA_GEN_REG[3][12][7:4];
-assign D2A_EEGPGA9A_IADJ         = ANA_GEN_REG[4][0][3:0];
-assign D2A_EEGPGA9B_IADJ         = ANA_GEN_REG[4][0][7:4];
-assign D2A_EEGPGA10A_IADJ        = ANA_GEN_REG[4][1][3:0];
-assign D2A_EEGPGA10B_IADJ        = ANA_GEN_REG[4][1][7:4];
-assign D2A_EEGPGA11A_IADJ        = ANA_GEN_REG[4][2][3:0];
-assign D2A_EEGPGA11B_IADJ        = ANA_GEN_REG[4][2][7:4];
-assign D2A_EEGPGA12A_IADJ        = ANA_GEN_REG[4][3][3:0];
-assign D2A_EEGPGA12B_IADJ        = ANA_GEN_REG[4][3][7:4];
-assign D2A_EEGPGA13A_IADJ        = ANA_GEN_REG[4][4][3:0];
-assign D2A_EEGPGA13B_IADJ        = ANA_GEN_REG[4][4][7:4];
-assign D2A_EEGPGA14A_IADJ        = ANA_GEN_REG[4][5][3:0];
-assign D2A_EEGPGA14B_IADJ        = ANA_GEN_REG[4][5][7:4];
-assign D2A_EEGPGA15A_IADJ        = ANA_GEN_REG[4][6][3:0];
-assign D2A_EEGPGA15B_IADJ        = ANA_GEN_REG[4][6][7:4];
+assign D2A_INADC_ADJ             = ANA_GEN_REG[1][11][6];
+assign D2A_PGAEN                 = {ANA_ENABLE_REG[0][5],ANA_ENABLE_REG[0][4]}; 
+assign D2A_PGA_ENCH              = {ANA_ENABLE_REG[0][7],ANA_ENABLE_REG[0][6]}; 
+assign D2A_PGA_IADJ              = ANA_GEN_REG[1][12][2:0];
+assign D2A_RLDEN_INA             = {ANA_ENABLE_REG[0][9],ANA_ENABLE_REG[0][8]}; 
+assign D2A_DDAEN                 = {ANA_ENABLE_REG[0][11],ANA_ENABLE_REG[0][10]}; 
+assign D2A_DDA_IADJ              = ANA_GEN_REG[1][12][5:3];
+assign D2A_EEG_EN                = ANA_ENABLE_REG[0][12][0];
+assign D2A_VCM_INAEN             = ANA_ENABLE_REG[0][12][1];
+assign D2A_VCM_INA_ADJ           = ANA_GEN_REG[1][12][6];
+assign D2A_SDMVCMBUFF_ADJ        = ANA_GEN_REG[2][0][1:0];
+assign D2A_SDMVREFP_ADJ          = ANA_GEN_REG[2][0][3:2];
 
 //STIMULATOR
 assign D2A_DATA_0            =  i_out_wave_driver_idac[0];   // {ANA_GEN_REG[4][8][3:0],ANA_GEN_REG[4][7]};
@@ -657,7 +551,6 @@ assign D2A_DATA_13           =  i_out_wave_driver_idac[13];   // {ANA_GEN_REG[6]
 assign D2A_DATA_14           =  i_out_wave_driver_idac[14];   // {ANA_GEN_REG[6][3][3:0],ANA_GEN_REG[6][2]};
 assign D2A_DATA_15           =  i_out_wave_driver_idac[15];   // {ANA_GEN_REG[6][4],ANA_GEN_REG[6][3][7:4]};
 
-
 assign D2A_CBUF_EN           = i_driver_en_sw; 
 assign D2A_IDAC_EN           = i_ds_driver_en_driver;   // {ANA_ENABLE_REG[1][0],ANA_ENABLE_REG[0][14]}; 
 //assign D2A_DRIVER_CUR_EN   = i_ds_driver_en_current;  // ANA_ENABLE_REG[0][1][2];
@@ -667,11 +560,14 @@ assign D2A_PULLD             = i_pulldn_driver;         // {ANA_GEN_REG[6][6],AN
 assign D2A_SOURCE            = i_source_driver;         // {ANA_GEN_REG[6][8],ANA_GEN_REG[6][7]};
 //assign D2A_STIMU_EN          = i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
 assign D2A_STIMU_EN          = pinmux_if.i_stimu_en;              // ANA_ENABLE_REG[0][1][3];
-assign D2A_DRIVERC_LEAD_OFF_EN       = ANA_ENABLE_REG[0][3][3];
-assign D2A_DRIVERC_LEAD_OFF_INSEL    = ANA_GEN_REG[6][9][3:0];
-assign D2A_DRIVERC_SHORT_DET_EN      = ANA_ENABLE_REG[0][3][4];
-assign D2A_DRIVERC_SHORT_DET_VINSEL  = {ANA_GEN_REG[6][10][0],ANA_GEN_REG[6][9][7:4]};
-assign D2A_DRIVERC_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
+//assign D2A_DRIVERC_LEAD_OFF_EN       = ANA_ENABLE_REG[0][3][3];
+//assign D2A_ADBUF_GSEL            = ANA_GEN_REG[2][0][5:4];
+//assign D2A_AD_INSELA             = ANA_GEN_REG[2][1][3:0];
+//assign D2A_AD_INSELB             = ANA_GEN_REG[2][1][7:4];
+//assign D2A_DRIVERC_LEAD_OFF_INSEL    = ANA_GEN_REG[6][9][3:0];
+//assign D2A_DRIVERC_SHORT_DET_EN      = ANA_ENABLE_REG[0][3][4];
+//assign D2A_DRIVERC_SHORT_DET_VINSEL  = {ANA_GEN_REG[6][10][0],ANA_GEN_REG[6][9][7:4]};
+//assign D2A_DRIVERC_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
 
 //NIRS
 //assign D2A_NIRS4_EN          = ANA_ENABLE_REG[0][1][5];
@@ -679,30 +575,35 @@ assign D2A_DRIVERC_SHORT_DET_VIPSEL  = ANA_GEN_REG[6][10][5:1];
 //assign D2A_NIRS4_IDAC_EN     = ANA_ENABLE_REG[0][1][7];
 
 //SDM
-assign D2A_SDMEN             = {ANA_ENABLE_REG[1][2],ANA_ENABLE_REG[1][1]}; 
-assign D2A_SDMBUFF_EN        = {ANA_ENABLE_REG[1][4],ANA_ENABLE_REG[1][3]}; 
+assign D2A_SDMEN             = {ANA_ENABLE_REG[0][14],ANA_ENABLE_REG[0][13]}; 
+assign D2A_SDM_TEST          = ANA_ENABLE_REG[0][1][2];
+//assign D2A_SDMBUFF_EN        = {ANA_ENABLE_REG[1][4],ANA_ENABLE_REG[1][3]}; 
 
 //SPARE
 assign D2A_SPI_SPARE0        = ANA_GEN_REG[0][13];
 assign D2A_SPI_SPARE1        = ANA_GEN_REG[1][13];
 assign D2A_SPI_SPARE2        = ANA_GEN_REG[2][13];
 assign D2A_SPI_SPARE3        = ANA_GEN_REG[3][13];
+assign D2A_SPI_SPARE4        = ANA_GEN_REG[4][13];
+assign D2A_SPI_SPARE5        = ANA_GEN_REG[5][13];
+assign D2A_SPI_SPARE6        = ANA_GEN_REG[6][13];
+assign D2A_SPI_SPARE7        = ANA_GEN_REG[7][13];
 
 
 // WG_CH1
-assign D2A_DRIVERA_SOURCEA_CH1    = i_source_driver[0];    //ANA_GEN_REG_2[1]; 
+//assign D2A_DRIVERA_SOURCEA_CH1    = i_source_driver[0];    //ANA_GEN_REG_2[1]; 
 //assign D2A_DRIVERA_SOURCEB_CH1  = i_sourceb_driver_a[0];    //ANA_GEN_REG_2[2]; 
-assign D2A_DRIVERA_PULLDA_CH1    = i_pulldn_driver[0];     //ANA_GEN_REG_2[3]; 
+//assign D2A_DRIVERA_PULLDA_CH1    = i_pulldn_driver[0];     //ANA_GEN_REG_2[3]; 
 //assign D2A_DRIVERA_PULLDB_CH1   = i_pulldb_driver_a[0];     //ANA_GEN_REG_2[4]; 
-assign D2A_IDAC_DIN_CH1           = i_out_wave_driver_idac[0];  //{ANA_GEN_REG_6, ANA_GEN_REG_5};
+//assign D2A_IDAC_DIN_CH1           = i_out_wave_driver_idac[0];  //{ANA_GEN_REG_6, ANA_GEN_REG_5};
 
 
 // FROM WG
-assign D2A_DRIVERA_SOURCEA_CH2  = i_source_driver[1];    //ANA_GEN_REG_A[1]
+//assign D2A_DRIVERA_SOURCEA_CH2  = i_source_driver[1];    //ANA_GEN_REG_A[1]
 //assign D2A_DRIVERA_SOURCEB_CH2  = i_sourceb_driver_a[1];    //ANA_GEN_REG_A[2]
-assign D2A_DRIVERA_PULLDA_CH2   = i_pulldn_driver[1];     //ANA_GEN_REG_A[3]
+//assign D2A_DRIVERA_PULLDA_CH2   = i_pulldn_driver[1];     //ANA_GEN_REG_A[3]
 //assign D2A_DRIVERA_PULLDB_CH2   = i_pulldb_driver_a[1];     //ANA_GEN_REG_A[4]
-assign D2A_IDAC_DIN_CH2         = i_out_wave_driver_idac[1];  //{ANA_GEN_REG_E, ANA_GEN_REG_D};
+//assign D2A_IDAC_DIN_CH2         = i_out_wave_driver_idac[1];  //{ANA_GEN_REG_E, ANA_GEN_REG_D};
 
 
 /*************NIRS************/
@@ -772,17 +673,6 @@ assign ana_nirs_if.A2D_NIRS_IREFFINE    = A2D_NIRS_IREFFINE;
 
 ENS2_ANA_CHIP u_top_ana (
 
-//temprily connected for verification
-.A2D_ADC_DATA(A2D_ADC_DATA), //from analog //ADC use posedge of sysclk to output data, 
-		//digital use negedge to capture, so we have half sysclk cycle margin for it	
-.A2D_ADC_DATA_EN(A2D_ADC_DATA_EN),//from analog	
-.D2A_STIM_PAD0(D2A_STIM_PAD0),    //to analog	
-.D2A_STIM_PAD1(D2A_STIM_PAD1),    //to analog	
-.D2A_ADC_EN(D2A_ADC_EN),    //to analog	
-.D2A_ADC_CLK(D2A_ADC_CLK),    //to analog	
-
-.D2A_INA_CLK(ina_pga_ana_clk),
-
 `ifdef FPGA
   .clk_in1              (clk_in1)
 `endif
@@ -820,18 +710,10 @@ ENS2_ANA_CHIP u_top_ana (
 // Recording(MUX-LNA-PGA)
   .D2A_BIAS_MEAS          (D2A_BIAS_MEAS), 
   .D2A_BIASREF_INT        (D2A_BIASREF_INT),
-  .D2A_EEGLNA_EN          (D2A_EEGLNA_EN), 
-  .D2A_QSTRLNA_EN         (D2A_QSTRLNA_EN),
-  .D2A_EEGPGA_EN          (D2A_EEGPGA_EN),
-  .D2A_QSTRPGA_EN         (D2A_QSTRPGA_EN), 
-  .D2A_VCMGENBUFF_IADJ    (D2A_VCMGENBUFF_IADJ),
-  .D2A_VCMGENBUFF_EN      (D2A_VCMGENBUFF_EN), 
   .D2A_SDMVCMBUFF_EN      (D2A_SDMVCMBUFF_EN),
   .D2A_SDMVCMBUFF_IADJ    (D2A_SDMVCMBUFF_IADJ), 
-  .D2A_SDMVCMBUFF_SEL     (D2A_SDMVCMBUFF_SEL),
   .D2A_SDMVREFPBUFF_EN    (D2A_SDMVREFPBUFF_EN),
   .D2A_SDMVREFP_IADJ      (D2A_SDMVREFP_IADJ), 
-  .D2A_SDMVREFP_SEL       (D2A_SDMVREFP_SEL),
   .D2A_RLD_EN             (D2A_RLD_EN),
   .D2A_RLD_ELECTRODE_EN   (D2A_RLD_ELECTRODE_EN), 
   .D2A_RLD_IADJ           (D2A_RLD_IADJ), 
@@ -851,104 +733,52 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_EEG_CH13_SET       (D2A_EEG_CH13_SET), 
   .D2A_EEG_CH14_SET       (D2A_EEG_CH14_SET),
   .D2A_EEG_CH15_SET       (D2A_EEG_CH15_SET),
-  .D2A_EEGLNA0_IADJ       (D2A_EEGLNA0_IADJ), 
-  .D2A_EEGLNA1_IADJ       (D2A_EEGLNA1_IADJ),
-  .D2A_EEGLNA2_IADJ       (D2A_EEGLNA2_IADJ), 
-  .D2A_EEGLNA3_IADJ       (D2A_EEGLNA3_IADJ),
-  .D2A_EEGLNA4_IADJ       (D2A_EEGLNA4_IADJ), 
-  .D2A_EEGLNA5_IADJ       (D2A_EEGLNA5_IADJ),
-  .D2A_EEGLNA6_IADJ       (D2A_EEGLNA6_IADJ), 
-  .D2A_EEGLNA7_IADJ       (D2A_EEGLNA7_IADJ),
-  .D2A_EEGLNA8_IADJ       (D2A_EEGLNA8_IADJ), 
-  .D2A_EEGLNA9_IADJ       (D2A_EEGLNA9_IADJ),
-  .D2A_EEGLNA10_IADJ      (D2A_EEGLNA10_IADJ), 
-  .D2A_EEGLNA11_IADJ      (D2A_EEGLNA11_IADJ),
-  .D2A_EEGLNA12_IADJ      (D2A_EEGLNA12_IADJ), 
-  .D2A_EEGLNA13_IADJ      (D2A_EEGLNA13_IADJ),
-  .D2A_EEGLNA14_IADJ      (D2A_EEGLNA14_IADJ), 
-  .D2A_EEGLNA15_IADJ      (D2A_EEGLNA15_IADJ),
-  .D2A_EEGLNA0_GAIN       (D2A_EEGLNA0_GAIN),
-  .D2A_EEGLNA1_GAIN       (D2A_EEGLNA1_GAIN),
-  .D2A_EEGLNA2_GAIN       (D2A_EEGLNA2_GAIN),
-  .D2A_EEGLNA3_GAIN       (D2A_EEGLNA3_GAIN),
-  .D2A_EEGLNA4_GAIN       (D2A_EEGLNA4_GAIN),
-  .D2A_EEGLNA5_GAIN       (D2A_EEGLNA5_GAIN),
-  .D2A_EEGLNA6_GAIN       (D2A_EEGLNA6_GAIN),
-  .D2A_EEGLNA7_GAIN       (D2A_EEGLNA7_GAIN),
-  .D2A_EEGLNA8_GAIN       (D2A_EEGLNA8_GAIN),
-  .D2A_EEGLNA9_GAIN       (D2A_EEGLNA9_GAIN),
-  .D2A_EEGLNA10_GAIN      (D2A_EEGLNA10_GAIN),
-  .D2A_EEGLNA11_GAIN      (D2A_EEGLNA11_GAIN),
-  .D2A_EEGLNA12_GAIN      (D2A_EEGLNA12_GAIN),
-  .D2A_EEGLNA13_GAIN      (D2A_EEGLNA13_GAIN),
-  .D2A_EEGLNA14_GAIN      (D2A_EEGLNA14_GAIN),
-  .D2A_EEGLNA15_GAIN      (D2A_EEGLNA15_GAIN),
-  .D2A_EEGPGA0A_GAIN      (D2A_EEGPGA0A_GAIN),
-  .D2A_EEGPGA0B_GAIN      (D2A_EEGPGA0B_GAIN),
-  .D2A_EEGPGA1A_GAIN      (D2A_EEGPGA1A_GAIN),
-  .D2A_EEGPGA1B_GAIN      (D2A_EEGPGA1B_GAIN),
-  .D2A_EEGPGA2A_GAIN      (D2A_EEGPGA2A_GAIN),
-  .D2A_EEGPGA2B_GAIN      (D2A_EEGPGA2B_GAIN),
-  .D2A_EEGPGA3A_GAIN      (D2A_EEGPGA3A_GAIN),
-  .D2A_EEGPGA3B_GAIN      (D2A_EEGPGA3B_GAIN),
-  .D2A_EEGPGA4A_GAIN      (D2A_EEGPGA4A_GAIN),
-  .D2A_EEGPGA4B_GAIN      (D2A_EEGPGA4B_GAIN),
-  .D2A_EEGPGA5A_GAIN      (D2A_EEGPGA5A_GAIN),
-  .D2A_EEGPGA5B_GAIN      (D2A_EEGPGA5B_GAIN),
-  .D2A_EEGPGA6A_GAIN      (D2A_EEGPGA6A_GAIN),
-  .D2A_EEGPGA6B_GAIN      (D2A_EEGPGA6B_GAIN),
-  .D2A_EEGPGA7A_GAIN      (D2A_EEGPGA7A_GAIN),
-  .D2A_EEGPGA7B_GAIN      (D2A_EEGPGA7B_GAIN),
-  .D2A_EEGPGA8A_GAIN      (D2A_EEGPGA8A_GAIN),
-  .D2A_EEGPGA8B_GAIN      (D2A_EEGPGA8B_GAIN),
-  .D2A_EEGPGA9A_GAIN      (D2A_EEGPGA9A_GAIN),
-  .D2A_EEGPGA9B_GAIN      (D2A_EEGPGA9B_GAIN),
-  .D2A_EEGPGA10A_GAIN     (D2A_EEGPGA10A_GAIN),
-  .D2A_EEGPGA10B_GAIN     (D2A_EEGPGA10B_GAIN),
-  .D2A_EEGPGA11A_GAIN     (D2A_EEGPGA11A_GAIN),
-  .D2A_EEGPGA11B_GAIN     (D2A_EEGPGA11B_GAIN),
-  .D2A_EEGPGA12A_GAIN     (D2A_EEGPGA12A_GAIN),
-  .D2A_EEGPGA12B_GAIN     (D2A_EEGPGA12B_GAIN),
-  .D2A_EEGPGA13A_GAIN     (D2A_EEGPGA13A_GAIN),
-  .D2A_EEGPGA13B_GAIN     (D2A_EEGPGA13B_GAIN),
-  .D2A_EEGPGA14A_GAIN     (D2A_EEGPGA14A_GAIN),
-  .D2A_EEGPGA14B_GAIN     (D2A_EEGPGA14B_GAIN),
-  .D2A_EEGPGA15A_GAIN     (D2A_EEGPGA15A_GAIN),
-  .D2A_EEGPGA15B_GAIN     (D2A_EEGPGA15B_GAIN),
-//.D2A_INA_CLK            (),
-  .D2A_EEGPGA0A_IADJ      (D2A_EEGPGA0A_IADJ), 
-  .D2A_EEGPGA0B_IADJ      (D2A_EEGPGA0B_IADJ), 
-  .D2A_EEGPGA1A_IADJ      (D2A_EEGPGA1A_IADJ), 
-  .D2A_EEGPGA1B_IADJ      (D2A_EEGPGA1B_IADJ), 
-  .D2A_EEGPGA2A_IADJ      (D2A_EEGPGA2A_IADJ), 
-  .D2A_EEGPGA2B_IADJ      (D2A_EEGPGA2B_IADJ),
-  .D2A_EEGPGA3A_IADJ      (D2A_EEGPGA3A_IADJ), 
-  .D2A_EEGPGA3B_IADJ      (D2A_EEGPGA3B_IADJ), 
-  .D2A_EEGPGA4A_IADJ      (D2A_EEGPGA4A_IADJ), 
-  .D2A_EEGPGA4B_IADJ      (D2A_EEGPGA4B_IADJ), 
-  .D2A_EEGPGA5A_IADJ      (D2A_EEGPGA5A_IADJ), 
-  .D2A_EEGPGA5B_IADJ      (D2A_EEGPGA5B_IADJ), 
-  .D2A_EEGPGA6A_IADJ      (D2A_EEGPGA6A_IADJ), 
-  .D2A_EEGPGA6B_IADJ      (D2A_EEGPGA6B_IADJ), 
-  .D2A_EEGPGA7A_IADJ      (D2A_EEGPGA7A_IADJ), 
-  .D2A_EEGPGA7B_IADJ      (D2A_EEGPGA7B_IADJ), 
-  .D2A_EEGPGA8A_IADJ      (D2A_EEGPGA8A_IADJ), 
-  .D2A_EEGPGA8B_IADJ      (D2A_EEGPGA8B_IADJ), 
-  .D2A_EEGPGA9A_IADJ      (D2A_EEGPGA9A_IADJ), 
-  .D2A_EEGPGA9B_IADJ      (D2A_EEGPGA9B_IADJ), 
-  .D2A_EEGPGA10A_IADJ     (D2A_EEGPGA10A_IADJ), 
-  .D2A_EEGPGA10B_IADJ     (D2A_EEGPGA10B_IADJ), 
-  .D2A_EEGPGA11A_IADJ     (D2A_EEGPGA11A_IADJ), 
-  .D2A_EEGPGA11B_IADJ     (D2A_EEGPGA11B_IADJ), 
-  .D2A_EEGPGA12A_IADJ     (D2A_EEGPGA12A_IADJ), 
-  .D2A_EEGPGA12B_IADJ     (D2A_EEGPGA12B_IADJ), 
-  .D2A_EEGPGA13A_IADJ     (D2A_EEGPGA13A_IADJ), 
-  .D2A_EEGPGA13B_IADJ     (D2A_EEGPGA13B_IADJ), 
-  .D2A_EEGPGA14A_IADJ     (D2A_EEGPGA14A_IADJ), 
-  .D2A_EEGPGA14B_IADJ     (D2A_EEGPGA14B_IADJ), 
-  .D2A_EEGPGA15A_IADJ     (D2A_EEGPGA15A_IADJ), 
-  .D2A_EEGPGA15B_IADJ     (D2A_EEGPGA15B_IADJ), 
-
+  .D2A_INA_CLK            (ina_pga_ana_clk),
+  .D2A_GAIN_PGA_CH0_ADJ   (D2A_GAIN_PGA_CH0_ADJ),
+  .D2A_GAIN_PGA_CH1_ADJ   (D2A_GAIN_PGA_CH1_ADJ),
+  .D2A_GAIN_PGA_CH2_ADJ   (D2A_GAIN_PGA_CH2_ADJ),
+  .D2A_GAIN_PGA_CH3_ADJ   (D2A_GAIN_PGA_CH3_ADJ),
+  .D2A_GAIN_PGA_CH4_ADJ   (D2A_GAIN_PGA_CH4_ADJ),
+  .D2A_GAIN_PGA_CH5_ADJ   (D2A_GAIN_PGA_CH5_ADJ),
+  .D2A_GAIN_PGA_CH6_ADJ   (D2A_GAIN_PGA_CH6_ADJ),
+  .D2A_GAIN_PGA_CH7_ADJ   (D2A_GAIN_PGA_CH7_ADJ),
+  .D2A_GAIN_PGA_CH8_ADJ   (D2A_GAIN_PGA_CH8_ADJ),
+  .D2A_GAIN_PGA_CH9_ADJ   (D2A_GAIN_PGA_CH9_ADJ),
+  .D2A_GAIN_PGA_CH10_ADJ  (D2A_GAIN_PGA_CH10_ADJ),
+  .D2A_GAIN_PGA_CH11_ADJ  (D2A_GAIN_PGA_CH11_ADJ),
+  .D2A_GAIN_PGA_CH12_ADJ  (D2A_GAIN_PGA_CH12_ADJ),
+  .D2A_GAIN_PGA_CH13_ADJ  (D2A_GAIN_PGA_CH13_ADJ),
+  .D2A_GAIN_PGA_CH14_ADJ  (D2A_GAIN_PGA_CH14_ADJ),
+  .D2A_GAIN_PGA_CH15_ADJ  (D2A_GAIN_PGA_CH15_ADJ),
+  .D2A_GAIN_DDA_CH0_ADJ   (D2A_GAIN_DDA_CH0_ADJ),
+  .D2A_GAIN_DDA_CH1_ADJ   (D2A_GAIN_DDA_CH1_ADJ),
+  .D2A_GAIN_DDA_CH2_ADJ   (D2A_GAIN_DDA_CH2_ADJ),
+  .D2A_GAIN_DDA_CH3_ADJ   (D2A_GAIN_DDA_CH3_ADJ),
+  .D2A_GAIN_DDA_CH4_ADJ   (D2A_GAIN_DDA_CH4_ADJ),
+  .D2A_GAIN_DDA_CH5_ADJ   (D2A_GAIN_DDA_CH5_ADJ),
+  .D2A_GAIN_DDA_CH6_ADJ   (D2A_GAIN_DDA_CH6_ADJ),
+  .D2A_GAIN_DDA_CH7_ADJ   (D2A_GAIN_DDA_CH7_ADJ),
+  .D2A_GAIN_DDA_CH8_ADJ   (D2A_GAIN_DDA_CH8_ADJ),
+  .D2A_GAIN_DDA_CH9_ADJ   (D2A_GAIN_DDA_CH9_ADJ),
+  .D2A_GAIN_DDA_CH10_ADJ  (D2A_GAIN_DDA_CH10_ADJ),
+  .D2A_GAIN_DDA_CH11_ADJ  (D2A_GAIN_DDA_CH11_ADJ),
+  .D2A_GAIN_DDA_CH12_ADJ  (D2A_GAIN_DDA_CH12_ADJ),
+  .D2A_GAIN_DDA_CH13_ADJ  (D2A_GAIN_DDA_CH13_ADJ),
+  .D2A_GAIN_DDA_CH14_ADJ  (D2A_GAIN_DDA_CH14_ADJ),
+  .D2A_GAIN_DDA_CH15_ADJ  (D2A_GAIN_DDA_CH15_ADJ),
+  .D2A_INADC_ADJ          (D2A_INADC_ADJ),
+  .D2A_PGAEN              (D2A_PGAEN),
+  .D2A_PGA_ENCH           (D2A_PGA_ENCH),
+  .D2A_PGA_IADJ           (D2A_PGA_IADJ),
+  .D2A_RLDEN_INA          (D2A_RLDEN_INA),
+  .D2A_DDAEN              (D2A_DDAEN),
+  .D2A_DDA_IADJ           (D2A_DDA_IADJ),
+  .D2A_EEG_EN             (D2A_EEG_EN),
+  .D2A_VCM_INA_ADJ        (D2A_VCM_INA_ADJ),
+  .D2A_VCM_INAEN          (D2A_VCM_INAEN),
+  .D2A_SDMVCMBUFF_ADJ     (D2A_SDMVCMBUFF_ADJ),
+  .D2A_SDMVREFP_ADJ       (D2A_SDMVREFP_ADJ),
+  
 // Stimulator - WG
   .D2A_DATA_0             (D2A_DATA_0),
   .D2A_DATA_1             (D2A_DATA_1), 
@@ -973,13 +803,15 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_PULLD              (D2A_PULLD), 
   .D2A_SOURCE             (D2A_SOURCE),
   .D2A_STIMU_EN           (D2A_STIMU_EN), 
-  .D2A_DRIVERC_LEAD_OFF_EN        (D2A_DRIVERC_LEAD_OFF_EN),
-  .D2A_DRIVERC_LEAD_OFF_INSEL     (D2A_DRIVERC_LEAD_OFF_INSEL),
-  .D2A_DRIVERC_SHORT_DET_EN       (D2A_DRIVERC_SHORT_DET_EN),
-  .D2A_DRIVERC_SHORT_DET_VINSEL   (D2A_DRIVERC_SHORT_DET_VINSEL),
-  .D2A_DRIVERC_SHORT_DET_VIPSEL   (D2A_DRIVERC_SHORT_DET_VIPSEL),
-  .A2D_DRIVERC_LEAD_OFF_OUT       (A2D_DRIVERC_LEAD_OFF_OUT),
-  .A2D_DRIVERC_SHORT_DET_OUT      (A2D_DRIVERC_SHORT_DET_OUT),
+  .D2A_ADBUF_GSEL         (D2A_ADBUF_GSEL),
+  .D2A_ADC_CLK            (D2A_ADC_CLK),    //to analog	
+  .D2A_ADC_DELAY          (D2A_ADC_DELAY),
+  .D2A_ADC_EN             (D2A_ADC_EN),     //to analog	
+  .D2A_STIM_PAD0          (D2A_STIM_PAD0),  //to analog	
+  .D2A_STIM_PAD1          (D2A_STIM_PAD1),  //to analog	
+  .A2D_ADC_DATA           (A2D_ADC_DATA),   //from analog //ADC use posedge of sysclk to output data, 
+  .A2D_ADC_DATA_EN        (A2D_ADC_DATA_EN),//from analog	
+
 
 // NIRS
   .D2A_PDBIAS_EN          (D2A_PDBIAS_EN),
@@ -1090,7 +922,7 @@ ENS2_ANA_CHIP u_top_ana (
 // SDM
   .D2A_SDMEN              (D2A_SDMEN), 
   .D2A_SDMCLK             (D2A_SDM_CLK), 
-  .D2A_SDMBUFF_EN         (D2A_SDMBUFF_EN),
+  .D2A_SDM_TEST           (D2A_SDM_TEST),
   .A2D_SDM0               (A2D_SDM_OUT0), 
   .A2D_SDM1               (A2D_SDM_OUT1), 
   .A2D_SDM2               (A2D_SDM_OUT2), 
@@ -1113,6 +945,10 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_SPI_SPARE1         (D2A_SPI_SPARE1),
   .D2A_SPI_SPARE2         (D2A_SPI_SPARE2),
   .D2A_SPI_SPARE3         (D2A_SPI_SPARE3),
+  .D2A_SPI_SPARE4         (D2A_SPI_SPARE4),
+  .D2A_SPI_SPARE5         (D2A_SPI_SPARE5),
+  .D2A_SPI_SPARE6         (D2A_SPI_SPARE6),
+  .D2A_SPI_SPARE7         (D2A_SPI_SPARE7),
   .D2A_TRIM0_SIG_SPARE    (D2A_TRIM0_SIG_SPARE), 
   .D2A_TRIM1_SIG_SPARE    (D2A_TRIM1_SIG_SPARE),
   .D2A_TRIM2_SIG_SPARE    (D2A_TRIM2_SIG_SPARE), 
@@ -1126,7 +962,8 @@ ENS2_ANA_CHIP u_top_ana (
 // POWER/GND
   .VDD_DIG                (VDD_DIG), 
   .VSS_DIG                (VSS_DIG), 
-  .VDDIO                  (VDDIO)
+  .VDDIO                  (VDDIO),
+  .VSSIO                  (VSSIO)
 
 );
 

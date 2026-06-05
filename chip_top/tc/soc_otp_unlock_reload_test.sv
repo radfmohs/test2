@@ -216,6 +216,7 @@ class `TESTNAME extends soc_base_test;
       `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
 
+   `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0 
     //set unlock bit0:unlock
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b10101_001;});
 
@@ -320,7 +321,9 @@ class `TESTNAME extends soc_base_test;
     for(int i=0; i<15 ; i++) begin
         `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8h ", top_test_cfg.save_trim_wdata[i]), UVM_LOW) 
     end
-    
+  
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0 
+
     //set unlock   bit0:unlock
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b10101_001;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
@@ -541,9 +544,8 @@ class `TESTNAME extends soc_base_test;
       #1us;
 
       `nnc_info("SOC_TEST", "Random SPI Write function for OTP", UVM_LOW)
-      random_spi_wr_rd_otp(2'd2);  
+      random_spi_wr_rd_otp(2'd2);
       #1us; 
-  
   
     // --------------------------------------------------------
     // 20/05/2025 ends by supriya 
@@ -639,7 +641,8 @@ class `TESTNAME extends soc_base_test;
       `WR_NORMAL_REG(`SOC_OTP_ADDR_REG, addr[7:0], top_test_cfg.pads);
 
       `WR_NORMAL_REG(`SOC_OTP_DATA_REG, top_test_cfg.temp_otp_wdata[addr], top_test_cfg.pads);
-
+   
+      `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0
 
       `WR_NORMAL_REG(`SOC_OTP_UNLOCK_REG, 8'b01010_001,top_test_cfg.pads);
 
@@ -930,6 +933,7 @@ task spi_wr_to_trim_reg();
 endtask
 
 task set_unlock_bit();
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b10101_001;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
 

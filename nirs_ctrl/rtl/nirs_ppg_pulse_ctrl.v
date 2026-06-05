@@ -2,6 +2,7 @@ module nirs_ppg_pulse_ctrl (
   input  wire       rst_n,
   input  wire       clk,  // 2 MHz
   output wire       COUNT_STOP,
+  output wire       SAMPLING_DONE,
 
 // CONTROL signals 
 //input  wire [2:0] MODE_SEL, // xxx1: MCU MASTER (SINGLE) - 0000: RECEIVER MASTER (SINGLE) - 0010: RECEIVER MASTER (CON TYP) - 110: RECEIVER MASTER (CON FAST)
@@ -130,7 +131,8 @@ parameter [15:0] t_delay_timing   = 16'd10;
       LED_d <= 2'b11;  // default as 1 so on the first toggle, LED0 is selected.
     end else if (MODE_SEL[4] == 1'b1) begin // SINGLE LED_d MODE
       if (MODE_SEL[5] == 1'b1) begin //Ambient
-        LED_d[0]  <= ~LED_d[0];   
+        if (counter == RESET_h)
+          LED_d[0]  <= ~LED_d[0];   
         LED_d[1]  <= 1'b0;
       end else begin
         LED_d     <= 2'b0; 
@@ -251,7 +253,7 @@ parameter [15:0] t_delay_timing   = 16'd10;
       count_cur <= count_next;
   end
 
-  wire SAMPLING_DONE =  ((MODE_SEL[3:0] == 4'b0010) || (MODE_SEL[3:0] == 4'b0110)) ? EN_OFF : (counter == t_period);
+  assign SAMPLING_DONE =  ((MODE_SEL[3:0] == 4'b0010) || (MODE_SEL[3:0] == 4'b0110)) ? EN_OFF : (counter == t_period);
 
   always @(*) begin
     case(count_cur)

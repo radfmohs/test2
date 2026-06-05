@@ -37,17 +37,17 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   logic [7:0]      rd_data[256];
   logic [7:0]      sine_data[16][128];
   logic [13:0]     clk_freq;//in Khz
-  logic [12:0] half_period_limit;
+  logic [12:0]     half_period_limit;
   randc logic      same_pos_neg_period;
   rand logic [12:0] half_period0[2];
   rand logic [12:0] half_period1[2];
   rand logic [12:0] half_period2[2];
-  logic [12:0] src_half_period0[2];
-  logic [12:0] src_half_period1[2];
-  logic [12:0] src_half_period2[2];
-  logic [12:0] snk_half_period0[2];
-  logic [12:0] snk_half_period1[2];
-  logic [12:0] snk_half_period2[2];
+  logic [12:0]     src_half_period0[2];
+  logic [12:0]     src_half_period1[2];
+  logic [12:0]     src_half_period2[2];
+  logic [12:0]     snk_half_period0[2];
+  logic [12:0]     snk_half_period1[2];
+  logic [12:0]     snk_half_period2[2];
   logic [31:0]     hlf_wave_lim; // number of clocks for positive half wave
   logic [31:0]     neg_hlf_wave_lim; // number of clocks for negative half wave
   logic [31:0]     rest_lim; // number of clocks for each rest period
@@ -93,7 +93,14 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   rand logic [15:0] wave1_rest_clk_num;
   rand logic [15:0] wave2_rest_clk_num;
 
+  rand logic [5:0]  discharge_num;
+
   rand logic       wg_rest_en;
+  rand logic       wg_ems_en;
+  rand logic       wg_alt_en;
+  rand logic       wg_dds_en;
+  rand logic       wg_discharge_en;
+  rand logic       wg_interrupt_en;
 
        logic [1:0] PRELOAD; 
        // bit[2:1] - WAVEFORM_SEL of register AWG_CTRL_REG0: 0x01
@@ -274,7 +281,19 @@ class `TESTCFG extends soc_wavegen_base_test_cfg;
   constraint c_wg_wave1_rest_clk_num { wg_rest_en == 1 -> wave1_rest_clk_num inside {[10:1000]} ; wg_rest_en == 0 -> wave1_rest_clk_num == 0; } 
   constraint c_wg_wave2_rest_clk_num { wg_rest_en == 1 -> wave2_rest_clk_num inside {[10:1000]} ; wg_rest_en == 0 -> wave2_rest_clk_num == 0; } 
 
+  constraint c_wg_discharge_num { wg_discharge_en == 1 -> discharge_num inside {[1:63]} ; wg_discharge_en == 0 -> discharge_num == 0; } 
+
   constraint c_wg_rest_en            { wg_rest_en inside {[0:1]};} // 0 and 1 is enabled
+
+  constraint c_wg_ems_en             { wg_ems_en inside {[0:0]};} // 0 and 1 is enabled
+
+  constraint c_wg_alt_en             { wg_alt_en inside {[0:0]};} // 0 and 1 is enabled
+
+  constraint c_wg_dds_en             { wg_dds_en inside {[0:0]};} // 0 and 1 is enabled
+
+  constraint c_wg_discharge_en       { wg_discharge_en inside {[0:0]};} // 0 and 1 is enabled 
+
+  constraint c_wg_interrupt_en       { wg_interrupt_en inside {[0:0]};} // 0 and 1 is enabled 
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -374,9 +393,15 @@ class `TESTNAME extends soc_wavegen_base_test;
     `DUT_IF.wg_wave0_rest_clk_num[k] = top_test_cfg.wave0_rest_clk_num;
     `DUT_IF.wg_wave1_rest_clk_num[k] = top_test_cfg.wave1_rest_clk_num;
     `DUT_IF.wg_wave2_rest_clk_num[k] = top_test_cfg.wave2_rest_clk_num;
+    `DUT_IF.wg_discharge_num[k] = top_test_cfg.discharge_num;
     end
 
     `DUT_IF.wg_rest_en = top_test_cfg.wg_rest_en;
+    `DUT_IF.wg_ems_en  = top_test_cfg.wg_ems_en;
+    `DUT_IF.wg_alt_en  = top_test_cfg.wg_alt_en;
+    `DUT_IF.wg_dds_en  = top_test_cfg.wg_dds_en;
+    `DUT_IF.wg_discharge_en  = top_test_cfg.wg_discharge_en;
+    `DUT_IF.wg_interrupt_en   = top_test_cfg.wg_interrupt_en;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -412,6 +437,16 @@ class `TESTNAME extends soc_wavegen_base_test;
 
     // Step 1: Do the common set up for Wavegen
     wavegen_setup(0);//chip 0
+
+    // --------------------------------------------------------------------------------------------------------- 
+    // Step 2. Configure the connection relationship, that is, how these two   drives are physically connected.
+    // --------------------------------------------------------------------------------------------------------- 
+    //    d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+    //         means when d0 is working, it will be connected to the switch(PULLDOWN end) of d1
+    //    d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+    //         means when d1 is working, it will be connected to the 
+    //         switch(PULLDOWN end) of d0
+    // --------------------------------------------------------------------------------------------------------- 
 
     if (|`DUT_IF.wavegen_drv_en[3:0] === 1'b1) begin 
       $display("## ============================================================================ ##");
@@ -692,6 +727,9 @@ end
     for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
       if (`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
         $display("## ---------------------------------------------------------------------------- ##");
+       if (`DUT_IF.wg_dc_en == 1)
+        $display("##         Driver No: %2d, is not enable and configured as SINK mode             ##", i); 
+       else
         $display("##         Driver No: %2d, is enabled and configured as SINK mode                ##", i);      
         $display("## ---------------------------------------------------------------------------- ##");
       end else if (!`DUT_IF.wavegen_drv_mode[i] & `DUT_IF.wavegen_drv_en[i]) begin
@@ -739,28 +777,6 @@ end
     phase.drop_objection(this);
   endtask: main_phase
 
-
-  // *************************************************************
-  // This task is used for calculating periods beasing on clocks 
-  // 1- Positive phase period (positive half of cycle)
-  // 2- Negative phase period (negative half of cycle)
-  // 3- Rest period
-  // 4- Silent period  
-  // ************************************************************* 
-  task wavegen_calc_clock_num;
-  input [13:0] clk_freq;
-  input [15:0] rest_t;
-  input [31:0] silent_t;
-  input [31:0] hlf_wave_per;
-  input [31:0] neg_hlf_wave_per;
-  begin
-    top_test_cfg.hlf_wave_lim = (hlf_wave_per * {20'b0,clk_freq}) / 1000;
-    top_test_cfg.neg_hlf_wave_lim = (neg_hlf_wave_per * {20'b0,clk_freq}) / 1000;
-    top_test_cfg.rest_lim = (rest_t * {4'b0,clk_freq}) / 1000;
-    top_test_cfg.silent_lim = (silent_t * {20'b0,clk_freq}) / 1000;
-  end
-  endtask
-
   // **********************************************************************************************************************************
   // This task is used for calculating 
   // 1- all parametters of all Drivers for setting VIPs, and HW in next Configuration Phase for Drivers
@@ -795,197 +811,50 @@ end
 
          3'b000:begin // 64
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT;
-		    //if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-/*		     end else begin
-                        if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
 
          3'b001:begin // 32
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/2;
-//		    if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y32", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y32", mem_tmp); 
-/*		     		    end else begin
-                       if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
  
          3'b010:begin // 16
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/4;
-//		    if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y16", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y16", mem_tmp); 
-/*		    end else begin
-                       if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
 
          3'b011:begin // 8
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/8;
-//		    if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y8", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y8", mem_tmp); 
-/*		    end else begin
-                       if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                   // for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
 
          3'b100:begin // 4
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/16;
-//		    if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y4", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y4", mem_tmp); 
-/*		    end else begin
-                       if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
 
          3'b101:begin // 2
 		    top_test_cfg.NO_OF_POINTS = `WAVEGEN_MAX_POINT/32;
-//		    if(top_test_cfg.LOAD_POINTS === 0) begin // from SPI
                        if(`DUT_IF.wg_sine_en == 1'b1) 
 		    	 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y2", mem_tmp);
                        else if (`DUT_IF.wg_triangle_en == 1'b1)   
                          $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y2", mem_tmp); 
-/*		    end else begin
-                       if(`DUT_IF.wg_sine_en == 1'b1) 
-			 $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
-                       else if (`DUT_IF.wg_triangle_en == 1'b1)  
-                         $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-                    end
-*/
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
 
          3'b110:begin // 1
@@ -994,9 +863,6 @@ end
 		      $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y1", mem_tmp);
                     else if (`DUT_IF.wg_triangle_en == 1'b1)  
                       $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y1", mem_tmp); 
-
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                     //  top_test_cfg.sine_data[i][j] = mem_tmp[j];
 		end
 
          3'b111:begin // 64
@@ -1005,24 +871,6 @@ end
 		      $readmemh("../../../verification/models/wavegen_stimulus/sine/hex_y64", mem_tmp);
                     else if (`DUT_IF.wg_triangle_en == 1'b1)  
                       $readmemh("../../../verification/models/wavegen_stimulus/triangle/hex_y64", mem_tmp); 
-
-                    // -----------------------------------------
-                    // 2) Copy loaded data into class array
-                    // -----------------------------------------
-                    //for (int j = 0; j < `WAVEGEN_MAX_POINT; j++)
-                    //   top_test_cfg.sine_data[i][j] = mem_tmp[j];
-
-/*
-                    if (`DUT_IF.wavegen_drv_mode === 1'b1) begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][top_test_cfg.NO_OF_POINTS+j] = 0;
-                      end
-                    end else begin
-                      for (int j=0; j<top_test_cfg.NO_OF_POINTS; j++) begin  
-                        top_test_cfg.sine_data[i][j] = 0;
-                      end
-                    end 
-*/
 		end
       endcase
 
@@ -1031,6 +879,7 @@ end
 
     end 
 
+    // Save no points per halfwave to DUT
     `DUT_IF.wg_drv_pnt_cfg = top_test_cfg.NO_OF_POINTS;
 
     // LOAD_POINTS = 0 (preloaded is enabled)
@@ -1111,134 +960,57 @@ end
     // ==================================
     // Set configurations for VIPs
     // ==================================
-/*
-      assert(top_test_cfg.randomize() with {half_period0[0] > top_test_cfg.half_period_limit; half_period1[0] > top_test_cfg.half_period_limit; half_period2[0] > top_test_cfg.half_period_limit;
-                                            half_period0[1] > top_test_cfg.half_period_limit; half_period1[1] > top_test_cfg.half_period_limit; half_period2[1] > top_test_cfg.half_period_limit;
-                                            half_period0[0] %  top_test_cfg.clk_freq == 0; half_period0[1] %  top_test_cfg.clk_freq == 0;
-                                            half_period1[0] %  top_test_cfg.clk_freq == 0; half_period1[1] %  top_test_cfg.clk_freq == 0;
-                                            half_period2[0] %  top_test_cfg.clk_freq == 0; half_period2[1] %  top_test_cfg.clk_freq == 0;
-                                           (`DUT_IF.python_check_en == 1) -> same_pos_neg_period == 1;
-                                           (same_pos_neg_period == 1) -> half_period0[0] == half_period0[1];
-                                           (same_pos_neg_period == 1) -> half_period1[0] == half_period1[1];
-                                           (same_pos_neg_period == 1) -> half_period2[0] == half_period2[1];});
-*/
-
     `DUT_IF.wg_same_pos_neg_period = top_test_cfg.same_pos_neg_period;
     `DUT_IF.wg_half_period0[0] = top_test_cfg.half_period0[0];
     `DUT_IF.wg_half_period1[0] = top_test_cfg.half_period1[0];
     `DUT_IF.wg_half_period2[0] = top_test_cfg.half_period2[0];
 
     for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
-/*
-      assert(top_test_cfg.randomize() with {half_period0[0] > top_test_cfg.half_period_limit; half_period1[0] > top_test_cfg.half_period_limit; half_period2[0] > top_test_cfg.half_period_limit;
-                                            half_period0[1] > top_test_cfg.half_period_limit; half_period1[1] > top_test_cfg.half_period_limit; half_period2[1] > top_test_cfg.half_period_limit;
-                                           (`DUT_IF.python_check_en == 1) -> same_pos_neg_period == 1;
-                                           (same_pos_neg_period == 1) -> half_period0[0] == half_period0[1];
-                                           (same_pos_neg_period == 1) -> half_period1[0] == half_period1[1];
-                                           (same_pos_neg_period == 1) -> half_period2[0] == half_period2[1];});
-*/
+
       `nnc_info("SOC_TEST", $sformatf("same_pos_neg_period:%d", `DUT_IF.wg_same_pos_neg_period), NNC_LOW)
       // ======================================================================================================================
 
       // ----------------------------------
       // Calculating for Wave0
       // ----------------------------------
-      if (`DUT_IF.wavegen_drv_en[i] == 1'b1) begin
-         top_test_cfg.rest_lim = 0;
-         top_test_cfg.silent_lim = `DUT_IF.wg_half_period0[0] + top_test_cfg.rest_lim;
-         `DUT_IF.wg_half_period0[1] = 0;
-      end
-      else begin
-         top_test_cfg.silent_lim = 0;
-         top_test_cfg.rest_lim = 0;
-      end
-
-      wavegen_calc_clock_num(
-      .clk_freq(top_test_cfg.clk_freq), 
-      .rest_t(top_test_cfg.rest_lim), 
-      .silent_t(top_test_cfg.silent_lim), 
-      .hlf_wave_per(`DUT_IF.wg_half_period0[0]), 
-      .neg_hlf_wave_per(`DUT_IF.wg_half_period0[1])
-      );
-
+      top_test_cfg.rest_lim = 0;
       // Updating for DUT Interface for Wave0
-      if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_en[i] == 1'b1)) begin
-      `DUT_IF.wg_hlf_wave0_lim[i] =  `DUT_IF.wg_wave0_pos_clk_num[i]; // top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-      `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
-      `DUT_IF.wg_rest_wave0_lim[i] = 0;
-      `DUT_IF.wg_silent_wave0_lim[i] = 0;
-      end else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_en[i] == 1'b1)) begin
-      `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; // top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-      `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
-      `DUT_IF.wg_rest_wave0_lim[i] = 0;
-      `DUT_IF.wg_silent_wave0_lim[i] = 0;
+      if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin // DC Wavegen and S
+        `DUT_IF.wg_hlf_wave0_lim[i] =  `DUT_IF.wg_wave0_pos_clk_num[i]; 
+        `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
+        `DUT_IF.wg_rest_wave0_lim[i] = `DUT_IF.wg_discharge_num[i];
+        `DUT_IF.wg_silent_wave0_lim[i] = 0;
+      end else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin
+        `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; 
+        `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
+        `DUT_IF.wg_rest_wave0_lim[i] = 0;
+        `DUT_IF.wg_silent_wave0_lim[i] = 0;
       end else begin
-      `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; // top_test_cfg.hlf_wave_lim / top_test_cfg.NO_OF_POINTS;
-      `DUT_IF.wg_neg_hlf_wave0_lim[i] = top_test_cfg.neg_hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
-      `DUT_IF.wg_rest_wave0_lim[i] = `DUT_IF.wg_wave0_rest_clk_num[i];
-      `DUT_IF.wg_silent_wave0_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave0_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave0_rest_clk_num[i]: 0;
+        `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; 
+        `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
+        `DUT_IF.wg_rest_wave0_lim[i] = `DUT_IF.wg_wave0_rest_clk_num[i];
+        `DUT_IF.wg_silent_wave0_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave0_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave0_rest_clk_num[i]: 0;
       end
-      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 0 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, `DUT_IF.wg_half_period0[0], `DUT_IF.wg_half_period0[1], `DUT_IF.wg_hlf_wave0_lim[i], `DUT_IF.wg_neg_hlf_wave0_lim[i]), NNC_LOW)
-      // ======================================================================================================================
 
       // ----------------------------------
       // Calculating for Wave1
       // ----------------------------------
-      // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period1[0], top_test_cfg.half_period1[1]);
-      if (`DUT_IF.wavegen_drv_en[i] == 1'b1) begin
-         top_test_cfg.rest_lim = 0;
-         top_test_cfg.silent_lim = `DUT_IF.wg_half_period1[0] + top_test_cfg.rest_lim;
-         `DUT_IF.wg_half_period1[1] = 0;
-      end
-      else begin
-         top_test_cfg.silent_lim = 0;
-         top_test_cfg.rest_lim = 0;
-      end
-      wavegen_calc_clock_num(
-      .clk_freq(top_test_cfg.clk_freq), 
-      .rest_t(top_test_cfg.rest_lim), 
-      .silent_t(top_test_cfg.silent_lim), 
-      .hlf_wave_per(`DUT_IF.wg_half_period1[0]), 
-      .neg_hlf_wave_per(`DUT_IF.wg_half_period1[1])
-      );
-
+      top_test_cfg.rest_lim = 0; 
       // Updating for DUT Interface for Wave1
       `DUT_IF.wg_hlf_wave1_lim[i] = `DUT_IF.wg_wave1_pos_clk_num[i];//top_test_cfg.hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
-      `DUT_IF.wg_neg_hlf_wave1_lim[i] = top_test_cfg.neg_hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
-      `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim;
+      `DUT_IF.wg_neg_hlf_wave1_lim[i] = 0;
+      `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim + top_test_cfg.PULLAB_CTRL;
       `DUT_IF.wg_silent_wave1_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave1_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg : 0; //top_test_cfg.silent_lim;
-      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 1 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, `DUT_IF.wg_half_period1[0], `DUT_IF.wg_half_period1[1], `DUT_IF.wg_hlf_wave1_lim[i], `DUT_IF.wg_neg_hlf_wave1_lim[i]), NNC_LOW)
-      // ======================================================================================================================
 
-      // wavegen_calc_clock_num(clk_freq (KHz), rest_t (us), silent_t (us), hlf_wave_per (us), neg_hlf_wave_per (us))
       // ----------------------------------
       // Calculating for Wave2
       // ----------------------------------
-      // wavegen_calc_clock_num(top_test_cfg.clk_freq, 0, 0, top_test_cfg.half_period2[0], top_test_cfg.half_period2[1]);
-      if (`DUT_IF.wavegen_drv_en[i] == 1'b1) begin
-         top_test_cfg.rest_lim = 0;
-         top_test_cfg.silent_lim = `DUT_IF.wg_half_period2[0] + top_test_cfg.rest_lim;
-         `DUT_IF.wg_half_period2[1] = 0;
-      end
-      else begin
-         top_test_cfg.silent_lim = 0;
-         top_test_cfg.rest_lim = 0;
-      end
-      wavegen_calc_clock_num(
-      .clk_freq(top_test_cfg.clk_freq), 
-      .rest_t(top_test_cfg.rest_lim), 
-      .silent_t(top_test_cfg.silent_lim), 
-      .hlf_wave_per(`DUT_IF.wg_half_period2[0]), 
-      .neg_hlf_wave_per(`DUT_IF.wg_half_period2[1])
-      );
-
+      top_test_cfg.rest_lim = 0;
       // Updating for DUT Interface for Wave2
       `DUT_IF.wg_hlf_wave2_lim[i] = `DUT_IF.wg_wave2_pos_clk_num[i]; //top_test_cfg.hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
-      `DUT_IF.wg_neg_hlf_wave2_lim[i] = top_test_cfg.neg_hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
+      `DUT_IF.wg_neg_hlf_wave2_lim[i] = 0;
       `DUT_IF.wg_rest_wave2_lim[i] = top_test_cfg.rest_lim;
-      `DUT_IF.wg_silent_wave2_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave2_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg : 0;//top_test_cfg.silent_lim;
-      `nnc_info("SOC_TEST", $sformatf("******** Driver (%d) WAVE 2 ******** CLK_FREQ: %dKhz, HALF_PERIOD_LIMIT: %dus, POS_HALF_PERIOD_TARGET: %dus, NEG_HALF_PERIOD_TARGET: %dus, POS_HALF_PERIOD_CLKS_PER_POINT: %d, NEG_HALF_PERIOD_CLKS_PER_POINT: %d", i, top_test_cfg.clk_freq, top_test_cfg.half_period_limit, `DUT_IF.wg_half_period2[0], `DUT_IF.wg_half_period2[1], `DUT_IF.wg_hlf_wave2_lim[i], `DUT_IF.wg_neg_hlf_wave2_lim[i]), NNC_LOW)
-      // ======================================================================================================================
+      `DUT_IF.wg_silent_wave2_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave2_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg : 0;
 
       // ----------------------------------
       // Updating configuration of Wave 0/1/2 from DUT to Wavegen VIP
@@ -1283,17 +1055,6 @@ end
 */
     end // end of for (int i = 0; i < `WAVEGEN_DRIVER_NUM; i++) begin
 
-    // ------------------------------------------------------------------------------
-    // Write to SOC_ANA_ENABLE_REG_1 (This driver enable is for analog purpose only) - Check it later
-    // ------------------------------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_1; wr_data[0] == 8'h08;});//IDAC_EN
-    //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-
-    // ------------------------------------------------------------------------------
-    // Write to SOC_ANA_ENABLE_REG_2 (This driver enable is for analog purpose only) - Check it later
-    // ------------------------------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_2; wr_data[0] == 8'h08;});//IDAC_EN
-    //`WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
   end
   endtask
 
@@ -1400,15 +1161,6 @@ end
     $display("##    PROGRAM FOR SOC_ADDR_WG_DRV_SILENT_T_REG01 (Silent Time): %h              ##", `DUT_IF.wg_silent_wave0_lim[drv_num][31:0]);      
     $display("## ============================================================================ ##");
     `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
-
-    // --------------------------------------------------------
-    // Write to SOC_ADDR_WG_DRV_SILENT_T_REG04 (1 register)
-    // --------------------------------------------------------
-    //assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_SILENT_T_REG04 + WG_BASE); wr_data[0] == `DUT_IF.wg_silent_wave0_lim[drv_num][31:24];});
-    //$display("## ============================================================================ ##");
-    //$display("##         PROGRAM FOR SOC_ADDR_WG_DRV_SILENT_T_REG04                          ##");      
-    //$display("## ============================================================================ ##");
-    //`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     // --------------------------------------------------------
     // Write burst starting from ADDR_WG_DRV_HLF_WAVE_PRD_REG01 (2 registers)
@@ -1521,17 +1273,21 @@ end
     // --------------------------------------------------------
     // Write to ADDR_WG_DRV_CONFIG_REG0(//bit 0:rest enable, 1:negative enable, 2: silent enable, 3: source B enable, 4: alternate, 5: continue mode, 6: multi-electrode, 7: positive disable)
     // --------------------------------------------------------
-    if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_en[drv_num] == 1'b1))
-      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
-    else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_en[drv_num] == 1'b1))
-      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
-    else
-      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b1, top_test_cfg.NEG_ON, 1'b1};});
+    if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_mode[drv_num] == 1'b1)) // SINK
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
+    else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_mode[drv_num] == 1'b1)) // SOURCE
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, top_test_cfg.NEG_ON, 1'b0};});
+    else begin
+      if (`DUT_IF.wg_interrupt_en == 1'b1) // set Continue Wave for Source DRV
+        assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], !`DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b1, top_test_cfg.NEG_ON, 1'b1};}); 
+      else
+        assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CONFIG_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_OFF, `DUT_IF.wavegen_drv_mode[drv_num], 1'b0, 1'b0, 1'b0, 1'b1, top_test_cfg.NEG_ON, 1'b1};});
+    end
     `nnc_info("SOC_TEST", "Set driver configuration register", NNC_LOW)
     $display("## ============================================================================ ##");
     $display("##     PROGRAM FOR ADDR_WG_DRV_CONFIG_REG0 (Config for Driver)                  ##"); 
     $display("## ---------------------------------------------------------------------------- ##");  
-    $display("##       bit 0:rest enable                                                      ##");
+    $display("##       bit 0: rest enable                                                     ##");
     $display("##       bit 1: negative enable                                                 ##");
     $display("##       bit 2: silent enable                                                   ##");
     $display("##       bit 3: source B enable                                                 ##");
@@ -1556,35 +1312,18 @@ end
     `nnc_info("SOC_TEST", $sformatf("Store %d wave points", top_test_cfg.NO_OF_LOAD_POINTS), NNC_LOW)
     
     if (`DUT_IF.wg_preload_sel == 2'b11) begin
-    // Set burst mode for Wavegen Shape register (set bit-4 to 1)
-    $display("## ============================================================================ ##");
-    $display("##         Read FOR GLOBAL WAVEGEN register                                     ##");   
-    $display("## ============================================================================ ##");
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
-    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-    top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] | 8'h10;
-    $display("## ============================================================================ ##");
-    $display("##         PROGRAM FOR GLOBAL to set BURST bit (bit-4) for Shape Buffer         ##");   
-    $display("## ============================================================================ ##");
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+      // Set burst mode for Wavegen Shape register (set bit-4 to 1)
+      $display("## ============================================================================ ##");
+      $display("##         Read FOR GLOBAL WAVEGEN register                                     ##");   
+      $display("## ============================================================================ ##");
+      assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
+      `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
+      top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] | 8'h10;
+      $display("## ============================================================================ ##");
+      $display("##         PROGRAM FOR GLOBAL to set BURST bit (bit-4) for Shape Buffer         ##");   
+      $display("## ============================================================================ ##");
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
-    //for(int m=0; m<16; m++) begin
-/*
-      for(int i=0; i<top_test_cfg.NO_OF_LOAD_POINTS; i++) begin
-       	// --------------------------------------------------------
-    	// Write to ADDR_WG_DRV_IN_WAVE_ADDR_REG0
-    	// --------------------------------------------------------
-        // Save addresss of Mem to Register
-    	//assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 + WG_BASE); wr_data[0] == i;});
-    	//`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-	// --------------------------------------------------------
-    	// Write to ADDR_WG_DRV_IN_WAVE_REG01
-    	// --------------------------------------------------------
-        // Save data of Mem to Register
-	assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE); wr_data[0] == top_test_cfg.sine_data[m][i][7:0];});
-    	//`WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-      end
-*/
       // Save data of Mem to Register
       top_test_cfg.reg_addr = (`SOC_ADDR_WG_DRV_IN_WAVE_REG01 + WG_BASE);
       top_test_cfg.no_of_bytes = top_test_cfg.NO_OF_LOAD_POINTS;
@@ -1595,16 +1334,15 @@ end
       $display("##      PROGRAM FOR AWG_IN_WAVE_REG (Indirect register to Shape Buffer)         ##");      
       $display("## ============================================================================ ##");
       `WR_BURST_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
-    //end
 
-    // Clear burst mode for Wavegen Shape register (set bit-4 to 1)
-    $display("## ============================================================================ ##");
-    $display("##         PROGRAM FOR GLOBAL to clear BURST bit (bit-4) for Shape Buffer         ##");   
-    $display("## ============================================================================ ##");
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
-    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-    top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] & 8'hEF;
-    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+      // Clear burst mode for Wavegen Shape register (set bit-4 to 1)
+      $display("## ============================================================================ ##");
+      $display("##         PROGRAM FOR GLOBAL to clear BURST bit (bit-4) for Shape Buffer         ##");   
+      $display("## ============================================================================ ##");
+      assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
+      `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data[0]);
+      top_test_cfg.wr_data[0] = top_test_cfg.rd_data[0] & 8'hEF;
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
     end
 
     // *******************************************************************************
@@ -1647,6 +1385,7 @@ end
     // Bit[7]: enable PULLB & PULLA can be 1 at the same time before next pos side
     // {top_test_cfg.PULLAB_pos_en[7], top_test_cfg.PULLAB_neg_en[6], top_test_cfg.PULLAB_lim[5:0]}
     // -------------------------------------------------------------------------------
+    if (`DUT_IF.wg_discharge_en == 1) begin
     $display("## ============================================================================ ##");
     $display("##     PROGRAM FOR AWG_DEBOUNCE_REG                                             ##");  
     $display("## ---------------------------------------------------------------------------- ##");
@@ -1654,9 +1393,10 @@ end
     $display("## Bit[6]: enable PULLB & PULLA can be 1 at the same time before next neg side  ##");
     $display("## Bit[7]: enable PULLB & PULLA can be 1 at the same time before next pos side  ##");
     $display("## ============================================================================ ##");
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_PULLBA_REG + WG_BASE); wr_data[0] == top_test_cfg.PULLAB_CTRL;});
-    `nnc_info("SOC_TEST", "Set pullab reg", NNC_LOW)
+    
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_PULLBA_REG + WG_BASE); wr_data[0] == {1'b1, 1'b0, `DUT_IF.wg_discharge_num[drv_num]};});
     `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+    end
 
     // *******************************************************************************
     // Write to ADDR_WG_DRV_DELAY_LIM_REG01 - AWG_DELAY_LIM_REG: 0x23~0x24 (No need for this
@@ -1683,7 +1423,10 @@ end
     $display("## bit[2:1]: preload_sel - 00: Preload SINE, 01: Pulse , 10: Triangle , 11: SPI ##");
     $display("## Bit[0]: Wavegen_En                                                           ##");
     $display("## ============================================================================ ##");
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF, top_test_cfg.LOAD_POINTS, top_test_cfg.NO_OF_WAVEFORMS, top_test_cfg.PRELOAD, `DUT_IF.wavegen_drv_en[drv_num]};});
+    if (`DUT_IF.wg_dc_en == 1) // Set SNK to not enable
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF, top_test_cfg.LOAD_POINTS, top_test_cfg.NO_OF_WAVEFORMS, top_test_cfg.PRELOAD, !`DUT_IF.wavegen_drv_mode[drv_num]};});
+    else
+      assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL_REG0 + WG_BASE); wr_data[0] == {top_test_cfg.POS_NEG_DIFF, top_test_cfg.LOAD_POINTS, top_test_cfg.NO_OF_WAVEFORMS, top_test_cfg.PRELOAD, `DUT_IF.wavegen_drv_en[drv_num]};});
     if(top_test_cfg.PRELOAD === 2'b00) // because this test is sine wave
     	`nnc_info("SOC_TEST", "Config driver control register with preloaded sine values", NNC_LOW)
     else if(top_test_cfg.PRELOAD === 2'b11)
@@ -1696,24 +1439,7 @@ end
   task wavegen_drv_enable;
   begin
     `nnc_info("SOC_TEST", $sformatf("enabling chip_0 wavegen sb now"), NNC_LOW)
-/*
-    `WAVEGEN_SCB_DRV_0_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_1_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_2_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_3_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_4_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_5_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_6_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_7_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_8_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_9_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_10_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_11_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_12_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_13_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_14_EN = 1'b1;
-    `WAVEGEN_SCB_DRV_15_EN = 1'b1;
-*/
+
     // --------------------------------------------------------
     // Write to SOC_WAVEGEN_GLOBAL_REG to sync drivers
     // --------------------------------------------------------
@@ -1734,3 +1460,718 @@ end
   endfunction
 
 endclass : `TESTNAME
+
+/*
+----------------------------------------------------------------------------------------------
+Item: This test is used to evaluate the electrode discharge function.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"
+----------------------------------------------------------------------------------------------	
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+7. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	"Check Points
+
+Notes:
+==============
+1.For the shape register, this test only checks the triangle wave; the verification should validate arbitrary waveforms (such as DC and sine waves).
+2. POINTS register is variable,should check the full range(1 point ~ 64 points)
+3. For the period register, when the register is set to a period of 0, it indicates that the corresponding edge is disabled.
+4. must enable POS and SILENT, REST is optional, not use neg edge
+5.Switching behavior for source/pulldown
+6.analog interface signal behavior"
+
+----------------------------------------------------------------------------------------------
+Item: Generate 12-bit square wave data in automatic mode (applicable only to square waves)
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the manual-pulse data register and write waveform data
+   d0 : 0x36 bit[7:0] : data(LSB)
+        0x37 bit[3:0] : data(MSB) 
+        0x35 bit[5]   : select 8-bit data(0x00~0x01)/12-bit data(0x36~0x37)
+   d1 : 0x76 bit[7:0] : data(LSB)
+        0x77 bit[3:0] : data(MSB) 
+        0x75 bit[5]   : select 8-bit data(0x40~0x1)/12-bit data(0x77~0x77)
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+7. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"
+
+Notes;
+"Check Points
+==============
+1.12 bits data in auto mode"
+
+----------------------------------------------------------------------------------------------
+Item: This test uses pre-stored data inside the chip.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)   
+   d0 : WAVE0 : POS time :P00; REST time R00;SILENT time : S00(S00=P10+R10)
+         WAVE1 : POS time :P01; REST time R01;SILENT time : S01(S00=P11+R11)
+         WAVE2 : POS time :P02; REST time R02;SILENT time : S02(S00=P12+R12)
+   d1 : WAVE0 : POS time :P10; REST time R10;SILENT time : S10(S10=P00+R00)
+         WAVE1 : POS time :P11; REST time R11;SILENT time : S11(S11=P01+R01)
+         WAVE2 : POS time :P12; REST time R12;SILENT time : S12(S12=P0+R012)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+7. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value Vd
+   d1 : set the value Vd
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+Notes and Check Points
+======================
+1.Three built-in waveforms : sine;pulse;triangle
+2.Form different waveform combinations when used together with multi-waveform functions"
+
+----------------------------------------------------------------------------------------------
+Item: The waveform is directly controlled by the SPI register.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. configure manual  register
+   d0 : wavegen register :
+        0x35 bit[4] : set it 1 to enable ,manual mode
+        0x35 bit[0]/bit[2] : source and pulldown switchs        
+        0x36 bit[7:0] : data(LSB)
+        0x37 bit[3:0] : data(MSB) 
+        0x38 bit[1]   :d2a_cbuf_en
+
+   d1 : wavegen register :
+        0x75 bit[4] : set it 1 to enable ,manual mode
+        0x75 bit[0]/bit[2] : source and pulldown switchs        
+        0x76 bit[7:0] : data(LSB)
+        0x77 bit[3:0] : data(MSB) 
+        0x78 bit[1]   :d2a_cbuf_en
+    d0&d1
+        normal register
+        0x03 bit[0] : DRIVER_EN
+        0x03 bit[3] : D2A_STIMU_EN"	
+
+Check Points
+==============
+1.Directly control waveform generation using SPI registers
+2.check analog interface"
+
+----------------------------------------------------------------------------------------------
+Item: After enabling the waveform, use delay_lim to delay the start time of the waveform.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure delay_lim register
+   d0 : 0x24~0x25
+   d1 :0x64~0x65
+
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.Waveform delay time"
+
+----------------------------------------------------------------------------------------------
+Item: This test is used to evaluate the electrode discharge function.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure PULLBA reg :
+   d0: 0x1A : discharge at pos edge
+   d1: 0x6A : discharge at pos edge
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.when discharge,All electrode PULLDOWN terminals are closed to ground.
+2.  when discharge,All electrode SOURCE terminals are opened"
+
+----------------------------------------------------------------------------------------------
+Item: This test modifies the wavegen function using interrupt functionality.
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"
+==============
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+---------------------------------------------------------------------------------------------------
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent;CONTIMUE_WAVEFORM : 0
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent;CONTIMUE_WAVEFORM : 1
+4. Configure waveform period(0x05~0x0d for d0;0x45~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure INT register
+   d0 : 0x2B : Set the number of waveform cycles to ignore;0x2C:enable INT function;0x2d:1st int address;0x2e:2nd int address;
+   d1 : 0x6B : Set the number of waveform cycles to ignore;0x6C:enable INT function;0x6d:1st int address;0x6e:2nd int address;
+
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])
+
+9.Once the first address interrupt is triggered, the user can operate on the wavegen register (e.g., modify waveform data). The interrupt from the first address must be cleared immediately after modification; otherwise, the second address interrupt will be generated. The occurrence of the second address interrupt indicates that the user's operation was not completed within the time between the two addresses."
+
+"Check Points
+==============
+1.the first interrupt can be generated if the preset number of waveforms is reached
+2. the second interrupt can be generated if The first interrupt was not cleared in time.
+3. After the second interrupt is generated, a register can control whether subsequent waveforms continue to be generated.
+4. After clearing the first address, the interrupt address can be automatically swapped to reduce SPI operations.
+5.support R1C/R1C
+6.support level INT and pulse INT"
+
+----------------------------------------------------------------------------------------------
+Item: Test the normal arbitrary waveform generation function	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+8. Configure the registers that cause data distortion
+   d0 : 0x26/0x27/0x28/0x29/
+   d1 : 0x66/0x67/0x68/0x69/
+
+9. Configure the address where calibration data takes effect(use the default value 0x00)
+   d0 : 0x3b
+   d1 : 0x7b
+
+10. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.Two multiplicative structures(A*B/A>>B), one divisive structure(A>>B), and one additive structure(A+B)
+2.overflow handing
+3.Scale/offset effectiveness check"
+
+----------------------------------------------------------------------------------------------
+"Item: This test is used to write shape register data using burst mode, eliminating the need to repeat ""address-data"" pairs.
+Moreover, if the wavegen data is identical, it supports writing simultaneously to multiple shape registers."	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+
+2. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+
+3. Enable burst_en by normal register 0x03 bit[4], 
+   to write data to the shape registers of multiple wavegens simultaneously, enable the corresponding switches by normal register 0x07/0x08
+
+4.  Use SPI burst command to write shape data(64 points)
+"	
+
+"Check Points
+==============
+1.burst function
+2.Write to the shape registers of multiple channels simultaneously
+3.If multiple drivers have identical configurations, you can use the multi-wavegen acccess feature to configure these drivers simultaneously."
+	
+----------------------------------------------------------------------------------------------
+Item: This test is used to correct distortion caused by data asynchronization when the register data is modified via SPI.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+8. Configure the registers that cause data distortion
+   d0 : 0x26/0x27/0x28/0x29/0x37 bit[6:4]/0x3c bit[3:0]
+   d1 : 0x66/0x67/0x68/0x69/0x77 bit[6:4]/0x7c bit[3:0]
+
+9. Configure the address where calibration data takes effect
+   d0 : 0x3b
+   d1 : 0x7b
+
+10. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.Address activation is configurable, with a default setting of 0x00, meaning it takes effect at the beginning of the next cycle by default.
+2. Calibration data takes effect immediately upon reaching the target address."
+	
+----------------------------------------------------------------------------------------------	
+Item: This test is used to generate EMS waveforms without using interrupts.	
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable alt fucntion,disable rest/silent
+   d1 : enable pos edge; marked d1 as source; enable alt fucntion,disable rest/silent
+
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=ALT_P1/2+ALT_P1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S0=ALT_P0/2+ALT_P0)
+
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+
+6. Configure the points register(Carrier points and envelope points are 64-point)
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+7. Configure ALT register(0x2f~0x34 for d0; 0x6f~0x74 for d0)
+   d0 : 0x2f~0x30 : ALT_PO=P0*2; 0x31~032: ALT_S0;0x33~0x34:ALT_R0
+   d1 : 0x26~0x70 : ALT_P1=P1*2; 0x71~072: ALT_S1;0x3~0x347:ALT_R1
+
+8. Configure EMS register(0x3c~0x3d for d0; 0x7c~0x7d for d1)
+   d0 : enable EMS mode(0x3c bit[3]); set DECIMAL_SEL(0x3c bit[2:0]); set Number of repetitions for each envelope point(0x3d)
+   d0 : enable EMS mode(0x7c bit[3]); set DECIMAL_SEL(0x7c bit[2:0]); set Number of repetitions for each envelope point(0x7d)
+
+9. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.The ALT cycle must equal the entire cycle to ensure correct timing.
+2.use DECIMAL_SEL
+3.Number of repetitions for each envelope point"
+
+----------------------------------------------------------------------------------------------	
+Item: This test is used to generate EMS waveforms without using interrupts. (ALT Mode)
+----------------------------------------------------------------------------------------------
+"driver: 
+drive0 :d0
+drive1 :d1"	
+==============
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable alt fucntion,enable rest disable silent
+   d1 : enable pos edge; marked d1 as source; enable alt fucntion,enable rest disable silent
+
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=ALT_P1/2+ALT_P1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S0=ALT_P0/2+ALT_P0)
+
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+
+6. Configure the points register(Carrier points and envelope points are 64-point)
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+
+7. Configure ALT register(0x2f~0x34 for d0; 0x6f~0x74 for d0)
+   d0 : 0x2f~0x30 : ALT_PO=P0*2; 0x31~032: ALT_S0;0x33~0x34:ALT_R0
+   d1 : 0x26~0x70 : ALT_P1=P1*2; 0x71~072: ALT_S1;0x3~0x347:ALT_R1
+
+
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.the timing of alt waveform
+2. rest time is optional"
+
+----------------------------------------------------------------------------------------------		
+Item: The test involves two waveforms interfering with each other, forming a low-frequency envelope signal at the interference point.	
+----------------------------------------------------------------------------------------------	
+"driver: (in this case use to generate 5000hz)
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------	
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1)
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register(recommend to use 64 points)
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure the register to enable DDS_mode and set dds fractional frequency parameter(same for both deivers)
+   d0 : set bit[3] of 0x38 to enable dds mode; config 0x12~0x15 to set dds fractional frequency parameter
+   d1 : set bit[3] of 0x78 to enable dds mode; config 0x52~0x55 to set dds fractional frequency parameter
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+----------------------------------------------------------------------------------------------
+"driver: (in this case use to generate 5010hz)
+drive0 :d2
+drive1 :d3"
+----------------------------------------------------------------------------------------------
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d2 : 0x80~0xbF; d3:0xc0~0xff
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d2 : wavegen register 0xbe&0xbf,set the value of 0xbe to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d3 : wavegen register 0xfe&0xff,set the value of 0xfe to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x82 for d0;0xc2 for d1)
+   d1 : enable pos edge; marked d2 as sink; enable rest,enable silent
+   d3 : enable pos edge; marked d3 as source; enable rest,enable silent
+4. Configure waveform period(0x85~0x8d for d0;0xc5 ~0xcd for d1)
+   d2 : POS time :P2; REST time R2;SILENT time : S2(S0=P3+R3)
+   d3 : POS time :P3; REST time R3;SILENT time : S3(S1=P2+R2)
+5. Configure the shape register and write waveform data
+   d2 : address   : 0x80~0x81
+   d3 : address   : 0xc0~0xc1
+6. Configure the points register(recommend to use 64 points)
+   d2 :0x84(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d3 :0xc4(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure the register to enable DDS_mode and set dds fractional frequency parameter(same for both deivers)
+   d2 : set bit[3] of 0xb8 to enable dds mode; config 0x92~0x95 to set dds fractional frequency parameter
+   d3 : set bit[3] of 0xf8 to enable dds mode; config 0xd2~0xd5 to set dds fractional frequency parameter
+8. Configure the control register(0x83/0xc3) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d2 : set the value 0x07
+   d3 : set the value 0x07"	
+
+----------------------------------------------------------------------------------------------			
+"Item: Supports up to three different waveforms (with independent periods and data), allowing testing of the number of repeatable cycles for each waveform individually."	
+----------------------------------------------------------------------------------------------	
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------	
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent
+4. Configure waveform period(0x05~0x23 for d0;0x45 ~0x63 for d1)
+   d0 : WAVE0 : POS time :P00; REST time R00;SILENT time : S00(S00=P10+R10)
+         WAVE1 : POS time :P01; REST time R01;SILENT time : S01(S00=P11+R11)
+         WAVE2 : POS time :P02; REST time R02;SILENT time : S02(S00=P12+R12)
+   d1 : WAVE0 : POS time :P10; REST time R10;SILENT time : S10(S10=P00+R00)
+         WAVE1 : POS time :P11; REST time R11;SILENT time : S11(S11=P01+R01)
+         WAVE2 : POS time :P12; REST time R12;SILENT time : S12(S12=P0+R012)
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure the silent repeat control register and set the number of repetitions required.(should be same in between drivers)
+   d0 : set 0x38 bit[2],enable this function, set 0x39,0x3A for the number of repetitions required for WAVE0;
+        set 0x31 for the number ofrepetitions required for WAVE1;set 0x32 for the number of repetitions required for WAVE2
+   d1 : set 0x78 bit[2],enable this function, set 0x79,0x7A for the number of repetitions required;
+        set 0x71 for the number ofrepetitions required for WAVE1;set 0x72 for the number of repetitions required for WAVE2
+
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x57
+   d1 : set the value 0x57
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.For wave0, the register controlling the repetition count is 16 bits, allowing a maximum of 65,535 repetitions.for wave1/wave2, they are 8 bits so allowing a maximum of 255 repetitions. those registers can't be set 0
+
+2. this feature should be used with bit[7:6] of 0x04/0x44
+
+3. support 2 waves
+
+4. if not enable bit[2] of 0x38/0x78This is a standard multi-waveform function, where the waveform does not repeat within a single cycle., "
+
+----------------------------------------------------------------------------------------------		
+"Item: This function is used to generate a sequence where, after alternating between positive and negative cycles for a certain number of 
+periods, it enters a prolonged silent period."	
+----------------------------------------------------------------------------------------------	
+"driver: 
+drive0 :d0
+drive1 :d1"	
+----------------------------------------------------------------------------------------------	
+"steps:
+==============
+1. First, we need to clear the SPI address ranges for d0 and d1.
+   d0 : 0x00~0x3F; d1:0x40~0x7f
+2. Configure the connection relationship, that is, how these two   drives are physically connected.
+   d0 : wavegen register 0x3e&0x3f,set the value of 0x3e to 0x02, it
+        means when d0 is working, it will be connected to the 
+        switch(PULLDOWN end) of d1
+   d1 : wavegen register 0x7e&0x7f,set the value of 0x7e to 0x01, it
+        means when d1 is working, it will be connected to the 
+        switch(PULLDOWN end) of d0
+3. Configure waveform properties(0x02 for d0;0x42 for d1)
+   d0 : enable pos edge; marked d0 as sink; enable rest,enable silent, enable neg edge
+   d1 : enable pos edge; marked d1 as source; enable rest,enable silent, enable eng edge
+4. Configure waveform period(0x05~0x0d for d0;0x45 ~0x4d for d1)
+   d0 : POS time :P0; REST time R0;SILENT time : S0(S0=P1+R1),NEG time N0
+   d1 : POS time :P1; REST time R1;SILENT time : S1(S1=P0+R0),NEG time N1
+5. Configure the shape register and write waveform data
+   d0 : address   : 0x00~0x01
+   d1 : address   : 0x40~0x41
+6. Configure the points register
+   d0 :0x04(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+   d1 :0x44(The register supports variable points, and the points should correspond to the data stored in the shape register.)
+7. Configure the silent repeat control register and set the number of repetitions required.(should be same in between drivers)
+   d0 : set 0x38 bit[0],enable this function, set 0x39,0x3A for the number of repetitions required
+   d1 : set 0x78 bit[0],enable this function, set 0x79,0x7A for the number of repetitions required
+
+8. Configure the control register(0x03/0x43) to enable the waveform(It is recommended to enable wavegen only after completing registers.)
+   d0 : set the value 0x07
+   d1 : set the value 0x07
+   d0&d1 : enable global_en(bit[0] of normal register 0x03])"	
+
+"Check Points
+==============
+1.After the waveform reaches the number configured in the register, it enters silent time.
+2.Enable the NEG edge; the silent time is actually the NEG edge time."	
+
+*/

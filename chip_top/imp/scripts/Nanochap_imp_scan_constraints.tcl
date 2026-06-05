@@ -26,6 +26,9 @@ set_case_analysis 0 u_top_dig/u_spi_top/iopad_cpha
 set_case_analysis 1 iopad_testmode0
 set_case_analysis 0 iopad_testmode1
 
+set_case_analysis 1 [get_ports IOBUF_PAD[1]]
+set_case_analysis 1 [get_pins u_top_dig/u_pinmux/scan_en]
+
 # ------------------------------------------------------------------------------
 # Scan port input/output delay
 # ------------------------------------------------------------------------------

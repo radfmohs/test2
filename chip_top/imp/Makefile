@@ -67,6 +67,7 @@ ifeq ($(BUD),yes)
   BUD_OPT = bottom_up 
 else 
 	BUD_STR = set bottom_up no 
+	BUD_OPT = top_bottom
 endif
 
 #####################################

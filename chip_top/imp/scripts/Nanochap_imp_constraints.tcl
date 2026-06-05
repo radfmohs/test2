@@ -69,6 +69,15 @@ if {[string match S11?_m?? $i]} {
 			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks imeas_clk]
+  
+  #================================================================================================================================
+  # ===== iclk -- switched from sys_clk
+  # ================================================================================================================================
+  create_generated_clock -name iclk -add -divide_by 1 -master_clock sys_clk \
+		  -source [get_attribute [get_clocks sys_clk] sources] \
+		  [get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk*]
+  set_clock_uncertainty -setup   [expr {0.1 * ${hfosc_period} + 1.2}]      [get_clocks iclk]
+  set_clock_uncertainty -hold    0      [get_clocks iclk]
 }
 
 #external clock can support either normal mode (S12) or cp test mode (S22)
@@ -107,6 +116,15 @@ if {[string match S12?_m?? $i]} {
 			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks imeas_clk]
+
+  #================================================================================================================================
+  # ===== iclk -- switched from ext_clk
+  # ================================================================================================================================
+  create_generated_clock -name iclk -add -divide_by 1 -master_clock ext_clk \
+		  -source [get_attribute [get_clocks ext_clk] sources] \
+		  [get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk*]
+  set_clock_uncertainty -setup   [expr {0.1 * ${hfosc_period} + 1.2}]      [get_clocks iclk]
+  set_clock_uncertainty -hold    0      [get_clocks iclk]  
 }
 
 #bist clock scenario
@@ -148,13 +166,13 @@ if {[string match S1??_m?? $i]} {
 
 if {[string match S11?_m?? $i]} {
  set_clock_groups -asynchronous -name async_grp1 \
-         -group [list sys_clk notch_clk lpf_clk hpf_clk imeas_clk vclk] \
+         -group [list sys_clk notch_clk lpf_clk hpf_clk imeas_clk iclk vclk] \
          -group [list spi_clk] \
 }
 
 if {[string match S12?_m?? $i]} { 
  set_clock_groups -asynchronous -name async_grp2 \
-         -group [list ext_clk notch_clk lpf_clk hpf_clk imeas_clk vclk] \
+         -group [list ext_clk notch_clk lpf_clk hpf_clk imeas_clk iclk vclk] \
          -group [list spi_clk] \
 }
 
@@ -255,6 +273,9 @@ if {[string match S1?2_m?? $i]} {
 
 #if normal mode
 if {[string match S1??_m?? $i]} {  
+  set_input_delay -clock iclk -max $cycle40 [get_pins u_top_ana_wrapper/u_top_ana/A2D_SDM*] -clock_fall -add_delay
+  set_input_delay -clock iclk -min 0        [get_pins u_top_ana_wrapper/u_top_ana/A2D_SDM*] -clock_fall -add_delay
+  
   set_false_path -setup -from [get_clocks spi_clk] -through IOBUF_PAD[3] -through u_top_dig/u_pinmux/u_gpio3_pinmux/altf_y -through u_top_dig/u_pinmux/u_gpio6_pinmux/altf_oe -through IOBUF_PAD[6] -to [get_clocks spi_clk] ;#CS can affect MISO but not timing critical
   set_multicycle_path 2 -setup -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]
   set_multicycle_path 1 -hold  -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]

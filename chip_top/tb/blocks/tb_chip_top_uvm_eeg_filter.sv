@@ -741,8 +741,23 @@ assign dut_vif.pull_source_stim_on = /*dut_vif.imeas_pos_done
                                        | `ANA_WRAPPER_TOP.i_source_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD0[3:0]]  
                                        | `ANA_WRAPPER_TOP.i_source_driver[`ANA_WRAPPER_TOP.D2A_STIM_PAD1[3:0]]);
 
+always@(posedge dut_vif.sys_clk)begin
+  if(!`RST_CTRL_TOP.filter_rstn)begin
+    dut_vif.exp_stim_flag_on <= 0;
+  end
+  else if(dut_vif.imeas_pos_done && dut_vif.pull_source_stim_on == 1)begin
+    dut_vif.exp_stim_flag_on <= 1;
+  end
+  else if(!dut_vif.pull_source_stim_on)begin
+    dut_vif.exp_stim_flag_on <= 0;
+  end
+  else begin
+    dut_vif.exp_stim_flag_on <= dut_vif.exp_stim_flag_on;
+  end
+end
+
 assign dut_vif.exp_status_bits = {7'b0, 
-                                 `SPI_TOP.stim_on_flag, 
+                                 dut_vif.exp_stim_flag_on, 
                                  `ANA_WRAPPER_TOP.A2D_LOFF_STATN[15:0],
                                  `ANA_WRAPPER_TOP.A2D_LOFF_STATP[15:0]};
 

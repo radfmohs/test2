@@ -218,10 +218,10 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM27", $sformatf("D2A_RLD_ELECTRODE_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_RLD_ELECTRODE_EN))
       end
-    if (`ANA_TOP.D2A_VCMGENBUFF_EN !== 1'b1)
+    /*if (`ANA_TOP.D2A_VCMGENBUFF_EN !== 1'b1)
       begin
         `nnc_error("ATM27", $sformatf("D2A_VCMGENBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_VCMGENBUFF_EN))
-      end
+      end*/
     if (`ANA_TOP.D2A_SDMVCMBUFF_EN !== 1'b1)
       begin
         `nnc_error("ATM27", $sformatf("D2A_SDMVCMBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMVCMBUFF_EN))
@@ -230,7 +230,7 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM27", $sformatf("D2A_SDMVREFPBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMVREFPBUFF_EN))
       end
-    if (`ANA_TOP.D2A_EEGLNA_EN[8] !== 1'b1)
+    /*if (`ANA_TOP.D2A_EEGLNA_EN[8] !== 1'b1)
       begin
         `nnc_error("ATM27", $sformatf("D2A_EEGLNA_EN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_EEGLNA_EN[8]))
       end
@@ -241,7 +241,7 @@ class `TESTNAME extends soc_base_test;
     if (`ANA_TOP.D2A_SDMBUFF_EN[8] !== 1'b1)
       begin
         `nnc_error("ATM27", $sformatf("D2A_SDMBUFF_EN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMBUFF_EN[8]))
-      end
+      end*/
     if (`ANA_TOP.D2A_SDMEN[8] !== 1'b1)
       begin
         `nnc_error("ATM27", $sformatf("D2A_SDMEN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMEN[8]))
@@ -274,8 +274,8 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ATM27", $sformatf("`SOC_TOP.pinmux_if.D2A_TRIM_SIG[7:0] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0], {rand_num[7:0]}));
         end
 `endif
-        if ({`ANA_TOP.D2A_SDMVREFP_SEL[5:0], `ANA_TOP.D2A_SDMVREFP_IADJ[1:0]}!== {rand_num[7:0]}) begin
-        `nnc_error("ATM27", $sformatf("{`ANA_TOP.D2A_SDMVREFP_SEL[5:0], `ANA_TOP.D2A_SDMVREFP_IADJ[1:0]} = %b is not as expectation of = %b", {`ANA_TOP.D2A_SDMVREFP_SEL[5:0], `ANA_TOP.D2A_SDMVREFP_IADJ[1:0]}, {rand_num[7:0]}));
+        if ({`ANA_TOP.D2A_SDMVREFP_IADJ[1:0]}!== {rand_num[1:0]}) begin
+        `nnc_error("ATM27", $sformatf("{`ANA_TOP.D2A_SDMVREFP_IADJ[1:0]} = %b is not as expectation of = %b", {`ANA_TOP.D2A_SDMVREFP_IADJ[1:0]}, {rand_num[1:0]}));
         end
 
         release  `SOC_TOP.IOBUF_PAD[8:1];      

@@ -281,9 +281,13 @@ module nirs_ppg_ctrl_top #(
   wire IDAC_MAX_tmp [1:0];
   wire IDAC_MIN_tmp [1:0];
   wire LED_ON_tmp;
+  reg         DOUT_EN_d, IDAC_EN_d;
+  reg   [8:0] IDAC_reg;
+  reg  [21:0] DOUT_reg;
+  wire [21:0] DOUT_tmp;
 
   assign IDAC_EN        = LED[1] ? IDAC_IDAC_EN_1  : IDAC_IDAC_EN_0; 
-  assign IDAC           = LED[0] ? 9'b0 : (LED[1] ? IDAC_tmp[1] : IDAC_tmp[0]);
+  assign IDAC           = IDAC_reg;
   assign IDAC_MAX       = LED[1] ? IDAC_MAX_tmp[1] : IDAC_MAX_tmp[0];
   assign IDAC_MIN       = LED[1] ? IDAC_MIN_tmp[1] : IDAC_MIN_tmp[0];
   assign LED_ON         = LED[0] ? 1'b0 : LED_ON_tmp;
@@ -297,10 +301,36 @@ module nirs_ppg_ctrl_top #(
   assign DOUT_AMB0_EN   = (!LED[1] &&  LED[0]) ? DOUT_EN : 1'b0;
   assign DOUT_LED1_EN   = ( LED[1] && !LED[0]) ? DOUT_EN : 1'b0;
   assign DOUT_AMB1_EN   = ( LED[1] &&  LED[0]) ? DOUT_EN : 1'b0;
-  assign DOUT           = (!LED[1] && !LED[0]) ? DOUT_LED0  :
+  assign DOUT_tmp       = (!LED[1] && !LED[0]) ? DOUT_LED0  :
                           (!LED[1] &&  LED[0]) ? DOUT_AMB0  :
                           ( LED[1] && !LED[0]) ? DOUT_LED1  :
                           ( LED[1] &&  LED[0]) ? DOUT_AMB1  : DOUT_LED0;
+  assign DOUT           = DOUT_reg;
+
+  always @(posedge clk_ppg or negedge rst_n) begin
+    if (!rst_n) begin
+      DOUT_EN_d <= 1'b0;
+      IDAC_EN_d <= 1'b0;
+    end else begin
+      DOUT_EN_d <= DOUT_EN;
+      IDAC_EN_d <= IDAC_UPDATE_EN;
+    end
+  end
+
+  always @(posedge clk_ppg or negedge rst_n) begin
+    if (!rst_n) begin
+      DOUT_reg  <= 22'b0;
+      IDAC_reg  <= 9'b0;
+    end else begin
+      if (DOUT_EN_d) begin
+        DOUT_reg  <=  DOUT_tmp;
+      end
+
+      if (IDAC_EN_d) begin
+        IDAC_reg  <=  LED[0] ? 9'b0 : (LED[1] ? IDAC_tmp[1] : IDAC_tmp[0]);
+      end
+    end
+  end
 
   nirs_ppg_idac_ctrl #(.WIDTH(WIDTH)) u_idac_led0_ctrl (
     .rst_n          (rst_n),
@@ -310,7 +340,7 @@ module nirs_ppg_ctrl_top #(
     .EN             (IDAC_LED0_EN),
     .IDAC_INCREASE  (IDAC_INCREASE),
     .DOUTF          (DOUTF),
-    .DOUT_AC        (DOUT),
+    .DOUT_AC        (DOUT_tmp),
     .THRESHOLD_H    (THRESHOLD_H_0),
     .THRESHOLD_L    (THRESHOLD_L_0),
     .IDAC_MAX       (IDAC_MAX_tmp[0]),
@@ -326,7 +356,7 @@ module nirs_ppg_ctrl_top #(
     .EN             (IDAC_LED1_EN),
     .IDAC_INCREASE  (IDAC_INCREASE),
     .DOUTF          (DOUTF),
-    .DOUT_AC        (DOUT),
+    .DOUT_AC        (DOUT_tmp),
     .THRESHOLD_H    (THRESHOLD_H_1),
     .THRESHOLD_L    (THRESHOLD_L_1),
     .IDAC_MAX       (IDAC_MAX_tmp[1]),
@@ -382,7 +412,7 @@ module nirs_ppg_ctrl_top #(
     .IREF_COARSE_NOT_ON     (IREF_COARSE_NOT_ON),
     .IREF_FINE_ON_NOT_OFF   (IREF_FINE_ON_NOT_OFF),
     .IREF_FINE_NOT_ON       (IREF_FINE_NOT_ON),
-    .DATA_READY             (DATA_READY),
+  //.DATA_READY             (DATA_READY),
 
     .EN_OFF         (EN_OFF_ppg),
     .IDAC_INCREASE  (IDAC_INCREASE),
@@ -402,6 +432,7 @@ module nirs_ppg_ctrl_top #(
     .rst_n            (rst_n),
     .clk              (clk_sys),
     .COUNT_STOP       (COUNT_STOP),
+    .SAMPLING_DONE    (DATA_READY),
 
     .MODE_SEL         (NIRS_PPG_MODE_SEL),
     .NIRS_EN          (NIRS_PPG_EN),

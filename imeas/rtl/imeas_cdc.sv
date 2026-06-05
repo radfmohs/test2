@@ -15,9 +15,9 @@
 
 module imeas_cdc(
   input  wire  pclk,
-  input  wire  adc_clk,
+  //input  wire  adc_clk,
   input  wire  preset_n,
-  input  wire  atpg_en,
+  //input  wire  atpg_en,
   input  wire  sd16eoc,
 //input  wire  cic_rst,
 //output wire  cic_rst_n,

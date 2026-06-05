@@ -6,7 +6,8 @@ print_suppressed_messages
 
 set rm_create_test_wrapper 0
 
-# Stage
+# set stage postscan_dct
+# set generate_sdf sdf
 # ------------------------------------------------------------------------------
 #sh mkdir -p ../data/lec_${stage}
 # -----------------------------------------------------------------------------------
@@ -70,10 +71,6 @@ set_app_var verification_verify_directly_undriven_output true
 # Increase number of failing points before halting verification (0 = unlimited)
 #set_app_var verification_failing_point_limit 0
 
-if {${dc_sel} == "DCT"} {
-	set stage ${stage}_dct
-}
-
 # -----------------------------------------------------------------------------------
 # Read the SVF file created during implementation
 # -----------------------------------------------------------------------------------
@@ -81,10 +78,9 @@ if {${dc_sel} == "DCT"} {
 if {$stage != "postlayout"} {
   set_svf ../data/synthesis_prescan_dct_${generate_sdf}/${rm_project_top}.prescan_dct.svf
 }
-if {$stage == "postscan" || $stage == "postscan_dct"} {
+if {$stage == "postscan_dct"} {
   set_svf -append ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.svf
 }
-
 
 #if {$stage == "postscan_pteco"} {
 #    set_svf -append ../data/synthesis_postscan_pteco/${rm_project_top}.dft_pteco.svf
@@ -110,30 +106,29 @@ read_db $ana_max_library
 # Read in the Reference Design ( -> r )
 # -----------------------------------------------------------------------------------
 if {$stage == "postlayout"} {
-read_verilog -r -work_library WORK -netlist ../data/synthesis_postscan/${rm_project_top}.dft.v
+  read_verilog -r -work_library WORK -netlist ../data/synthesis_postscan/${rm_project_top}.dft.v
 } else {
-#source -echo -verbose ../scripts/${rm_project_top}_verilog.tcl
-exec /bin/csh -c ../scripts/Nanochap_imp_verilog.csh
-set f  [open "./rtl.f" r ] 
-set file_list [regsub -all {\s+} [read $f] " "];#read into variable and replace whitespace with ,
+  #source -echo -verbose ../scripts/${rm_project_top}_verilog.tcl
+  exec /bin/csh -c ../scripts/Nanochap_imp_verilog.csh
+  set f  [open "./rtl.f" r ] 
+  set file_list [regsub -all {\s+} [read $f] " "];#read into variable and replace whitespace with ,
 
-if {[file exists def.f] == 1 } {
-    set d  [open "./def.f" r ] 
-    set def_list [regsub -all {\s+} [read $d] " "];#read into variable and replace whitespace with ,
-    puts $def_list
-    puts $file_list
-    read_sverilog -r -work_library WORK  ${file_list} -define $def_list
-    close $d
-    close $f
-    exec rm rtl.f rtl_tmp.f def.f
-} else {
-    read_sverilog -r -work_library WORK  ${file_list}
-    close $f 
-    exec rm rtl.f rtl_tmp.f
-}
+  if {[file exists def.f] == 1 } {
+      set d  [open "./def.f" r ] 
+      set def_list [regsub -all {\s+} [read $d] " "];#read into variable and replace whitespace with ,
+      puts $def_list
+      puts $file_list
+      read_sverilog -r -work_library WORK  ${file_list} -define $def_list
+      close $d
+      close $f
+      exec rm rtl.f rtl_tmp.f def.f
+  } else {
+      read_sverilog -r -work_library WORK  ${file_list}
+      close $f 
+      exec rm rtl.f rtl_tmp.f
+  }
 
-
-#read_sverilog -r -work_library WORK  $rtl_image
+  #read_sverilog -r -work_library WORK  $rtl_image
 }
 
 set_top r:/WORK/${rm_project_top}

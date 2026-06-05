@@ -83,6 +83,8 @@ output wire [9:0] threshold_short,
 output wire [7:0] threshold_tgt,
 
 output wire  check_everyN,
+output wire [3:0]  D2A_ADC_DELAY,  
+output wire [1:0]  D2A_ADBUF_GSEL, 
 
   output wire          adc_en,
   output wire          adc_mode,
@@ -101,7 +103,7 @@ output wire  check_everyN,
 
   //bps imeas
   input  wire[23:0]    imeas_chdata[EEG_CHN_NUM-1:0],
-  input                i_imeas_done,
+  //input                i_imeas_done,
   output  wire         reset_cmd,
   output  wire         start_cmd,
   output  wire         stop_cmd,
@@ -519,6 +521,8 @@ spi_reg_u (
 .threshold_tgt(threshold_tgt),
 
 .check_everyN(check_everyN),
+.D2A_ADC_DELAY(D2A_ADC_DELAY),  
+.D2A_ADBUF_GSEL(D2A_ADBUF_GSEL), 
 
   .one_cycle_data(one_cycle_data),
 

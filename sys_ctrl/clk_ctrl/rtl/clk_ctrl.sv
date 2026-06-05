@@ -96,7 +96,7 @@ output wire [15:0]  imeas_dig_filter_clk_post,
 output wire         imeas_adc_clk,          // imeas adc clock for analog
 output wire 	    adc_clk_running,
 
-input  wire         notch_filter_valid,
+//input  wire         notch_filter_valid,
 input  wire [15:0]  notch_clk_gtg_en,
 input  wire [15:0]  lpf_clk_gtg_en,
 input  wire [15:0]  hpf_clk_gtg_en,

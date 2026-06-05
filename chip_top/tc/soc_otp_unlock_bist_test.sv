@@ -222,6 +222,7 @@ class `TESTNAME extends soc_base_test;
     // --------------------------------------------------------
     // Part II: make unlock bit to 1 
     // --------------------------------------------------------
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; mask == 8'h1; data[0] == 8'b10101_001;});          
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
     #20ms;

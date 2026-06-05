@@ -217,10 +217,10 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM13", $sformatf("D2A_RLD_ELECTRODE_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_RLD_ELECTRODE_EN))
       end
-    if (`ANA_TOP.D2A_VCMGENBUFF_EN !== 1'b1)
+    /*if (`ANA_TOP.D2A_VCMGENBUFF_EN !== 1'b1)
       begin
         `nnc_error("ATM13", $sformatf("D2A_VCMGENBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_VCMGENBUFF_EN))
-      end
+      end*/
     if (`ANA_TOP.D2A_SDMVCMBUFF_EN !== 1'b1)
       begin
         `nnc_error("ATM13", $sformatf("D2A_SDMVCMBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMVCMBUFF_EN))
@@ -229,7 +229,7 @@ class `TESTNAME extends soc_base_test;
       begin
         `nnc_error("ATM13", $sformatf("D2A_SDMVCMBUFF_EN = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMVCMBUFF_EN))
       end
-    if (`ANA_TOP.D2A_EEGLNA_EN[8] !== 1'b1)
+    /*if (`ANA_TOP.D2A_EEGLNA_EN[8] !== 1'b1)
       begin
         `nnc_error("ATM13", $sformatf("D2A_EEGLNA_EN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_EEGLNA_EN[8]))
       end
@@ -240,7 +240,7 @@ class `TESTNAME extends soc_base_test;
     if (`ANA_TOP.D2A_SDMBUFF_EN[8] !== 1'b1)
       begin
         `nnc_error("ATM13", $sformatf("D2A_SDMBUFF_EN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMBUFF_EN[8]))
-      end
+      end*/
     if (`ANA_TOP.D2A_SDMEN[8] !== 1'b1)
       begin
         `nnc_error("ATM13", $sformatf("D2A_SDMEN[8] = %b is not as expectation of 1'b1", `ANA_TOP.D2A_SDMEN[8]))

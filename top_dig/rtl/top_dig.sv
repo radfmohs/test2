@@ -38,6 +38,8 @@ output[3:0] D2A_STIM_PAD1,    //to analog
 output wire D2A_ADC_EN,    //to analog	
 output wire D2A_ADC_CLK,    //to analog	
 output wire ina_pga_ana_clk,    //to analog	
+output wire [3:0]  D2A_ADC_DELAY,  
+output wire [1:0]  D2A_ADBUF_GSEL, 
 //=====================
 
 //bps imeas
@@ -1070,7 +1072,7 @@ clk_ctrl u_clk_ctrl
   .hpf_clk(hpf_clk),
   .imeas_dig_filter_clk_post(imeas_dig_filter_clk_post),
   .notch_clk_gtg_en(notch_clk_gtg_en),
-  .notch_filter_valid(notch_filter_valid),
+  //.notch_filter_valid(notch_filter_valid),
   .lpf_clk_gtg_en(lpf_clk_gtg_en),
   .hpf_clk_gtg_en(hpf_clk_gtg_en),
   .osr_sel(DR),          
@@ -1509,7 +1511,7 @@ u_spi_top (
   .o_dual_wr             (dual_wr),
   .o_imeas_intr_clr      (imeas_intr_clr),
 
-  .i_imeas_done(meas_done_filter),
+  //.i_imeas_done(meas_done_filter),
   .PROD_ID(PROD_ID),
 //.rd_cmd_ind           (rd_cmd_ind),
 //.first_neg_sclk       (first_neg_sclk),
@@ -1553,6 +1555,8 @@ u_spi_top (
 .threshold_tgt(threshold_tgt),
 
 .check_everyN(check_everyN),
+.D2A_ADC_DELAY(D2A_ADC_DELAY),  
+.D2A_ADBUF_GSEL(D2A_ADBUF_GSEL), 
 
 .one_cycle_data(one_cycle_data),
 
@@ -1813,7 +1817,7 @@ wg_driver_top_wrapper #(
   .dds_step_spi                 (dds_step_spi),
 
   //.lead_off_stop	  ({6'b0,lead_off_stop1,lead_off_stop}),
-  .lead_off_stop	  (0),//(spi_leadoff.lead_off_stop),
+  .lead_off_stop	  (16'b0),//(spi_leadoff.lead_off_stop),
  
   .spi_wg (spi_wg) 
 //  .o_wg_driver_in_wave_addr     (wg_driver_in_wave_addr),

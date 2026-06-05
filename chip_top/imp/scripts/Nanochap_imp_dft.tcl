@@ -108,26 +108,19 @@ set_app_var report_default_significant_digits 3
 
 read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
 
-# Step 1: Remove any protection attributes (warnings are harmless if not set)
-remove_attribute [get_cells u_top_dig/u_imeas_wrapper] dont_touch
-remove_attribute [get_designs -hierarchical *Nanochap_ENS2_imeas_wrapper*] dont_touch
-remove_attribute [get_designs -hierarchical *Nanochap_ENS2_filter_wrapper*] dont_touch
+if {$bottom_up == "yes"} {
+  remove_attribute [get_cells u_top_dig/u_imeas_wrapper] dont_touch
+  remove_attribute [get_designs -hierarchical *Nanochap_ENS2_imeas_wrapper*] dont_touch
+  remove_attribute [get_designs -hierarchical *Nanochap_ENS2_filter_wrapper*] dont_touch
 
-# Step 2: Flatten filter_wrapper instances inside imeas_wrapper first
-ungroup [get_cells u_top_dig/u_imeas_wrapper/genblk*] -flatten
+  ungroup [get_cells u_top_dig/u_imeas_wrapper/genblk*] -flatten
 
-# Step 3: Flatten imeas_wrapper itself into top level
-# After this, all ~63K FFs are visible flat to insert_dft
-ungroup [get_cells u_top_dig/u_imeas_wrapper] -flatten
+  ungroup [get_cells u_top_dig/u_imeas_wrapper] -flatten
 
-# Step 4: Verify flattening succeeded (should warn "can't find object")
-echo "INFO: Verifying imeas_wrapper is gone (warning below is expected):"
-get_cells u_top_dig/u_imeas_wrapper
-
-# Step 5: Clean up any residual dont_touch on scan-related nets
-remove_attribute [get_nets -hierarchical *scan*]   dont_touch
-remove_attribute [get_nets -hierarchical *test_se*] dont_touch
-remove_attribute [get_nets -hierarchical *atpg*]   dont_touch
+  remove_attribute [get_nets -hierarchical *scan*]   dont_touch
+  remove_attribute [get_nets -hierarchical *test_se*] dont_touch
+  remove_attribute [get_nets -hierarchical *atpg*]   dont_touch
+}
 
 # ------------------------------------------------------------------------------
 # Function clock and constraints AND Power Intent
@@ -184,10 +177,13 @@ set test_default_strobe 90.0    ;# Measure all outputs at 90 ns
 set_dft_drc_configuration -internal_pins enable
 set num_scan_chains           9        ;# Number of scan chains to be inserted
 
-set_ideal_network [get_pins u_top_dig/u_pinmux/U202/Y]
-set_ideal_network [get_ports IOBUF_PAD[1]]
-set_ideal_network [get_ports iopad_testmode0]
-set_ideal_network [get_ports iopad_testmode1]
+if {$bottom_up == "yes"} {
+  #set_ideal_network [get_pins u_top_dig/u_pinmux/U202/Y]
+  set_ideal_network [get_ports IOBUF_PAD[1]]
+  set_ideal_network [get_ports iopad_testmode0]
+  set_ideal_network [get_ports iopad_testmode1]
+  set_ideal_network [get_ports IOBUF_PAD[0]]
+}
 
 # ==============================================================================
 # 0. Bottom-Up Sub-Block: Protect imeas_wrapper FIRST (before any DFT setup)
@@ -454,10 +450,13 @@ remove_attribute [get_nets scan_*] dont_touch
 remove_attribute [get_nets -hierarchical *test_se*] dont_touch
 remove_attribute [get_nets -hierarchical *scan_en*] dont_touch
 
-remove_ideal_network [get_pins u_top_dig/u_pinmux/U202/Y]
-remove_ideal_network [get_ports IOBUF_PAD[1]]
-remove_ideal_network [get_ports iopad_testmode0]
-remove_ideal_network [get_ports iopad_testmode1]
+if {$bottom_up == "yes"} {
+  #remove_ideal_network [get_pins u_top_dig/u_pinmux/U202/Y]
+  remove_ideal_network [get_ports IOBUF_PAD[1]]
+  remove_ideal_network [get_ports IOBUF_PAD[0]]
+  remove_ideal_network [get_ports iopad_testmode0]
+  remove_ideal_network [get_ports iopad_testmode1]
+}
 
 # -----------------------------------------------------------------------------
 # DFT: Post DFT incremental optimization

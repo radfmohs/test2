@@ -276,7 +276,7 @@ for (gidx=0; gidx < ELEC_NO; gidx++) begin //8 switches
 		o_sw[gidx] = 1'b0;
 		for (integer idxi = 0; idxi < ELEC_NO; idxi = idxi+1) begin
 			if (w_sw_config_reg[idxi][gidx] == 1'b1) begin
-				o_sw[gidx] = (w_source[idxi]==2'b00)?1'b0:(w_source[idxi] ~^ w_source[idxi]);//if source a (1) is on, turn on switch b (2), if source b (2) is on, turn on switch a (1), if no sources are on (0), no switches are on (0)
+				o_sw[gidx] = (w_source[idxi]==2'b00)?1'b0:1'b1;//(w_source[idxi] ~^ w_source[idxi]);//if source a (1) is on, turn on switch b (2), if source b (2) is on, turn on switch a (1), if no sources are on (0), no switches are on (0)
 			end
 		end
 	end

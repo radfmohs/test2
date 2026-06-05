@@ -89,10 +89,10 @@ class `TESTCFG extends soc_base_test_cfg;
                                        (spi_dual_mode_en == 0 & iclk_sel == 3)  ->  imeas_cic_rate inside {[1:11]};
                                        (spi_dual_mode_en == 0 & iclk_sel >= 4)  ->  imeas_cic_rate inside {[0:11]};
 
-                                       // for dual mode, sample rate > 64khz
-                                       (spi_dual_mode_en == 1 & iclk_sel == 0)  ->  imeas_cic_rate inside {[0:3]};
-                                       (spi_dual_mode_en == 1 & iclk_sel == 1)  ->  imeas_cic_rate inside {[0:2]};
-                                       (spi_dual_mode_en == 1 & iclk_sel == 2)  ->  imeas_cic_rate inside {[0:1]};
+                                       // for dual mode, sample rate > 64khz < 156Khz 
+                                       (spi_dual_mode_en == 1 & iclk_sel == 0)  ->  imeas_cic_rate inside {[3:3]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 1)  ->  imeas_cic_rate inside {[2:2]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 2)  ->  imeas_cic_rate inside {[1:1]};
                                        (spi_dual_mode_en == 1 & iclk_sel == 3)  ->  imeas_cic_rate inside {[0:0]};}
                      
   // ***************************************************

@@ -60,13 +60,13 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_single_shot_en      { single_shot_en == 0; }
 
   //constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:1]};} 
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:2]};} 
 
   constraint c_iclk_sel             { solve imeas_cic_rate before iclk_sel;
                                      //(imeas_cic_rate == 0)  ->  iclk_sel inside {[4:11]};
                                      //(imeas_cic_rate == 1)  ->  iclk_sel inside {[3:11]};
                                      //(imeas_cic_rate == 2)  ->  iclk_sel inside {[2:11]};
-                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[2:4]};
+                                     (imeas_cic_rate == 2)  ->  iclk_sel inside {[7:7]};
                                      (imeas_cic_rate == 3)  ->  iclk_sel inside {[1:2]};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[0:9]};
                                      (imeas_cic_rate == 5)  ->  iclk_sel inside {[0:8]};
@@ -97,7 +97,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   // ****************************************************************************************************************************
   // ***************************************** NOTCH settings ******************************************************************* 
-  constraint c_notch_filter_en_per_ch   {  (notch_enable == 1) -> notch_filter_en_per_ch == 16'h0 ; // all notch ch enabled
+  constraint c_notch_filter_en_per_ch   {  (notch_enable == 1) -> notch_filter_en_per_ch == 16'hFF00 ; // all notch ch enabled
                                            (notch_enable == 0) -> notch_filter_en_per_ch == 16'hFFFF;} // all notch ch disabled
 
   constraint c_notch_filter_data_gone   {  notch_filter_data_gone inside {[10:15]} ;}  
@@ -105,89 +105,143 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_filter_case              {  filter_case == 1; }  
 
   constraint c_notch_coeff_index_select   {  solve imeas_samp_rate before notch_coeff_index_select ;
-					     (imeas_samp_rate inside {[125:128]})     ->  notch_coeff_index_select == 0 ;  
-                                             (imeas_samp_rate inside {[250:256]})     ->  notch_coeff_index_select == 1 ;  
-                                             (imeas_samp_rate inside {[500:512]})     ->  notch_coeff_index_select == 2 ;  
-                                             (imeas_samp_rate inside {[1000:1024]})   ->  notch_coeff_index_select == 3 ;  
-                                             (imeas_samp_rate inside {[2000:2048]})   ->  notch_coeff_index_select == 4 ;  
-                                             (imeas_samp_rate inside {[4000:4096]})   ->  notch_coeff_index_select == 5 ;  
-                                             (imeas_samp_rate inside {[8125:8192]})   ->  notch_coeff_index_select == 6 ;  
-                                             (imeas_samp_rate inside {[16350:16384]}) -> notch_coeff_index_select == 7 ;  
-                                             (imeas_samp_rate inside {[32750:32768]}) -> notch_coeff_index_select == 8 ;  
-                                             (imeas_samp_rate inside {[65500:65536]}) -> notch_coeff_index_select == 9 ; }
+                                             //(imeas_samp_rate == 125)  -> notch_coeff_index_select == 0 ;  
+                                             //(imeas_samp_rate == 250)  -> notch_coeff_index_select == 1 ;  
+                                             //(imeas_samp_rate == 500)  -> notch_coeff_index_select == 2 ;  
+                                             //(imeas_samp_rate == 1000) -> notch_coeff_index_select == 3 ;  
+                                             //(imeas_samp_rate == 2000) -> notch_coeff_index_select == 4 ;  
+                                             //(imeas_samp_rate == 4000) -> notch_coeff_index_select == 5 ;  
+                                             //(imeas_samp_rate == 8000) -> notch_coeff_index_select == 6 ;  
+                                             //(imeas_samp_rate == 16375)-> notch_coeff_index_select == 7 ;  
+                                             //(imeas_samp_rate == 32000)-> notch_coeff_index_select == 8 ;  
+                                             //(imeas_samp_rate == 64000)-> notch_coeff_index_select == 9 ;}  
+					     //(imeas_samp_rate inside {[125:128]})     ->  notch_coeff_index_select == 0 ;  
+                                             //(imeas_samp_rate inside {[250:256]})     ->  notch_coeff_index_select == 1 ;  
+                                             (imeas_samp_rate inside {[500:512]})     ->  notch_coeff_index_select == 1 ;  
+                                             (imeas_samp_rate inside {[1000:1024]})   ->  notch_coeff_index_select == 2 ;  
+                                             (imeas_samp_rate inside {[2000:2048]})   ->  notch_coeff_index_select == 3 ;  
+                                             (imeas_samp_rate inside {[4000:4096]})   ->  notch_coeff_index_select == 4 ;  
+                                             (imeas_samp_rate inside {[8000:8192]})   ->  notch_coeff_index_select == 5 ;  
+                                             (imeas_samp_rate inside {[16000:16384]}) -> notch_coeff_index_select == 6 ;  
+                                             (imeas_samp_rate inside {[32000:32768]}) -> notch_coeff_index_select == 7 ;  
+                                             (imeas_samp_rate inside {[64000:65536]}) -> notch_coeff_index_select == 8 ; }
 
   // ****************************************************************************************************************************
   // ************************************************* LPF settings *************************************************************
-  constraint c_lpf_filter_en_per_ch     {  (lpf_enable == 1) -> lpf_filter_en_per_ch == 16'h0 ; // all lpf ch enabled
+  //constraint c_lpf_filter_en_per_ch     {  (lpf_enable == 1) -> lpf_filter_en_per_ch == 16'h0 ; // all lpf ch enabled
+  //                                         (lpf_enable == 0) -> lpf_filter_en_per_ch == 16'hFFFF; } // all lpf ch disabled
+  constraint c_lpf_filter_en_per_ch     {  (lpf_enable == 1) -> lpf_filter_en_per_ch != 16'hFFFF ; // all lpf ch enabled
                                            (lpf_enable == 0) -> lpf_filter_en_per_ch == 16'hFFFF; } // all lpf ch disabled
 
   constraint c_passband_cut_off   {  passband_cut_off == 8; }  
   constraint c_stopband_cut_off   {  stopband_cut_off == 4; }  
 
+  //constraint c_passband_cut_off_freq   { solve imeas_samp_rate before passband_cut_off_freq;
+  //                                       solve passband_cut_off before passband_cut_off_freq;
+  //                                       passband_cut_off_freq == imeas_samp_rate/passband_cut_off; }  
+
+  //constraint c_stopband_cut_off_freq   { solve imeas_samp_rate before stopband_cut_off_freq;
+  //                                       solve stopband_cut_off before stopband_cut_off_freq;
+  //                                       stopband_cut_off_freq == imeas_samp_rate/stopband_cut_off; }  
+
+  //constraint c_lpf_coeff_index_1_select   {  solve imeas_samp_rate before lpf_coeff_index_1_select ;
+  //                                           (imeas_samp_rate inside {[30:32]})      -> lpf_coeff_index_1_select == 0 ;   // 31.25
+  //                                           (imeas_samp_rate inside {[62:64]})      -> lpf_coeff_index_1_select == 1 ;  // 62.5
+  //                                           (imeas_samp_rate inside {[125:128]})    -> lpf_coeff_index_1_select == 2 ;  
+  //                                           (imeas_samp_rate inside {[250:256]})    -> lpf_coeff_index_1_select == 3 ;  
+  //                                           (imeas_samp_rate inside {[500:512]})    -> lpf_coeff_index_1_select == 4 ;  
+  //                                           (imeas_samp_rate inside {[1000:1024]})  -> lpf_coeff_index_1_select == 5 ;  
+  //                                           (imeas_samp_rate inside {[2000:2048]})  -> lpf_coeff_index_1_select == 6 ;  
+  //                                           (imeas_samp_rate inside {[4000:4096]})  -> lpf_coeff_index_1_select == 7 ;  
+  //                                           (imeas_samp_rate inside {[8125:8192]})  -> lpf_coeff_index_1_select == 8 ;  
+  //                                           (imeas_samp_rate inside {[16350:16384]}) -> lpf_coeff_index_1_select == 9 ;  
+  //                                           (imeas_samp_rate inside {[32750:32768]}) -> lpf_coeff_index_1_select == 10;  
+  //                                           (imeas_samp_rate inside {[65500:65536]}) -> lpf_coeff_index_1_select == 11; 
+  //                                           (imeas_samp_rate inside {[131062:131072]})-> lpf_coeff_index_1_select == 12; 
+  //                                           (imeas_samp_rate inside {[262125:262144]})-> lpf_coeff_index_1_select == 13;} 
+
+  //constraint c_lpf_coeff_index_0_select { solve passband_cut_off before lpf_coeff_index_0_select;
+  //                                        solve stopband_cut_off before lpf_coeff_index_0_select;
+  //                                        (passband_cut_off == 8 && stopband_cut_off == 4) -> lpf_coeff_index_0_select == 4;}
+
   constraint c_passband_cut_off_freq   { solve imeas_samp_rate before passband_cut_off_freq;
-                                         solve passband_cut_off before passband_cut_off_freq;
-                                         passband_cut_off_freq == imeas_samp_rate/passband_cut_off; }  
+                                         if (imeas_samp_rate inside {[500 : 2000]}) {passband_cut_off_freq == 32;}
+                                         else {passband_cut_off_freq == imeas_samp_rate/passband_cut_off;} } 
 
   constraint c_stopband_cut_off_freq   { solve imeas_samp_rate before stopband_cut_off_freq;
-                                         solve stopband_cut_off before stopband_cut_off_freq;
-                                         stopband_cut_off_freq == imeas_samp_rate/stopband_cut_off; }  
+                                         if (imeas_samp_rate inside {[500 : 2000]}) {stopband_cut_off_freq == 180;}
+                                         else {stopband_cut_off_freq == imeas_samp_rate/stopband_cut_off;} }  
 
   constraint c_lpf_coeff_index_1_select   {  solve imeas_samp_rate before lpf_coeff_index_1_select ;
-                                             (imeas_samp_rate inside {[30:32]})      -> lpf_coeff_index_1_select == 0 ;   // 31.25
-                                             (imeas_samp_rate inside {[62:64]})      -> lpf_coeff_index_1_select == 1 ;  // 62.5
-                                             (imeas_samp_rate inside {[125:128]})    -> lpf_coeff_index_1_select == 2 ;  
-                                             (imeas_samp_rate inside {[250:256]})    -> lpf_coeff_index_1_select == 3 ;  
-                                             (imeas_samp_rate inside {[500:512]})    -> lpf_coeff_index_1_select == 4 ;  
-                                             (imeas_samp_rate inside {[1000:1024]})  -> lpf_coeff_index_1_select == 5 ;  
-                                             (imeas_samp_rate inside {[2000:2048]})  -> lpf_coeff_index_1_select == 6 ;  
-                                             (imeas_samp_rate inside {[4000:4096]})  -> lpf_coeff_index_1_select == 7 ;  
-                                             (imeas_samp_rate inside {[8125:8192]})  -> lpf_coeff_index_1_select == 8 ;  
-                                             (imeas_samp_rate inside {[16350:16384]}) -> lpf_coeff_index_1_select == 9 ;  
-                                             (imeas_samp_rate inside {[32750:32768]}) -> lpf_coeff_index_1_select == 10;  
-                                             (imeas_samp_rate inside {[65500:65536]}) -> lpf_coeff_index_1_select == 11; 
-                                             (imeas_samp_rate inside {[131062:131072]})-> lpf_coeff_index_1_select == 12; 
-                                             (imeas_samp_rate inside {[262125:262144]})-> lpf_coeff_index_1_select == 13;} 
+                                             (imeas_samp_rate inside {[500:512]})    -> lpf_coeff_index_1_select == 0 ;  
+                                             (imeas_samp_rate inside {[1000:1024]})  -> lpf_coeff_index_1_select == 1 ;  
+                                             (imeas_samp_rate inside {[2000:2048]})  -> lpf_coeff_index_1_select == 2 ;  
+                                             (imeas_samp_rate inside {[4000:4096]})  -> lpf_coeff_index_1_select == 3 ;  
+                                             (imeas_samp_rate inside {[8000:8192]})  -> lpf_coeff_index_1_select == 4 ;  
+                                             (imeas_samp_rate inside {[16000:16384]}) -> lpf_coeff_index_1_select == 5 ;  
+                                             (imeas_samp_rate inside {[32000:32768]}) -> lpf_coeff_index_1_select == 6;  
+                                             (imeas_samp_rate inside {[64000:65536]}) -> lpf_coeff_index_1_select == 7; 
+                                             (imeas_samp_rate inside {[128000:131072]})-> lpf_coeff_index_1_select == 8; 
+                                             (imeas_samp_rate inside {[256000:262144]})-> lpf_coeff_index_1_select == 9;} 
 
-  constraint c_lpf_coeff_index_0_select { solve passband_cut_off before lpf_coeff_index_0_select;
-                                          solve stopband_cut_off before lpf_coeff_index_0_select;
-                                          (passband_cut_off == 8 && stopband_cut_off == 4) -> lpf_coeff_index_0_select == 4;}
+  constraint c_lpf_coeff_index_0_select { lpf_coeff_index_0_select == 0;}
 
   // ****************************************************************************************************************************
   // *************************************************** HPF settings ***********************************************************
-  constraint c_hpf_filter_en_per_ch     {  (hpf_enable == 1) -> hpf_filter_en_per_ch == 16'h0 ; // all hpf ch enabled
+  //constraint c_hpf_filter_en_per_ch     {  (hpf_enable == 1) -> hpf_filter_en_per_ch == 16'h0 ; // all hpf ch enabled
+  //                                         (hpf_enable == 0) -> hpf_filter_en_per_ch == 16'hFFFF;} // all hpf ch disabled
+  constraint c_hpf_filter_en_per_ch     {  (hpf_enable == 1) -> hpf_filter_en_per_ch != 16'hFFFF ; // all hpf ch enabled
                                            (hpf_enable == 0) -> hpf_filter_en_per_ch == 16'hFFFF;} // all hpf ch disabled
 
-  constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {0, 1, 2, 3, 4, 5};}
+  //constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {0, 1, 2, 3, 4, 5};}
+
+  //constraint c_hpf_coeff_index_1_select    {  solve imeas_samp_rate before hpf_coeff_index_1_select ;
+  //                                           (imeas_samp_rate inside {[30:32]})      -> hpf_coeff_index_1_select == 0 ;   // 31.25
+  //                                           (imeas_samp_rate inside {[62:64]})      -> hpf_coeff_index_1_select == 1 ;  // 62.5
+  //                                           (imeas_samp_rate inside {[125:128]})    -> hpf_coeff_index_1_select == 2 ;  
+  //                                           (imeas_samp_rate inside {[250:256]})    -> hpf_coeff_index_1_select == 3 ;  
+  //                                           (imeas_samp_rate inside {[500:512]})    -> hpf_coeff_index_1_select == 4 ;  
+  //                                           (imeas_samp_rate inside {[1000:1024]})  -> hpf_coeff_index_1_select == 5 ;  
+  //                                           (imeas_samp_rate inside {[2000:2048]})  -> hpf_coeff_index_1_select == 6 ;  
+  //                                           (imeas_samp_rate inside {[4000:4096]})  -> hpf_coeff_index_1_select == 7 ;  
+  //                                           (imeas_samp_rate inside {[8125:8192]})  -> hpf_coeff_index_1_select == 8 ;  
+  //                                           (imeas_samp_rate inside {[16350:16384]}) -> hpf_coeff_index_1_select == 9 ;  
+  //                                           (imeas_samp_rate inside {[32750:32768]}) -> hpf_coeff_index_1_select == 10;  
+  //                                           (imeas_samp_rate inside {[65500:65536]}) -> hpf_coeff_index_1_select == 11; 
+  //                                           (imeas_samp_rate inside {[131062:131072]})-> hpf_coeff_index_1_select == 12; 
+  //                                           (imeas_samp_rate inside {[262125:262144]})-> hpf_coeff_index_1_select == 13;} 
+
+  constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {3, 3}; } // cutoff = 0.5Hz
 
   constraint c_hpf_coeff_index_1_select    {  solve imeas_samp_rate before hpf_coeff_index_1_select ;
-                                             (imeas_samp_rate inside {[30:32]})      -> hpf_coeff_index_1_select == 0 ;   // 31.25
-                                             (imeas_samp_rate inside {[62:64]})      -> hpf_coeff_index_1_select == 1 ;  // 62.5
-                                             (imeas_samp_rate inside {[125:128]})    -> hpf_coeff_index_1_select == 2 ;  
-                                             (imeas_samp_rate inside {[250:256]})    -> hpf_coeff_index_1_select == 3 ;  
                                              (imeas_samp_rate inside {[500:512]})    -> hpf_coeff_index_1_select == 4 ;  
                                              (imeas_samp_rate inside {[1000:1024]})  -> hpf_coeff_index_1_select == 5 ;  
                                              (imeas_samp_rate inside {[2000:2048]})  -> hpf_coeff_index_1_select == 6 ;  
                                              (imeas_samp_rate inside {[4000:4096]})  -> hpf_coeff_index_1_select == 7 ;  
-                                             (imeas_samp_rate inside {[8125:8192]})  -> hpf_coeff_index_1_select == 8 ;  
-                                             (imeas_samp_rate inside {[16350:16384]}) -> hpf_coeff_index_1_select == 9 ;  
-                                             (imeas_samp_rate inside {[32750:32768]}) -> hpf_coeff_index_1_select == 10;  
-                                             (imeas_samp_rate inside {[65500:65536]}) -> hpf_coeff_index_1_select == 11; 
-                                             (imeas_samp_rate inside {[131062:131072]})-> hpf_coeff_index_1_select == 12; 
-                                             (imeas_samp_rate inside {[262125:262144]})-> hpf_coeff_index_1_select == 13;} 
+                                             (imeas_samp_rate inside {[8000:8192]})  -> hpf_coeff_index_1_select == 8 ;  
+                                             (imeas_samp_rate inside {[16000:16384]}) -> hpf_coeff_index_1_select == 9 ;  
+                                             (imeas_samp_rate inside {[32000:32768]}) -> hpf_coeff_index_1_select == 10;  
+                                             (imeas_samp_rate inside {[64000:65536]}) -> hpf_coeff_index_1_select == 11; 
+                                             (imeas_samp_rate inside {[128000:131072]})-> hpf_coeff_index_1_select == 12; 
+                                             (imeas_samp_rate inside {[256000:262144]})-> hpf_coeff_index_1_select == 13;} 
 
   //constraint c_sine_num_of_period   {  sine_num_of_period == 50; }  
-  constraint c_sine_num_of_period   {  sine_num_of_period == 200; }  
+  //constraint c_sine_num_of_period   {  sine_num_of_period == 200; }  
+  constraint c_sine_num_of_period   {  sine_num_of_period == 1; }  
 
   function void post_randomize();
       case (hpf_coeff_index_0_select)
-          0: hpf_cutoff_freq_fc = 0.2;
-          1: hpf_cutoff_freq_fc = 0.5;
-          2: hpf_cutoff_freq_fc = 1.0;
-          3: hpf_cutoff_freq_fc = 2.0;
-          4: hpf_cutoff_freq_fc = 5.0;
-          5: hpf_cutoff_freq_fc = 10.0;
+          0: hpf_cutoff_freq_fc = 0.05;
+          1: hpf_cutoff_freq_fc = 0.1;
+          2: hpf_cutoff_freq_fc = 0.2;
+          3: hpf_cutoff_freq_fc = 0.5;
+          4: hpf_cutoff_freq_fc = 1.0;
+          5: hpf_cutoff_freq_fc = 2.0;
+          6: hpf_cutoff_freq_fc = 5.0;
+          7: hpf_cutoff_freq_fc = 10.0;
       endcase
-      //imeas_sin_expected_freq = hpf_cutoff_freq_fc * 1000 ;
+      imeas_sin_expected_freq = hpf_cutoff_freq_fc * 1000 ;
+      //imeas_sin_expected_freq = 0.05 * 1000 ;
   endfunction
 
   // -----------------------------------------------
@@ -280,8 +334,11 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.hpf_filter_en_per_ch = top_test_cfg.hpf_filter_en_per_ch;
     `DUT_IF.hpf_coeff_index_0_select = top_test_cfg.hpf_coeff_index_0_select;
     `DUT_IF.hpf_coeff_index_1_select = top_test_cfg.hpf_coeff_index_1_select;
+    `DUT_IF.hpf_fc = top_test_cfg.hpf_cutoff_freq_fc * 100; 
+
 
     `DUT_IF.filter_python_check_en = 1;
+    `DUT_IF.python_imeas_en = 1;
 
     rdatac_cmd_en = 1;
     `DUT_IF.filter_case = top_test_cfg.filter_case;
@@ -300,8 +357,9 @@ class `TESTNAME extends soc_eegfilter_base_test;
       if(`DUT_IF.notch_coeff_index_select > 9) 
         `nnc_fatal("SOC_TEST", $sformatf("ERROR:: notch_coeff_index_select:%0d for sample_rate= %0d ",`DUT_IF.notch_coeff_index_select,`DUT_IF.imeas_samp_rate))
 
-      if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-        for(int i = 'h10; i<= 'h22 ; i++)begin // addr 'h10 to 'h22
+      //if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
+      if(!(`DUT_IF.imeas_samp_rate == 1000))begin // do not update coeff in case of default data rate
+        for(int i = 'hE; i<= 'h1b ; i++)begin // addr 'hE to 'h1b
           top_test_cfg.wr_data[0] = i;
           `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
           assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
@@ -325,7 +383,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
       
       if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-        for(int i =0; i< 16; i++)begin // addr 'h0 to 'hF
+        for(int i =0; i<= 13; i++)begin // addr 'h0 to 'hD
           top_test_cfg.wr_data[0] = i;
           `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
           assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
@@ -335,18 +393,19 @@ class `TESTNAME extends soc_eegfilter_base_test;
           top_test_cfg.wr_data[2] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][i][7:0];
           `WR_BURST_NORMAL_REG(`SOC_FILTER_LPF_COEFF_DATA1_REG, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
         end
-        for(int i =15; i>=0; i--)begin
-          top_test_cfg.wr_data[0] = i; // addr 'hF to 'h0
+        for(int i =13; i>=0; i--)begin
+          top_test_cfg.wr_data[0] = i; // addr 'hD to 'h0
           `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
           assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
-          `nnc_info("SOC_TEST", $sformatf("lpf_coeffs[%0d][%0d][%0d]:%0h",`DUT_IF.lpf_coeff_index_1_select,`DUT_IF.lpf_coeff_index_0_select,j+16,`SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+16]),UVM_LOW)
-          top_test_cfg.wr_data[0] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+16][17:16]; 
-          top_test_cfg.wr_data[1] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+16][15:8];
-          top_test_cfg.wr_data[2] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+16][7:0];
+          `nnc_info("SOC_TEST", $sformatf("lpf_coeffs[%0d][%0d][%0d]:%0h",`DUT_IF.lpf_coeff_index_1_select,`DUT_IF.lpf_coeff_index_0_select,j+14,`SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+14]),UVM_LOW)
+          top_test_cfg.wr_data[0] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+14][17:16]; 
+          top_test_cfg.wr_data[1] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+14][15:8];
+          top_test_cfg.wr_data[2] = `SOC_TB.lpf_coeffs[`DUT_IF.lpf_coeff_index_1_select][`DUT_IF.lpf_coeff_index_0_select][j+14][7:0];
           j++;
           `WR_BURST_NORMAL_REG(`SOC_FILTER_LPF_COEFF_DATA1_REG, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
         end
       end
+
     end
     
     if(`DUT_IF.hpf_enable === 1)begin
@@ -357,14 +416,14 @@ class `TESTNAME extends soc_eegfilter_base_test;
         `nnc_fatal("SOC_TEST", $sformatf("ERROR:: hpf_coeff_index_1_select:%0d for sample_rate= %0d ",`DUT_IF.hpf_coeff_index_1_select,`DUT_IF.imeas_samp_rate))
 
       if(!(`DUT_IF.iclk_sel == 3 && `DUT_IF.cic_rate == 7))begin // do not update coeff in case of default data rate
-        top_test_cfg.wr_data[0] = 'h23;
-        `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
-        assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
-        `nnc_info("SOC_TEST", $sformatf("hpf_coeffs[%0d][%0d]:%0h",`DUT_IF.hpf_coeff_index_1_select,`DUT_IF.hpf_coeff_index_0_select,`SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select]),UVM_LOW)
-        top_test_cfg.wr_data[0] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][23:16]; 
-        top_test_cfg.wr_data[1] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][15:8];
-        top_test_cfg.wr_data[2] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][7:0];
-        `WR_BURST_NORMAL_REG(`SOC_FILTER_LPF_COEFF_DATA1_REG, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
+          top_test_cfg.wr_data[0] = 'h1c; // 'h1c
+          `WR_NORMAL_REG(`SOC_FILTER_LPF_COEFF_ADDR_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
+          assert(top_test_cfg.randomize() with {no_of_bytes == 3; });
+          `nnc_info("SOC_TEST", $sformatf("hpf_coeffs[%0d][%0d]:%0h",`DUT_IF.hpf_coeff_index_1_select,`DUT_IF.hpf_coeff_index_0_select,`SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select]),UVM_LOW)
+          top_test_cfg.wr_data[0] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][23:16]; 
+          top_test_cfg.wr_data[1] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][15:8];
+          top_test_cfg.wr_data[2] = `SOC_TB.hpf_coeffs[`DUT_IF.hpf_coeff_index_1_select][`DUT_IF.hpf_coeff_index_0_select][7:0];
+          `WR_BURST_NORMAL_REG(`SOC_FILTER_LPF_COEFF_DATA1_REG, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.wr_data);
       end
     end
   endtask : write_coeff_regs
@@ -385,13 +444,15 @@ class `TESTNAME extends soc_eegfilter_base_test;
     else if(`DUT_IF.imeas_noise_gen_en === 1)
     	`DUT_IF.imeas_sample_num_per_period = `DUT_IF.imeas_samp_rate;
 
-    //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
-    //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * 30;//2 sine length
     if(`DUT_IF.imeas_sin_gen_en === 1)
 	`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
     else if(`DUT_IF.imeas_noise_gen_en === 1)
 	//`DUT_IF.no_of_samples = (`DUT_IF.imeas_sample_num_per_period * 2048) / 1000;
 	`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period/2;
+
+    if(`DUT_IF.no_of_samples > 1000)
+    	`DUT_IF.no_of_samples = 1000;
+
     if(`DUT_IF.no_of_samples > 1024)
     	`DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
     //`DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
@@ -448,12 +509,12 @@ class `TESTNAME extends soc_eegfilter_base_test;
         `nnc_info("SOC_TEST", "Measurement is done!!!", UVM_LOW)
       end
       begin
-        // Enable python check at the end of sim, so filter is stable
-        for(int i = 0 ; i < top_test_cfg.sine_num_of_period; i++)begin
-	  wait_for_intb();
-          wait_for_intb_clear();
-        end
-	`DUT_IF.python_imeas_en = 1;
+      //  // Enable python check at the end of sim, so filter is stable
+      //  for(int i = 0 ; i < top_test_cfg.sine_num_of_period; i++)begin
+      //    wait_for_intb();
+      //    wait_for_intb_clear();
+      //  end
+      //  `DUT_IF.python_imeas_en = 1;
       end
     join
 

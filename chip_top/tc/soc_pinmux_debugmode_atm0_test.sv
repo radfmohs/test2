@@ -170,7 +170,7 @@ class `TESTNAME extends soc_base_test;
     force `SOC_TB.ext_resetn = 1'b1;
     #1ms;
 
-    `PINMUX_SCOREBOARD_EN = 1'b1;    
+    `PINMUX_SCOREBOARD_EN = 1'b0;    
    
     //force `SOC_TOP.CLKSEL = 1'b1;
     /*force `EPROM_IP.power_ready = 1'b0;
@@ -210,7 +210,7 @@ class `TESTNAME extends soc_base_test;
     //Check default signal  
     if (`ANA_TOP.D2A_BIST_SEL !== 5'b00000)
       begin
-        `nnc_error("ATM0", $sformatf("D2A_BIST_SEL = %b is not as expectation of 4'b0000", `ANA_TOP.D2A_BIST_SEL))
+        `nnc_error("ATM0", $sformatf("D2A_BIST_SEL = %b is not as expectation of 5'b00000", `ANA_TOP.D2A_BIST_SEL))
       end  
     if (`ANA_TOP.D2A_BIST_EN !== 1'b1)
       begin

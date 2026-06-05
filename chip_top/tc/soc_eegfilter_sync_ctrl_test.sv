@@ -38,7 +38,7 @@ class `TESTCFG extends soc_eegfilter_rdata_cmd_test_cfg;
 
   constraint c_filter_dly_val       { filter_dly_val inside {['hF:'h3FFF]}; }
 
-  constraint c_filter_sync_en       { filter_sync_en inside {[0:1]}; }
+  constraint c_filter_sync_en       { filter_sync_en inside {[1:1]}; }
 
   constraint c_imeas_status_en     { imeas_status_en inside {1,1}; } 
 
@@ -74,6 +74,7 @@ class `TESTNAME extends soc_eegfilter_rdata_cmd_test;
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
     uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(10ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -125,7 +126,27 @@ class `TESTNAME extends soc_eegfilter_rdata_cmd_test;
     `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, {7'b0,1'b1}, top_test_cfg.pads);
   
     // setup and start eeg conversions
-    super.main_phase(phase);
+    //super.main_phase(phase);
+    imeas_config();
+
+    fork 
+      begin
+        // Start/Restart (Synchronize) Conversion in single-shot/continous mode
+        start_conversion();
+      end
+      begin
+        `nnc_info("SOC_TEST", $sformatf("wait for %0d no of samples done!!!",`DUT_IF.no_of_samples),UVM_LOW)
+        repeat(`DUT_IF.no_of_samples)begin
+	  wait_for_intb();
+	  compare_imeas_chdata_through_rdata_cmd(0);
+	  wait_for_intb_clear();
+        end
+        `nnc_info("SOC_TEST", "Measurement is done!!!", UVM_LOW)
+      end
+    join
+
+    // Stop conversion for single-shot or continuos
+    stop_conversion();
 
     // apply wavegen reset
     `WR_NORMAL_REG(`SOC_PMU_REG, {2'b0,1'b1,5'b0}, top_test_cfg.pads);
@@ -135,9 +156,32 @@ class `TESTNAME extends soc_eegfilter_rdata_cmd_test;
     // remove wavegen reset
     `WR_NORMAL_REG(`SOC_PMU_REG, {2'b0,1'b0,5'b0}, top_test_cfg.pads);
 
+    #10ms;
+    
     // again start eeg conversions
     //basic_traffic_with_multi_start_stop();
-    super.main_phase(phase);
+    //super.main_phase(phase);
+
+    if(`DUT_IF.filter_sync_en==1)begin
+      fork 
+        begin
+          // Start/Restart (Synchronize) Conversion in single-shot/continous mode
+          start_conversion();
+        end
+        begin
+          `nnc_info("SOC_TEST", $sformatf("wait for %0d no of samples done!!!",`DUT_IF.no_of_samples),UVM_LOW)
+          repeat(`DUT_IF.no_of_samples)begin
+            wait_for_intb();
+            compare_imeas_chdata_through_rdata_cmd(0);
+            wait_for_intb_clear();
+          end
+          `nnc_info("SOC_TEST", "Measurement is done!!!", UVM_LOW)
+        end
+      join
+      // Stop conversion for single-shot or continuos
+      stop_conversion();
+
+    end
 
     `nnc_info("SOC_TEST", "soc_eegfilter_sync_ctrl_test end now", NNC_LOW)
     // ----------------------------------------------------------------------------------

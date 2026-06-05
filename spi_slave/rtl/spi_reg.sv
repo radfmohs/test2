@@ -208,6 +208,7 @@
 `define  STIM_MON_PERIOD_L_H           `ANA_SHORT_BASE_ADDR+8'h0B//5B // 
 `define  STIM_MON_PERIOD_H_H           `ANA_SHORT_BASE_ADDR+8'h0C//5C // 
 
+`define  STIM_MON_CTRL3                `ANA_SHORT_BASE_ADDR+8'h0D//5D // 
 
 //`define  ANAC_COMP_INT_EN                `ANA_SHORT_BASE_ADDR+8'h01//51
 //`define  ANAC_COMP_INT_TRANS_SEL         `ANA_SHORT_BASE_ADDR+8'h02//52
@@ -415,6 +416,8 @@ output reg [9:0] threshold_short,
 output reg [7:0] threshold_tgt,
 
 output wire  check_everyN,
+output wire [3:0]  D2A_ADC_DELAY,  
+output wire [1:0]  D2A_ADBUF_GSEL, 
 
   output wire             adc_en,
   output wire             adc_mode,
@@ -659,7 +662,7 @@ assign imeas_data_sel   = imeas_ctrl[7:4];
 
 reg[23:0] imeas_chdata_wire;
 
-assign imeas_chdata_wire = (imeas_data_sel < EEG_CHN_NUM)?imeas_chdata[imeas_data_sel] : imeas_chdata[4'd0];
+assign imeas_chdata_wire = ({1'b0,imeas_data_sel} < EEG_CHN_NUM)?imeas_chdata[imeas_data_sel] : imeas_chdata[4'd0];
 
 //always @(*) begin
 //  case(imeas_data_sel)
@@ -804,6 +807,7 @@ reg [7:0] stim_mon_period_h;
 reg [7:0] stim_mon_period_l_h;
 reg [7:0] stim_mon_period_h_h;
 reg [6:0] stim_mon_ctrl2;
+reg [5:0] stim_mon_ctrl3;
 reg [7:0] stim_pad0_tgt0_l;
 reg [7:0] stim_pad0_tgt0_h;
 reg [7:0] stim_pad0_tgt1_l;
@@ -840,6 +844,9 @@ assign iclk_div_stim_monitor = stim_mon_ctrl2[3:0];
 assign iclk_stim_monitor_inv = stim_mon_ctrl2[4];
 assign stim_monitor_rst_reg = stim_mon_ctrl2[5];
 assign check_everyN = stim_mon_ctrl2[6];
+
+assign D2A_ADC_DELAY = stim_mon_ctrl3[3:0];
+assign D2A_ADBUF_GSEL = stim_mon_ctrl3[5:4];
 
 assign stim_pad0_tgt[0]  = stim_pad0_tgt0_l[3:0];
 assign stim_pad0_tgt[1]  = stim_pad0_tgt0_l[7:4];
@@ -929,7 +936,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
 	stim_mon_period_h    <= 8'h0;
 	stim_mon_period_l_h    <= 8'h0;
 	stim_mon_period_h_h    <= 8'h0;
-	stim_mon_ctrl2<= 7'h04;
+	stim_mon_ctrl2 <= 7'h04;
+	stim_mon_ctrl3 <= 6'h08;
 	stim_pad0_tgt0_l     <= 8'h10;
 	stim_pad0_tgt0_h     <= 8'h32;
 	stim_pad0_tgt1_l     <= 8'h54;
@@ -967,6 +975,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_MON_PERIOD_L_H   :   stim_mon_period_l_h <= i_wr ? i_wr_data : stim_mon_period_l_h;     
        `STIM_MON_PERIOD_H_H   :   stim_mon_period_h_h <= i_wr ? i_wr_data : stim_mon_period_h_h;      
        `STIM_MON_CTRL2:  stim_mon_ctrl2 <= i_wr ? i_wr_data[6:0] : stim_mon_ctrl2;      
+
+       `STIM_MON_CTRL3:  stim_mon_ctrl3 <= i_wr ? i_wr_data[5:0] : stim_mon_ctrl3;      
 
        `STIM_MON_INT_STS    : begin  
 				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
@@ -1073,10 +1083,12 @@ always @(posedge i_clk or negedge i_rst_n) begin
 */
      for (int i = 0; i < 8; i++) begin
        for (int j = 0; j < 14; j++) begin
-         ana_gen_reg[i][j] <= 8'h00;	
-       end
+           if ((i == 2) && (j == 0))
+            ana_gen_reg[i][j] <= 8'h0C;	
+           else
+            ana_gen_reg[i][j] <= 8'h00;	
+         end
      end		
-
    end else begin
      case (i_addr[7:0])
             `ANA_GEN_SECTION_SEL : ana_gen_sec_reg <= i_wr ? i_wr_data[2:0] :  ana_gen_sec_reg;
@@ -1949,7 +1961,7 @@ wire [7:0] nirs_rd_data;
     .i_addr               (i_addr),
     .i_wr                 (i_nirs_wr),
     .i_rd                 (i_nirs_rd),
-    .i_rd_normal          (i_rd),
+//  .i_rd_normal          (i_rd),
     .i_wr_data            (i_wr_data),
     .o_rd_data            (nirs_rd_data),
 
@@ -2083,6 +2095,7 @@ always @ (posedge i_clk or negedge i_rst_n) begin
       `STIM_MON_PERIOD_L_H   :  reg_rd_data  <=  stim_mon_period_l_h;     
       `STIM_MON_PERIOD_H_H   :  reg_rd_data  <=  stim_mon_period_h_h;      
       `STIM_MON_CTRL2    :  reg_rd_data  <=  {1'b0,stim_mon_ctrl2} ;      
+      `STIM_MON_CTRL3    :  reg_rd_data  <=  {2'b0,stim_mon_ctrl3} ;      
       `STIM_MON_INT_STS    :  reg_rd_data  <= {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
 
 `STIM_MON_LOFF_INT_STS0        :   reg_rd_data  <= stim_mon_leadoff_int_sts[7:0]; 
@@ -2362,6 +2375,7 @@ always @(*) begin
       `STIM_MON_PERIOD_L_H   :  reg_rd_data  =  stim_mon_period_l_h;     
       `STIM_MON_PERIOD_H_H   :  reg_rd_data  =  stim_mon_period_h_h;      
       `STIM_MON_CTRL2    :  reg_rd_data  =  {1'b0,stim_mon_ctrl2} ;      
+      `STIM_MON_CTRL3    :  reg_rd_data  =  {2'b0,stim_mon_ctrl3} ;      
       `STIM_MON_INT_STS    :  reg_rd_data  = {stim_mon_int_topin_en_reg,stim_mon_delta_data_sel,stim_mon_cycle_int_sts,stim_mon_int_sts,stim_mon_delta_int_sts};
 
 `STIM_MON_LOFF_INT_STS0        :   reg_rd_data  = stim_mon_leadoff_int_sts[7:0]; 
@@ -2466,7 +2480,7 @@ always @(*) begin
 //    `ANAC_STIMU_INT_POL_EN                : reg_rd_data  = ana_stimu_ch_intr_pol_reg;       
 //    `ANA_INT_STIMU_STS                    : reg_rd_data  = ana_stimu_ch_intr_sts;   
 //    `ANA_INT_COMP_STS                     : reg_rd_data  = ana_comp_ch_intr_sts;    
-      `ANA_INT_LVD_STS                      : reg_rd_data  = ana_lvd_intr_pin;    
+      `ANA_INT_LVD_STS                      : reg_rd_data  = {7'b0,ana_lvd_intr_pin};    
 
  
 //    `COUNTER_CNT_DBG_SEL           :   reg_rd_data = {4'b0,counter_cnt_dbg_sel[3:0]}; 

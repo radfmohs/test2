@@ -687,7 +687,7 @@ class `TESTNAME extends soc_base_test;
         if (top_test_cfg.save_trim_wdata[i] !== `EPROM_BIST_IF.rd_data[i+4][7:0]) 
            `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== bist_rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], `EPROM_BIST_IF.rd_data[i+4][7:0]))
         else 
-           `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === bist_rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], `EPROM_BIST_IF.rd_data[i+4][7:0]), NNC_LOW)
+           `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === bist_rd_data %8b", top_test_cfg.save_trim_wdata[i], `EPROM_BIST_IF.rd_data[i+4][7:0]), NNC_LOW)
     end
 
     if (top_test_cfg.trim_tag_prepare_en === 1'b1) begin  

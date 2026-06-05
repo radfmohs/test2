@@ -671,7 +671,14 @@ interface dut_interface();
   logic [31:0] wg_wave1_rest_clk_num[`WAVEGEN_DRIVER_NUM]; 
   logic [31:0] wg_wave2_rest_clk_num[`WAVEGEN_DRIVER_NUM];
 
+  logic [5:0]  wg_discharge_num[`WAVEGEN_DRIVER_NUM];
+
   logic        wg_rest_en;
+  logic        wg_ems_en;
+  logic        wg_alt_en;
+  logic        wg_dds_en;
+  logic        wg_discharge_en;
+  logic        wg_interrupt_en;
   
 endinterface: dut_interface
 `endif

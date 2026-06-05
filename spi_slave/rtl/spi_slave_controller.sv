@@ -118,6 +118,7 @@ wire [2:0]              num_status_byte;
 wire                    status_done;
 wire                    detect_first_bit;
 wire                    comb_miso;
+wire                    comb_miso1;
 reg                     detect_first_bit_sync;
 wire                    detect_flag;
 reg [7:0]               imeas_temp;
@@ -186,6 +187,7 @@ always@(posedge i_sclk_neg, negedge dual_wr_reset_n) begin  // negedge: half-cyc
     dual_wr_reg_neg <= 1'b0; 
 end
 
+//always@(posedge i_sclk, negedge i_rst_n) begin
 always@(posedge i_sclk, negedge dual_wr_reset_n) begin
   if(!dual_wr_reset_n)
     dual_wr_reg <= 1'b1;
@@ -383,6 +385,7 @@ end
 //--------------------------------------------------//
 //                 CMD                              //
 //--------------------------------------------------//
+wire cmd_reg_4_early, cmd_reg_5_early;
 
 assign burst_cmd_reg    =  cmd_reg_1 ;
 
@@ -398,7 +401,7 @@ assign nirs_cmd_reg     = dual_en ? ((cmd_reg_5 &&  cmd_reg_4) || (cmd_reg_5_ear
 // At bit_cnt = 0E, CMD[5] distinguishes between RDATA and RDATAC.
 
 assign rdata_rdatac_cmd = dual_en ? (cmd_reg_7 && !cmd_reg_6) : 1'b0;  
-assign rdata_cmd        = dual_en ? (rdata_rdatac_cmd && !cmd_reg_5) :((cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd);
+assign rdata_cmd        = dual_en ? ((rdata_rdatac_cmd && !cmd_reg_5) || rdatac_cmd): ((cmd_reg_6 && (!cmd_reg_5 && !cmd_reg_4)) || rdatac_cmd);
 assign rdatac_cmd       = dual_en ? (rdata_rdatac_cmd && cmd_reg_5) :(cmd_reg_6 && (!cmd_reg_5 &&  cmd_reg_4));
 
 //always@(posedge i_sclk, negedge i_rst_n) begin
@@ -696,16 +699,23 @@ always@(posedge i_sclk, negedge i_rst_n) begin
   end else if (cs_n_d == 1'b1) begin
     dff_miso1 <= 1'b0;
   end else if (dual_en) begin
-    dff_miso1 <= tx_d1;
+    if ((cov_done == 1'b1) && (cpha != 1'b0)) begin
+      dff_miso1 <= (!mode[1] && !next_dev_valid) ? status_temp[6] : imeas_temp[6]; 
+    end else if ((byte_cnt[6:0] == 7'h01) && (rd_data_rdy == 1'b1) && (rdatac_cmd == 1'b1) && (bit_cnt == 6'h18) && (byte_done == 1'b0)) begin
+      dff_miso1 <= !mode[1] ? status_5th_byte[byte_bit_count - 2] : imeas_3rd_byte[byte_bit_count - 2]; 
+    end else begin
+      dff_miso1 <= tx_d1;
+    end
   end 
 end
 
-assign comb_miso = (!mode[1] && !next_dev_valid) ? status_temp[7] : imeas_temp[7];
+assign comb_miso  = (!mode[1] && !next_dev_valid) ? status_temp[7] : imeas_temp[7];
+assign comb_miso1 = (!mode[1] && !next_dev_valid) ? status_temp[6] : imeas_temp[6];
 
 assign detect_flag = detect_first_bit && detect_first_bit_sync;
 
-assign o_miso = detect_flag ? comb_miso : dff_miso;
-assign o_miso1 = dff_miso1;
+assign o_miso  = detect_flag ? comb_miso  : dff_miso;
+assign o_miso1 = detect_flag ? comb_miso1 : dff_miso1;
 assign detect_first_bit = cov_done && rdata_cmd && rdatac_cmd && (cpha == 1'b0);
 
 always@(posedge i_sclk, negedge i_rst_n) begin
@@ -784,7 +794,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
     tx_buf <= 0;
   end else if (dual_en) begin
     if ((bit_cnt > 6'h8 && byte_bit_count== 3'h4) || (burst_cmd_reg && bit_cnt > 6'h10 && byte_bit_count== 3'h4)) begin
-      tx_buf <= (!mode[1] && !status_done && rdata_cmd ) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
+      tx_buf <= (!mode[1] && !status_done && rdata_rdatac_cmd ) ? status_temp : rdata_rdatac_cmd ? imeas_temp : i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
     end
@@ -872,7 +882,7 @@ end
 //reg cov_done;
 reg cov_done_d1;
 
-assign cov_done = (dual_en) ? ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (rdatac_cmd == 1'b1) && (byte_cnt == 7'h00) && (bit_cnt == 6'h1a)) : 
+assign cov_done = (dual_en) ? ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (rdatac_cmd == 1'b1) && (byte_cnt == 7'h00) && (bit_cnt == 6'h18)) : 
                               ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (rdatac_cmd == 1'b1) && (byte_cnt == 7'h00) && (bit_cnt == 6'h18));
 
 always @(posedge i_sclk_neg, negedge i_rst_n) begin

@@ -115,9 +115,9 @@ imeas_reg u_imeas_reg(
 
 imeas_cdc u_imeas_cdc(
   .pclk(pclk),
-  .adc_clk(adc_clk),
+  //.adc_clk(adc_clk),
   .preset_n(presetn),
-  .atpg_en(atpg_en),
+  //.atpg_en(atpg_en),
   .sd16eoc(sd16eoc),
 //.cic_rst(cic_rst),
   .sd16eoc_sync(sd16eoc_sync)

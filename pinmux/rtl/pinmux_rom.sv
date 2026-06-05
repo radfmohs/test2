@@ -30,12 +30,12 @@ module pinmux_rom (
   output wire [7:0] CONFIG_ROM13 [29:0],
   output wire [7:0] CONFIG_ROM14 [29:0],
   output wire [7:0] CONFIG_ROM15 [29:0],
-  output wire [7:0] CONFIG_ROM16 [29:0],
-  output wire [7:0] CONFIG_ROM17 [29:0],
-  output wire [7:0] CONFIG_ROM18 [29:0],
-  output wire [7:0] CONFIG_ROM19 [29:0],
-  output wire [7:0] CONFIG_ROM20 [29:0],
-  output wire [7:0] CONFIG_ROM21 [29:0]
+  output wire [7:0] CONFIG_ROM16 [29:0]
+//output wire [7:0] CONFIG_ROM17 [29:0],
+//output wire [7:0] CONFIG_ROM18 [29:0],
+//output wire [7:0] CONFIG_ROM19 [29:0],
+//output wire [7:0] CONFIG_ROM20 [29:0],
+//output wire [7:0] CONFIG_ROM21 [29:0]
 );
 
 `include "param_pinmux.vh"
@@ -63,11 +63,11 @@ generate
     assign CONFIG_ROM14[i] = init_enable ? CONFIG14[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM15[i] = init_enable ? CONFIG15[7+(8*i):8*i] : {8{1'bz}};
     assign CONFIG_ROM16[i] = init_enable ? CONFIG16[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM17[i] = init_enable ? CONFIG17[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM18[i] = init_enable ? CONFIG18[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM19[i] = init_enable ? CONFIG19[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM20[i] = init_enable ? CONFIG20[7+(8*i):8*i] : {8{1'bz}};
-    assign CONFIG_ROM21[i] = init_enable ? CONFIG21[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM17[i] = init_enable ? CONFIG17[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM18[i] = init_enable ? CONFIG18[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM19[i] = init_enable ? CONFIG19[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM20[i] = init_enable ? CONFIG20[7+(8*i):8*i] : {8{1'bz}};
+//  assign CONFIG_ROM21[i] = init_enable ? CONFIG21[7+(8*i):8*i] : {8{1'bz}};
 
   end
 endgenerate

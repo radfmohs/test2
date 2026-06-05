@@ -149,8 +149,8 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[5:3] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[5:3], 3'bzzz));
       end
 
-      if (`SOC_TOP.IOBUF_PAD[11] !== 1'b0) begin
-        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[11] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[11], 1'b0));
+      if (`SOC_TOP.IOBUF_PAD[13] !== 1'b0) begin
+        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[13] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[13], 1'b0));
       end
 
       release `SOC_TB.CLK0; 
@@ -183,8 +183,8 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[5:3] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[5:3], 3'b111));
       end
       
-      if (`SOC_TOP.IOBUF_PAD[11] !== 1'bz) begin
-        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[11] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[11], 1'bz));
+      if (`SOC_TOP.IOBUF_PAD[13] !== 1'bz) begin
+        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[13] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[13], 1'bz));
       end
 
       if (`SOC_TOP.CLKSEL !== 1'bz) begin

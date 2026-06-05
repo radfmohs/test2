@@ -229,7 +229,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
                                                      data_ready_en == 'h1;
                                                      //nirs_int_pin_en == 1'b0;  //testing
                                                      idac_en == 'h1;
-                                                     //bypass_or_gateclk == 1'b1; //by default 1
+                                                     bypass_or_gateclk == 1'b1; //by default 1
                                                      //debug_channel == (top_test_cfg.ch +1'b1);
                                                      //debug_led     == top_test_cfg.num_leds;
                                                     });

@@ -225,10 +225,11 @@ class `TESTNAME extends soc_base_test;
     if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
        `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
     end
-    
+     
     // --------------------------------------------------------
     // Part II: make unlock bit to 1 
     // --------------------------------------------------------
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config Normal Out Ctrl to 1 for selecting VPP_EN instead of INT0
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; mask == 8'h1; data[0] == 8'b10101_001;});          
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
 
@@ -273,12 +274,12 @@ class `TESTNAME extends soc_base_test;
     #10ms;
 `ifndef BEHAVIORAL
        `ifdef POSTSCAN_PG
-            if(/*`RST_CTRL_TOP.presetn ||   `RST_CTRL_TOP.poresetn || `RST_CTRL_TOP.poresetn_hf || `RST_CTRL_TOP.otp_por_resetn */`RST_CTRL_TOP.por_resetn)
+            if(`RST_CTRL_TOP.por_resetn)
        `else
-          if(/* `RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn ||*/ `RST_CTRL_TOP.presetn/*poresetn_hf*/ || `RST_CTRL_TOP.por_resetn )
+          if( `RST_CTRL_TOP.presetn || `RST_CTRL_TOP.por_resetn )
        `endif
 `else
-    if(/*`RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn || */`RST_CTRL_TOP.poresetn_hf/* || `RST_CTRL_TOP.por_resetn*/ )
+    if(`RST_CTRL_TOP.poresetn_hf )
 
 `endif
         `nnc_error("SOC_TEST", "RESETn error!!!");
@@ -295,9 +296,9 @@ class `TESTNAME extends soc_base_test;
     repeat(800) @(posedge `CLK_CTRL_TOP.pclk); 
 `ifndef BEHAVIORAL
        `ifdef POSTSCAN_PG
-            if(/*`RST_CTRL_TOP.presetn || `RST_CTRL_TOP.poresetn || `RST_CTRL_TOP.poresetn_hf || `RST_CTRL_TOP.otp_por_resetn */`RST_CTRL_TOP.por_resetn);
+            if(`RST_CTRL_TOP.por_resetn);
        `else
-          if(`RST_CTRL_TOP.presetn/*poresetn_hf*/ || `RST_CTRL_TOP.por_resetn);
+          if(`RST_CTRL_TOP.presetn || `RST_CTRL_TOP.por_resetn);
        `endif
 `else 
     if(`RST_CTRL_TOP.presetn && `RST_CTRL_TOP.poresetn && `RST_CTRL_TOP.poresetn_hf && `RST_CTRL_TOP.por_resetn );
@@ -411,7 +412,7 @@ class `TESTNAME extends soc_base_test;
     top_test_cfg.otp_to_reg_data[`SOC_OTP_TRIM_4_REG] = top_test_cfg.rd_data;                        
     if (top_test_cfg.otp_to_reg_data[`SOC_OTP_TRIM_4_REG] !== top_test_cfg.reg_to_otp_data[`SOC_OTP_TRIM_4_REG]) begin
        `nnc_error("UNLOCK ERROR", $sformatf("otp_to_reg_data :%h reg_to_otp_data :%h", top_test_cfg.otp_to_reg_data[`SOC_OTP_TRIM_4_REG], top_test_cfg.reg_to_otp_data[`SOC_OTP_TRIM_4_REG]))
-    end
+    end 
 
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_5_REG; mask == 8'hff;});
     `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
@@ -508,9 +509,9 @@ class `TESTNAME extends soc_base_test;
         #10ms; //1000;
 `ifndef BEHAVIORAL
    `ifdef POSTSCAN_PG
-            if(/*`RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn ||`RST_CTRL_TOP.poresetn_hf || `RST_CTRL_TOP.otp_por_resetn */`RST_CTRL_TOP.por_resetn)
+            if(`RST_CTRL_TOP.por_resetn)
     `else
-          if(/* `RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn ||*/ `RST_CTRL_TOP.presetn/*poresetn_hf*/ || `RST_CTRL_TOP.por_resetn )
+          if( `RST_CTRL_TOP.presetn || `RST_CTRL_TOP.por_resetn )
     `endif
 `else
         if(`RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn || `RST_CTRL_TOP.poresetn_hf || `RST_CTRL_TOP.por_resetn )
@@ -533,9 +534,9 @@ class `TESTNAME extends soc_base_test;
         repeat(800) @(posedge `CLK_CTRL_TOP.pclk);
 `ifndef BEHAVIORAL
    `ifdef POSTSCAN_PG
-          if(/*`RST_CTRL_TOP.presetn ||  `RST_CTRL_TOP.poresetn ||*`RST_CTRL_TOP.poresetn_hf || `RST_CTRL_TOP.otp_por_resetn */`RST_CTRL_TOP.por_resetn);
+          if(`RST_CTRL_TOP.por_resetn);
     `else
-        if(/* `RST_CTRL_TOP.presetn &&  `RST_CTRL_TOP.poresetn &&*/ `RST_CTRL_TOP.presetn/*poresetn_hf*/ && `RST_CTRL_TOP.por_resetn );
+        if( `RST_CTRL_TOP.presetn && `RST_CTRL_TOP.por_resetn );
     `endif
 `else
         if(`RST_CTRL_TOP.presetn && `RST_CTRL_TOP.poresetn && `RST_CTRL_TOP.poresetn_hf && `RST_CTRL_TOP.por_resetn );
@@ -623,6 +624,7 @@ class `TESTNAME extends soc_base_test;
     if (top_test_cfg.otp_to_reg_data[`SOC_OTP_TRIM_8_REG] !== top_test_cfg.reg_to_otp_data[`SOC_OTP_TRIM_8_REG]) begin
        `nnc_error("UNLOCK ERROR", $sformatf("otp_to_reg_data :%h reg_to_otp_data :%h", top_test_cfg.otp_to_reg_data[`SOC_OTP_TRIM_8_REG], top_test_cfg.reg_to_otp_data[`SOC_OTP_TRIM_8_REG]))
     end
+    
 `endif
     // --------------------------------------------------------
     // End of test and add any needed delay time 

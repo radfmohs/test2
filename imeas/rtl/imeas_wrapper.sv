@@ -24,7 +24,7 @@ input  wire                   adc_ctrl_resetn,
 input  wire                   adc_clk_running,
 input  wire [CHN_NUM-1:0]     imeas_pclk,    	     // adc serial data input
 input  wire [CHN_NUM-1:0]     imeas_dig_adc_clk,    // adc serial data input
-input  wire                   first_neg_sclk,
+//input  wire                   first_neg_sclk,
 /*
 input wire                    is_2channels,
 input wire                    is_4channels,
@@ -468,7 +468,7 @@ wire       data_rate_by_pass;
 wire       data_rate_by_pass_lpf;
 
 
-assign data_rate_notch = (data_rate_add<=4'h3)? 4'h0 : (DR - 4'h2 + iclk_div);  
+assign data_rate_notch = (data_rate_add<=5'h3)? 4'h0 : (DR - 4'h2 + iclk_div);  
               
 
 assign data_rate_add     = {1'b0,iclk_div} + {1'b0,DR};

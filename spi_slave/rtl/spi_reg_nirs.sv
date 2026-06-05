@@ -88,7 +88,7 @@ module spi_reg_nirs #(
   input  [ADDR_WIDTH-1:0] i_addr,
   input                   i_wr,
   input                   i_rd,
-  input                   i_rd_normal,
+//input                   i_rd_normal,
   input  [DATA_WIDTH-1:0] i_wr_data,
   output [DATA_WIDTH-1:0] o_rd_data,
 
@@ -237,9 +237,9 @@ module spi_reg_nirs #(
 //------------------------------------------------------------------------------------
 //---------------------- INTTERRUPT --------------------------------------------------
 //------------------------------------------------------------------------------------
-wire nirs_int_sts_rd, nirs_int_sts_wr, int_gen_sts_rd;
+wire nirs_int_sts_rd, nirs_int_sts_wr; //int_gen_sts_rd;
 reg  [7:0] nirs_int_clr;
-wire [7:0] nirs_int_sts_sync;
+wire [7:0] nirs_int_sts_sync, nirs_int_dout_rd;
 
 //int sync for reading
 common_sync_bit   u_int_sync [7:0] (
@@ -249,10 +249,17 @@ common_sync_bit   u_int_sync [7:0] (
        .sync_out(nirs_int_sts_sync)
 );
 
-assign nirs_int_sts_wr  = i_wr        & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_INT_STATUS));
-assign nirs_int_sts_rd  = i_rd        & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_INT_STATUS));
-assign int_gen_sts_rd   = i_rd_normal & (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG06);
-
+assign nirs_int_sts_wr      = i_wr  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_INT_STATUS));
+assign nirs_int_sts_rd      = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_INT_STATUS));
+//assign int_gen_sts_rd     = i_rd_normal & (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG06);
+assign nirs_int_dout_rd[0]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT0_0));
+assign nirs_int_dout_rd[1]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT1_0));
+assign nirs_int_dout_rd[2]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT2_0));
+assign nirs_int_dout_rd[3]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT3_0));
+assign nirs_int_dout_rd[4]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT4_0));
+assign nirs_int_dout_rd[5]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT5_0));
+assign nirs_int_dout_rd[6]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT6_0));
+assign nirs_int_dout_rd[7]  = i_rd  & (i_addr[ADDR_WIDTH-1:0] == (`NIRS_DOUT7_0));
 
 always @(posedge i_clk or negedge i_rst_n) begin
   if (~i_rst_n) begin
@@ -261,10 +268,13 @@ always @(posedge i_clk or negedge i_rst_n) begin
     for (int x = 0; x < NO_OF_CHANNEL; x++) begin
       if (nirs_int_sts_wr & i_wr_data[x] & !int_clear_type) begin // WRITE 1 to clear RW1C
         nirs_int_clr[x] <= 1'b1;
-      end else if (nirs_int_sts_rd & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - NIRS INT reg
+      end else if (nirs_int_sts_rd      & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - NIRS INT reg
         nirs_int_clr[x] <= 1'b1;
-      end else if (int_gen_sts_rd & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - GEN INT reg
+//    end else if (int_gen_sts_rd       & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - GEN INT reg
+//      nirs_int_clr[x] <= 1'b1;
+      end else if (nirs_int_dout_rd[x]  & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - DOUT0 of each channel reg
         nirs_int_clr[x] <= 1'b1;
+        
       end else begin
         nirs_int_clr[x] <= 1'b0;
       end

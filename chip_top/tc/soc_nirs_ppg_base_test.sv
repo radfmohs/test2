@@ -960,33 +960,33 @@ class `TESTNAME extends soc_base_test;
        //-----------------------------------------
        // Interrupt output enabled to external pin
        //-----------------------------------------
-       if (`NIRS_PPG_IF.nirs_int_pin_en === 1'b1) begin
-          //1. ACTIVE HIGH, LEVEL ACTIVE (0 to 1 trnsition, level signal until clear teh status)
-          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin
-            pin_int_active_high_level_active(channel_num);
-            interrupt_count++;
-          end
-          //2. ACTIVE HIGH, PULSE ACTIVE (0 to 1 transition, 1PCLK)
-          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin
-          pin_int_active_high_pulse_active(channel_num);
-          //interrupt_count++;
-          end
-          //3. ACTIVE LOW,  LEVEL ACTIVE (1 to 0 tarnsition, level signal until clear teh status)
-          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin            
-            pin_int_active_low_level_active(channel_num);
-            interrupt_count++;
-          end
-          //4. ACTIVE LOW,  PULSE ACTIVE (1 to 0 transition, 1PCLK))
-          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin            
-            pin_int_active_low_pulse_active(channel_num); 
-            interrupt_count++;  
-          end     
-       end
+//       if (`NIRS_PPG_IF.nirs_int_pin_en === 1'b1) begin
+//          //1. ACTIVE HIGH, LEVEL ACTIVE (0 to 1 trnsition, level signal until clear teh status)
+//          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin
+//            pin_int_active_high_level_active(channel_num);
+//            interrupt_count++;
+//          end
+//          //2. ACTIVE HIGH, PULSE ACTIVE (0 to 1 transition, 1PCLK)
+//          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b1) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin
+//          pin_int_active_high_pulse_active(channel_num);
+//          //interrupt_count++;
+//          end
+//          //3. ACTIVE LOW,  LEVEL ACTIVE (1 to 0 tarnsition, level signal until clear teh status)
+//          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b0))begin            
+//            pin_int_active_low_level_active(channel_num);
+//            interrupt_count++;
+//          end
+//          //4. ACTIVE LOW,  PULSE ACTIVE (1 to 0 transition, 1PCLK))
+//          if((`NIRS_PPG_IF.gen_reg_int_active_level === 1'b0) && (`NIRS_PPG_IF.gen_reg_int_length_sel === 1'b1))begin            
+//            pin_int_active_low_pulse_active(channel_num); 
+//            interrupt_count++;  
+//          end     
+//       end
 
        //-----------------------------------------
        // Interrupt not routed to pin
        //-----------------------------------------
-       else begin       
+//       else begin       
          //-----------------------------------------
          // Capture interrupt status
          //-----------------------------------------
@@ -1005,24 +1005,18 @@ class `TESTNAME extends soc_base_test;
          `uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel %0h", channel_num),UVM_LOW)
          interrupt_count++;
 
-         //-----------------------------------------
-         // Detect interrupt channel
-         //-----------------------------------------
-         //if((intr_status != 0) && (intr_status != prev_status)) begin
-         //  for (int ch = 0; ch < 8; ch++) begin
-         //     if (intr_status[ch]) begin
-         //        `uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel %0d", ch),UVM_LOW)
-         //        interrupt_count++;
-         //        `uvm_info("NIRS_INT",$sformatf("Internal Interrupt Count %0d", interrupt_count),UVM_LOW)
-         //     end
-         //  end
-         //end
-         //prev_status = intr_status;
-       end //else
+//       end //else
 
     //end //while
   
     `uvm_info("INT_MON",$sformatf("Completed interrupt monitoring for Channel_num =%0h\n",channel_num),UVM_LOW)
+    if(intr_status !== intr_ch_check)begin
+      `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", intr_status, intr_ch_check))
+    end
+    else begin
+      `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
+    end
+ 
    endtask  
 
    task read_nirs_idac_data;
@@ -1092,17 +1086,6 @@ class `TESTNAME extends soc_base_test;
         if(`SOC_TOP.IOBUF_PAD[11] !== 1'b0) begin
           `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num)) 
         end
-          //if(`NIRS_PPG_IF.nirs_int_io[channel_num] === 1'b1)begin
-          //  if(`SOC_TOP.IOBUF_PAD[11] !== 1'b1)begin
-          //    `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! SOC_TOP.IOBUF_PAD[11] %0d, For CH =%0h\n", `SOC_TOP.IOBUF_PAD[11], channel_num))
-          //  end            
-          //end
-          //@( posedge `CLK_CTRL_TOP.clk_ppg); 
-          //@( negedge `CLK_CTRL_TOP.clk_ppg);
-          //@( posedge `CLK_CTRL_TOP.clk_ppg);
-          //if(`NIRS_PPG_IF.nirs_int_io[channel_num] === 1'b1)begin 
-          //  `nnc_error("NIRS_INT",$sformatf("PIN INTERRUPT ERROR!!!! INT_IO[%0d] =%0h, For CH =%0h\n", channel_num, `NIRS_PPG_IF.nirs_int_io[channel_num], channel_num)) 
-          //end 
    endtask
 
    task pin_int_active_low_level_active(int channel_num);
@@ -1143,14 +1126,14 @@ class `TESTNAME extends soc_base_test;
   task check_status_reg_r1c(logic [7:0] read_status, logic[7:0] expected_status, bit in_poll_pin_or_stsreg);
        logic [7:0] gen_nirs_rd_intr_status, nirs_rd_intr_status;
 
-       if(in_poll_pin_or_stsreg === 1'b1)begin
-         if(read_status !== expected_status)begin
-           `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", read_status, expected_status))
-         end
-         else begin
-           `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
-         end
-       end
+       //if(in_poll_pin_or_stsreg === 1'b1)begin // for int pin or don;t output to pin polling status register
+       //  if(read_status !== expected_status)begin
+       //    `nnc_error("NIRS_INT_STS",$sformatf("R1C READ STATUS ERROR!!!! read_status =%0h, expected_status =%0h\n", read_status, expected_status))
+       //  end
+       //  else begin
+       //    `uvm_info("NIRS_INT_STS","R1C INTERRUPT STS MATCH!!!!",UVM_LOW )
+       //  end
+       //end
        //check interrupt line
        check_interrupt_after_clear_sts();
        `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, gen_nirs_rd_intr_status);
@@ -1169,7 +1152,8 @@ class `TESTNAME extends soc_base_test;
     logic [7:0] read_gen_sts_reg;
     logic [7:0] read_nirs_sts_reg;
     `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, read_gen_sts_reg); 
-    `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, 8'h00, read_nirs_sts_reg); 
+    `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG, 8'h00, read_nirs_sts_reg);
+    //wait for few clocks if ppg clock is gated (if bypass_or_gateclk=0)
     if((read_gen_sts_reg !== 8'h0) || (read_nirs_sts_reg !== 8'h0))begin
       `nnc_error("NIRS_INT_STS",$sformatf("RW1C READ STATUS ERROR!!!! read_gen_sts_reg =%0h, read_nirs_sts_reg =%0h, expected read_sts_value =0\n", read_gen_sts_reg, read_nirs_sts_reg))
     end
@@ -1211,14 +1195,57 @@ class `TESTNAME extends soc_base_test;
     `NIRS_PPG_IF.iref_coarse_not_on_en    = `NIRS_PPG_CTRL_CFG.iref_coarse_not_on_en;
     `NIRS_PPG_IF.data_ready_en = `NIRS_PPG_CTRL_CFG.data_ready_en;
     `NIRS_PPG_IF.nirs_int_pin_en = `NIRS_PPG_CTRL_CFG.nirs_int_pin_en;
-
-
-
-
-
-
-
   endtask
+
+  //irrespective of nirs_int_pin_en =1 or 0, poll status, when output ot pin also we need to poll the status becuase 
+  //sometimes each channel interrupt come very close then waiting on posedge of IOPAD[11] may no tbe correct, we donlt know when all channels interrupt generated and which channel interrupt generated
+  // to simplify using below function
+
+  task automatic monitor_chx_nirs_interrupt(int expected_interrupts, logic[7:0] intr_ch_check, int ch_num);
+
+     bit [7:0] intr_status;
+     int interrupt_count = 0; 
+     bit [7:0] prev_status = 8'h00;
+     automatic int channel_num;
+     automatic int channel_enabled; //doesn;t matter using this
+     
+    channel_num = ch_num;
+    channel_enabled = intr_ch_check;
+    `uvm_info("NIRS_INT", $sformatf("wait for INTERRUPT!!!! for ENABLED CHANNELS =%0h\n",channel_enabled),UVM_MEDIUM)
+     //while(interrupt_count < expected_interrupts)  begin 
+     //forever begin
+       
+       //`uvm_info("NIRS_INT", $sformatf("IN while loop wait for INTERRUPT!!!! interrupt_count =%0d",interrupt_count),UVM_LOW) 
+ 
+       //-----------------------------------------
+       // Interrupt output enabled to external pin
+       //-----------------------------------------
+       //if (`NIRS_PPG_IF.nirs_int_pin_en === 1'b1) begin
+       //-----------------------------------------
+       // Interrupt not routed to pin
+       //-----------------------------------------
+       //else begin   
+    
+        do begin
+           if(`NIRS_PPG_IF.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg === 1'b0)begin     //poll nirs sts reg
+             `RD_NIRS_REG(`SOC_NIRS_INT_STATUS_REG,8'h00, intr_status); 
+             `uvm_info("NIRS_INT",$sformatf("Poll NIRS INT STATUS for CH_NUM = %0h intr_status =%0h ", channel_num, (intr_status & channel_enabled)),UVM_LOW)
+           end
+           else begin
+             `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, intr_status); //poll gen int sts reg
+              `uvm_info("NIRS_INT",$sformatf("Poll NIRS GEN_INT STATUS for CH_NUM = %0h intr_status =%0h ", channel_num, (intr_status & channel_enabled)),UVM_LOW)
+           end
+        end while((intr_status & channel_enabled) == 0);
+
+         `uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel %0h, channel_enabled =%0d", channel_num,channel_enabled),UVM_LOW)
+         interrupt_count++;
+       //end //else
+
+    //end //while
+  
+    `uvm_info("INT_MON",$sformatf("Completed interrupt monitoring for Channel_num =%0h\n",channel_num),UVM_LOW)
+   endtask  
+
    
   // ------------------------------
   // Declare the report_phase task

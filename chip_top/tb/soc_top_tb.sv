@@ -327,6 +327,7 @@ wire  [`SCAN_SIZE-1:0]          scan_out;
 wire                            scan_compression_in;
 wire                            atpg_en;
 wire                            INTB;
+wire                            VPP_EN;
 wire  [3:0]                     INT; 
 wire				VDD_DIG;
 wire				VDD_DIG_S1;
@@ -370,9 +371,9 @@ Nanochap_ENS2 u_Nanochap_ENS2
 
 );
 `else
-assign CLK0  = (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.mult_chip_typ === 2'b00) ? IOBUF_PAD[10] : (dut_vif.mult_chip_typ === 2'b01) ? 1'b0 : (dut_vif.mult_chip_typ === 2'b10) ? ext_hfclk : 1'b0) : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
-assign CLK1  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[10] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
-assign CLK2  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[10] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK0  = (dut_vif.mult_chip_en === 1'b1) ? ((dut_vif.mult_chip_typ === 2'b00) ? IOBUF_PAD[12] : (dut_vif.mult_chip_typ === 2'b01) ? 1'b0 : (dut_vif.mult_chip_typ === 2'b10) ? ext_hfclk : 1'b0) : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK1  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[12] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
+assign CLK2  = (dut_vif.mult_chip_en === 1'b1) ? IOBUF_PAD[12] : (dut_vif.ext_clk_en === 1'b1) ? ext_hfclk : (dut_vif.gpio_pd_en[0] ? 1'bz : 1'b0);
 
 wire clk_sel = (dut_vif.testmode_sel === 2'b11) ? UNLOCK       : (dut_vif.testmode_sel === 2'b00) ? ((dut_vif.ext_clk_en === 1'b0) ?  (dut_vif.gpio_pd_en[11] ? 1'bz : 1'b0) : 1'b1) : 1'bz;
 
@@ -500,10 +501,14 @@ assign scan_rst_n = 1'b1;
 assign iopad_resetn = (dut_vif.testmode_sel === 2'b11) ? ext_resetn  : (dut_vif.testmode_sel === 2'b10) ? RESETb : (dut_vif.testmode_sel === 2'b01) ? scan_rst_n : (dut_vif.gpio_pu_en[14] === 1'b1) ? 1'bz : ext_resetn;               // Checked
 
 // INT_OSC_OUT_EN
-assign IOBUF_PAD[11]= ((dut_vif.testmode_sel === 2'b00) || (dut_vif.testmode_sel === 2'b10))      ? ((dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'bz) : 1'bz;
+assign IOBUF_PAD[13]= ((dut_vif.testmode_sel === 2'b00) || (dut_vif.testmode_sel === 2'b10)) ? ((dut_vif.mult_chip_en === 1'b1) ? 1'b1 : 1'bz) : 1'bz;
 // HFOSC_OUT
+assign IOBUF_PAD[12]= 1'bz;
+// INT3
+assign IOBUF_PAD[11]= 1'bz;
+// INT2
 assign IOBUF_PAD[10]= 1'bz;
-// OTP_VPP_EN
+// INT1
 assign IOBUF_PAD[9]= 1'bz;
 // INTB
 assign IOBUF_PAD[8] =  (dut_vif.testmode_sel === 2'b11) ? 1'bz : (dut_vif.testmode_sel === 2'b10) ? 1'bz   :   (dut_vif.testmode_sel === 2'b01) ? 1'bz                : 1'bz;                // Checked
@@ -666,11 +671,11 @@ assign #(dut_vif.otp_vpp_delay) VPP = (dut_vif.mult_master_inf_en == 1'b1) && ((
 
 wire  VDD_DIG_S11;
 assign VDD_DIG_S11 = VDD_DIG_S1;
-assign #(dut_vif.otp_vpp_delay) VPP_S1 = (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S11 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S1[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S11 === 1'b1) ? IOBUF_PAD_S1[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S1[10:8] === 3'b000) ? IOBUF_PAD_S1[9] && `SOC_TOP_S1.CLKSEL : 0) : 0) : 0);
+assign #(dut_vif.otp_vpp_delay) VPP_S1 = (dut_vif.swap_sdf_en === 1'b1) ? 1'b0 : (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S11 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S1[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S11 === 1'b1) ? IOBUF_PAD_S1[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S1[10:8] === 3'b000) ? IOBUF_PAD_S1[9] && `SOC_TOP_S1.CLKSEL : 0) : 0) : 0);
 
 wire  VDD_DIG_S21;
 assign VDD_DIG_S21 = VDD_DIG_S2;
-assign #(dut_vif.otp_vpp_delay) VPP_S2 = (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S21 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S2[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S21 === 1'b1) ? IOBUF_PAD_S2[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S2[10:8] === 3'b000) ? IOBUF_PAD_S2[9] && `SOC_TOP_S2.CLKSEL : 0) : 0) : 0);
+assign #(dut_vif.otp_vpp_delay) VPP_S2 = (dut_vif.swap_sdf_en === 1'b0) ? 1'b0 : (dut_vif.mult_master_inf_en == 1'b0) && (((dut_vif.mult_chip_en === 1'b1) && (VDD_DIG_S21 === 1'b1)) ?((dut_vif.testmode_sel === 2'b00) ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (dut_vif.otp_program_en === 1'b1) ? IOBUF_PAD_S2[8] : 1'b0) :  (dut_vif.testmode_sel === 2'b10) ? (dut_vif.bist_vpp_pin_en === 1'b1 ? ((dut_vif.pinmux_mode === 1'b1) ? 1'b0 : (VDD_DIG_S21 === 1'b1) ? IOBUF_PAD_S2[7] : 1'b0) : VPP_BIST) : (dut_vif.testmode_sel === 2'b11) ? ((IOBUF_PAD_S2[10:8] === 3'b000) ? IOBUF_PAD_S2[9] && `SOC_TOP_S2.CLKSEL : 0) : 0) : 0);
 
 `endif
 
