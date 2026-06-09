@@ -76,10 +76,11 @@ set_app_var verification_verify_directly_undriven_output true
 # -----------------------------------------------------------------------------------
 
 if {$stage != "postlayout"} {
-  set_svf ../data/synthesis_prescan_dct_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  synthesis_prescan_dct_BUD=yes_sdf
 }
 if {$stage == "postscan_dct"} {
-  set_svf -append ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.svf
+  set_svf -append ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 }
 
 #if {$stage == "postscan_pteco"} {

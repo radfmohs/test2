@@ -278,33 +278,9 @@ class `TESTNAME extends soc_base_test;
      check_trimreg(top_test_cfg.expected_otp_data); 
      #1us;
 
-
      //Next programming clear unlock register
      assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_UNLOCK_REG; no_of_bytes == 1; data[0] == 8'b0;});
     `WR_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.pads, top_test_cfg.data);
-
-     `WR_NORMAL_REG(`SOC_OTP_WAVEGEN_NUM_REG, 8'h01, 8'h00); // Config OTP WAVEGEN
-
-     `nnc_info("SOC_TEST", "Write to wavegen otp", UVM_LOW)
-     //`nnc_info("SOC_TEST", "wait fof fixed delay to complete wr programming", UVM_LOW)
-     // To program each location require (1.31*9 +0.1)ms (minimum time require to program one location)
-     disable_otp_clk_gating(); 
-     write_rd_trimregs_to_otp(3'd0);  //write_rd_trimregs_to_otp(real wr_prgm_delay, bit wait_for_unlock_clear);
-     //8.
-     //read_and_compare_trim_reg_data(top_test_cfg.expected_otp_data, top_test_cfg.save_trim_wdata); 
-     //read_trims_dbg_reg(top_test_cfg.expected_otp_data);
-     //(optional)cross check Analog interface D2A_* TRIM signals 
-     //check_trimreg(top_test_cfg.expected_otp_data); 
-     #1us;
-
-
-//     `nnc_info("SOC_TEST", "Trim Write function for otp", UVM_LOW)
-//     `nnc_info("SOC_TEST", "wait for wr_working HIGH to complete wr programming", UVM_LOW)
-//     // To program each location require (1.31*9 +0.1)ms (minimum time require to program one location) 
-//     disable_otp_clk_gating();
-//     write_rd_trimregs_to_otp(2'd2);  //write_rd_trimregs_to_otp(real wr_prgm_delay, bit wait_for_unlock_clear);
-//     read_and_compare_trim_reg_data(top_test_cfg.expected_otp_data, top_test_cfg.save_trim_wdata); 
-//     #1us;
 
     // --------------------------------------------------------
     // End of test and add any needed delay time 

@@ -618,7 +618,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h0)begin
     o_rd <=1'b0;
   end else if (dual_en) begin
-    if ((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && !wavegen_cmd_reg && !nirs_cmd_reg) begin
+    if ((bit_cnt ==6'h12) && (cmd_reg == 1'b0) && !wavegen_cmd_reg && !nirs_cmd_reg) begin
       o_rd <= 1'b1;
     end else begin
       o_rd <= 1'b0;
@@ -640,7 +640,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h0)begin
     o_wavegen_rd <=1'b0;
   end else if (dual_en) begin
-    if ((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && wavegen_cmd_reg && !nirs_cmd_reg) begin
+    if ((bit_cnt ==6'h12) && (cmd_reg == 1'b0) && wavegen_cmd_reg && !nirs_cmd_reg) begin
       o_wavegen_rd <= 1'b1;
     end else begin
       o_wavegen_rd <= 1'b0;
@@ -662,7 +662,7 @@ always@(posedge i_sclk_neg, negedge i_rst_n) begin
   end else if(bit_cnt ==6'h0)begin
     o_nirs_rd <=1'b0;
   end else if (dual_en) begin
-    if((bit_cnt ==6'h16) && (cmd_reg == 1'b0) && nirs_cmd_reg && !wavegen_cmd_reg) begin    //can be latch_state
+    if((bit_cnt ==6'h12) && (cmd_reg == 1'b0) && nirs_cmd_reg && !wavegen_cmd_reg) begin    //can be latch_state
       o_nirs_rd <= 1'b1;
     end else begin
       o_nirs_rd <= 1'b0;
@@ -834,7 +834,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     byte_cnt <= 7'h0;
   end else if (bit_cnt == 6'h0) begin
     byte_cnt <= 7'h0;
-  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt == num_status_byte + i_channel_max * chdata_size[2:0] - 1) && !next_dev_valid) begin
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt == {4'b0, num_status_byte} + ({2'b0, i_channel_max} * {4'b0, chdata_size[2:0]}) - 1) && !next_dev_valid) begin
     byte_cnt <= 7'h0;
   end else if ( bit_cnt < 6'h10 ) begin
     byte_cnt <= byte_cnt;
@@ -859,7 +859,7 @@ always @(posedge i_sclk_neg, negedge i_rst_n) begin
     byte_cnt_tmp <= 6'h0;
   end else if (!mode[1] && (byte_cnt < 7'h5 || ( byte_cnt == 7'h5 && !byte_done )) && !next_dev_valid) begin
     byte_cnt_tmp <= 6'h0;
-  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == adc_inc_val) && !next_dev_valid) begin  
+  end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == {4'b0, adc_inc_val}) && !next_dev_valid) begin  
     byte_cnt_tmp <= 6'h0;
   end else if ((byte_done == 1'b1) && (rdata_cmd == 1'b1) && (byte_cnt_tmp == 6'd52) && next_dev_valid) begin
     byte_cnt_tmp <= 6'h0;
@@ -910,14 +910,14 @@ Notice when x+2 and x+3 are 68 and 69, just don't care as no more i_sclk_neg
 ******************************************************/
 always @(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
-    adc_cnt <= 5'h0;
+    adc_cnt <= 6'h0;
   end else if (cs_n_d == 1'b1) begin
-    adc_cnt <= 5'h0;
+    adc_cnt <= 6'h0;
   end else if (bit_cnt == 6'h0) begin
-    adc_cnt <= 5'h0;
-  end else if ((adc_cnt == i_channel_max - 1) && (byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
-    adc_cnt <= 5'h0; 
-  end else if ((byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && (adc_cnt < i_channel_max - 1) && !next_dev_valid) begin
+    adc_cnt <= 6'h0;
+  end else if ((adc_cnt == ({1'b0, i_channel_max} - 1)) && (byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && !next_dev_valid) begin
+    adc_cnt <= 6'h0; 
+  end else if ((byte_cnt_tmp[1:0] == adc_inc_val) && (byte_done == 1'b1) && (rdata_cmd == 1'b1) && (adc_cnt < ({ 1'b0, i_channel_max} - 1)) && !next_dev_valid) begin
     adc_cnt <= adc_cnt + 1;
   end else begin
     adc_cnt <= adc_cnt;
@@ -941,7 +941,7 @@ end
 wire [23:0]  imeas_chdata_reg;
 
 wire next_dev_en;
-assign next_dev_en = (adc_cnt == i_channel_max - 1) && daisy_en && byte_done && (byte_cnt_tmp == adc_inc_val);
+assign next_dev_en = (adc_cnt == ({ 1'b0, i_channel_max} - 1)) && daisy_en && byte_done && (byte_cnt_tmp == {4'b0 ,adc_inc_val});
 
 /***********************************************
 When master chip has finished transfer its data 
@@ -1003,6 +1003,9 @@ reg [6:0] byte_ptr;
 //reg [7:0] buffer [68:0];
 
 integer i;
+wire byte_ptr_last;
+
+assign byte_ptr_last = (byte_ptr == 7'd52);
 /*******************************************************
 At first, buffer is designed with 69 elements, each one with 8 bytes 
 because we have maximum 16 channels, each channel maximum is 4 bytes 
@@ -1028,8 +1031,8 @@ always @(posedge i_sclk_neg or negedge i_rst_n) begin
     shift_reg <= {shift_reg[6:0], daisy_in};
     index_cnt <= index_cnt + 1'b1;
     if(index_cnt == 3'd7) begin
-      buffer[byte_ptr] <= {shift_reg[6:0], daisy_in};
-      if(byte_ptr == 7'd52)
+        buffer[byte_ptr] <= {shift_reg[6:0], daisy_in};
+      if(byte_ptr_last)
         byte_ptr <= 7'd0;
       else
         byte_ptr <= byte_ptr + 1'b1;

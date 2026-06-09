@@ -975,12 +975,12 @@ end
       // ----------------------------------
       top_test_cfg.rest_lim = 0;
       // Updating for DUT Interface for Wave0
-      if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin // DC Wavegen and S
+      if ((`DUT_IF.wg_dc_en == 1) && (`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin // DC Wavegen and Source (No Rest, No Silent, No Neg)
         `DUT_IF.wg_hlf_wave0_lim[i] =  `DUT_IF.wg_wave0_pos_clk_num[i]; 
         `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
-        `DUT_IF.wg_rest_wave0_lim[i] = `DUT_IF.wg_discharge_num[i];
+        `DUT_IF.wg_rest_wave0_lim[i] = 0;
         `DUT_IF.wg_silent_wave0_lim[i] = 0;
-      end else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin
+      end else if ((`DUT_IF.wg_dc_en == 1) && (!`DUT_IF.wavegen_drv_mode[i] == 1'b1)) begin // DC Wavegen and Source (No Rest, No Silent, No Neg)
         `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; 
         `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
         `DUT_IF.wg_rest_wave0_lim[i] = 0;
@@ -989,7 +989,7 @@ end
         `DUT_IF.wg_hlf_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i]; 
         `DUT_IF.wg_neg_hlf_wave0_lim[i] = 0;
         `DUT_IF.wg_rest_wave0_lim[i] = `DUT_IF.wg_wave0_rest_clk_num[i];
-        `DUT_IF.wg_silent_wave0_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave0_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave0_rest_clk_num[i]: 0;
+        `DUT_IF.wg_silent_wave0_lim[i] = `DUT_IF.wg_wave0_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave0_rest_clk_num[i];
       end
 
       // ----------------------------------
@@ -997,20 +997,20 @@ end
       // ----------------------------------
       top_test_cfg.rest_lim = 0; 
       // Updating for DUT Interface for Wave1
-      `DUT_IF.wg_hlf_wave1_lim[i] = `DUT_IF.wg_wave1_pos_clk_num[i];//top_test_cfg.hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
+      `DUT_IF.wg_hlf_wave1_lim[i] = `DUT_IF.wg_wave1_pos_clk_num[i];
       `DUT_IF.wg_neg_hlf_wave1_lim[i] = 0;
-      `DUT_IF.wg_rest_wave1_lim[i] = top_test_cfg.rest_lim + top_test_cfg.PULLAB_CTRL;
-      `DUT_IF.wg_silent_wave1_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave1_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg : 0; //top_test_cfg.silent_lim;
+      `DUT_IF.wg_rest_wave1_lim[i] = `DUT_IF.wg_wave1_rest_clk_num[i];
+      `DUT_IF.wg_silent_wave1_lim[i] = `DUT_IF.wg_wave1_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave1_rest_clk_num[i];
 
       // ----------------------------------
       // Calculating for Wave2
       // ----------------------------------
       top_test_cfg.rest_lim = 0;
       // Updating for DUT Interface for Wave2
-      `DUT_IF.wg_hlf_wave2_lim[i] = `DUT_IF.wg_wave2_pos_clk_num[i]; //top_test_cfg.hlf_wave_lim / `DUT_IF.wg_drv_pnt_cfg;
+      `DUT_IF.wg_hlf_wave2_lim[i] = `DUT_IF.wg_wave2_pos_clk_num[i];
       `DUT_IF.wg_neg_hlf_wave2_lim[i] = 0;
-      `DUT_IF.wg_rest_wave2_lim[i] = top_test_cfg.rest_lim;
-      `DUT_IF.wg_silent_wave2_lim[i] = (`DUT_IF.wavegen_drv_en[i] == 1'b1) ? `DUT_IF.wg_wave2_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg : 0;
+      `DUT_IF.wg_rest_wave2_lim[i] = `DUT_IF.wg_wave2_rest_clk_num[i];
+      `DUT_IF.wg_silent_wave2_lim[i] = `DUT_IF.wg_wave2_pos_clk_num[i] * `DUT_IF.wg_drv_pnt_cfg + `DUT_IF.wg_wave2_rest_clk_num[i];
 
       // ----------------------------------
       // Updating configuration of Wave 0/1/2 from DUT to Wavegen VIP

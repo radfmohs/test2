@@ -1750,9 +1750,10 @@ wire       key_data,spi_wr_data,spi_rd_data;
 reg  [7:0] spi_otp_addr,spi_otp_data;
 wire [7:0] spi_data_read;
 wire       spi_otp_addr_valid;
+reg [2:0] spi_otp_slct;
 
-assign spi_otp_addr_valid = (spi_otp_addr>=8'h14) && (spi_otp_addr<=8'h7F);
-assign otp_unlock  = unlock_reg[0] && key_trim;
+assign spi_otp_addr_valid = ((spi_otp_addr>=8'h14) && (spi_otp_addr<=8'h7F) && (spi_otp_slct==3'b000)) | (spi_otp_slct!=3'b000);
+assign otp_unlock  = unlock_reg[0] && key_trim && (spi_otp_slct==3'b000);
 assign otp_spi_wr  = unlock_reg[1] && key_trim;
 assign spi_wr_data = unlock_reg[0] && key_data && spi_otp_addr_valid;
 assign spi_rd_data = unlock_reg[2] && key_data;
@@ -1791,7 +1792,6 @@ end
 
 assign otp_trims_data = trim_from_otp[otp_trims_sel]; 
 
-reg [2:0] spi_otp_slct;
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
     spi_otp_slct           <= 3'b0;

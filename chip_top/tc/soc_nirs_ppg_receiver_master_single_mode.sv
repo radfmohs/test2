@@ -331,6 +331,7 @@ class `TESTNAME extends soc_nirs_ppg_base_test;
 
     //Enable TB checker for D2A_ADJ0_REG
     `NIRS_PPG_IF.nirs_d2a_spi_adj0_regs_check_en = 1'b1;
+    `NIRS_PPG_IF.nirs_int_io_checker_en = 1'b1;
     //`NIRS_PPG_IF.nirs_8ch_d2a_spi_adj_regs_check_en = 1'b1;
 
     //6.

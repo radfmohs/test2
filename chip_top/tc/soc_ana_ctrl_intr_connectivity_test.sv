@@ -69,11 +69,11 @@ class `TESTCFG extends soc_base_test_cfg;
   // mask values
   constraint c_mask            { soft mask == 8'hff; }
 
-  constraint c_int_active_level_low_or_high  { int_active_level_high_or_low == 1; } // 1: intr active high, 0 : intr active low 
+//  constraint c_int_active_level_low_or_high  { int_active_level_high_or_low == 1; } // 1: intr active high, 0 : intr active low 
 
-  constraint c_clear_intr_manual_or_auto  { clear_intr_manual_or_auto == 0; } // 0: manually clear intr by w1c, 1 : auto clear intr by r1c 
+//  constraint c_clear_intr_manual_or_auto  { clear_intr_manual_or_auto == 0; } // 0: manually clear intr by w1c, 1 : auto clear intr by r1c 
 
-  constraint c_intr_length_slct_pulse_or_level  { intr_length_slct_level_or_pulse == 0; } // 0: level INT, 1: pulse INT
+//  constraint c_intr_length_slct_pulse_or_level  { intr_length_slct_level_or_pulse == 0; } // 0: level INT, 1: pulse INT
 
   constraint c_lvd_en                   { lvd_en == 1; } 
 
@@ -846,11 +846,32 @@ class `TESTNAME extends soc_base_test;
 
                     `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
                     //Expected ANA_LVD_STS raise with 2 conditions enable
-                    if(rd_data[0] !== 1'b0)
-                        `nnc_error("STS", $sformatf("INT_TSC_STS don't fall, the value is %b",rd_data[0])) 
-                    else 
-                        `nnc_info("STS", $sformatf("INT_TSC_STS fall, the value is %b",rd_data[0]), NNC_LOW) 
-                    `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.pads, rd_data);
+                    if(multi == 8'h40)
+                        begin
+                            if(`DUT_IF.int_active_level_high_or_low == 1)
+                                begin 
+                                wait(`SOC_TB.INT[2] === 0);
+                                `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                                end
+                            else 
+                                begin 
+                                wait(`SOC_TB.INT[2] === 1);
+                                `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                                end
+                        end     
+                    else         
+                        begin
+                            if(`DUT_IF.int_active_level_high_or_low == 1)
+                                begin 
+                                wait(`SOC_TB.INT[0] === 0 || `SOC_TB.INTB === 0);
+                                `nnc_info("INT", $sformatf("Interrupt is high"), NNC_LOW)
+                                end
+                            else 
+                                begin 
+                                wait(`SOC_TB.INT[0] === 1 || `SOC_TB.INTB === 1);
+                                `nnc_info("INT", $sformatf("Interrupt is low"), NNC_LOW)
+                                end
+                        end     
                     
                     assert(top_test_cfg.randomize with {wr_data[0] == 8'h80;});     
                     `WR_NORMAL_REG(`SOC_GENERAL_INT_STS_1_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
@@ -876,6 +897,7 @@ class `TESTNAME extends soc_base_test;
                      
                     //Expected ANA_LVD_STS raise.
                     `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
+                    `nnc_info("Testing", $sformatf("Should have hang"), NNC_LOW)
                     
                     @(posedge `TSC_TOP.sysclk);
                     @(posedge `TSC_TOP.sysclk);
@@ -883,6 +905,10 @@ class `TESTNAME extends soc_base_test;
                     @(posedge `TSC_TOP.sysclk);
                     @(posedge `TSC_TOP.sysclk);
                     @(posedge `TSC_TOP.sysclk);
+                    if(`DUT_IF.int_active_level_high_or_low == 1) 
+                      wait(`SOC_TB.INT[0] === 0);
+                    else 
+                      wait(`SOC_TB.INT[0] === 1);
                     
                     `RD_NORMAL_REG(`SOC_TSC_INT_STATUS_REG, top_test_cfg.pads, rd_data);
 

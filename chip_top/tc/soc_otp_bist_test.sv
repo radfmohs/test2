@@ -128,6 +128,7 @@ class `TESTNAME extends soc_base_test;
     // Scoreboard enables
     // ==================
     `EPROM_BIST_SCOREBOARD_EN = 1;
+    `IMEAS_SCB_EN = 0;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase

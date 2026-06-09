@@ -96,6 +96,8 @@ import nnc_uvm_pkg::*;
 dut_interface      dut_vif();
 
 assign dut_vif.sys_clk = `CLK_CTRL_TOP.pclk;
+assign `EPROM_IP.otp_sel = 1'b0;
+assign `EPROM_IP1.otp_sel = 1'b1;
 
 `ifdef POSTSCAN_PG
   assign dut_vif.soc_resetn = `RST_CTRL_TOP.wave_gen_presetn;

@@ -1264,6 +1264,16 @@ class `TESTNAME extends soc_base_test;
     end
     
     for (int i=0; i < 100; i++) begin
+        force `ANA_WRAPPER_TOP.D2A_NIRS_POWER_EN = $random;
+        #10000ns;
+        rand_num = `ANA_WRAPPER_TOP.D2A_NIRS_POWER_EN;
+        if (`ANA_TOP.D2A_NIRS_POWER_EN !== rand_num[0]) begin
+        `nnc_error("ANA", $sformatf("D2A_NIRS_POWER_EN :%b is not as expectation of rand_num : %b",`ANA_TOP.D2A_NIRS_POWER_EN, rand_num[0]))
+        end
+        release `ANA_WRAPPER_TOP.D2A_NIRS_POWER_EN;
+    end
+    
+    for (int i=0; i < 100; i++) begin
         force `ANA_WRAPPER_TOP.D2A_NIRS_EN[0] = $random;
         force `ANA_WRAPPER_TOP.D2A_NIRS_EN[1] = $random;
         force `ANA_WRAPPER_TOP.D2A_NIRS_EN[2] = $random;

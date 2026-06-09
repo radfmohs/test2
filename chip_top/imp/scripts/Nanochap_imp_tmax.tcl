@@ -38,7 +38,7 @@ set_drc -allow_unstable_set_resets
 if {$env(stage) == "postlayout"} {
 	run_drc ../data/synthesis_postscan_dct_no_sdf/Nanochap_ENS2.dft_scan_spf
 } else {
-	run_drc ../data/synthesis_$env(stage)_$env(generate_sdf)/Nanochap_ENS2.dft_scan_spf
+	run_drc ../data/synthesis_$env(stage).BUD=$env(bottom_up)_$env(generate_sdf)/Nanochap_ENS2.dft_scan_spf
 } 
 
 set_faults -report uncollapsed

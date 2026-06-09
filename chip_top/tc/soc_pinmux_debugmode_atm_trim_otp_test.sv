@@ -695,8 +695,64 @@ class `TESTNAME extends soc_base_test;
       `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 0, 8'h5a, top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);  
     end
     else
-      `nnc_info("SOC_TEST", "[EPROM BIST MASTER] TRIM TAG is used in Shadow Reg Default", NNC_LOW);
+    `nnc_info("SOC_TEST", "[EPROM BIST MASTER] TRIM TAG is used in Shadow Reg Default", NNC_LOW);
     
+    `nnc_info("SOC_TEST", "Requesting the RESET", UVM_LOW)
+    force soc_top_tb.iopad_resetn = 1'b0;
+
+    assert(top_test_cfg.randomize() with { testmode_sel == 2'b00;}) 
+    `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
+        
+    #100000ns;
+    release soc_top_tb.iopad_resetn;
+    #1000us; 
+             
+    `DUT_IF.altf_gpio_sel = `DUT_IF.altf_sel;
+
+    //top_test_cfg.rd_data =new[15];
+    //read trim_reg
+    assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_0_REG; no_of_bytes == 16; });
+    `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:15]);
+    #10ms; 
+    
+    for(int i=0; i<16; i++) begin
+
+        if(top_test_cfg.save_trim_wdata[i] !== `EPROM_TOP.u_otp_regs.shadow_regs[i+4]) begin
+            `nnc_error("SOC_TEST", $sformatf("save_trim_wdata %8b !== rd_data %8b!!!", top_test_cfg.save_trim_wdata[i], `EPROM_TOP.u_otp_regs.shadow_regs[i+4]));     
+        end
+    end
+
+    if(top_test_cfg.rd_data[14] !== `ANA_TOP.D2A_BG_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[15], `ANA_TOP.D2A_BG_TRIM));     
+    if(top_test_cfg.rd_data[13] !== `ANA_TOP.D2A_BGBUFFER_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[14], `ANA_TOP.D2A_BGBUFFER_TRIM));     
+    if(top_test_cfg.rd_data[12] !== `ANA_TOP.D2A_IREF_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[13], `ANA_TOP.D2A_IREF_TRIM));     
+    if(top_test_cfg.rd_data[11] !== `ANA_TOP.D2A_CLDO1P8_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[12], `ANA_TOP.D2A_CLDO1P8_TRIM));     
+    if(top_test_cfg.rd_data[10] !== `ANA_TOP.D2A_OSC8MHZ_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[11], `ANA_TOP.D2A_OSC8MHZ_TRIM));     
+    if(top_test_cfg.rd_data[9] !== `ANA_TOP.D2A_TSC_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[10], `ANA_TOP.D2A_TSC_TRIM));     
+    if(top_test_cfg.rd_data[8] !== `ANA_TOP.D2A_DRIVER_CUR_TRIM)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[9], `ANA_TOP.D2A_DRIVER_CUR_TRIM));     
+    if(top_test_cfg.rd_data[7] !== `ANA_TOP.D2A_TRIM0_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[8], `ANA_TOP.D2A_TRIM0_SIG_SPARE));     
+    if(top_test_cfg.rd_data[6] !== `ANA_TOP.D2A_TRIM1_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[7], `ANA_TOP.D2A_TRIM1_SIG_SPARE));     
+    if(top_test_cfg.rd_data[5] !== `ANA_TOP.D2A_TRIM2_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[6], `ANA_TOP.D2A_TRIM2_SIG_SPARE));     
+    if(top_test_cfg.rd_data[4] !== `ANA_TOP.D2A_TRIM3_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[5], `ANA_TOP.D2A_TRIM3_SIG_SPARE));     
+    if(top_test_cfg.rd_data[3] !== `ANA_TOP.D2A_TRIM4_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[4], `ANA_TOP.D2A_TRIM4_SIG_SPARE));     
+    if(top_test_cfg.rd_data[2] !== `ANA_TOP.D2A_TRIM5_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[3], `ANA_TOP.D2A_TRIM5_SIG_SPARE));     
+    if(top_test_cfg.rd_data[1] !== `ANA_TOP.D2A_TRIM6_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[2], `ANA_TOP.D2A_TRIM6_SIG_SPARE));     
+    if(top_test_cfg.rd_data[0] !== `ANA_TOP.D2A_TRIM7_SIG_SPARE)
+        `nnc_error("SOC_TEST", $sformatf("WRONG %b %b", top_test_cfg.rd_data[1], `ANA_TOP.D2A_TRIM7_SIG_SPARE));     
+
     end
   endtask 
 

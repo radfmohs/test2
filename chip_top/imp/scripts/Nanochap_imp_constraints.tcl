@@ -73,7 +73,7 @@ if {[string match S11?_m?? $i]} {
   #================================================================================================================================
   # ===== iclk -- switched from sys_clk
   # ================================================================================================================================
-  create_generated_clock -name iclk -add -divide_by 1 -master_clock sys_clk \
+  create_generated_clock -name iclk -add -divide_by 2 -master_clock sys_clk \
 		  -source [get_attribute [get_clocks sys_clk] sources] \
 		  [get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk*]
   set_clock_uncertainty -setup   [expr {0.1 * ${hfosc_period} + 1.2}]      [get_clocks iclk]
@@ -120,7 +120,7 @@ if {[string match S12?_m?? $i]} {
   #================================================================================================================================
   # ===== iclk -- switched from ext_clk
   # ================================================================================================================================
-  create_generated_clock -name iclk -add -divide_by 1 -master_clock ext_clk \
+  create_generated_clock -name iclk -add -divide_by 2 -master_clock ext_clk \
 		  -source [get_attribute [get_clocks ext_clk] sources] \
 		  [get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk*]
   set_clock_uncertainty -setup   [expr {0.1 * ${hfosc_period} + 1.2}]      [get_clocks iclk]
@@ -325,28 +325,28 @@ if {[string match S11?_m?? $i]} {
   set_false_path -hold -from [get_clocks vclk] -through [get_ports IOBUF_PAD[10]] -through [get_pins u_top_dig/u_clk_ctrl/int_clk_out_gpio] -to [get_clocks sys_clk]
   set_false_path -from sys_clk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/*
 
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from sys_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through [get_cells -h *nf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through [get_cells -h *nf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through [get_cells -h *fsm_cnt_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through [get_cells -h *fsm_cnt_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through [get_cells -h *lpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through [get_cells -h *lpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from sys_clk -through [get_cells -h *hpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from sys_clk -through [get_cells -h *hpf_fsm_reg*] -to  notch_clk
 }
 #normal mode; ext clk
 if {[string match S12?_m?? $i]} {
   set_false_path -hold -from [get_clocks vclk] -through [get_ports IOBUF_PAD[10]] -through [get_pins u_top_dig/u_clk_ctrl/int_clk_out_gpio] -to [get_clocks ext_clk]
   set_false_path -from ext_clk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/*
 
-  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_nf_fsm* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_fsm_cnt_reg_* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_lpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -setup 2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
-  set_multicycle_path -reset_path -hold  2 -from ext_clk -through u_top_dig/u_imeas_wrapper/genblk1_*__u_filter_wrapper/u_filter_ctrl_hpf_fsm_reg* -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through [get_cells -h *nf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through [get_cells -h *nf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through [get_cells -h *fsm_cnt_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through [get_cells -h *fsm_cnt_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through [get_cells -h *lpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through [get_cells -h *lpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -setup 2 -from ext_clk -through [get_cells -h *hpf_fsm_reg*] -to  notch_clk
+  set_multicycle_path -reset_path -hold  2 -from ext_clk -through [get_cells -h *hpf_fsm_reg*] -to  notch_clk
  
 }
 

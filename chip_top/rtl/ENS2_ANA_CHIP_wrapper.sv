@@ -613,6 +613,7 @@ wire        D2A_CLK_NIRS;
 wire        D2A_NIRS_CHOPPER_EN;
 wire  [1:0] D2A_NIRS_FCHOP_ADJ;
 wire        D2A_NIRS_TEST_EN;
+wire        D2A_NIRS_POWER_EN;
 wire        D2A_NIRS_EN             [7:0];
 wire        D2A_NIRS_IDAC_EN        [7:0];
 wire        D2A_NIRS_RESET_SW       [7:0];
@@ -630,7 +631,6 @@ wire  [1:0] D2A_NIRS_CFRATE_ADJ6; //RATIO
 wire  [1:0] D2A_NIRS_CFRATE_ADJ7; //RATIO
 wire  [8:0] D2A_NIRS_IDAC_ADJ       [7:0];
 
-
 wire        A2D_NIRS_IREFCOARSE     [7:0];
 wire        A2D_NIRS_IREFFINE       [7:0];
 
@@ -640,6 +640,7 @@ assign D2A_CLK_NIRS             = ana_nirs_if.D2A_CLK_NIRS;
 assign D2A_NIRS_CHOPPER_EN      = ana_nirs_if.D2A_CHOPPER_EN;
 assign D2A_NIRS_FCHOP_ADJ       = ana_nirs_if.D2A_FCHOP_ADJ;
 assign D2A_NIRS_TEST_EN         = ((pinmux_if.D2A_ATM[18] || pinmux_if.D2A_ATM[19] || pinmux_if.D2A_ATM[20]) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_TEST_EN;
+assign D2A_NIRS_POWER_EN        = ana_nirs_if.D2A_NIRS_POWER_EN;
 
 assign D2A_NIRS_EN[3:0]         = ana_nirs_if.D2A_NIRS_EN[3:0];
 assign D2A_NIRS_EN[4]           = ((pinmux_if.D2A_ATM[18] || pinmux_if.D2A_ATM[19] || pinmux_if.D2A_ATM[20]) && pinmux_if.ATM_HC_SEL == 1'b0) ? 1'b1 : ana_nirs_if.D2A_NIRS_EN[4];
@@ -820,6 +821,7 @@ ENS2_ANA_CHIP u_top_ana (
   .D2A_NIRS_CHOPPER_EN    (D2A_NIRS_CHOPPER_EN), 
   .D2A_NIRS_FCHOP_ADJ     (D2A_NIRS_FCHOP_ADJ), 
   .D2A_NIRS_TEST_EN       (D2A_NIRS_TEST_EN),
+  .D2A_NIRS_POWER_EN      (D2A_NIRS_POWER_EN),
 
   .D2A_NIRS0_EN           (D2A_NIRS_EN[0]), 
   .D2A_NIRS0_IDAC_EN      (D2A_NIRS_IDAC_EN[0]), 

@@ -177,7 +177,7 @@ generate
     assign IREF_FINE    [i] = ana_nirs_if.A2D_NIRS_IREFFINE[i];
 
 
-    assign spi_nirs_if.NIRS_DOUT[i][0]  = {1'b0, DOUT[i][21:15]};
+    assign spi_nirs_if.NIRS_DOUT[i][0]  = {INT[i], DOUT[i][21:15]};
     assign spi_nirs_if.NIRS_DOUT[i][1]  = {DOUT[i][14:7]};
     assign spi_nirs_if.NIRS_DOUT[i][2]  = {DOUT[i][6:0], IDAC[i][8]};
     assign spi_nirs_if.NIRS_DOUT[i][3]  = IDAC[i][7:0];
@@ -186,6 +186,7 @@ generate
 endgenerate
 
 assign ana_nirs_if.IDAC_MANUAL_ATM    = IDAC_MANUAL_1[4]; // For CP test only - No functional use
+assign ana_nirs_if.D2A_NIRS_POWER_EN  = spi_nirs_if.NIRS_CTRL_ADJ[7];
 assign ana_nirs_if.D2A_PDBIAS_EN      = spi_nirs_if.NIRS_CTRL_ADJ[6];
 assign ana_nirs_if.D2A_PDBIAS_ADJ     = spi_nirs_if.NIRS_CTRL_ADJ[5:4];
 assign ana_nirs_if.D2A_CLK_NIRS       = clk_ana;
