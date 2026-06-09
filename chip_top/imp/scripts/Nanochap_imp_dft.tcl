@@ -471,12 +471,6 @@ compile_ultra -incremental
 # DFT: Write out test protocols and reports
 # -----------------------------------------------------------------------------
 
-# write_scan_def adds SCANDEF info to the design database in memory so this
-# must be performed prior to writing out the design
-write_scan_def -output $out_data/${rm_project_top}.dft_scandef
-
-check_scan_def > $out_rep/${rm_project_top}.check_scan_def
-
 write_test_model -format ctl -output $out_data/${rm_project_top}.dft_ctl
 
 current_test_mode internal_scan
@@ -518,6 +512,18 @@ change_names -rules verilog -hierarchy -verbose > $out_rep/${rm_project_top}.cha
 source ../scripts/Nanochap_imp_rm_float.tcl
 # Execute the procedure
 find_and_remove_fully_floating_modules
+
+# SCANDEF must be written here, AFTER uniquify / change_names / floating-cell
+# removal, so the scan-cell instance names it records match the final Verilog
+# netlist that ICC reads. Writing it before change_names leaves stale names and
+# makes ICC scan-chain annotation fail (DDEFR-024 "Cannot find scan cell ...",
+# DDEFR-066). Only bottom_up=yes exposes this: the imeas_wrapper sub-tree is
+# ungrouped/flattened above, so change_names rewrites those instance names.
+# (TMAX is immune because it re-traces chains from the netlist instead of
+# trusting an explicit ordered cell list like SCANDEF does.)
+write_scan_def -output $out_data/${rm_project_top}.dft_scandef
+
+check_scan_def > $out_rep/${rm_project_top}.check_scan_def
 
 set_app_var verilogout_higher_designs_first true
 set_app_var verilogout_no_tri true
