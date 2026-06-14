@@ -181,11 +181,21 @@ set rm_project_top imeas_wrapper
 #current_scenario S111_max
 
 #compile_ultra -check
+
+# ------------------------------------------------------------------------------
+# Setup for Formality verification (bottom-up sub-block)
+# The clock gating inserted below (-gate_clock) must be captured in an SVF so
+# that Formality can match the resulting clock-gating latches when this block
+# is read/flattened at the top level. Without it, these latches show up as
+# unmatched implementation "Clock-gate LAT" compare points.
+# ------------------------------------------------------------------------------
+sh rm -rf ../data/synthesis_l2
+file mkdir ../data/synthesis_l2
+set_svf ../data/synthesis_l2/imeas_wrapper.svf
+
 compile_ultra -scan -gate_clock -no_autoungroup
 
-sh rm -rf ../data/synthesis_l2
 sh rm -rf ../report/synthesis_l2
-file mkdir ../data/synthesis_l2
 file mkdir ../report/synthesis_l2
 
 #uniquify -force
@@ -196,6 +206,9 @@ write -f verilog -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.ddc
+
+# Write and close SVF file, make it available for immediate use
+set_svf -off
 
 #foreach i $scenarios {
 #  current_scenario $i

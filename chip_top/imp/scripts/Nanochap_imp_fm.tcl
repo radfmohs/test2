@@ -76,11 +76,27 @@ set_app_var verification_verify_directly_undriven_output true
 # -----------------------------------------------------------------------------------
 
 if {$stage != "postlayout"} {
-  set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
-  synthesis_prescan_dct_BUD=yes_sdf
+  # In the bottom-up (BUD) flow the imeas_wrapper / filter_wrapper sub-blocks
+  # are synthesized separately (syn_l2 / syn_l3) where clock gating is inserted.
+  # Their SVF guidance must be loaded FIRST (in elaboration order, bottom-up)
+  # so Formality can recognize the clock-gating latches that end up flattened
+  # into the top level during DFT. Omitting these SVFs is what leaves the
+  # imeas/filter clock-gating latches unmatched (Clock-gate LAT in IMPL) and
+  # their gated flip-flops unmatched (DFF in REF).
+  if {$bottom_up == "yes"} {
+    set_svf ../data/synthesis_l3/filter_wrapper.svf
+    set_svf -append ../data/synthesis_l2/imeas_wrapper.svf
+    set_svf -append ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  } else {
+    set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  }
 }
 if {$stage == "postscan_dct"} {
-  set_svf -append ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
+  # NOTE: dft.tcl writes its output dir as "synthesis_<stage>.BUD=<bud>_<sdf>"
+  # (dot before BUD), so this append must use the same ".BUD=" spelling or the
+  # DFT-stage SVF (which carries the imeas_wrapper ungroup/flatten guidance)
+  # is silently not loaded.
+  set_svf -append ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 }
 
 #if {$stage == "postscan_pteco"} {

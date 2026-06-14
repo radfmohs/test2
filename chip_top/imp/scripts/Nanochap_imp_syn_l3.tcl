@@ -176,6 +176,16 @@ set rm_project_top filter_wrapper
 #set_active_scenarios [all_scenarios]
 #current_scenario S111_max
 
+# ------------------------------------------------------------------------------
+# Setup for Formality verification (bottom-up sub-block)
+# The clock gating inserted below (-gate) must be captured in an SVF so that
+# Formality can match the resulting clock-gating latches when this block is
+# read/flattened at the top level. Without it, these latches show up as
+# unmatched implementation "Clock-gate LAT" compare points.
+# ------------------------------------------------------------------------------
+file mkdir ../data/synthesis_l3
+set_svf ../data/synthesis_l3/filter_wrapper.svf
+
 #compile_ultra -check
 compile_ultra -scan -gate
 
@@ -232,6 +242,9 @@ write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l3/single_channel.ddc
+
+# Write and close SVF file, make it available for immediate use
+set_svf -off
 
 #foreach i $scenarios {
 #  current_scenario $i
