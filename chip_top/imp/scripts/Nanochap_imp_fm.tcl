@@ -91,13 +91,22 @@ if {$stage != "postlayout"} {
     set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
   }
 }
-if {$stage == "postscan_dct"} {
-  # NOTE: dft.tcl writes its output dir as "synthesis_<stage>.BUD=<bud>_<sdf>"
-  # (dot before BUD), so this append must use the same ".BUD=" spelling or the
-  # DFT-stage SVF (which carries the imeas_wrapper ungroup/flatten guidance)
-  # is silently not loaded.
-  set_svf -append ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
-}
+# NOTE: The DFT/postscan SVF is intentionally NOT appended here.
+# Nanochap_imp_dft.tcl keeps the SVF open across the test-mode setup
+# (define_test_mode / create_test_protocol / insert_dft), so that file records
+# the scan/test-mode environment. When loaded, Formality replays it as
+# set_constant on the test-control signals (iopad_testmode0, IOBUF_PAD[1] scan
+# enable, IOBUF_PAD[2], u_pinmux/atpg_en, u_gpio*_pinmux/test0_y), which both
+# ties off internal pins this script never set AND conflicts with the explicit
+# functional-mode constants below ("previous value was 1").
+# The logic-equivalence guidance needed for the bottom-up clock gating lives in
+# the prescan + L2/L3 SVFs above, so functional RTL-vs-netlist verification does
+# not need this SVF. Re-enable the append only if you must capture DFT-stage
+# logic optimization (compile_ultra -incremental) and are prepared to reconcile
+# the test-mode constants it brings in.
+#if {$stage == "postscan_dct"} {
+#  set_svf -append ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
+#}
 
 #if {$stage == "postscan_pteco"} {
 #    set_svf -append ../data/synthesis_postscan_pteco/${rm_project_top}.dft_pteco.svf
