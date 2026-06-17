@@ -77,7 +77,6 @@ set ref_rtl [list \
   ../../../../logical/imeas/rtl/notch_filter.sv \
   ../../../../logical/imeas/rtl/filter_ctrl.sv \
   ../../../../logical/imeas/rtl/filter_wrapper.sv \
-  ../../../../logical/imeas/rtl/decimator.sv \
   ../../../../logical/imeas/rtl/imeas.sv \
   ../../../../logical/imeas/rtl/imeas_cdc.sv \
   ../../../../logical/imeas/rtl/imeas_cic.sv \
