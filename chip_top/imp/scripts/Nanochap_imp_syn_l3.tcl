@@ -148,7 +148,15 @@ set_clock_gating_style -sequential_cell latch \
 ###################################################### LEVEL 3 individual channel filter compile
 
 analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../logical/imeas/rtl/filter_ctrl.sv ../../../../logical/imeas/rtl/filter_fir_lpf.sv ../../../../logical/imeas/rtl/filter_iir_hpf.v ../../../../logical/imeas/rtl/notch_filter.sv ../../../../logical/imeas/rtl/imeas.sv ../../../../logical/imeas/rtl/imeas_cdc.sv ../../../../logical/imeas/rtl/imeas_cic.sv ../../../../logical/imeas/rtl/imeas_ctrl.sv ../../../../logical/imeas/rtl/imeas_reg.sv ../../../common/common_pulse_rising.v ../../../common/common_pulse_sync.v ../../../common/common_bit_sync.v}
-elaborate filter_wrapper
+# Elaborate WITH the parameter it is instantiated with (DATA_WIDTH=24).
+# imeas_wrapper instantiates filter_wrapper #(.DATA_WIDTH(24)), so the rest of
+# the flow (and Formality elaborating the RTL) names this design
+# 'filter_wrapper_DATA_WIDTH24'. Elaborating it bare here would name it
+# 'filter_wrapper', and every SVF guidance command (constant/ungroup/merge/
+# inv_push...) would be scoped to that non-existent name and get rejected,
+# causing the filter datapath to fail LEC. Keeping the name parameter-qualified
+# makes the guidance bind.
+elaborate filter_wrapper -parameters "DATA_WIDTH=24"
 link
 
 # Disable register merging

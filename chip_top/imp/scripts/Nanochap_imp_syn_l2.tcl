@@ -147,8 +147,10 @@ link
 #reset_design
 #current_design imeas_wrapper
 
-set_dont_touch [get_designs filter_wrapper]
-get_attribute [get_designs filter_wrapper] is_mapped
+# filter_wrapper is now named filter_wrapper_DATA_WIDTH24 (syn_l3 elaborates it
+# with -parameters), so match it by wildcard rather than the bare name.
+set_dont_touch [get_designs "*filter_wrapper*"]
+get_attribute [get_designs "*filter_wrapper*"] is_mapped
 get_attribute [get_designs "*filter_wrapper*"] dont_touch
 #report_reference
 
