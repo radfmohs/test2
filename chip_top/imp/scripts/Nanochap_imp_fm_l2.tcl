@@ -66,16 +66,28 @@ read_db $stdcell_library(db,$slow_corner_pvt)
 # so a pass/fail here also isolates whether the top-level mismatch is caused by
 # the -define list that the top fm.tcl applies.
 # ------------------------------------------------------------------------------
+# filter_wrapper instantiates the full imeas core (u_imeas) and several common
+# sync cells, so unlike DC's "analyze -autoread", every module must be listed
+# explicitly here. This is the complete imeas/rtl set + the common cells the
+# imeas/filter RTL instantiates (common_sync_bit, common_pulse_rising,
+# common_pulse_async_clr, common_bit_sync, common_rst_sync, common_pulse_sync).
 set ref_rtl [list \
   ../../../../logical/imeas/rtl/filter_iir_hpf.v \
   ../../../../logical/imeas/rtl/filter_fir_lpf.sv \
   ../../../../logical/imeas/rtl/notch_filter.sv \
   ../../../../logical/imeas/rtl/filter_ctrl.sv \
   ../../../../logical/imeas/rtl/filter_wrapper.sv \
+  ../../../../logical/imeas/rtl/decimator.sv \
+  ../../../../logical/imeas/rtl/imeas.sv \
+  ../../../../logical/imeas/rtl/imeas_cdc.sv \
+  ../../../../logical/imeas/rtl/imeas_cic.sv \
+  ../../../../logical/imeas/rtl/imeas_ctrl.sv \
+  ../../../../logical/imeas/rtl/imeas_reg.sv \
   ../../../../logical/imeas/rtl/imeas_wrapper.sv \
-  ../../../common/common_bit_sync.v \
   ../../../common/common_sync_bit.v \
+  ../../../common/common_bit_sync.v \
   ../../../common/common_pulse_rising.v \
+  ../../../common/common_pulse_sync.v \
   ../../../common/common_pulse_async_clr.v \
   ../../../common/common_rst_sync.v \
 ]
