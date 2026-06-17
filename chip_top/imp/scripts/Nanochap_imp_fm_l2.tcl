@@ -71,25 +71,26 @@ read_db $stdcell_library(db,$slow_corner_pvt)
 # explicitly here. This is the complete imeas/rtl set + the common cells the
 # imeas/filter RTL instantiates (common_sync_bit, common_pulse_rising,
 # common_pulse_async_clr, common_bit_sync, common_rst_sync, common_pulse_sync).
-set ref_rtl [list \
-  ../../../../logical/imeas/rtl/filter_iir_hpf.v \
-  ../../../../logical/imeas/rtl/filter_fir_lpf.sv \
-  ../../../../logical/imeas/rtl/notch_filter.sv \
-  ../../../../logical/imeas/rtl/filter_ctrl.sv \
-  ../../../../logical/imeas/rtl/filter_wrapper.sv \
-  ../../../../logical/imeas/rtl/imeas.sv \
-  ../../../../logical/imeas/rtl/imeas_cdc.sv \
-  ../../../../logical/imeas/rtl/imeas_cic.sv \
-  ../../../../logical/imeas/rtl/imeas_ctrl.sv \
-  ../../../../logical/imeas/rtl/imeas_reg.sv \
-  ../../../../logical/imeas/rtl/imeas_wrapper.sv \
-  ../../../common/common_sync_bit.v \
-  ../../../common/common_bit_sync.v \
-  ../../../common/common_pulse_rising.v \
-  ../../../common/common_pulse_sync.v \
-  ../../../common/common_pulse_async_clr.v \
-  ../../../common/common_rst_sync.v \
-]
+# Brace-quoted list (no backslash continuations -> immune to trailing whitespace).
+set ref_rtl {
+  ../../../../logical/imeas/rtl/filter_iir_hpf.v
+  ../../../../logical/imeas/rtl/filter_fir_lpf.sv
+  ../../../../logical/imeas/rtl/notch_filter.sv
+  ../../../../logical/imeas/rtl/filter_ctrl.sv
+  ../../../../logical/imeas/rtl/filter_wrapper.sv
+  ../../../../logical/imeas/rtl/imeas.sv
+  ../../../../logical/imeas/rtl/imeas_cdc.sv
+  ../../../../logical/imeas/rtl/imeas_cic.sv
+  ../../../../logical/imeas/rtl/imeas_ctrl.sv
+  ../../../../logical/imeas/rtl/imeas_reg.sv
+  ../../../../logical/imeas/rtl/imeas_wrapper.sv
+  ../../../common/common_sync_bit.v
+  ../../../common/common_bit_sync.v
+  ../../../common/common_pulse_rising.v
+  ../../../common/common_pulse_sync.v
+  ../../../common/common_pulse_async_clr.v
+  ../../../common/common_rst_sync.v
+}
 read_sverilog -r -work_library WORK $ref_rtl
 set_top r:/WORK/${blk}
 
