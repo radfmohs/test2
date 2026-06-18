@@ -139,7 +139,15 @@ set_clock_gating_style -sequential_cell latch \
 read_ddc ../data/synthesis_l3/single_channel.ddc
 
 analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../../common/common_bit_sync.v ../../../common/common_pulse_rising.v ../../../common/common_pulse_async_clr.v ../../../common/common_rst_sync.v ../../../common/common_sync_bit.v}
-elaborate imeas_wrapper
+# Elaborate WITH the parameters the top instantiates it with
+# (top_dig: imeas_wrapper #(.DATA_WIDTH(EEG_DATA_WIDTH=24), .CHN_NUM(EEG_CHN_NUM=16))).
+# Same reasoning as filter_wrapper in syn_l3: elaborating bare names this design
+# 'imeas_wrapper', but at the top (and in Formality's RTL reference) it is named
+# 'imeas_wrapper_DATA_WIDTH24_CHN_NUM16'. Matching the name lets the L2 SVF
+# guidance bind in the top prescan LEC. (Verify the exact elaborated name via the
+# FE-LINK-13 "Created design named ..." message and adjust if your template
+# naming style differs.)
+elaborate imeas_wrapper -parameters "DATA_WIDTH=24 CHN_NUM=16"
 
 link
 

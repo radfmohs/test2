@@ -21,6 +21,13 @@ print_suppressed_messages
 
 set blk imeas_wrapper
 
+# Reference (RTL) top is elaborated as the verification top -> plain name.
+# Implementation top comes from syn_l2, which now elaborates imeas_wrapper with
+# -parameters, so its top design is parameter-qualified. If your template naming
+# differs, check the netlist / FE-LINK-13 message and adjust blk_impl.
+set blk_ref  imeas_wrapper
+set blk_impl imeas_wrapper_DATA_WIDTH24_CHN_NUM16
+
 # ------------------------------------------------------------------------------
 # Configuration + technology
 # ------------------------------------------------------------------------------
@@ -92,19 +99,19 @@ set ref_rtl {
   ../../../common/common_rst_sync.v
 }
 read_sverilog -r -work_library WORK $ref_rtl
-set_top r:/WORK/${blk}
+set_top r:/WORK/${blk_ref}
 
 # ------------------------------------------------------------------------------
 # Implementation: L2 gate-level netlist (written by syn_l2, no uniquify/flatten)
 # ------------------------------------------------------------------------------
 read_verilog -i -work_library WORK -netlist ../data/synthesis_l2/imeas_wrapper.prescan.v
-set_top i:/WORK/${blk}
+set_top i:/WORK/${blk_impl}
 
 # ------------------------------------------------------------------------------
 # Match + verify
 # ------------------------------------------------------------------------------
-set_reference_design      r:/WORK/${blk}
-set_implementation_design i:/WORK/${blk}
+set_reference_design      r:/WORK/${blk_ref}
+set_implementation_design i:/WORK/${blk_impl}
 
 match
 
@@ -114,7 +121,7 @@ report_matched_points         > ${rpt_dir}/${blk}.matched.fm
 report_unmatched_points       > ${rpt_dir}/${blk}.unmatched.fm
 report_setup_status
 
-set status [ verify r:/WORK/${blk} i:/WORK/${blk} ]
+set status [ verify r:/WORK/${blk_ref} i:/WORK/${blk_impl} ]
 
 report_passing_points         > ${rpt_dir}/${blk}.passed.fm
 report_failing_points         > ${rpt_dir}/${blk}.failed.fm
