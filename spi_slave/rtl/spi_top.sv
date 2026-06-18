@@ -353,6 +353,7 @@ wire                  nirs_rd;
 wire                  nirs_cmd_reg;
 wire [data_width-1:0] wr_data;
 wire [data_width-1:0] rd_data;
+wire [data_width-1:0] nirs_int_allowed;
 //wire  addr_vld_for_int_clr;
 //wire burst_cmd;
 //wire [addr_width-1:0] pre_addr;
@@ -461,6 +462,7 @@ spi_slv_ctrl_u (
   .o_nirs_rd     (nirs_rd),
   .o_wr_data     (wr_data),
   .o_imeas_intr_clr (o_imeas_intr_clr),
+  .o_int_allowed (nirs_int_allowed),
   .imeas_16bit_sel  (imeas_16bit_sel)
   
 //.burst_cmd_reg (burst_cmd),
@@ -554,6 +556,7 @@ spi_reg_u (
   .nirs_cmd_reg(nirs_cmd_reg),
   .i_nirs_wr(nirs_wr),
   .i_nirs_rd(nirs_rd),
+  .i_nirs_int_allowed(nirs_int_allowed),
   .i_wr_data(wr_data),
   .o_rd_data(rd_data),
 //.i_addr_vld_for_int_clr(addr_vld_for_int_clr),

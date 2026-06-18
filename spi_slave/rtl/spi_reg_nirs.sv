@@ -106,6 +106,11 @@ module spi_reg_nirs #(
 
   input   wire            int_clear_type,
 
+  // Snapshot (from the SPI controller) of the byte actually shipped to the MCU
+  // on MISO for this transaction. Used to gate R1C so a status is only cleared
+  // once it has genuinely been delivered to the master.
+  input  [DATA_WIDTH-1:0] i_int_allowed,
+
   spi_nirs_if.spi         spi_nirs_if
 );
 
@@ -268,11 +273,20 @@ always @(posedge i_clk or negedge i_rst_n) begin
     for (int x = 0; x < NO_OF_CHANNEL; x++) begin
       if (nirs_int_sts_wr & i_wr_data[x] & !int_clear_type) begin // WRITE 1 to clear RW1C
         nirs_int_clr[x] <= 1'b1;
-      end else if (nirs_int_sts_rd      & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - NIRS INT reg
+      // READ 1 to clear - NIRS INT reg.
+      // i_int_allowed holds the snapshot of the NIRS_INT_STATUS byte that was
+      // shipped to the MCU, so bit[x] tells us whether channel x's status was
+      // actually delivered. Gating on this (instead of the live status) avoids
+      // clearing a status that was set after the read byte was latched but
+      // before the read strobe arrives (the R1C mid-poll race).
+      end else if (nirs_int_sts_rd      & int_clear_type & nirs_int_sts_sync[x] & i_int_allowed[x]) begin
         nirs_int_clr[x] <= 1'b1;
 //    end else if (int_gen_sts_rd       & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - GEN INT reg
 //      nirs_int_clr[x] <= 1'b1;
-      end else if (nirs_int_dout_rd[x]  & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - DOUT0 of each channel reg
+      // READ 1 to clear - DOUT0 of each channel reg.
+      // For a DOUTx_0 read the per-channel status sits in bit[7] of the shipped
+      // byte, so use i_int_allowed[7] as the delivered-status snapshot.
+      end else if (nirs_int_dout_rd[x]  & int_clear_type & nirs_int_sts_sync[x] & i_int_allowed[7]) begin
         nirs_int_clr[x] <= 1'b1;
         
       end else begin

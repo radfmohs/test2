@@ -364,6 +364,7 @@ module spi_reg #(
   input                  nirs_cmd_reg,
   input                  i_nirs_wr,
   input                  i_nirs_rd,
+  input [DATA_WIDTH-1:0] i_nirs_int_allowed,
 
   input [DATA_WIDTH-1:0] i_wr_data  ,
 //input                  i_addr_vld_for_int_clr,
@@ -1976,6 +1977,7 @@ wire [7:0] nirs_rd_data;
     .ppg_rst_reg          (ppg_rst_reg),
     .ppg_clk_gate_bypass  (ppg_clk_gate_bypass),
     .int_clear_type       (int_clear_type),
+    .i_int_allowed        (i_nirs_int_allowed),
 
     .spi_nirs_if          (spi_nirs_if)
   );
