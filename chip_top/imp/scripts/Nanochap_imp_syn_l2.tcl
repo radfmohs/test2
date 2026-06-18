@@ -147,7 +147,7 @@ analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../.
 # guidance bind in the top prescan LEC. (Verify the exact elaborated name via the
 # FE-LINK-13 "Created design named ..." message and adjust if your template
 # naming style differs.)
-elaborate imeas_wrapper -parameters "DATA_WIDTH=24 CHN_NUM=16"
+elaborate imeas_wrapper -parameters "DATA_WIDTH=24, CHN_NUM=16"
 
 link
 
