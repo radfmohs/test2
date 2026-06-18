@@ -854,6 +854,7 @@ MCU can select R1C* (Read 1 to clear) or RW1C* (Write 1 to clear). It helps User
 MCU can configure INTB to be Pulse Active or Level Active. In case of Pulse, MCU detects INTB without clearing INTB if required.
 INTB can be selected as Low Active or High Active.
 Note: for R1C, 3 PCLKs is needed between two SPI read commands
+Note: for the NIRS interrupt status (NIRS_INT_STATUS and the per-channel NIRS_DOUTx_0 registers), R1C is race-safe. The SPI slave captures a snapshot (int_allowed) of the exact byte shipped to the MCU at the moment the read data is latched into the TX buffer. A status bit is only cleared if that delivered byte actually carried the bit as 1. Therefore a status that asserts after the read byte is latched but before the read strobe completes is NOT lost; it is preserved and the MCU catches it on the next poll.
 
 Interrupt Source Names (IP Name)	Register Enable Address	Register Status Address (*1)	Clear Condition	Output to INTB
 I_WG_DRIVER_INT_STS[0][0]	0x28

@@ -51,6 +51,7 @@ i_rd_data        ,
 o_miso           ,
 o_miso1           ,
 o_imeas_intr_clr ,     
+o_int_allowed    ,
 mode             ,
 imeas_16bit_sel  ,
 imeas_chdata
@@ -88,6 +89,10 @@ output reg [ADDR_WIDTH-1:0] o_addr;
 output wire             o_miso;
 output wire             o_miso1;
 output wire             o_imeas_intr_clr;
+// Snapshot of the read byte that is actually shipped to the MCU on MISO.
+// Latched at the same edge as tx_buf so the register block can decide whether
+// an R1C status was genuinely delivered before allowing it to be cleared.
+output reg [DATA_WIDTH-1:0] o_int_allowed;
 input  wire             imeas_16bit_sel;
 
 //output reg            o_addr_vld_for_int_clr;
@@ -788,19 +793,24 @@ end
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if (cs_n_d == 1'b1) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if (dual_en) begin
     if ((bit_cnt > 6'h8 && byte_bit_count== 3'h4) || (burst_cmd_reg && bit_cnt > 6'h10 && byte_bit_count== 3'h4)) begin
       tx_buf <= (!mode[1] && !status_done && rdata_rdatac_cmd ) ? status_temp : rdata_rdatac_cmd ? imeas_temp : i_rd_data;
+      o_int_allowed <= i_rd_data; // capture exactly what is sent to the MCU
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
     end
   end else begin
     if (bit_cnt > 6'h8 && byte_bit_count==3'h2) begin // @ the end of the 2nd byte(cmd byte)
       tx_buf <= (!mode[1] && !status_done && rdata_cmd && !next_dev_valid) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
+      o_int_allowed <= i_rd_data; // capture exactly what is sent to the MCU
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-2:0],1'b0};
     end
