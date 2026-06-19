@@ -95,6 +95,13 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map guidance into the SVF so Formality can map the netlist
+# hierarchy to the RTL hierarchy and reconcile design-name differences at the
+# bottom-up boundary (impl 'imeas_wrapper' vs reference
+# 'imeas_wrapper_DATA_WIDTH24_CHN_NUM16'). Must be set BEFORE reading the RTL;
+# paired with set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -223,6 +230,11 @@ if {$bottom_up == "yes"} {
 current_design $rm_project_top
 
 link
+
+# Mark the verification top so DC writes guide_hier_map into the SVF (works with
+# hdlin_enable_hier_map set above). This is the Synopsys-recommended way to avoid
+# the SVF design-name rejections seen at the imeas_wrapper boundary.
+set_verification_top
 
 if {$bottom_up == "yes"} {
   # The block design is now named imeas_wrapper_DATA_WIDTH24_CHN_NUM16 (syn_l2
