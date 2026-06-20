@@ -88,6 +88,11 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map into this block's SVF so its design-scoped guidance maps
+# correctly inside the flattened/instantiated hierarchy at the top. Paired with
+# set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -158,6 +163,9 @@ analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../
 # makes the guidance bind.
 elaborate filter_wrapper -parameters "DATA_WIDTH=24"
 link
+
+# Mark the verification top so DC writes guide_hier_map for this block.
+set_verification_top
 
 # Disable register merging
 set_register_merging [all_registers] false

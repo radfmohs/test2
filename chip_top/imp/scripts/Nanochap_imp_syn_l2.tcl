@@ -75,6 +75,12 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map into this block's SVF so Formality can map inside the
+# (dont_touch) imeas_wrapper at the top and bind its design-scoped guidance
+# (clock-gating + inv_push on cnt_stable_time_reg/enable_cic_reg). Paired with
+# set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -148,6 +154,9 @@ analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../.
 elaborate imeas_wrapper
 
 link
+
+# Mark the verification top so DC writes guide_hier_map for this block.
+set_verification_top
 
 #current_design filter_wrapper
 #reset_design
