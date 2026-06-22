@@ -17,5 +17,9 @@
 // NOTE: verify the exact elaborated reference name (FE-LINK-13 "Created design
 // named ..." or: get_designs r:/WORK/Nanochap_ENS2/*imeas_wrapper*) and update
 // the -design name below if your template-naming style differs.
+//
+// 'guide' puts Formality into guide mode (required for guide_* commands in a
+// hand-written SVF; otherwise: "guide_rename_design restricted to guide mode only").
 // ----------------------------------------------------------------------------
+guide
 guide_rename_design -design imeas_wrapper_DATA_WIDTH24_CHN_NUM16 -new_design imeas_wrapper
