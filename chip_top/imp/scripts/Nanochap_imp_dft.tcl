@@ -417,6 +417,22 @@ set_fix_multiple_port_nets -all -buffer_constants [get_designs]
 set_dft_drc_rules -ignore {TEST-504}
 set_dft_drc_rules -ignore {TEST-505}
 
+# -----------------------------------------------------------------------------
+# Close the SVF before the test-protocol / scan-insertion section.
+# Everything Formality needs from this stage to bridge the bottom-up flow has
+# already been recorded above: the read_ddc of the pre-synthesized blocks and
+# the "ungroup -flatten" of u_imeas_wrapper (guide_ungroup). That guidance is
+# what lets the L2/L3 sub-block guidance (filter/imeas datapath and inv_push for
+# U_filter_iir_hpf/accum_reg[*]) re-map onto the flattened top-level netlist.
+# Keeping the SVF open past this point would additionally record the test-mode
+# setup (define_test_mode / create_test_protocol), which Formality replays as
+# set_constant on iopad_testmode0, scan-enable IOBUF_PAD[1], IOBUF_PAD[2],
+# u_pinmux/atpg_en and u_gpio*_pinmux/test0_y - the constant churn we want to
+# avoid. Scan logic is verified functionally via the scan-enable constant in
+# fm.tcl, so the insert_dft guidance is not required for the functional LEC.
+# -----------------------------------------------------------------------------
+set_svf -off
+
 create_test_protocol
 # -----------------------------------------------------------------------------
 # DFT: Scan chain insertion

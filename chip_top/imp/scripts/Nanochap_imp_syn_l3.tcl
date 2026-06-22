@@ -88,6 +88,11 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map into this block's SVF so its design-scoped guidance maps
+# correctly inside the flattened/instantiated hierarchy at the top. Paired with
+# set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -148,8 +153,19 @@ set_clock_gating_style -sequential_cell latch \
 ###################################################### LEVEL 3 individual channel filter compile
 
 analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../logical/imeas/rtl/filter_ctrl.sv ../../../../logical/imeas/rtl/filter_fir_lpf.sv ../../../../logical/imeas/rtl/filter_iir_hpf.v ../../../../logical/imeas/rtl/notch_filter.sv ../../../../logical/imeas/rtl/imeas.sv ../../../../logical/imeas/rtl/imeas_cdc.sv ../../../../logical/imeas/rtl/imeas_cic.sv ../../../../logical/imeas/rtl/imeas_ctrl.sv ../../../../logical/imeas/rtl/imeas_reg.sv ../../../common/common_pulse_rising.v ../../../common/common_pulse_sync.v ../../../common/common_bit_sync.v}
-elaborate filter_wrapper
+# Elaborate WITH the parameter it is instantiated with (DATA_WIDTH=24).
+# imeas_wrapper instantiates filter_wrapper #(.DATA_WIDTH(24)), so the rest of
+# the flow (and Formality elaborating the RTL) names this design
+# 'filter_wrapper_DATA_WIDTH24'. Elaborating it bare here would name it
+# 'filter_wrapper', and every SVF guidance command (constant/ungroup/merge/
+# inv_push...) would be scoped to that non-existent name and get rejected,
+# causing the filter datapath to fail LEC. Keeping the name parameter-qualified
+# makes the guidance bind.
+elaborate filter_wrapper -parameters "DATA_WIDTH=24"
 link
+
+# Mark the verification top so DC writes guide_hier_map for this block.
+set_verification_top
 
 # Disable register merging
 set_register_merging [all_registers] false
@@ -175,6 +191,16 @@ set rm_project_top filter_wrapper
 
 #set_active_scenarios [all_scenarios]
 #current_scenario S111_max
+
+# ------------------------------------------------------------------------------
+# Setup for Formality verification (bottom-up sub-block)
+# The clock gating inserted below (-gate) must be captured in an SVF so that
+# Formality can match the resulting clock-gating latches when this block is
+# read/flattened at the top level. Without it, these latches show up as
+# unmatched implementation "Clock-gate LAT" compare points.
+# ------------------------------------------------------------------------------
+file mkdir ../data/synthesis_l3
+set_svf ../data/synthesis_l3/filter_wrapper.svf
 
 #compile_ultra -check
 compile_ultra -scan -gate
@@ -232,6 +258,9 @@ write -f verilog -hierarchy -output ../data/synthesis_l3/filter_wrapper.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l3/single_channel.ddc
+
+# Write and close SVF file, make it available for immediate use
+set_svf -off
 
 #foreach i $scenarios {
 #  current_scenario $i

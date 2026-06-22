@@ -95,6 +95,13 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map guidance into the SVF so Formality can map the netlist
+# hierarchy to the RTL hierarchy and reconcile design-name differences at the
+# bottom-up boundary (impl 'imeas_wrapper' vs reference
+# 'imeas_wrapper_DATA_WIDTH24_CHN_NUM16'). Must be set BEFORE reading the RTL;
+# paired with set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -224,13 +231,21 @@ current_design $rm_project_top
 
 link
 
+# Mark the verification top so DC writes guide_hier_map into the SVF (works with
+# hdlin_enable_hier_map set above). This is the Synopsys-recommended way to avoid
+# the SVF design-name rejections seen at the imeas_wrapper boundary.
+set_verification_top
+
 if {$bottom_up == "yes"} {
-  set_dont_touch [get_designs imeas_wrapper]
+  # The block design is now named imeas_wrapper_DATA_WIDTH24_CHN_NUM16 (syn_l2
+  # elaborates it with -parameters), so match designs by wildcard. The instance
+  # path u_top_dig/u_imeas_wrapper is unchanged.
+  set_dont_touch [get_designs "*imeas_wrapper*"]
   set_dont_touch [get_cells u_top_dig/u_imeas_wrapper]
   set_ungroup [get_cells u_top_dig/u_imeas_wrapper] false
   set_boundary_optimization [get_cells u_top_dig/u_imeas_wrapper] false
-  get_attribute [get_designs "imeas_wrapper"] is_mapped
-  get_attribute [get_designs "imeas_wrapper"] dont_touch
+  get_attribute [get_designs "*imeas_wrapper*"] is_mapped
+  get_attribute [get_designs "*imeas_wrapper*"] dont_touch
   set_app_var compile_preserve_subdesign_interfaces true
 }
 
@@ -355,9 +370,13 @@ compile_ultra  -scan -gate_clock -no_autoungroup; # -spg;# -self_gating;#use pla
 # unique names to avoid name collisions when integrating the design at the top
 # level
 set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
-#if {$bottom_up != "yes"} {
+# In the bottom-up flow, do NOT uniquify: uniquify -force would rename the
+# preserved sub-block (imeas_wrapper_DATA_WIDTH24_CHN_NUM16) to
+# ${rm_project_top}_..._N, breaking the design-name match the bottom-up SVF
+# guidance relies on for the prescan top LEC. (RM-intended guard, restored.)
+if {$bottom_up != "yes"} {
   uniquify -force
-#}
+}
 
 define_name_rules verilog -case_insensitive
 change_names -rules verilog -hierarchy -verbose > \

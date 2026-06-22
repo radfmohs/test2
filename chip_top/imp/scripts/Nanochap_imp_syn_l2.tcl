@@ -75,6 +75,12 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+# Emit guide_hier_map into this block's SVF so Formality can map inside the
+# (dont_touch) imeas_wrapper at the top and bind its design-scoped guidance
+# (clock-gating + inv_push on cnt_stable_time_reg/enable_cic_reg). Paired with
+# set_verification_top after link.
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -139,16 +145,27 @@ set_clock_gating_style -sequential_cell latch \
 read_ddc ../data/synthesis_l3/single_channel.ddc
 
 analyze -format sverilog {../../../../logical/imeas/rtl/imeas_wrapper.sv ../../../common/common_bit_sync.v ../../../common/common_pulse_rising.v ../../../common/common_pulse_async_clr.v ../../../common/common_rst_sync.v ../../../common/common_sync_bit.v}
+# Keep imeas_wrapper as a PLAIN design name. Unlike filter_wrapper, the top
+# synthesis (syn.tcl) excludes the imeas RTL and links u_imeas_wrapper by its
+# base name 'imeas_wrapper' against this ddc, so the ddc must contain a design
+# literally named 'imeas_wrapper'. Elaborating it with -parameters would rename
+# it to imeas_wrapper_DATA_WIDTH24_CHN_NUM16 and break the top link (LINK-1/-5).
+# filter_wrapper (resolved inside this compile) is still parameterized via syn_l3.
 elaborate imeas_wrapper
 
 link
+
+# Mark the verification top so DC writes guide_hier_map for this block.
+set_verification_top
 
 #current_design filter_wrapper
 #reset_design
 #current_design imeas_wrapper
 
-set_dont_touch [get_designs filter_wrapper]
-get_attribute [get_designs filter_wrapper] is_mapped
+# filter_wrapper is now named filter_wrapper_DATA_WIDTH24 (syn_l3 elaborates it
+# with -parameters), so match it by wildcard rather than the bare name.
+set_dont_touch [get_designs "*filter_wrapper*"]
+get_attribute [get_designs "*filter_wrapper*"] is_mapped
 get_attribute [get_designs "*filter_wrapper*"] dont_touch
 #report_reference
 
@@ -181,11 +198,21 @@ set rm_project_top imeas_wrapper
 #current_scenario S111_max
 
 #compile_ultra -check
+
+# ------------------------------------------------------------------------------
+# Setup for Formality verification (bottom-up sub-block)
+# The clock gating inserted below (-gate_clock) must be captured in an SVF so
+# that Formality can match the resulting clock-gating latches when this block
+# is read/flattened at the top level. Without it, these latches show up as
+# unmatched implementation "Clock-gate LAT" compare points.
+# ------------------------------------------------------------------------------
+sh rm -rf ../data/synthesis_l2
+file mkdir ../data/synthesis_l2
+set_svf ../data/synthesis_l2/imeas_wrapper.svf
+
 compile_ultra -scan -gate_clock -no_autoungroup
 
-sh rm -rf ../data/synthesis_l2
 sh rm -rf ../report/synthesis_l2
-file mkdir ../data/synthesis_l2
 file mkdir ../report/synthesis_l2
 
 #uniquify -force
@@ -196,6 +223,9 @@ write -f verilog -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.ddc
+
+# Write and close SVF file, make it available for immediate use
+set_svf -off
 
 #foreach i $scenarios {
 #  current_scenario $i

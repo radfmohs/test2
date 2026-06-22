@@ -75,12 +75,57 @@ set_app_var verification_verify_directly_undriven_output true
 # Read the SVF file created during implementation
 # -----------------------------------------------------------------------------------
 
+# Helper: load an SVF only if it exists, and report loudly either way so it is
+# obvious in the log whether the expected guidance was actually picked up.
+# (A missing SVF here is silently skipped by Formality, which makes it look like
+# a fix "had no effect" when really the guidance was never regenerated/loaded.)
+proc load_svf {mode file} {
+  if {[file exists $file]} {
+    echo "INFO: loading SVF ($mode): $file"
+    if {$mode == "append"} {
+      set_svf -append $file
+    } else {
+      set_svf $file
+    }
+  } else {
+    echo "ERROR: expected SVF NOT FOUND, guidance will be MISSING: $file"
+    echo "       -> regenerate it (syn_l3 / syn_l2 / syn / dft) before running LEC."
+  }
+}
+
 if {$stage != "postlayout"} {
-  set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
-  synthesis_prescan_dct_BUD=yes_sdf
+  # In the bottom-up (BUD) flow the imeas_wrapper / filter_wrapper sub-blocks
+  # are synthesized separately (syn_l2 / syn_l3) where clock gating is inserted.
+  # Their SVF guidance must be loaded FIRST (in elaboration order, bottom-up)
+  # so Formality can recognize the clock-gating latches that end up flattened
+  # into the top level during DFT. Omitting these SVFs is what leaves the
+  # imeas/filter clock-gating latches unmatched (Clock-gate LAT in IMPL) and
+  # their gated flip-flops unmatched (DFF in REF).
+  if {$bottom_up == "yes"} {
+    # Rename guidance FIRST: reconcile the imeas_wrapper boundary name (Formality
+    # reference 'imeas_wrapper_DATA_WIDTH24_CHN_NUM16' -> guidance 'imeas_wrapper')
+    # so the L2 imeas_wrapper-scoped guidance (clk_gate_enable_cic map,
+    # cnt_stable_time_reg inv_push) binds. Only needed where imeas_wrapper still
+    # exists as a design (e.g. prescan); harmless once flattened.
+    load_svf set    ../scripts/Nanochap_imp_fm_rename.svf
+    load_svf append ../data/synthesis_l3/filter_wrapper.svf
+    load_svf append ../data/synthesis_l2/imeas_wrapper.svf
+    load_svf append ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  } else {
+    load_svf set    ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  }
 }
 if {$stage == "postscan_dct"} {
-  set_svf -append ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
+  # Append the DFT/postscan SVF for its "ungroup -flatten" (guide_ungroup)
+  # bridge: u_imeas_wrapper is flattened during DFT, so without this guidance
+  # the L2/L3 sub-block guidance (filter/imeas datapath and inv_push for
+  # U_filter_iir_hpf/accum_reg[*]) cannot re-map onto the flattened netlist and
+  # gets rejected -> "Unmatched Cone Input" failures on the IIR accumulators.
+  # Nanochap_imp_dft.tcl closes the SVF before create_test_protocol, so this
+  # file carries the flatten bridge WITHOUT the test-mode set_constant churn.
+  # NOTE: dft.tcl writes its output dir as "synthesis_<stage>.BUD=<bud>_<sdf>"
+  # (dot before BUD), so this append must use the same ".BUD=" spelling.
+  load_svf append ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 }
 
 #if {$stage == "postscan_pteco"} {
