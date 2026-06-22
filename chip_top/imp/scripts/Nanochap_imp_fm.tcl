@@ -102,7 +102,13 @@ if {$stage != "postlayout"} {
   # imeas/filter clock-gating latches unmatched (Clock-gate LAT in IMPL) and
   # their gated flip-flops unmatched (DFF in REF).
   if {$bottom_up == "yes"} {
-    load_svf set    ../data/synthesis_l3/filter_wrapper.svf
+    # Rename guidance FIRST: reconcile the imeas_wrapper boundary name (Formality
+    # reference 'imeas_wrapper_DATA_WIDTH24_CHN_NUM16' -> guidance 'imeas_wrapper')
+    # so the L2 imeas_wrapper-scoped guidance (clk_gate_enable_cic map,
+    # cnt_stable_time_reg inv_push) binds. Only needed where imeas_wrapper still
+    # exists as a design (e.g. prescan); harmless once flattened.
+    load_svf set    ../scripts/Nanochap_imp_fm_rename.svf
+    load_svf append ../data/synthesis_l3/filter_wrapper.svf
     load_svf append ../data/synthesis_l2/imeas_wrapper.svf
     load_svf append ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
   } else {
