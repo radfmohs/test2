@@ -70,7 +70,7 @@ class `TESTCFG extends soc_spi_reg_wavegen_drv4_test_cfg;
 
   constraint c_wavegen_reg_all  { wavegen_reg_all == 1'b0;}
 
-  constraint c_wavegen_reg_num  { wavegen_reg_num == 16'h5; }
+  constraint c_wavegen_reg_num  { wavegen_reg_num == 16'h4; }
 
   // -----------------------------------------------
   // End of adding constraints of randomization

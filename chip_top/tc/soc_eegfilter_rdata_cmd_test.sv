@@ -28,41 +28,17 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   // Adding constraints of randomization
   // -----------------------------------------------
 
-  //constraint c_spi_dual_mode_en         { spi_dual_mode_en == 1'b0; }
-
   constraint c_imeas_en            { imeas_en inside {0,1}; } // 1. imeas_en=1 (always continous mode) , 1. imeas_en=0,single_shot_en=0 (also continuos mode)  
 
   constraint c_single_shot_en      { single_shot_en == 0; }
 
   constraint c_imeas_en_dis_ch     {  imeas_en_dis_ch == 'h0 ;} // all channels enabled 
 
-  //constraint c_iclk_sel            { iclk_sel inside {[3:3]};} 
-
-  constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
-
-  //constraint c_imeas_cic_rate      { imeas_cic_rate == 5; }
-
   constraint c_no_of_samples       {  no_of_samples  inside {[10:20]}; }  
-
-  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[1:1]};} // 0:2, 1:4, 2:6, 3:8, 4:10, 5:12, 6:14, 7:16
 
   constraint c_imeas_status_en     { imeas_status_en inside {0,1}; } // default no Imeas status
  
   constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,1}; }// 0: 16bit, 1 :32 bit
-  //constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {1,1}; }// latest - only 24 bit supported
-
-  // Set SPI timing protocol for tCSSO (Min 20ns)
-  constraint c_tcssc                  { spi_dual_mode_en == 1 -> soft tcssc  == `SPI_MIN_TCSSO;}   // ~tCSSO 
-
-  // Set SPI timing protocol for tCSH1 (Min 20ns)
-  constraint c_tsccs                  { spi_dual_mode_en == 1 -> tsccs == `SPI_MIN_TCSH1; }   // ~tCSH1 
-
-  // Set SPI timing protocol for tCSPW (Min 20ns)
-  constraint c_tcsh                   { spi_dual_mode_en == 1 -> tcsh == 20; }   // ~tCSPW 
-
-  // Set SPI timing protocol for percent : tCH >= 20ns, tCL >= 20ns
-
-  //constraint c_tch                    {spi_dual_mode_en == 1 -> tch == `SPI_MIN_TCH;} 
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -82,8 +58,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    //uvm_top.set_timeout(2s);
-    uvm_top.set_timeout(10ms);
+    uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(10ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 

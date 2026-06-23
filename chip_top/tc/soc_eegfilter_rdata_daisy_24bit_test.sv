@@ -60,6 +60,57 @@ class `TESTNAME extends soc_eegfilter_rdata_daisy_test;
 
     assert(top_test_cfg.randomize());
 
+    `DUT_IF.imeas_en         = top_test_cfg.imeas_en;
+    `DUT_IF.single_shot_en   = top_test_cfg.single_shot_en;
+
+    // Set PCLK Clocks
+    `DUT_IF.pclk_sel = top_test_cfg.pclk_sel;
+    `DUT_IF.otp_tPGM = top_test_cfg.otp_tPGM;
+    `DUT_IF.otp_tVPP = top_test_cfg.otp_tVPP;
+
+    // Set SCLK clock
+    `DUT_IF.spi_sclk_freq = top_test_cfg.spi_sclk_freq;
+
+    // Set Jitter for PCLK 
+    `DUT_IF.spi_clk_jitter = top_test_cfg.spi_clk_jitter;
+
+    // Set Jitter for SCK
+    `DUT_IF.spi_sclk_jitter  = top_test_cfg.spi_sclk_jitter;
+
+    `DUT_IF.hfosc_jitter = top_test_cfg.hfosc_jitter;
+
+    `DUT_IF.hfosc_variation = top_test_cfg.hfosc_variation;
+
+    `DUT_IF.tcssc    = top_test_cfg.tcssc;
+    `DUT_IF.tsccs    = top_test_cfg.tsccs;
+    `DUT_IF.tcsh     = top_test_cfg.tcsh;
+    `DUT_IF.tdist    = top_test_cfg.tdist;  
+    `DUT_IF.tch      = top_test_cfg.tch; 
+
+    `DUT_IF.iclk_sel        = top_test_cfg.iclk_sel;
+    `DUT_IF.imeas_adc_freq  = top_test_cfg.imeas_adc_freq;
+    `DUT_IF.cic_rate        = top_test_cfg.imeas_cic_rate;
+    `DUT_IF.imeas_osr       = top_test_cfg.imeas_osr;
+    `DUT_IF.imeas_samp_rate = top_test_cfg.imeas_samp_rate;
+
+    `DUT_IF.imeas_sin_freq_unit = top_test_cfg.imeas_sin_freq_unit;
+    `DUT_IF.imeas_sin_expected_freq = top_test_cfg.imeas_sin_expected_freq;
+    `DUT_IF.imeas_sin_no_clk_per_period = top_test_cfg.imeas_sin_no_clk_per_period;
+
+    `DUT_IF.imeas_en_dis_ch = top_test_cfg.imeas_en_dis_ch;
+    `DUT_IF.daisy_en = top_test_cfg.daisy_en;
+    `DUT_IF.spi_dual_mode_en = top_test_cfg.spi_dual_mode_en;
+
+    `DUT_IF.mult_chip_en = top_test_cfg.mult_chip_en;
+    `DUT_IF.mult_chip_same_clk_en = top_test_cfg.mult_chip_same_clk_en;
+    `DUT_IF.hfosc_fixed_gnd_en = top_test_cfg.hfosc_fixed_gnd_en;
+    `DUT_IF.ext_hfosc_fixed_gnd_en = top_test_cfg.ext_hfosc_fixed_gnd_en;
+ 
+    `DUT_IF.no_of_adc_dev1 = top_test_cfg.no_of_adc_dev1;
+    `DUT_IF.no_of_adc_dev2 = top_test_cfg.no_of_adc_dev2;
+    `DUT_IF.no_of_samples = top_test_cfg.no_of_samples;
+
+    `DUT_IF.imeas_status_en   = top_test_cfg.imeas_status_en   ;
     `DUT_IF.imeas_24bitdata_en= top_test_cfg.imeas_24bitdata_en;
 
     `nnc_info("SOC_TEST", $sformatf("imeas_status_en = %0d , imeas_24bitdata_en=%0d", `DUT_IF.imeas_status_en,`DUT_IF.imeas_24bitdata_en), UVM_LOW)

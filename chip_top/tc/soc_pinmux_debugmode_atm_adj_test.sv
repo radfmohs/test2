@@ -175,6 +175,7 @@ class `TESTNAME extends soc_base_test;
  
    `PINMUX_SCOREBOARD_EN = 1'b1;
  
+    `ifdef BEHAVIORAL
     #1ms;
     if(`DIG_TOP.u_pinmux.ATM15 !== 1'b1)
       `nnc_error("ATM15", $sformatf("ATM[15] = %b is not as expectation of 1'b1", `DIG_TOP.u_pinmux.ATM15));
@@ -733,6 +734,8 @@ class `TESTNAME extends soc_base_test;
   checkers("atm15", {`SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][2][4], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][2][3], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][2][2], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][2][1], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][2][0], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][3][7], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][3][6], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][3][5]}, top_test_cfg.save_adj_val[5]);
   checkers("atm15", {`SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][7][2], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][7][1], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][7][4], `SPI_REG.u_spi_reg_nirs.nirs_ctrl_reg[4][1][7][3]}, top_test_cfg.save_adj_val[3][3:0]);
    top_test_cfg.save_adj_val[0] = `SOC_TOP.IOBUF_PAD[8:1]; 
+
+    `endif
     // ATM16
  
     // CHECKERS

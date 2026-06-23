@@ -23,7 +23,7 @@ source -echo -verbose ../scripts/design_config.tcl
 
 set dc_sel  DC;#topographical not needed here
 
-if {[file exists ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan.pteco_fix.tcl] == 0 } {exit;#nothing to fix}
+if {[file exists ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan.pteco_fix.tcl] == 0 } {exit;#nothing to fix}
 
 # ------------------------------------------------------------------------------
 # Set-up Target Technology
@@ -31,11 +31,8 @@ if {[file exists ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan
 
 source -echo -verbose ../scripts/Nanochap_imp_tech.tcl
 
-#set stage postscan_pteco
-sh mkdir -p ../reports/synthesis_postscan_pteco_sdf
-sh mkdir -p ../data/synthesis_postscan_pteco_sdf
-
-# -----------------------------------------------------------------------------
+#set bottom_up yes
+sh mkdir -p ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf
 
 # ------------------------------------------------------------------------------
 # Set-up Target/Link Libraries
@@ -45,15 +42,7 @@ set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_sear
 #set_app_var synthetic_library dw_foundation.sldb
 #set_app_var symbol_library $stdcell_sdb
 
-if {$stage == "postscan_pteco"} {
-    read_verilog  ../data/synthesis_postscan_sdf/${rm_project_top}.postscan.v
-}
-if {$stage == "postscan_dct_pteco"} {
-    read_verilog  ../data/synthesis_postscan_dct_sdf/${rm_project_top}.postscan_dct.v
-}
-if {$stage == "postscan_pteco2"} {
-    read_verilog  ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan_pteco.v
-}
+read_verilog  ../data/synthesis_postscan_dct.BUD=${bottom_up}_sdf/${rm_project_top}.postscan_dct.v
 
 set_app_var target_library $stdcell_library(db,$fast_corner_pvt)
 set_app_var link_library [concat * $target_library $otp_min_library $io_min_library  $ana_min_library];# $synthetic_library]
@@ -62,11 +51,9 @@ current_design $rm_project_top
 
 link
 
-if {[file exists ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan.pteco_fix.tcl] == 1 } {
-    source -e -v ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan.pteco_fix.tcl; #PT eco gates added to postscan netlist
-}
+source -e -v ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan.pteco_fix.tcl; #PT eco gates added to postscan netlist
 
-write -f verilog  -hierarchy -output ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan_pteco.v
+write -f verilog  -hierarchy -output ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan_pteco.v
 
 print_message_info
 

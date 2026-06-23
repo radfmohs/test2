@@ -200,7 +200,7 @@ class `TESTNAME extends soc_zmeas_stim_mon_auto_pair_loop_test;
     `WR_NORMAL_REG(`SOC_STIM_MON_LOFF_SHORT_INT_CTRL, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
     @(posedge`DUT_IF.pair_change);  // new intr comes at pair change
-    repeat(1) @(posedge `CLK_CTRL_TOP.stim_monitor_dig_clk); // so sts can update
+    repeat(2) @(posedge `CLK_CTRL_TOP.stim_monitor_dig_clk); // so sts can update
     check_int_sts_reg("SHORT", 1); 
     wait_for_intb_clear();
     `nnc_info("SOC_TEST", "--------------intr status enable, intr to pin disable check done---------------------\n", NNC_LOW)

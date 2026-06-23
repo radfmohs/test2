@@ -46,7 +46,7 @@ if {[string match S11?_m?? $i]} {
   #set_case_analysis 0 [get_pins u_top_ana/A2D_EXTERNAL_EN_I]
   #set_case_analysis 0 [get_pins u_top_dig_always_on/u_clk_ctrl_always_on/DNT_ADC_CLK_INV/S0];#No need to create another scenario for this
   
-  create_generated_clock -name notch_clk -add -divide_by 2 -master_clock sys_clk \
+  create_generated_clock -name notch_clk -add -divide_by 1 -master_clock sys_clk \
 			-source [get_attribute [get_clocks sys_clk] sources] \
 			[get_pins u_top_dig/u_clk_ctrl/notch_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period} * 2}] [get_clocks notch_clk]
@@ -64,7 +64,7 @@ if {[string match S11?_m?? $i]} {
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks hpf_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks hpf_clk]
 
-  create_generated_clock -name imeas_clk -add -divide_by 1 -master_clock sys_clk \
+  create_generated_clock -name imeas_clk -add -divide_by 2 -master_clock sys_clk \
 			-source [get_attribute [get_clocks sys_clk] sources] \
 			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
@@ -93,7 +93,7 @@ if {[string match S?2*_m?? $i]} {
 }
 #normal mode; ext clk
 if {[string match S12?_m?? $i]} {
- create_generated_clock -name notch_clk -add -divide_by 2 -master_clock ext_clk \
+ create_generated_clock -name notch_clk -add -divide_by 1 -master_clock ext_clk \
 			-source [get_attribute [get_clocks ext_clk] sources] \
 			[get_pins u_top_dig/u_clk_ctrl/notch_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period} * 2}] [get_clocks notch_clk]
@@ -111,7 +111,7 @@ if {[string match S12?_m?? $i]} {
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks hpf_clk]
   set_clock_uncertainty -hold    0.4      [get_clocks hpf_clk]
 
-   create_generated_clock -name imeas_clk -add -divide_by 1 -master_clock ext_clk \
+   create_generated_clock -name imeas_clk -add -divide_by 2 -master_clock ext_clk \
 			-source [get_attribute [get_clocks ext_clk] sources] \
 			[get_pins u_top_dig/u_clk_ctrl/imeas_dig_adc_clk]
   set_clock_uncertainty -setup [expr {0.05 * ${hfosc_period}}] [get_clocks imeas_clk]
@@ -279,6 +279,17 @@ if {[string match S1??_m?? $i]} {
   set_false_path -setup -from [get_clocks spi_clk] -through IOBUF_PAD[3] -through u_top_dig/u_pinmux/u_gpio3_pinmux/altf_y -through u_top_dig/u_pinmux/u_gpio6_pinmux/altf_oe -through IOBUF_PAD[6] -to [get_clocks spi_clk] ;#CS can affect MISO but not timing critical
   set_multicycle_path 2 -setup -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]
   set_multicycle_path 1 -hold  -from spi_clk -to spi_clk -through [get_pins -hierarchical *spi*/*filter_bypass*]
+  
+  set_false_path -hold -rise_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -rise_to imeas_clk
+  set_false_path -hold -fall_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -fall_to imeas_clk
+  set_false_path -hold -fall_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -fall_to iclk
+  set_false_path -hold -rise_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -rise_to iclk
+  set_false_path -hold -fall_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -fall_to notch_clk
+  set_false_path -hold -rise_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -rise_to notch_clk
+  set_false_path -hold -fall_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -fall_to lpf_clk
+  set_false_path -hold -rise_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -rise_to lpf_clk
+  set_false_path -hold -fall_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -fall_to hpf_clk
+  set_false_path -hold -rise_from vclk -through u_top_ana_wrapper/u_top_ana/A2D_SDM* -rise_to hpf_clk
 }
 
 #if normal mode
@@ -352,7 +363,7 @@ if {[string match S12?_m?? $i]} {
 
 if {[string match S22_m?? $i]} {
   set_false_path -from vclk -through u_top_dig/u_otp_ctrl_top/u_eprom_bist_top/* -to [get_clocks ext_clk]
-  set_false_path -from ext_clk -through u_top_dig/u_imeas_wrapper/*/*/* -to ext_clk
+  set_false_path -through [get_cells -h "*imeas_wrapper*"]
 }
 
 #if not scan mode then no OTP 

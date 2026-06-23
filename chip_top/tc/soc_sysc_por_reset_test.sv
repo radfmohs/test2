@@ -281,10 +281,16 @@ class `TESTNAME extends soc_base_test;
            if(`EPROM_TOP.rst_n                                                       !== 1'b1 )   	`nnc_error("reset_check", "  rst_n                    ");
            if(`EPROM_TOP.RESETb                                                      !== 1'b1 )   	`nnc_error("reset_check", "  RESETb                ");
            if(`NIRS_PPG_TOP.rst_n                                                    !== 1'b1 )   	`nnc_error("reset_check", "  rst_n                ");
-           if(`IMEAS_WRAPPER_TOP.filter_rstn                                         !== 1'b1 )   	`nnc_error("reset_check", "  filter_rstn          ");
-           if(`IMEAS_WRAPPER_TOP.cic_rst_n                                           !== 1'b1 )   	`nnc_error("reset_check", "  cic_rst_n            ");
-           if(`IMEAS_WRAPPER_TOP.adc_resetn                                          !== 1'b1 )   	`nnc_error("reset_check", "  adc_resetn           ");
-           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn                                     !== 1'b1 )   	`nnc_error("reset_check", "  adc_ctrl_resetn      ");
+`ifdef BEHAVIORAL
+  `define HIER_PATH_CHK_POR `IMEAS_WRAPPER_TOP
+`else
+  `define HIER_PATH_CHK_POR `RST_CTRL_TOP
+`endif
+
+           if(`HIER_PATH_CHK_POR.filter_rstn                                         !== 1'b1 )         `nnc_error("reset_check", "  filter_rstn          ");
+           if(`HIER_PATH_CHK_POR.cic_rst_n                                           !== 1'b1 )         `nnc_error("reset_check", "  cic_rst_n            ");
+           if(`HIER_PATH_CHK_POR.adc_resetn                                          !== 1'b1 )         `nnc_error("reset_check", "  adc_resetn           ");
+           if(`HIER_PATH_CHK_POR.adc_ctrl_resetn                                     !== 1'b1 )         `nnc_error("reset_check", "  adc_ctrl_resetn      ");
            if(`ANAC_TOP.presetn                                                      !== 1'b1 )   	`nnc_error("reset_check", "  presetn              ");
            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn            !== 1'b1 )   	`nnc_error("reset_check", "  adc_cap_ctrl.presetn ");
            if(`CLK_CTRL_TOP.presetn                                                  !== 1'b1 )    	`nnc_error("reset_check", "  presetn              ");
@@ -318,10 +324,10 @@ class `TESTNAME extends soc_base_test;
            if(`EPROM_TOP.rst_n                                                       !== 1'b0 )   	`nnc_error("reset_check", "  rst_n                    ");
            if(`EPROM_TOP.RESETb                                                      !== 1'b1 )   	`nnc_error("reset_check", "  RESETb                "); //connected to pin resetn
            if(`NIRS_PPG_TOP.rst_n                                                    !== 1'b0 )   	`nnc_error("reset_check", "  rst_n                ");
-           if(`IMEAS_WRAPPER_TOP.filter_rstn                                         !== 1'b0 )   	`nnc_error("reset_check", "  filter_rstn          ");
-           if(`IMEAS_WRAPPER_TOP.cic_rst_n                                           !== 1'b0 )   	`nnc_error("reset_check", "  cic_rst_n            ");
-           if(`IMEAS_WRAPPER_TOP.adc_resetn                                          !== 1'b0 )   	`nnc_error("reset_check", "  adc_resetn           ");
-           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn                                     !== 1'b0 )   	`nnc_error("reset_check", "  adc_ctrl_resetn      ");
+           if(`HIER_PATH_CHK_POR.filter_rstn                                         !== 1'b0 )   	`nnc_error("reset_check", "  filter_rstn          ");
+           if(`HIER_PATH_CHK_POR.cic_rst_n                                           !== 1'b0 )   	`nnc_error("reset_check", "  cic_rst_n            ");
+           if(`HIER_PATH_CHK_POR.adc_resetn                                          !== 1'b0 )   	`nnc_error("reset_check", "  adc_resetn           ");
+           if(`HIER_PATH_CHK_POR.adc_ctrl_resetn                                     !== 1'b0 )   	`nnc_error("reset_check", "  adc_ctrl_resetn      ");
            if(`ANAC_TOP.presetn                                                      !== 1'b0 )   	`nnc_error("reset_check", "  presetn              ");
            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn            !== 1'b0 )   	`nnc_error("reset_check", "  adc_cap_ctrl.presetn ");
            if(`CLK_CTRL_TOP.presetn                                                  !== 1'b0 )    	`nnc_error("reset_check", "  presetn              ");

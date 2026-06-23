@@ -173,8 +173,12 @@ class `TESTNAME extends soc_base_test;
           `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 	end
 	begin
+         `ifdef BEHAVIORAL
 	   wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 1);
            wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 0);
+          `else
+              #5ms; // need to review and replace
+          `endif
 	end
 	join
 

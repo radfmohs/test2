@@ -39,9 +39,11 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_iclk_sel            { iclk_sel inside {[2:2]};} 
 
   //constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
-  constraint c_spi_sclk_freq       { spi_sclk_freq == 19000;} 
+  constraint c_spi_sclk_freq       { imeas_24bitdata_en == 0 -> spi_sclk_freq == 20000; // 16 bit - 20Mhz
+                                     imeas_24bitdata_en == 1 -> spi_sclk_freq == 19000;} // 24 bit - 19Mhz
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate == 2; }
+  constraint c_imeas_cic_rate      { imeas_24bitdata_en == 0 -> imeas_cic_rate == 3; // 16 bit - 32Khz 
+                                     imeas_24bitdata_en == 1 -> imeas_cic_rate == 4;} // 24 bit - 16Khz 
 
   constraint c_daisy_en            { daisy_en == 1;} 
 
@@ -65,6 +67,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
                                             (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[7:7]}; }
 
   constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
+
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -83,8 +86,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    //uvm_top.set_timeout(2s);
-    uvm_top.set_timeout(10ms);
+    uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(20ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 

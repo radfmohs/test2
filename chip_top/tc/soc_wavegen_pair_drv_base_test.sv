@@ -1083,38 +1083,24 @@ end
     $display("##         PROGRAM FOR DRIVER: %2d -  ADDR BASE: %h                              ##", drv_num, WG_BASE);   
     $display("## ============================================================================ ##");
 
-    // --------------------------------------------------------
-    // Write to SOC_ADDR_WG_DRV_CTRL0_REG (Control 0)
-    // DRIVE_REG_CTRL0: Offset:0x34
-    // bit-5: data_output_mode - 0: 8-bit, 1: 12-bit
-    // bit-4: mode_sel 1: Manual, 0: Auto
-    // bit-2: driverA_pullDA - DRIVERA_PULLDA (applicable only in manual mode) 
-    // bit-0: driverA_sourceA - DRIVERA_SOURCEA (applicable only in manual mode) 
-    // --------------------------------------------------------
-    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL0_REG + WG_BASE); wr_data[0] == {2'b0, `DUT_IF.wg_dac_bit_len_sel, top_test_cfg.auto_man, 4'b0};});
-    `nnc_info("SOC_TEST", "Set drive reg ctrl0", NNC_LOW)
-    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
-
-    // --------------------------------------------------------
-    // Write burst starting from SOC_ADDR_WG_DRV_CTRL1_REG (Control 1)
-    // DRIVE_REG_CTRL1: Offset:0x35 (IDAC_DIN_LSB)
-    // DRIVE_REG_CTRL2: Offset:0x35 
-    // - bit7: multi_argo_ctrl - 0: use right shift, 1: use a multiplier
-    // - bit[6:4]: - 8-bit_location_sel (0 -> 4) to scale up
-    // - bit[3:0] - IDAC_DIN_MSB
-    // --------------------------------------------------------
-    `nnc_info("SOC_TEST", "Set drive reg ctrl1-2", NNC_LOW)
-
     $display("## ============================================================================ ##");
     $display("##         PROGRAM FOR SOC_ADDR_WG_DRV_CTRL1_REG ( DRV Control)                 ##"); 
     $display("## ============================================================================ ##");
-    $display("##    DRIVE_REG_CTRL0: Offset:0x34                                              ##");
+    $display("##    DRIVE_REG_CTRL0: Offset:0x35                                              ##");
     $display("##    - bit-5: data_output_mode - 0: 8-bit, 1: 12-bit                           ##");
     $display("##    - bit-4: mode_sel 1: Manual, 0: Auto                                      ##");
-    $display("##    - bit-2: driverA_pullDA - DRIVERA_PULLDA (applicable only in manual mode) ##");
-    $display("##    - bit-0: driverA_sourceA - DRIVERA_SOURCEA applicable only in manual mode)##");    
-    $display("## ---------------------------------------------------------------------------- ##");
-    $display("##    DRIVE_REG_CTRL2: Offset:0x35                                              ##");
+    $display("##    - bit-2: driver_pullD - DRIVER_PULLD (applicable only in manual mode)     ##");
+    $display("##    - bit-0: driver_source - DRIVER_SOURCE applicable only in manual mode)    ##");
+    $display("## ============================================================================ ##");
+    assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_CTRL0_REG + WG_BASE); wr_data[0] == {2'b0, `DUT_IF.wg_dac_bit_len_sel, `DUT_IF.wg_auto_man, 4'b0};});
+    //`nnc_info("SOC_TEST", "Set drive reg ctrl0", NNC_LOW)
+    `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
+    //`nnc_info("SOC_TEST", "Set drive reg ctrl1-2", NNC_LOW)  
+    $display("## ============================================================================ ##");
+    $display("##    DRIVE_REG_CTRL1: Offset:0x36 - - bit[7:0] - IDAC_DIN_LSB                  ##"); 
+    $display("## ============================================================================ ##");
+    $display("##    DRIVE_REG_CTRL2: Offset:0x37                                              ##");
     $display("##    - bit7: multi_argo_ctrl - 0: use right shift, 1: use a multiplier         ##");
     $display("##    - bit[6:4]: - 8-bit_location_sel (0 -> 4) to scale up                     ##");
     $display("##    - bit[3:0] - IDAC_DIN_MSB                                                 ##");

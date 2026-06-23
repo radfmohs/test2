@@ -295,17 +295,23 @@ class `TESTNAME extends soc_base_test;
             if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === (top_test_cfg.exp_stimu_rst_reg || top_test_cfg.exp_wave_gen_rst_reg) )
               `nnc_error("SOC_TEST", $sformatf("adc_cap_ctrl.presetn error presetn=%h exp_stimu_rst_reg=%h exp_wave_gen_rst_reg=%h!!!", soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn,top_test_cfg.exp_stimu_rst_reg,top_test_cfg.exp_wave_gen_rst_reg));
 
-           if(`IMEAS_WRAPPER_TOP.filter_rstn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
-             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
+`ifdef BEHAVIORAL
+   `define HIER_PATH `IMEAS_WRAPPER_TOP
+`else
+   `define HIER_PATH `RST_CTRL_TOP 
+`endif
 
-           if(`IMEAS_WRAPPER_TOP.cic_rst_n  === top_test_cfg.exp_eeg_filter_rst_reg )   	
-              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! IMEAS_WRAPPER_TOP.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.filter_rstn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! HIER_PATH.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
 
-           if(`IMEAS_WRAPPER_TOP.adc_resetn === top_test_cfg.exp_eeg_filter_rst_reg )   
-              `nnc_error("reset_check", $sformatf("  adc_reset error!!! IMEAS_WRAPPER_TOP.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.cic_rst_n  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! HIER_PATH.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
 
-           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
-              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! IMEAS_WRAPPER_TOP.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.adc_resetn === top_test_cfg.exp_eeg_filter_rst_reg )   
+              `nnc_error("reset_check", $sformatf("  adc_reset error!!! HIER_PATH.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
+
+           if(`HIER_PATH.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg )   	
+              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! HIER_PATH.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
 
            if(`NIRS_PPG_TOP.rst_n === top_test_cfg.exp_nirs_rst_reg )   	
               `nnc_error("reset_check", "  rst_n error!!!  ");
@@ -329,20 +335,22 @@ class `TESTNAME extends soc_base_test;
             if(`TSC_TOP.presetn === ( top_test_cfg.tsc_rst_reg_l || top_test_cfg.exp_tsc_rst_reg))
                 `nnc_error("SOC_TEST", "TSC RESETn error!!!");
 
-            if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === (top_test_cfg.adc_cap_ctrl_rst_reg_l || (top_test_cfg.exp_stimu_rst_reg ||top_test_cfg.exp_wave_gen_rst_reg )) )
-              `nnc_error("SOC_TEST", $sformatf("adc_cap_ctrl.presetn error!!! .u_adc_cap_ctrl.presetn =%h, adc_cap_ctrl_rst_reg_l =%h, exp_stimu_rst_reg=%h, exp_wave_gen_rst_reg=%h",soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn,top_test_cfg.adc_cap_ctrl_rst_reg_l,top_test_cfg.exp_stimu_rst_reg,top_test_cfg.exp_wave_gen_rst_reg));
+            if(`CLK_CTRL_TOP.pmu_fclk_en === 1'b1)begin
+               if(soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn === (top_test_cfg.adc_cap_ctrl_rst_reg_l || (top_test_cfg.exp_stimu_rst_reg ||top_test_cfg.exp_wave_gen_rst_reg )) )
+                 `nnc_error("SOC_TEST", $sformatf("adc_cap_ctrl.presetn error!!! .u_adc_cap_ctrl.presetn =%h, adc_cap_ctrl_rst_reg_l =%h, exp_stimu_rst_reg=%h, exp_wave_gen_rst_reg=%h",soc_top_tb.u_Nanochap_ENS2.u_top_dig.u_adc_cap_ctrl.presetn,top_test_cfg.adc_cap_ctrl_rst_reg_l,top_test_cfg.exp_stimu_rst_reg,top_test_cfg.exp_wave_gen_rst_reg));
+            end
 
-            if(`IMEAS_WRAPPER_TOP.filter_rstn  === ( top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
-             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! IMEAS_WRAPPER_TOP.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
+            if(`HIER_PATH.filter_rstn  === ( top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
+             `nnc_error("reset_check", $sformatf("  filter_rstn  error!!! HIER_PATH.filter_rstn =%h top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.filter_rstn, top_test_cfg.exp_eeg_filter_rst_reg ));
 
-           if(`IMEAS_WRAPPER_TOP.cic_rst_n  === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
-              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! IMEAS_WRAPPER_TOP.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.cic_rst_n  === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   	
+              `nnc_error("reset_check",  $sformatf("  cic_rst_n error!!! HIER_PATH.cic_rst_n =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.cic_rst_n,top_test_cfg.exp_eeg_filter_rst_reg));
 
-           if(`IMEAS_WRAPPER_TOP.adc_resetn === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   
-              `nnc_error("reset_check", $sformatf("  adc_reset error!!! IMEAS_WRAPPER_TOP.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.adc_resetn === (top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg ))   
+              `nnc_error("reset_check", $sformatf("  adc_reset error!!! HIER_PATH.adc_resetn =%h ,top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.adc_resetn,top_test_cfg.exp_eeg_filter_rst_reg));
 
-           if(`IMEAS_WRAPPER_TOP.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg/*(top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg )*/)   //HFOSC clock	
-              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! IMEAS_WRAPPER_TOP.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`IMEAS_WRAPPER_TOP.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
+           if(`HIER_PATH.adc_ctrl_resetn  === top_test_cfg.exp_eeg_filter_rst_reg/*(top_test_cfg.imeas_rst_reg_l || top_test_cfg.exp_eeg_filter_rst_reg )*/)   //HFOSC clock	
+              `nnc_error("reset_check", $sformatf("  adc_ctrl_resetn error!!! HIER_PATH.adc_ctrl_resetn=%h, top_test_cfg.exp_eeg_filter_rst_reg =%h",`HIER_PATH.adc_ctrl_resetn, top_test_cfg.exp_eeg_filter_rst_reg));
 
            if(`NIRS_PPG_TOP.rst_n === ( top_test_cfg.nirs_rst_reg_l || top_test_cfg.exp_nirs_rst_reg ))   	
               `nnc_error("reset_check", "  rst_n error!!!  ");

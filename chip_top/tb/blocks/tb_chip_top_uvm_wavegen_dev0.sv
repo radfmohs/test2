@@ -97,7 +97,7 @@ assign wavegen_dev_src = /*!`SOC_TB.dut_vif.python_wavegen_en ? 0: */
                             !`SOC_TB.dut_vif.wavegen_drv_mode[12] & `SOC_TB.dut_vif.wavegen_drv_en[12] ? 12 :
                             !`SOC_TB.dut_vif.wavegen_drv_mode[13] & `SOC_TB.dut_vif.wavegen_drv_en[13] ? 13 :
                             !`SOC_TB.dut_vif.wavegen_drv_mode[14] & `SOC_TB.dut_vif.wavegen_drv_en[14] ? 14 :
-                            !`SOC_TB.dut_vif.wavegen_drv_mode[15] & `SOC_TB.dut_vif.wavegen_drv_en[15] ? 15 : 0;
+                            !`SOC_TB.dut_vif.wavegen_drv_mode[15] & `SOC_TB.dut_vif.wavegen_drv_en[15] ? 15 : 1;
 
 assign dut_vif.wg_dev_src = wavegen_dev_src;
 assign dut_vif.wg_dev_snk = wavegen_dev_snk;
@@ -137,48 +137,248 @@ initial
     end
   end
 
+wire [`WAVEGEN_DRIVER_NUM-1:0] wg_clk;
+assign wg_clk[15] = `WG_CORE_15.clk;
+assign wg_clk[14] = `WG_CORE_14.clk;
+assign wg_clk[13] = `WG_CORE_13.clk;
+assign wg_clk[12] = `WG_CORE_12.clk;
+assign wg_clk[11] = `WG_CORE_11.clk;
+assign wg_clk[10] = `WG_CORE_10.clk;
+assign wg_clk[9] = `WG_CORE_9.clk;
+assign wg_clk[8] = `WG_CORE_8.clk;
+assign wg_clk[7] = `WG_CORE_7.clk;
+assign wg_clk[6] = `WG_CORE_6.clk;
+assign wg_clk[5] = `WG_CORE_5.clk;
+assign wg_clk[4] = `WG_CORE_4.clk;
+assign wg_clk[3] = `WG_CORE_3.clk;
+assign wg_clk[2] = `WG_CORE_2.clk;
+assign wg_clk[1] = `WG_CORE_1.clk;
+assign wg_clk[0] = `WG_CORE_0.clk;
+
+wire [2:0] wg_state [`WAVEGEN_DRIVER_NUM-1:0];
+`ifdef BEHAVIORAL
+assign wg_state[15] =  `WG_CORE_15.state;
+assign wg_state[14] =  `WG_CORE_14.state;
+assign wg_state[13] =  `WG_CORE_13.state;
+assign wg_state[12] =  `WG_CORE_12.state;
+assign wg_state[11] =  `WG_CORE_11.state;
+assign wg_state[10] =  `WG_CORE_10.state;
+assign wg_state[9] =  `WG_CORE_9.state;
+assign wg_state[8] =  `WG_CORE_8.state;
+assign wg_state[7] =  `WG_CORE_7.state;
+assign wg_state[6] =  `WG_CORE_6.state;
+assign wg_state[5] =  `WG_CORE_5.state;
+assign wg_state[4] =  `WG_CORE_4.state;
+assign wg_state[3] =  `WG_CORE_3.state;
+assign wg_state[2] =  `WG_CORE_2.state;
+assign wg_state[1] =  `WG_CORE_1.state;
+assign wg_state[0] =  `WG_CORE_0.state;
+`else
+assign wg_state[15] = { `WG_CORE_15.state_reg_2_.Q, `WG_CORE_15.state_reg_1_.Q, `WG_CORE_15.state_reg_0_.Q};
+assign wg_state[14] = { `WG_CORE_14.state_reg_2_.Q, `WG_CORE_14.state_reg_1_.Q, `WG_CORE_14.state_reg_0_.Q};
+assign wg_state[13] = { `WG_CORE_13.state_reg_2_.Q, `WG_CORE_13.state_reg_1_.Q, `WG_CORE_13.state_reg_0_.Q};
+assign wg_state[12] = { `WG_CORE_12.state_reg_2_.Q, `WG_CORE_12.state_reg_1_.Q, `WG_CORE_12.state_reg_0_.Q};
+assign wg_state[11] = { `WG_CORE_11.state_reg_2_.Q, `WG_CORE_11.state_reg_1_.Q, `WG_CORE_11.state_reg_0_.Q};
+assign wg_state[10] = { `WG_CORE_10.state_reg_2_.Q, `WG_CORE_10.state_reg_1_.Q, `WG_CORE_10.state_reg_0_.Q};
+assign wg_state[9] =  { `WG_CORE_9.state_reg_2_.Q,  `WG_CORE_9.state_reg_1_.Q,  `WG_CORE_9.state_reg_0_.Q};
+assign wg_state[8] =  { `WG_CORE_8.state_reg_2_.Q,  `WG_CORE_8.state_reg_1_.Q,  `WG_CORE_8.state_reg_0_.Q};
+assign wg_state[7] =  { `WG_CORE_7.state_reg_2_.Q,  `WG_CORE_7.state_reg_1_.Q,  `WG_CORE_7.state_reg_0_.Q};
+assign wg_state[6] =  { `WG_CORE_6.state_reg_2_.Q,  `WG_CORE_6.state_reg_1_.Q,  `WG_CORE_6.state_reg_0_.Q};
+assign wg_state[5] =  { `WG_CORE_5.state_reg_2_.Q,  `WG_CORE_5.state_reg_1_.Q,  `WG_CORE_5.state_reg_0_.Q};
+assign wg_state[4] =  { `WG_CORE_4.state_reg_2_.Q,  `WG_CORE_4.state_reg_1_.Q,  `WG_CORE_4.state_reg_0_.Q};
+assign wg_state[3] =  { `WG_CORE_3.state_reg_2_.Q,  `WG_CORE_2.state_reg_1_.Q,  `WG_CORE_3.state_reg_0_.Q};
+assign wg_state[2] =  { `WG_CORE_2.state_reg_2_.Q,  `WG_CORE_2.state_reg_1_.Q,  `WG_CORE_2.state_reg_0_.Q};
+assign wg_state[1] =  { `WG_CORE_1.state_reg_2_.Q,  `WG_CORE_1.state_reg_1_.Q,  `WG_CORE_1.state_reg_0_.Q};
+assign wg_state[0] =  { `WG_CORE_0.state_reg_2_.Q,  `WG_CORE_0.state_reg_1_.Q,  `WG_CORE_0.state_reg_0_.Q};
+`endif
+
+logic [31:0] logic_expression_1;
+logic [31:0] logic_expression_2;
+
+assign logic_expression_1 = (`ANA_TOP.D2A_DATA_1 - `ANA_TOP.D2A_DATA_0);
+assign logic_expression_2 = (`ANA_TOP.D2A_DATA_3 - `ANA_TOP.D2A_DATA_2);
+
+assign dut_vif.wg_dds_out = logic_expression_2 - logic_expression_1;
+assign dut_vif.wg_ems_out = logic_expression_1;
+
+always @(posedge wg_clk[0])
+begin   
+  #100;
+  if ((`WG_DRIVER_IDAC_0 !== `ANA_TOP.D2A_DATA_0) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_0", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 0, `WG_DRIVER_IDAC_0, `ANA_TOP.D2A_DATA_0))
+end  
+
+always @(posedge wg_clk[1])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_1 !== `ANA_TOP.D2A_DATA_1) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_1", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 1, `WG_DRIVER_IDAC_1, `ANA_TOP.D2A_DATA_1))
+end
+
+always @(posedge wg_clk[2])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_2 !== `ANA_TOP.D2A_DATA_2) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_2", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 2, `WG_DRIVER_IDAC_2, `ANA_TOP.D2A_DATA_2))
+end
+
+always @(posedge wg_clk[3])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_3 !== `ANA_TOP.D2A_DATA_3) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_3", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 3, `WG_DRIVER_IDAC_3, `ANA_TOP.D2A_DATA_3))
+end
+
+always @(posedge wg_clk[4])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_4 !== `ANA_TOP.D2A_DATA_4) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_4", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 4, `WG_DRIVER_IDAC_4, `ANA_TOP.D2A_DATA_4))
+end
+
+always @(posedge wg_clk[5])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_5 !== `ANA_TOP.D2A_DATA_5) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_5", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 5, `WG_DRIVER_IDAC_5, `ANA_TOP.D2A_DATA_5))
+end
+
+always @(posedge wg_clk[6])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_6 !== `ANA_TOP.D2A_DATA_6) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_6", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 6, `WG_DRIVER_IDAC_6, `ANA_TOP.D2A_DATA_6))
+end
+
+always @(posedge wg_clk[7])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_7 !== `ANA_TOP.D2A_DATA_7) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_7", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 7, `WG_DRIVER_IDAC_7, `ANA_TOP.D2A_DATA_7))
+end
+
+always @(posedge wg_clk[8])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_8 !== `ANA_TOP.D2A_DATA_8) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_8", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 8, `WG_DRIVER_IDAC_8, `ANA_TOP.D2A_DATA_8))
+end
+
+always @(posedge wg_clk[9])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_9 !== `ANA_TOP.D2A_DATA_9) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_9", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 9, `WG_DRIVER_IDAC_9, `ANA_TOP.D2A_DATA_9))
+end
+
+always @(posedge wg_clk[10])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_10 !== `ANA_TOP.D2A_DATA_10) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_10", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 10, `WG_DRIVER_IDAC_10, `ANA_TOP.D2A_DATA_10))
+end
+
+always @(posedge wg_clk[11])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_11 !== `ANA_TOP.D2A_DATA_11) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_11", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 11, `WG_DRIVER_IDAC_11, `ANA_TOP.D2A_DATA_11))
+end
+
+always @(posedge wg_clk[12])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_12 !== `ANA_TOP.D2A_DATA_12) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_12", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 12, `WG_DRIVER_IDAC_12, `ANA_TOP.D2A_DATA_12))
+end
+
+always @(posedge wg_clk[13])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_13 !== `ANA_TOP.D2A_DATA_13) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_13", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 13, `WG_DRIVER_IDAC_13, `ANA_TOP.D2A_DATA_13))
+end
+
+always @(posedge wg_clk[14])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_14 !== `ANA_TOP.D2A_DATA_14) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_14", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 14, `WG_DRIVER_IDAC_14, `ANA_TOP.D2A_DATA_14))
+end
+
+always @(posedge wg_clk[15])
+begin
+  #100;
+  if ((`WG_DRIVER_IDAC_15 !== `ANA_TOP.D2A_DATA_15) && (dut_vif.testmode_sel == 2'b00))
+    `nnc_error("WG_15", $sformatf("WG:%2d - DATA at IP: %2h !== DATA at ANA TOP: %2h", 15, `WG_DRIVER_IDAC_15, `ANA_TOP.D2A_DATA_15))
+end
+
+
 generate 
 for (genvar i=0; i < `WAVEGEN_DRIVER_NUM; i++) begin
 initial
-//always (posedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk)
+//always (posedge wg_clk[i])
   begin
   #1000;
   if (dut_vif.wg_scoreboard_en == 1'b1) begin 
     while (1) begin
-      @(posedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
-      
-      if (!dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i]) begin // source
-          //@(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
-         if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b0)) begin // IDLE
+      @(posedge wg_clk[i]);
+
+      if (dut_vif.wg_ems_en == 1 || dut_vif.wg_alt_en == 1) begin
+         @(negedge wg_clk[i]);
+         if ((dut_vif.wavegen_drv_en[i] == 1) && (pre_state[i] == 3'b111) && ((wg_state[dut_vif.wg_dev_src] !== 3'b000) || (wg_state[dut_vif.wg_dev_snk] !== 3'b000)))  begin
+           pre_state[i] = 3'b001;
+           if (`ANA_TOP.D2A_PULLD[dut_vif.wg_dev_src] == `ANA_TOP.D2A_SOURCE[dut_vif.wg_dev_src]) 
+              `nnc_error("WG ALT EMS", $sformatf("WG SRC:%2d - `ANA_TOP.D2A_PULLD[%2d] == `ANA_TOP.D2A_SOURCE[%2d] is not expected", i, dut_vif.wg_dev_src, dut_vif.wg_dev_src))
+
+           if (`ANA_TOP.D2A_PULLD[dut_vif.wg_dev_snk] == `ANA_TOP.D2A_SOURCE[dut_vif.wg_dev_snk]) 
+              `nnc_error("WG ALT EMS", $sformatf("WG SNK:%2d - `ANA_TOP.D2A_PULLD[%2d] == `ANA_TOP.D2A_SOURCE[%2d] is not expected", i, dut_vif.wg_dev_snk, dut_vif.wg_dev_snk))
+
+           if (`ANA_TOP.D2A_SOURCE[dut_vif.wg_dev_src] == `ANA_TOP.D2A_SOURCE[dut_vif.wg_dev_snk]) 
+              `nnc_error("WG ALT EMS", $sformatf("WG SRC SNK:%2d - `ANA_TOP.D2A_SOURCE[%2d] == `ANA_TOP.D2A_SOURCE[%2d] is not expected", i, dut_vif.wg_dev_src, dut_vif.wg_dev_snk))
+
+           if (`ANA_TOP.D2A_PULLD[dut_vif.wg_dev_src] == `ANA_TOP.D2A_PULLD[dut_vif.wg_dev_snk]) 
+              `nnc_error("WG ALT EMS", $sformatf("WG SRC SNK:%2d - `ANA_TOP.D2A_PULLD[%2d] == `ANA_TOP.D2A_PULLD[%2d] is not expected", i, dut_vif.wg_dev_src, dut_vif.wg_dev_snk))
+         end else begin
+           if (`ANA_TOP.D2A_PULLD[i] == 1) 
+              `nnc_error("WG ALT EMS", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d] == 1 is not expected", i, i))
+           if (`ANA_TOP.D2A_SOURCE[i] == 1) 
+              `nnc_error("WG ALT EMS", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d] == 1 is not expected", i, i))
+         end
+         if ((wg_state[dut_vif.wg_dev_src] !== 3'b000) || (wg_state[dut_vif.wg_dev_snk] !== 3'b000)) pre_state[i] = 3'b111;
+      end else begin
+        if (!dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i]) begin // source
+          //@(negedge wg_clk[i]);
+         if ((wg_state[i] == 3'b000) && (wave_started == 1'b0)) begin // IDLE
            rest_trigger_src = 0;
            discharge_trigger_src = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) || (first_wave_done[i] == 1)) 
               `nnc_error("WG_SB_SRC IDLE", $sformatf("WG:%2d - pre_state[%2d]: %b, first_wave_done[%2d]: %b is not expected 3'b000 or 3'b100", i, i, pre_state[i], i, first_wave_done[i]))
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SRC IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SRC IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b000;
-         end else if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b1)) begin // IDLE 
+         end else if ((wg_state[i] == 3'b000) && (wave_started == 1'b1)) begin // IDLE 
            rest_trigger_src = 0; 
            discharge_trigger_src = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if (((pre_state[i] != 3'b001) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b000)) || (first_wave_done[i] == 0)) 
               `nnc_error("WG_SB_SRC IDLE 1", $sformatf("WG:%2d - pre_state[%2d]: %b, first_wave_done[%2d]: %b is not expected 3'b001 or 3'b100", i, i, pre_state[i], i, first_wave_done[i]))
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SRC IDLE 1", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SRC IDLE 1", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b000;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b110) begin // DISCHARGE
+         end else if (wg_state[i] == 3'b110) begin // DISCHARGE
            discharge_trigger_src = 1;
            wave_started = 1;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b110)) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b1) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b110;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b001) begin // POS
+         end else if (wg_state[i] == 3'b001) begin // POS
            rest_trigger_src = 0;
            wave_started = 1;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b110) && (pre_state[i] != 3'b001) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (discharge_trigger_snk == 1'b1) begin
              if (`ANA_TOP.D2A_PULLD[i] !== 1'b1) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_PULLD[i]))
@@ -187,16 +387,16 @@ initial
            end
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b1) `nnc_error("WG_SB_SRC POS", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b001;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b010) begin // REST
+         end else if (wg_state[i] == 3'b010) begin // REST
            rest_trigger_src = 1;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b001) && (pre_state[i] != 3'b010)) `nnc_error("WG_SB_SRC REST", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SRC REST", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SRC REST", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b010;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b100) begin // SILENT (POS -> REST -> SILENT)
+         end else if (wg_state[i] == 3'b100) begin // SILENT (POS -> REST -> SILENT)
            rest_trigger_src = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b001) && (pre_state[i] != 3'b010) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB_SRC SILENT", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i])) // Need to check REST
            if (rest_trigger_snk == 1) begin
              if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SRC SILENT", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
@@ -209,20 +409,20 @@ initial
          end
       end  
       else if (dut_vif.wavegen_drv_mode[i] & dut_vif.wavegen_drv_en[i]) begin // sink
-         //@(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk); 
-         if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b0)) begin // IDLE
+         //@(negedge wg_clk[i]); 
+         if ((wg_state[i] == 3'b000) && (wave_started == 1'b0)) begin // IDLE
            rest_trigger_snk = 0;
            discharge_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) || (first_wave_done[i] == 1)) 
               `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - pre_state[%2d]: %b, first_wave_done[%2d]: %b is not expected 3'b000 or 3'b100", i, i, pre_state[i], i, first_wave_done[i]))
            if ((`ANA_TOP.D2A_PULLD[i] !== 1'b0) && (wave_started == 1'b0)) `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SNK IDLE", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b000;
-         end else if ((`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b000) && (wave_started == 1'b1)) begin // IDLE
+         end else if ((wg_state[i] == 3'b000) && (wave_started == 1'b1)) begin // IDLE
            rest_trigger_snk = 0;
            discharge_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if (((pre_state[i] != 3'b001) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b000)) || ((first_wave_done[i] == 0) && ((pre_state[i] == 3'b001) || (pre_state[i] == 3'b100)))) 
               `nnc_error("WG_SB_SNK IDLE 1", $sformatf("WG:%2d - pre_state[%2d]: %b, first_wave_done[%2d]: %b is not expected 3'b001 or 3'b100", i, i, pre_state[i], i, first_wave_done[i]))
            if (rest_trigger_src == 1) begin
@@ -232,34 +432,34 @@ initial
            end
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SNK IDLE 1", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b000;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b110) begin // DISCHARGE
+         end else if (wg_state[i] == 3'b110) begin // DISCHARGE
            discharge_trigger_snk = 1;
            rest_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b110)) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b1) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SRC DISCHARGE", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b110;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b001) begin // POS
+         end else if (wg_state[i] == 3'b001) begin // POS
            rest_trigger_snk = 0;
            discharge_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b000) && (pre_state[i] != 3'b001) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b110)) `nnc_error("WG_SB_SNK POS", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK POS", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b1) `nnc_error("WG_SB_SNK POS", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b1", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b001;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b010) begin // REST
+         end else if (wg_state[i] == 3'b010) begin // REST
            rest_trigger_snk = 1;
            discharge_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b001) && (pre_state[i] != 3'b010) && (pre_state[i] != 3'b100)) `nnc_error("WG_SB", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))   
            if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK REST", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
            if (`ANA_TOP.D2A_SOURCE[i] !== 1'b0) `nnc_error("WG_SB_SNK REST", $sformatf("WG:%2d - `ANA_TOP.D2A_SOURCE[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_SOURCE[i]))
            pre_state[i] = 3'b010;
-         end else if (`WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.state == 3'b100) begin // SILENT
+         end else if (wg_state[i] == 3'b100) begin // SILENT
            rest_trigger_snk = 0;
            discharge_trigger_snk = 0;
-           @(negedge `WG_DRIVER_CORE.WG_SUB_BLOCK[i].arb_wave_gen_inst.clk);
+           @(negedge wg_clk[i]);
            if ((pre_state[i] != 3'b001) && (pre_state[i] != 3'b100) && (pre_state[i] != 3'b010)) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - pre_state[%2d]: %b is not expected", i, i, pre_state[i]))
            if (rest_trigger_src == 1) begin
              if (`ANA_TOP.D2A_PULLD[i] !== 1'b0) `nnc_error("WG_SB_SNK SILENT", $sformatf("WG:%2d - `ANA_TOP.D2A_PULLD[%2d]: %b is not expected to 1'b0", i, i, `ANA_TOP.D2A_PULLD[i]))
@@ -277,10 +477,10 @@ initial
       end
     end 
     end
+    end
   end
 end
 endgenerate
-
 // End of implemenentation
 
 generate 
@@ -327,21 +527,21 @@ end
 endgenerate
 
 assign dut_wg_vif[0].dac_din     = `ANA_TOP.D2A_DATA_0; // `WG_DRIVER_TOP.o_out_wave_driver_idac[0];
-assign dut_wg_vif[1].dac_din     = `ANA_TOP.D2A_DATA_1; // `WG_DRIVER_TOP.o_out_wave_driver_idac[1];
-assign dut_wg_vif[2].dac_din     = `ANA_TOP.D2A_DATA_2; // `WG_DRIVER_TOP.o_out_wave_driver_idac[2];
-assign dut_wg_vif[3].dac_din     = `ANA_TOP.D2A_DATA_3; // `WG_DRIVER_TOP.o_out_wave_driver_idac[3];
-assign dut_wg_vif[4].dac_din     = `ANA_TOP.D2A_DATA_4; // `WG_DRIVER_TOP.o_out_wave_driver_idac[4];
-assign dut_wg_vif[5].dac_din     = `ANA_TOP.D2A_DATA_5; // `WG_DRIVER_TOP.o_out_wave_driver_idac[5];
-assign dut_wg_vif[6].dac_din     = `ANA_TOP.D2A_DATA_6; // `WG_DRIVER_TOP.o_out_wave_driver_idac[6];
-assign dut_wg_vif[7].dac_din     = `ANA_TOP.D2A_DATA_7; // `WG_DRIVER_TOP.o_out_wave_driver_idac[7];
-assign dut_wg_vif[8].dac_din     = `ANA_TOP.D2A_DATA_8; // `WG_DRIVER_TOP.o_out_wave_driver_idac[8];
-assign dut_wg_vif[9].dac_din     = `ANA_TOP.D2A_DATA_9; // `WG_DRIVER_TOP.o_out_wave_driver_idac[9];
-assign dut_wg_vif[10].dac_din    = `ANA_TOP.D2A_DATA_10; // `WG_DRIVER_TOP.o_out_wave_driver_idac[10];
-assign dut_wg_vif[11].dac_din    = `ANA_TOP.D2A_DATA_11; // `WG_DRIVER_TOP.o_out_wave_driver_idac[11];
-assign dut_wg_vif[12].dac_din    = `ANA_TOP.D2A_DATA_12; // `WG_DRIVER_TOP.o_out_wave_driver_idac[12];
-assign dut_wg_vif[13].dac_din    = `ANA_TOP.D2A_DATA_13; // `WG_DRIVER_TOP.o_out_wave_driver_idac[13];
-assign dut_wg_vif[14].dac_din    = `ANA_TOP.D2A_DATA_14; // `WG_DRIVER_TOP.o_out_wave_driver_idac[14];
-assign dut_wg_vif[15].dac_din    = `ANA_TOP.D2A_DATA_15; // `WG_DRIVER_TOP.o_out_wave_driver_idac[15];
+assign dut_wg_vif[1].dac_din     = `ANA_TOP.D2A_DATA_1; // `WG_DRIVER_IDAC_1;
+assign dut_wg_vif[2].dac_din     = `ANA_TOP.D2A_DATA_2; // `WG_DRIVER_IDAC_2;
+assign dut_wg_vif[3].dac_din     = `ANA_TOP.D2A_DATA_3; // `WG_DRIVER_IDAC_3;
+assign dut_wg_vif[4].dac_din     = `ANA_TOP.D2A_DATA_4; // `WG_DRIVER_IDAC_4;
+assign dut_wg_vif[5].dac_din     = `ANA_TOP.D2A_DATA_5; // `WG_DRIVER_IDAC_5;
+assign dut_wg_vif[6].dac_din     = `ANA_TOP.D2A_DATA_6; // `WG_DRIVER_IDAC_6;
+assign dut_wg_vif[7].dac_din     = `ANA_TOP.D2A_DATA_7; // `WG_DRIVER_IDAC_7;
+assign dut_wg_vif[8].dac_din     = `ANA_TOP.D2A_DATA_8; // `WG_DRIVER_IDAC_8;
+assign dut_wg_vif[9].dac_din     = `ANA_TOP.D2A_DATA_9; // `WG_DRIVER_IDAC_9;
+assign dut_wg_vif[10].dac_din    = `ANA_TOP.D2A_DATA_10; // `WG_DRIVER_IDAC_10;
+assign dut_wg_vif[11].dac_din    = `ANA_TOP.D2A_DATA_11; // `WG_DRIVER_IDAC_11;
+assign dut_wg_vif[12].dac_din    = `ANA_TOP.D2A_DATA_12; // `WG_DRIVER_IDAC_12;
+assign dut_wg_vif[13].dac_din    = `ANA_TOP.D2A_DATA_13; // `WG_DRIVER_IDAC_13;
+assign dut_wg_vif[14].dac_din    = `ANA_TOP.D2A_DATA_14; // `WG_DRIVER_IDAC_14;
+assign dut_wg_vif[15].dac_din    = `ANA_TOP.D2A_DATA_15; // `WG_DRIVER_IDAC_15;
 
 generate
   for (genvar i=0; i < `WAVEGEN_NUM_OF_MULT_CHIPS; i++) begin

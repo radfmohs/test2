@@ -166,12 +166,20 @@ class `TESTNAME extends soc_sysc_reg_reset_test;
             `RD_NORMAL_REG(i, top_test_cfg.pads, top_test_cfg.rd_data[0]);
             if(i===8'h0b) continue;  //debug_reg1[0] reload_done
             if(i===8'h73) continue;  //debug_reg1[0] reload_done
+            if(i===8'h69) continue;  //temp sensor value
+            if(i== 8'hF4) continue;  //stimualtor A2D_ADC_DATA
+            if(i== 8'hF5) continue;  //stimualtor A2D_ADC_DATA
+
             if(`DUT_IF.reg_normal[i][31:24] !==8'bxx && top_test_cfg.rd_data[0] !== `DUT_IF.reg_normal[i][31:24]) `nnc_error("SOC_TEST", $sformatf("normal_reg[%8h] initial value error!!! r_data=%8h  exp_data=%8h", i, top_test_cfg.rd_data[0], `DUT_IF.reg_normal[i][31:24]));
         end
         
         foreach(`DUT_IF.reg_wavegen[i]) begin
             `RD_WAVEGEN_REG(i, top_test_cfg.pads, top_test_cfg.rd_data[0]);
-            if(i===8'h6b) continue; 
+            //if(i===8'h6b) continue;
+            if(i===8'h2C) continue; //wavegen0  range 0 ~3F
+            if(i===8'h6C) continue; //wavegen1  range 40 ~7F
+            if(i===8'hAC) continue; //wavegen2  range 80 ~BF
+            if(i===8'hEC) continue;// wavegen3  range C0 ~FF
             if(`DUT_IF.reg_wavegen[i][31:24] !==8'bxx && top_test_cfg.rd_data[0] !== `DUT_IF.reg_wavegen[i][31:24]) `nnc_error("SOC_TEST", $sformatf("wavegen_reg[%8h] initial value error!!! r_data=%8h  exp_data=%8h", i, top_test_cfg.rd_data[0], `DUT_IF.reg_wavegen[i][31:24]));
         end
 

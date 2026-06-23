@@ -424,6 +424,16 @@ GF_CI_VSS  u_iopad_plvss1(
 
 );
 
+GF_CI_VSS  u_iopad_plvss2(
+  .DVDD       (VDDIO),
+  .DVSS       (VSSIO),      //this is for IO Ring Power
+  .VDD        (VDD_DIG), 
+  .VSS        (VSS_DIG),
+  .POC        (POC),        //come from analog model
+  .POCB       (POCB)        //come from analog model
+
+);
+
 // 1.8 Core power supply
 GF_CI_VDD u_iopad_plvdd0(
   .DVDD       (VDDIO),
@@ -442,6 +452,16 @@ GF_CI_VDD u_iopad_plvdd1(
   .POC        (POC),        //come from analog model
   .POCB       (POCB)        //come from analog model
 );
+
+GF_CI_VDD u_iopad_plvdd2(
+  .DVDD       (VDDIO),
+  .DVSS       (VSSIO),
+  .VDD        (VDD_DIG),    //this is for backup solution connect to sw_power
+  .VSS        (VSS_DIG),
+  .POC        (POC),        //come from analog model
+  .POCB       (POCB)        //come from analog model
+);
+
 
 // 5V I/O power supply
 GF_CI_DVDD_POC u_dvdd (

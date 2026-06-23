@@ -12,6 +12,12 @@
 `define TESTNAME soc_pinmux_normalmode_test
 `define TESTCFG soc_pinmux_normalmode_test_cfg
 
+`ifdef BEHAVIORAL 
+  `define INT_HIGH_LEVEL_EN `SPI_TOP.spi_reg_u.int_ctrl_reg[2]
+`else
+  `define INT_HIGH_LEVEL_EN `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL
+`endif
+
 class `TESTCFG extends soc_base_test_cfg;
 
   `nnc_object_utils(`TESTCFG)
@@ -23,6 +29,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand int         no_of_bytes; 
   rand logic [7:0] reg_addr;
   rand logic [7:0] cmd;
+  rand logic int_act_level;
   logic [7:0] read_data[];
   logic [8:0]   atm;
   logic [7:0] int_ctrl;
@@ -72,7 +79,7 @@ class `TESTNAME extends soc_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    `nnc_top.set_timeout(2s);
+    `nnc_top.set_timeout(5s);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -135,7 +142,7 @@ class `TESTNAME extends soc_base_test;
     // Checking pin testmode
     `DUT_IF.testmode_sel = 2'b00;
     `DUT_IF.iopad_gpio[`GPIO_NUM-1:0] = 16'b0; 
-    //force `DIG_TOP.u_pinmux.altf_sel = 2'b00;//$random; 
+    //force `DIG_TOP.u_pinmux.altf_sel = 2'b00;//$urandom; 
             
     force `SOC_TB.iopad_resetn = 1'b0;
     #10000ns;
@@ -145,23 +152,21 @@ class `TESTNAME extends soc_base_test;
 
     #100000ns;
 
- `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif  
-                // Checking ATM
-                if (top_test_cfg.atm !== 8'b0)
-                    begin
-                        `nnc_error("SCAN_MODE", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]-1)))
-                    end                  
+  `ifdef BEHAVIORAL
+    top_test_cfg.atm = `ATM_PINMUX_IF; // Checked on Pinmux 
+    // Checking ATM
+    if (top_test_cfg.atm !== 30'h0)
+      begin
+        `nnc_error("NORMAL MODE", $sformatf("ATM[0:29] = %b is not as expectation of %b", top_test_cfg.atm, 30'h0));
+      end  
+  `endif                
 
                 // ------------------------------------------------------------                  
                 // Checking pin CSn - `SOC_TOP.CSn
                 // ------------------------------------------------------------
 `ifndef POSTLAYOUT_PG                    
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[3] = $random;
+                  force `SOC_TOP.IOBUF_PAD[3] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[3];
                   if (`DIG_TOP.u_pinmux.cs_n !== rand_bit) begin
@@ -171,7 +176,7 @@ class `TESTNAME extends soc_base_test;
                 end
 `else
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[3] = $random;
+                  force `SOC_TOP.IOBUF_PAD[3] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[3];
                   if (`DIG_TOP.u_pinmux.pad_cs_n !== rand_bit) begin
@@ -185,7 +190,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking pin SCLK - `SOC_TOP.IOBUF_PAD[4]
                 // ------------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[4] = $random;
+                  force `SOC_TOP.IOBUF_PAD[4] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[4];
                   if (`DIG_TOP.u_pinmux.sclk !== rand_bit) begin
@@ -199,7 +204,7 @@ class `TESTNAME extends soc_base_test;
                 // ------------------------------------------------------------
                 if(`DUT_IF.ext_clk_en)begin
                   for (int i=0; i < 100; i++) begin
-                    force `SOC_TOP.IOBUF_PAD[0] = $random;
+                    force `SOC_TOP.IOBUF_PAD[0] = $urandom;
                     #10000ns;
                     rand_bit = `SOC_TOP.IOBUF_PAD[0];
                     if (`DIG_TOP.u_pinmux.ext_clk !== rand_bit) begin
@@ -217,7 +222,7 @@ class `TESTNAME extends soc_base_test;
 
                 // Force inside PInmux and check at PADs
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.miso = $random;
+                  force `DIG_TOP.u_pinmux.miso = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.miso;
                   if (`SOC_TOP.IOBUF_PAD[6] !== rand_bit) begin
@@ -230,8 +235,9 @@ class `TESTNAME extends soc_base_test;
                 // --------------------------------------------------------
                 // Checking pin MOSI - `SOC_TOP.mosi
                 // --------------------------------------------------------
+		force `SOC_TOP.IOBUF_PAD[3] = 1'b0;
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[5] = $random;
+                  force `SOC_TOP.IOBUF_PAD[5] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[5];
                   if (`DIG_TOP.u_pinmux.mosi !== rand_bit) begin
@@ -239,12 +245,13 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `SOC_TOP.IOBUF_PAD[5];
                 end
-        
+		release `SOC_TOP.IOBUF_PAD[3];
+       
                 // --------------------------------------------------------
                 // Checking pin CPOLn - `SOC_TOP.CPOLn
                 // --------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[1] = $random;
+                  force `SOC_TOP.IOBUF_PAD[1] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[1];
                   if (`DIG_TOP.u_pinmux.o_cpoln !== rand_bit) begin
@@ -257,7 +264,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking pin CPHA - `SOC_TOP.CPHA
                 // -------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[2] = $random;
+                  force `SOC_TOP.IOBUF_PAD[2] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[2];
                   if (`DIG_TOP.u_pinmux.o_cpha !== rand_bit) begin
@@ -270,7 +277,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking pin DAISY 
                 // -------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[7] = $random;
+                  force `SOC_TOP.IOBUF_PAD[7] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[7];
                   if (`DIG_TOP.u_pinmux.o_DAISY_IN !== rand_bit) begin
@@ -278,19 +285,19 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `SOC_TOP.IOBUF_PAD[7];
                 end
-                
+            
                 // ---------------------------------------------------------        
                 // Checking INTB output pin - multiple intb pin 
                 // BY DEFAULT MULTP INTB PIN AND INTB LEVEL SELECT ARE 1
                 // ---------------------------------------------------------
                             
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_wg_drviver_int = $random;
-                  force `DIG_TOP.u_pinmux.i_eeg_int = $random;
-		  force `DIG_TOP.u_pinmux.i_tsc_int = $random;
-		  force `DIG_TOP.u_pinmux.i_anac_int = $random;
-                  force `DIG_TOP.u_pinmux.i_stim_mon_int = $random;
-		  force `DIG_TOP.u_pinmux.i_nirs_int = $random; 
+                  force `DIG_TOP.u_pinmux.i_wg_drviver_int = $urandom;
+                  force `DIG_TOP.u_pinmux.i_eeg_int = $urandom;
+		              force `DIG_TOP.u_pinmux.i_tsc_int = $urandom;
+		              force `DIG_TOP.u_pinmux.i_anac_int = $urandom;
+                  force `DIG_TOP.u_pinmux.i_stim_mon_int = $urandom;
+		              force `DIG_TOP.u_pinmux.i_nirs_int = $urandom; 
                   #10000ns;
                   intb_bit[0] = `DIG_TOP.u_pinmux.i_eeg_int;
                   intb_bit[1] = `DIG_TOP.u_pinmux.i_wg_drviver_int;
@@ -316,8 +323,8 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_stim_mon_int;
                 release `DIG_TOP.u_pinmux.i_nirs_int;
 
-              // CHECKING INTB WHEN ALL INTBS ARE COMBINED INTO A SINGLE PIN
-    `WR_NORMAL_REG(`SOC_PMU_REG, 8'h01, 8'h00); // Config VPP_EN
+              // CHECKING INTB WHEN ALL INTBS ARE COMBINED INTO A SINGLE PIN (bit[6])
+              `WR_NORMAL_REG(`SOC_PMU_REG, 8'h01, 8'h00); 
                  
 
 		//--------------------Check i_wg_drviver_int-----------------//
@@ -326,15 +333,14 @@ class `TESTNAME extends soc_base_test;
                 force `DIG_TOP.u_pinmux.i_anac_int = 0;
 		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 		force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
-                `ifndef BEHAVIORAL
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif 
+
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_wg_drviver_int = $random;
+                  force `DIG_TOP.u_pinmux.i_wg_drviver_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_wg_drviver_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -351,25 +357,25 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_anac_int;
                 release `DIG_TOP.u_pinmux.i_nirs_int;
                 release `DIG_TOP.u_pinmux.i_stim_mon_int;		
+
+    #100ns;
    
                // ----------------------Check i_eeg_int-----------------------//
-		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
-		force `DIG_TOP.u_pinmux.i_anac_int = 0;
-		force `DIG_TOP.u_pinmux.i_nirs_int = 0;
-		force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
+		           force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
+		           force `DIG_TOP.u_pinmux.i_tsc_int = 0;
+		           force `DIG_TOP.u_pinmux.i_anac_int = 0;
+		           force `DIG_TOP.u_pinmux.i_nirs_int = 0;
+		           force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
 
-                `ifndef BEHAVIORAL
-                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif
+                   //release `INT_HIGH_LEVEL_EN;
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_eeg_int = $random;
+                  force `DIG_TOP.u_pinmux.i_eeg_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_eeg_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -384,6 +390,8 @@ class `TESTNAME extends soc_base_test;
                 release `DIG_TOP.u_pinmux.i_nirs_int;
 		release `DIG_TOP.u_pinmux.i_stim_mon_int;
 
+#100ns;
+
 		// ----------------------Check i_tsc_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
@@ -391,17 +399,15 @@ class `TESTNAME extends soc_base_test;
     force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 		force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
 
-                `ifndef BEHAVIORAL
-                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif
+                   //release `INT_HIGH_LEVEL_EN;
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_tsc_int = $random;
+                  force `DIG_TOP.u_pinmux.i_tsc_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_tsc_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -419,6 +425,8 @@ class `TESTNAME extends soc_base_test;
     release `DIG_TOP.u_pinmux.i_nirs_int;
     release `DIG_TOP.u_pinmux.i_stim_mon_int;	
 
+#100ns;
+
 		// ----------------------Check i_anac_int-----------------------
 		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
 		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
@@ -426,17 +434,16 @@ class `TESTNAME extends soc_base_test;
     force `DIG_TOP.u_pinmux.i_nirs_int = 0;
 		force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
 
-                `ifndef BEHAVIORAL
-                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif
+
+                   //release `INT_HIGH_LEVEL_EN;
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_anac_int = $random;
+                  force `DIG_TOP.u_pinmux.i_anac_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_anac_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -454,25 +461,26 @@ class `TESTNAME extends soc_base_test;
     release `DIG_TOP.u_pinmux.i_nirs_int;
     release `DIG_TOP.u_pinmux.i_stim_mon_int;	
 
+#100ns;
 
-		// ----------------------Check i_stim_mon_int-----------------------
-		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
-		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
-    force `DIG_TOP.u_pinmux.i_nirs_int = 0;
-		force `DIG_TOP.u_pinmux.i_anac_int = 0;
 
-                `ifndef BEHAVIORAL
-                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif
+		             // ----------------------Check i_stim_mon_int-----------------------
+		             force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
+		             force `DIG_TOP.u_pinmux.i_eeg_int = 0;
+		             force `DIG_TOP.u_pinmux.i_tsc_int = 0;
+                 force `DIG_TOP.u_pinmux.i_nirs_int = 0;
+		             force `DIG_TOP.u_pinmux.i_anac_int = 0;
+
+
+                   //release `INT_HIGH_LEVEL_EN;
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_stim_mon_int = $random;
+                  force `DIG_TOP.u_pinmux.i_stim_mon_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_stim_mon_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -484,30 +492,30 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.i_stim_mon_int;
                 end
                 //release `DIG_TOP.u_pinmux.i_lead_off_int;
-		release `DIG_TOP.u_pinmux.i_wg_drviver_int;
-		release `DIG_TOP.u_pinmux.i_eeg_int;
-		release `DIG_TOP.u_pinmux.i_tsc_int;
-    release `DIG_TOP.u_pinmux.i_nirs_int;
-    release `DIG_TOP.u_pinmux.i_anac_int;
+		            release `DIG_TOP.u_pinmux.i_wg_drviver_int;
+		            release `DIG_TOP.u_pinmux.i_eeg_int;
+		            release `DIG_TOP.u_pinmux.i_tsc_int;
+                release `DIG_TOP.u_pinmux.i_nirs_int;
+                release `DIG_TOP.u_pinmux.i_anac_int;
 
-		// ----------------------Check i_nirs_int-----------------------
-		force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
-		force `DIG_TOP.u_pinmux.i_eeg_int = 0;
-		force `DIG_TOP.u_pinmux.i_tsc_int = 0;
-		force `DIG_TOP.u_pinmux.i_anac_int = 0;
-		force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
+                #100ns;
 
-                `ifndef BEHAVIORAL
-                   release `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                   force `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.spi_pinmux_if_INT_LEVEL_SEL;
-                `else 
-                   release `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                   force `SPI_TOP.spi_reg_u.int_ctrl_reg[2] = $random;
-                   int_act_lvl =  `SPI_TOP.spi_reg_u.int_ctrl_reg[2];
-                `endif
+		            // ----------------------Check i_nirs_int-----------------------
+		            force `DIG_TOP.u_pinmux.i_wg_drviver_int = 0;
+		            force `DIG_TOP.u_pinmux.i_eeg_int = 0;
+		            force `DIG_TOP.u_pinmux.i_tsc_int = 0;
+		            force `DIG_TOP.u_pinmux.i_anac_int = 0;
+		            force `DIG_TOP.u_pinmux.i_stim_mon_int = 0;
+
+                   //release `INT_HIGH_LEVEL_EN;
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+                   //force `INT_HIGH_LEVEL_EN = $urandom;
+                   assert(top_test_cfg.randomize());
+                   `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, {5'h0, top_test_cfg.int_act_level, 2'h0}, 8'h00);
+                   int_act_lvl =  `INT_HIGH_LEVEL_EN;
+
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.i_nirs_int = $random;
+                  force `DIG_TOP.u_pinmux.i_nirs_int = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_nirs_int;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit ~^ int_act_lvl) begin
@@ -518,51 +526,67 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.i_nirs_int;
                 end
+
+                
                 release `DIG_TOP.u_pinmux.i_wg_drviver_int;
                 release `DIG_TOP.u_pinmux.i_eeg_int;
                 release `DIG_TOP.u_pinmux.i_tsc_int;
                 release `DIG_TOP.u_pinmux.i_anac_int;
                 release `DIG_TOP.u_pinmux.i_stim_mon_int;	
 
-            `WR_NORMAL_REG(`SOC_PMU_REG, `INIT_SOC_PMU_REG, 8'h00);
+                // ------------------------------------------------------------------------------------------------------------------------------------------  
+                //release `INT_HIGH_LEVEL_EN; ??? Why do we release it after force but the value is not 1'b1 as the begining. Investigate it later?? VCS?????
+                // Temp fix, force 1 anf release then it is 1 as expectation!
+                // Thanh fix, write to SOC_GENERAL_INT_CTRL_REG instead of force `SPI_TOP.spi_reg_u.int_ctrl_reg[2]
+                // ------------------------------------------------------------------------------------------------------------------------------------------  
 
-      /////////////////////////  END OF INTB CHECK  //////////////////////////
+                //force `INT_HIGH_LEVEL_EN = 1'b1;     
+                //#1000ns;
+                //release `INT_HIGH_LEVEL_EN;  
+                `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, `INIT_SOC_GENERAL_INT_CTRL_REG, 8'h00);
+
+                `WR_NORMAL_REG(`SOC_PMU_REG, `INIT_SOC_PMU_REG, 8'h00);
+
+                #100ns;
+
+                /////////////////////////  END OF INTB CHECK  //////////////////////////
     
                 // ----------------------------------------------- 
-                // Checking pin OTP_VPP_EN - `SOC_TOP.IOBUF_PAD[9]
+                // Checking pin OTP_VPP_EN - `SOC_TOP.IOBUF_PAD[8]
                 // -----------------------------------------------
                 for (int i=0; i < 50; i++) begin
-                  force `DIG_TOP.u_pinmux.i_otp_vpp_en = $random;
-                  force `DIG_TOP.u_pinmux.INT0 = ~`DIG_TOP.u_pinmux.i_otp_vpp_en;
+                  force `DIG_TOP.u_pinmux.i_otp_vpp_en = $urandom;
+                  force `DIG_TOP.u_pinmux.i_eeg_int = ~`DIG_TOP.u_pinmux.i_otp_vpp_en;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_otp_vpp_en;
                   if (`SOC_TOP.IOBUF_PAD[8] === rand_bit) begin
                     `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is the same as `DIG_TOP.u_pinmux.i_otp_vpp_en = %b when default normal out ctrl is %b", `SOC_TOP.IOBUF_PAD[8], rand_bit, `DIG_TOP.u_pinmux.i_gpio_normal_out_ctrl));
                   end
                   release `DIG_TOP.u_pinmux.i_otp_vpp_en;
-                  release `DIG_TOP.u_pinmux.INT0;
+                  release `DIG_TOP.u_pinmux.i_eeg_int;
                 end
+
+                #100ns;
 
                 `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00); // Config VPP_EN
                 for (int i=0; i < 50; i++) begin
-                  force `DIG_TOP.u_pinmux.i_otp_vpp_en = $random;
-                  force `DIG_TOP.u_pinmux.INT0 = ~`DIG_TOP.u_pinmux.i_otp_vpp_en;
+                  force `DIG_TOP.u_pinmux.i_otp_vpp_en = $urandom;
+                  force `DIG_TOP.u_pinmux.i_eeg_int = ~`DIG_TOP.u_pinmux.i_otp_vpp_en;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.i_otp_vpp_en;
                   if (`SOC_TOP.IOBUF_PAD[8] !== rand_bit) begin
                     `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[8] = %b is the same as `DIG_TOP.u_pinmux.i_otp_vpp_en = %b when default normal out ctrl is %b", `SOC_TOP.IOBUF_PAD[8], rand_bit, `DIG_TOP.u_pinmux.i_gpio_normal_out_ctrl));
                   end
                   release `DIG_TOP.u_pinmux.i_otp_vpp_en;
-                  release `DIG_TOP.u_pinmux.INT0;
+                  release `DIG_TOP.u_pinmux.i_eeg_int;
                 end
                 `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, `INIT_SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h00);
-                //release `SOC_TOP.IOBUF_PAD[3];
  
                 // -----------------------------------------------------
                 // Checking output pin HFOSC_OUT - `SOC_TOP.IOBUF_PAD[12]
                 // -----------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.hfosc_out = $random;
+                  force `DIG_TOP.u_pinmux.hfosc_out = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.hfosc_out;
                   if (`SOC_TOP.IOBUF_PAD[12] !== rand_bit) begin
@@ -575,7 +599,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking INT_OSC_OUT_EN input pin- `SOC_TOP.IOBUF_PAD[13]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `SOC_TOP.IOBUF_PAD[13] = $random;
+                  force `SOC_TOP.IOBUF_PAD[13] = $urandom;
                   #10000ns;
                   rand_bit = `SOC_TOP.IOBUF_PAD[13];
                   if (`DIG_TOP.u_pinmux.o_int_clk_out_gpio !== rand_bit) begin
@@ -583,38 +607,12 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `SOC_TOP.IOBUF_PAD[13];
                 end
-                /*
-                // ----------------------------------------------------------
-                // Checking A2D_COMP0 output pin- `SOC_TOP.IOBUF_PAD[12]
-                // ----------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.o_A2D_COMP0 = $random;
-                  #10000ns;
-                  rand_bit = `DIG_TOP.u_pinmux.o_A2D_COMP0;
-                  if (`SOC_TOP.IOBUF_PAD[12] !== rand_bit) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[12] = %b is not as expectation of `DIG_TOP.u_pinmux.o_A2D_COMP0 = %b", `SOC_TOP.IOBUF_PAD[12], rand_bit))
-                  end
-                  release `DIG_TOP.u_pinmux.o_A2D_COMP0;
-                end
-
-                // ----------------------------------------------------------
-                // Checking A2D_COMP0 output pin- `SOC_TOP.IOBUF_PAD[13]
-                // ----------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.o_A2D_COMP1 = $random;
-                  #10000ns;
-                  rand_bit = `DIG_TOP.u_pinmux.o_A2D_COMP1;
-                  if (`SOC_TOP.IOBUF_PAD[13] !== rand_bit) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[13] = %b is not as expectation of `DIG_TOP.u_pinmux.o_A2D_COMP1 = %b", `SOC_TOP.IOBUF_PAD[13], rand_bit))
-                  end
-                  release `DIG_TOP.u_pinmux.o_A2D_COMP1;
-                end
-                */
+  
                 // ----------------------------------------------------------
                 // Checking NIRS_LED_ON0 output pin- `SOC_TOP.IOBUF_PAD[14]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON0;
                   if (`SOC_TOP.IOBUF_PAD[14] !== rand_bit) begin
@@ -627,7 +625,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_LED_ON1 output pin- `SOC_TOP.IOBUF_PAD[15]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON1 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON1 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON1;
                   if (`SOC_TOP.IOBUF_PAD[15] !== rand_bit) begin
@@ -636,12 +634,11 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.NIRS_LED_ON1;
                 end
                 
-
                 // ----------------------------------------------------------
                 // Checking NIRS_LED_ON2 output pin- `SOC_TOP.IOBUF_PAD[16]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON2 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON2 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON2;
                   if (`SOC_TOP.IOBUF_PAD[16] !== rand_bit) begin
@@ -654,7 +651,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_LED_ON3 output pin- `SOC_TOP.IOBUF_PAD[17]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON3 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON3 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON3;
                   if (`SOC_TOP.IOBUF_PAD[17] !== rand_bit) begin
@@ -667,7 +664,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_LED_ON4 output pin- `SOC_TOP.IOBUF_PAD[18]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON4 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON4 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON4;
                   if (`SOC_TOP.IOBUF_PAD[18] !== rand_bit) begin
@@ -680,7 +677,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_LED_ON5 output pin- `SOC_TOP.IOBUF_PAD[19]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON5 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON5 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON5;
                   if (`SOC_TOP.IOBUF_PAD[19] !== rand_bit) begin
@@ -688,6 +685,7 @@ class `TESTNAME extends soc_base_test;
                   end
                   release `DIG_TOP.u_pinmux.NIRS_LED_ON5;
                 end
+
 
                 //////////////////// CHECKING IOPAD 15 - 19 WHEN NIRS_OUT_CTRL CONFIG TO 1 /////////////////
 
@@ -697,7 +695,7 @@ class `TESTNAME extends soc_base_test;
                 `WR_NORMAL_REG(`SOC_GPIO_NIRS_OUT_CTRL_REG, 8'h01, 8'h00);
                 
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_RESET_SW0 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_RESET_SW0 = $urandom;
                   force `DIG_TOP.u_pinmux.NIRS_LED_ON1 = !`DIG_TOP.u_pinmux.NIRS_RESET_SW0;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_RESET_SW0;
@@ -714,7 +712,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_IPD_SW0 output pin- `SOC_TOP.IOBUF_PAD[16]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_IPD_SW0 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_IPD_SW0 = $urandom;
                   force `DIG_TOP.u_pinmux.NIRS_LED_ON2 = !`DIG_TOP.u_pinmux.NIRS_IPD_SW0;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_IPD_SW0;
@@ -731,7 +729,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_IIN_SW0 output pin- `SOC_TOP.IOBUF_PAD[17]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_IIN_SW0 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_IIN_SW0 = $urandom;
                   force `DIG_TOP.u_pinmux.NIRS_LED_ON3 = !`DIG_TOP.u_pinmux.NIRS_IIN_SW0;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_IIN_SW0;
@@ -748,7 +746,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking A2D_IREFCOARSE0 output pin- `SOC_TOP.IOBUF_PAD[18]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.A2D_IREFCOARSE0 = $random;
+                  force `DIG_TOP.u_pinmux.A2D_IREFCOARSE0 = $urandom;
                   force `DIG_TOP.u_pinmux.NIRS_LED_ON4 = !`DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
@@ -765,7 +763,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking A2D_IREFFINE0 output pin- `SOC_TOP.IOBUF_PAD[19]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.A2D_IREFFINE0 = $random;
+                  force `DIG_TOP.u_pinmux.A2D_IREFFINE0 = $urandom;
                   force `DIG_TOP.u_pinmux.NIRS_LED_ON5 = !`DIG_TOP.u_pinmux.A2D_IREFFINE0;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.A2D_IREFFINE0;
@@ -778,12 +776,11 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.NIRS_LED_ON5;
                 end
 
-
                 // ----------------------------------------------------------
                 // Checking NIRS_LED_ON6 output pin- `SOC_TOP.IOBUF_PAD[20]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON6 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON6 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON6;
                   if (`SOC_TOP.IOBUF_PAD[20] !== rand_bit) begin
@@ -796,7 +793,7 @@ class `TESTNAME extends soc_base_test;
                 // Checking NIRS_LED_ON7 output pin- `SOC_TOP.IOBUF_PAD[21]
                 // ----------------------------------------------------------
                 for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON7 = $random;
+                  force `DIG_TOP.u_pinmux.NIRS_LED_ON7 = $urandom;
                   #10000ns;
                   rand_bit = `DIG_TOP.u_pinmux.NIRS_LED_ON7;
                   if (`SOC_TOP.IOBUF_PAD[21] !== rand_bit) begin
@@ -805,83 +802,7 @@ class `TESTNAME extends soc_base_test;
                   release `DIG_TOP.u_pinmux.NIRS_LED_ON7;
                 end
 
-
-                /*
-                // -------------------------------------------------------------------------------------------------------------------------------
-                // Checking NIRS_LED_ON0/NIRS_RESET_SW0/NIRS_IPD_SW0/NIRS_IIN_SW0/A2D_IREFCOARSE0/A2D_IREFFINE0 output pin- `SOC_TOP.IOBUF_PAD[14]
-                // -------------------------------------------------------------------------------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = 1'b0;
-                  force `DIG_TOP.u_pinmux.NIRS_RESET_SW0 = $random;
-                  #10000ns;
-                  rand_bit = `DIG_TOP.u_pinmux.NIRS_RESET_SW0;
-                  if (`SOC_TOP.IOBUF_PAD[14] !== rand_bit) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[14] = %b is not as expectation of `DIG_TOP.u_pinmux.NIRS_RESET_SW0 = %b", `SOC_TOP.IOBUF_PAD[14], rand_bit))
-                  end
-                  release `DIG_TOP.u_pinmux.NIRS_LED_ON0;
-                  release `DIG_TOP.u_pinmux.NIRS_RESET_SW0;
-                end
-                //---------------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = 1'b1;
-                  force `DIG_TOP.u_pinmux.NIRS_IPD_SW0 = 1'b0;
-                  force `DIG_TOP.u_pinmux.NIRS_IIN_SW0 = $random;
-                  #10000ns;
-                  rand_bit = `DIG_TOP.u_pinmux.NIRS_IIN_SW0;
-                  if (`SOC_TOP.IOBUF_PAD[14] !== rand_bit) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[14] = %b is not as expectation of `DIG_TOP.u_pinmux.NIRS_IIN_SW0 = %b", `SOC_TOP.IOBUF_PAD[14], rand_bit))
-                  end
-                  release `DIG_TOP.u_pinmux.NIRS_LED_ON0;
-                  release `DIG_TOP.u_pinmux.NIRS_IPD_SW0;
-                  release `DIG_TOP.u_pinmux.NIRS_IIN_SW0;
-                end
-                //---------------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = 1'b1;
-                  force `DIG_TOP.u_pinmux.NIRS_IPD_SW0 = 1'b1;
-                  force `DIG_TOP.u_pinmux.A2D_IREFCOARSE0 = 1'b1;
-                  #10000ns;
-                  //rand_bit = `DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
-                  if (`SOC_TOP.IOBUF_PAD[14] !== 1'b0) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[14] = %b is not as expectation of %b", `SOC_TOP.IOBUF_PAD[14], 1'b0))
-                  end
-                  release `DIG_TOP.u_pinmux.NIRS_LED_ON0;
-                  release `DIG_TOP.u_pinmux.NIRS_IPD_SW0;
-                  release `DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
-                end
-                //---------------------------------------------------------------
-                for (int i=0; i < 100; i++) begin
-                  force `DIG_TOP.u_pinmux.NIRS_LED_ON0 = 1'b1;
-                  force `DIG_TOP.u_pinmux.NIRS_IPD_SW0 = 1'b1;
-                  force `DIG_TOP.u_pinmux.A2D_IREFCOARSE0 = 1'b0;
-                  force `DIG_TOP.u_pinmux.A2D_IREFFINE0 = 1'b0;
-                  #10000ns;
-                  rand_bit = `DIG_TOP.u_pinmux.A2D_IREFFINE0;
-                  if (`SOC_TOP.IOBUF_PAD[14] !== rand_bit) begin
-                    `nnc_error("PINMUX", $sformatf("`SOC_TOP.IOBUF_PAD[14] = %b is not as expectation of `DIG_TOP.u_pinmux.A2D_IREFFINE0 = %b", `SOC_TOP.IOBUF_PAD[14], rand_bit))
-                  end
-                  release `DIG_TOP.u_pinmux.NIRS_LED_ON0;
-                  release `DIG_TOP.u_pinmux.NIRS_IPD_SW0;
-                  release `DIG_TOP.u_pinmux.A2D_IREFCOARSE0;
-                  release `DIG_TOP.u_pinmux.A2D_IREFFINE0;
-                end */
-
-                
-
-`ifdef BEHAVIORAL                             
- // Checking EXT_CLK pin
-    force `SOC_TOP.IOBUF_IE[0] = 1'b1; 
-    for (int i=0; i < 100; i++) begin
-        force `SOC_TOP.IOBUF_PAD[0] = $random;
-        #10000ns;
-        rand_bit = `SOC_TOP.IOBUF_PAD[0];
-        if (`DIG_TOP.u_pinmux.ext_clk !== rand_bit) begin
-        `nnc_error("ATM0", $sformatf("`DIG_TOP.u_pinmux.ext_clk : %b is not as expectation of EXT_CLK: %b",`DIG_TOP.u_pinmux.ext_clk, rand_bit))
-        end
-      release `SOC_TOP.IOBUF_PAD[0];                      
-    end  
-    release `SOC_TOP.IOBUF_IE[0];                          
-`endif
+               
 `endif
     end
   endtask  

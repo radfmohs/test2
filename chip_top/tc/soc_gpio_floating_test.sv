@@ -76,6 +76,7 @@ class `TESTNAME extends soc_base_test;
     assert(top_test_cfg.randomize());
 
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
+    `DUT_IF.daisy_en = 1'b0;
     
     `SPI_SCB_EN = 1'b0;
     `ANALOG_SCOREBOARD_EN = 1'b0;
@@ -125,6 +126,9 @@ class `TESTNAME extends soc_base_test;
       force `SOC_TB.gpio3_conn = 1'bz; 
       force `SOC_TB.gpio4_conn = 1'bz; 
       force `SOC_TB.gpio5_conn = 1'bz;
+      //force `SOC_TB.gpio6_conn = 1'bz;
+      force `DIG_TOP.u_pinmux.dual_en = 1'b1;
+      force `DIG_TOP.u_pinmux.dual_wr = 1'b1;
       //force `ANA_WRAPPER_TOP.A2D_COMP_OUT_CH1 = 1'bz; 
       
       #150us;
@@ -152,6 +156,19 @@ class `TESTNAME extends soc_base_test;
       if (`SOC_TOP.IOBUF_PAD[13] !== 1'b0) begin
         `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[13] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[13], 1'b0));
       end
+
+      if (`SOC_TOP.IOBUF_PAD[6] !== 1'bz) begin
+        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[6] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[6], 1'bz));
+      end
+
+      if (`SOC_TOP.IOBUF_PAD[7] !== 1'bz) begin
+        `nnc_error("BISTMODE",$sformatf("IOBUF_PAD[7] = %b is not as expectation = %b",`SOC_TOP.IOBUF_PAD[7], 1'bz));
+      end
+
+      if (`SOC_TOP.RESETn !== 1'b1) begin
+        `nnc_error("BISTMODE",$sformatf("RESETn = %b is not as expectation = %b",`SOC_TOP.RESETn, 1'bz));
+      end
+
 
       release `SOC_TB.CLK0; 
       release `SOC_TB.IOBUF_CPOLn ; 

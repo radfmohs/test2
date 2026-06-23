@@ -342,10 +342,13 @@ assign wavegen_dev_snk = !`SOC_TB.dut_vif.python_wavegen_en ? 0:
   assign wavegen_addr_src = `WG_DRIVER_CORE.in_wave_addr[wavegen_dev_src][7:0];
 `endif
 
+wire [11:0] out_wave_driver_idac_src = `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src];
+wire [11:0] out_wave_driver_idac_snk = `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk];
+
 always @(negedge `WG_DRIVER_TOP.i_pclk)  
   begin
     if ((pos_stick1 == 1'b0) && (`WG_DRIVER_TOP.o_source_driver[wavegen_dev_src] === 1'b1)) begin
-      `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};//bit[15:13] = drv_num; bit[12]= pos/neg indication (1: neg, 0: pos); bit[11:0] dac data
+      `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};//bit[15:13] = drv_num; bit[12]= pos/neg indication (1: neg, 0: pos); bit[11:0] dac data
       local_data_0 = `SOC_TB.dut_vif.python_data_dac0[python_data_num_0];
     end else if (`WG_DRIVER_TOP.o_source_driver[wavegen_dev_src] === 1'b1) begin
       pos_stick1 = 1;
@@ -355,7 +358,7 @@ always @(negedge `WG_DRIVER_TOP.i_pclk)
 always @(negedge `WG_DRIVER_TOP.i_pclk)
   begin
     if ((pos_stick2 == 1'b0) && (`WG_DRIVER_TOP.o_source_driver[wavegen_dev_snk] === 1'b0)) begin
-      `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};//bit[15:13] = drv_num; bit[12]= pos/neg indication (1: neg, 0: pos); bit[11:0] dac data
+      `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};//bit[15:13] = drv_num; bit[12]= pos/neg indication (1: neg, 0: pos); bit[11:0] dac data
       local_data_1 = `SOC_TB.dut_vif.python_data_dac1[python_data_num_1];
     end else if (`WG_DRIVER_TOP.o_source_driver[wavegen_dev_snk] === 1'b1) begin
       pos_stick2 = 1;
@@ -384,7 +387,7 @@ begin
          #1;
          if (pos_stick1 == 1) begin
            python_data_num_0++;
-           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};
+           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};
          end
        end else if (wavegen_addr_src == 1)  begin
          if (pos_stick1 == 0) begin
@@ -397,7 +400,7 @@ begin
            @(negedge `WG_DRIVER_TOP.i_pclk);
            #1;
            python_data_num_0++;
-           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};
+           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};
          end
        end else if (wavegen_addr_src > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
@@ -407,11 +410,11 @@ begin
          if ((pos_stick1 == 1) && (special_match_dac_src === 1'b0)) begin
            wait (match_dac_src);
            python_data_num_0++;
-           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};
+           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};
          end
          else if ((pos_stick1 == 1) && (special_match_dac_src === 1'b1)) begin
            python_data_num_0++;
-           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};
+           `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};
          end
        end
     end else begin
@@ -421,7 +424,7 @@ begin
        //if ((wavegen_addr_src == 1) && (pos_stick1 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[0] === 1'b1)) dac0_tag = !dac0_tag;
        wait (match_dac_src); 
        python_data_num_0++;
-       if (match_pos_dac_src) `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_src][11:0]};
+       if (match_pos_dac_src) `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {wavegen_dev_src, out_wave_driver_idac_src};
        //if (match_neg_dac_src) `SOC_TB.dut_vif.python_data_dac0[python_data_num_0][15:0] = {3'b110, dac0_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[0][11:0]};
     end
 
@@ -444,7 +447,7 @@ begin
          //if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[wavegen_dev_snk] === 1'b1)) dac1_tag = !dac1_tag; 
          if (pos_stick2 == 1) begin
            python_data_num_1++;
-           `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
+           `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};
          end
        end else if (wavegen_addr_snk == 1)  begin
          if (pos_stick2 == 0) begin
@@ -458,7 +461,7 @@ begin
            //if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[wavegen_dev_snk] === 1'b1)) dac1_tag = !dac1_tag;
            #1;
            python_data_num_1++;
-           `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
+           `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};
          end
        end else if (wavegen_addr_snk > 1) begin
          @(negedge `WG_DRIVER_TOP.i_pclk);
@@ -468,11 +471,11 @@ begin
          if ((pos_stick2 == 1) && (special_match_dac_snk === 1'b0)) begin
              wait (match_dac_snk);
              python_data_num_1++;
-             `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
+             `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};
          end
          else if ((pos_stick2 == 1) && (special_match_dac_snk === 1'b1)) begin
              python_data_num_1++;
-             `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
+             `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};
          end
        end
     end else begin
@@ -482,8 +485,8 @@ begin
        //if ((wavegen_addr_snk == 1) && (pos_stick2 == 1) && (`SOC_TB.dut_vif.clk_per_point_short_dac[wavegen_dev_snk] === 1'b1)) dac1_tag = !dac1_tag;
        wait (match_dac_snk); 
        python_data_num_1++;
-       if (match_pos_dac_snk) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
-       //if (match_neg_dac_snk) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, `WG_DRIVER_TOP.o_out_wave_driver_idac[wavegen_dev_snk][11:0]};
+       if (match_pos_dac_snk) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {wavegen_dev_snk, out_wave_driver_idac_snk};
+       //if (match_neg_dac_snk) `SOC_TB.dut_vif.python_data_dac1[python_data_num_1][31:16] = {3'b111, dac1_tag, out_wave_driver_idac_snk};
     end
 
     if (`SOC_TB.dut_vif.testmode_sel === 2'b00) begin
@@ -792,9 +795,14 @@ end
 // Connect data from Filters to here (40000 words) - local_data_filter
 // =====================================================================
 //always @(negedge `FILTER_WRAPPER_TOP.pclk/*clk[filter_chnum]*/) // 16 clocks -> need to check
+`ifdef BEHAVIORAL
 always @(negedge `CLK_CTRL_TOP.pclk) // 16 clocks -> need to check
-  if ((`IMEAS_WRAPPER_TOP.meas_done == 1'b1) && (filter_data_num < `SOC_TB.dut_vif.python_filter_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
 
+`ifdef BEHAVIORAL
+  if ((`IMEAS_WRAPPER_TOP.meas_done == 1'b1) && (filter_data_num < `SOC_TB.dut_vif.python_filter_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
+`else
+  if ((`IMEAS_WRAPPER_TOP.meas_done_d1 == 1'b1) && (filter_data_num < `SOC_TB.dut_vif.python_filter_length) && (`SOC_TB.dut_vif.python_imeas_en === 1'b1)) begin
+`endif
     for (int i=0; i < 16; i++) begin
       `SOC_TB.dut_vif.filter_data[i] = `IMEAS_WRAPPER_TOP.imeas_chdata_out[i] << filter_data_num*32/*`FILTER_DATA_WIDTH*/;
       if (`SOC_TB.dut_vif.testmode_sel === 2'b00)
@@ -842,6 +850,7 @@ always @(negedge `CLK_CTRL_TOP.pclk) // 16 clocks -> need to check
 */
     filter_data_num++;
   end
+`endif
 
 /************************************************************************************************************************************************************************************************/
 /**************************************************************************************** GENERAL SETTINGS **************************************************************************************/

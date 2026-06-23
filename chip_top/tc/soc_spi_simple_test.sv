@@ -30,7 +30,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] pads;
   rand logic [7:0] mask;
   rand logic [7:0] expected_data;
-  logic [7:0]      rd_data[];
+  logic [7:0]      rd_data;
   logic [7:0]      burst_size;
   rand logic [7:0] wr_data_burst[64];
   logic [7:0]      rd_data_burst[];
@@ -63,7 +63,7 @@ class `TESTCFG extends soc_base_test_cfg;
   // mask values
   constraint c_mask        { soft mask == 8'hff; }
 
-  constraint c_spi_dual_mode_en { spi_dual_mode_en == 1'b1; }
+  constraint c_spi_dual_mode_en { spi_dual_mode_en == 1'b0; }
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -143,34 +143,64 @@ class `TESTNAME extends soc_base_test;
     // This is an example RD_RESET_CHK_REG 
     // --------------------------------------------------------
     
-    `WR_NORMAL_REG(`SOC_OTP_TRIM_1_REG, 8'h34, 8'h00);
-    `RD_NORMAL_REG(`SOC_OTP_TRIM_1_REG, 8'h00, top_test_cfg.rd_data[0]);
+    `WR_NORMAL_REG(`SOC_OTP_TRIM_1_REG, top_test_cfg.wr_data[0], 8'h00);
+    `RD_NORMAL_REG(`SOC_OTP_TRIM_1_REG, 8'h00, top_test_cfg.rd_data);
+    if (top_test_cfg.rd_data !== top_test_cfg.wr_data[0])
+        `nnc_error("SINGLE NORMAL", $sformatf("ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", `SOC_OTP_TRIM_1_REG, top_test_cfg.wr_data[0] , top_test_cfg.rd_data))
 
     top_test_cfg.burst_size = 10;
     `WR_BURST_NORMAL_REG(`SOC_OTP_TRIM_1_REG, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
     `RD_BURST_NORMAL_REG(`SOC_OTP_TRIM_1_REG, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
 
-    `WR_WAVEGEN_REG(8'h01, 8'hAB, 8'h00);
-    `RD_WAVEGEN_REG(8'h01, 8'h00, top_test_cfg.rd_data[0]);
+    for (int m=0; m < top_test_cfg.burst_size; m++ ) begin
+      top_test_cfg.mask = 8'hff;
+
+      if ((top_test_cfg.wr_data_burst[m] & top_test_cfg.mask) !==  top_test_cfg.rd_data_burst[m])
+        `nnc_error("BUSRT NORMAL", $sformatf("Index: %2d, ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", m, top_test_cfg.burst_size - 1 -m, top_test_cfg.wr_data_burst[m] & top_test_cfg.mask, top_test_cfg.rd_data_burst[m]))
+    end
+
+
+    `WR_WAVEGEN_REG(8'h04, top_test_cfg.wr_data[0], 8'h00);
+    `RD_WAVEGEN_REG(8'h04, 8'h00, top_test_cfg.rd_data);
+    if (top_test_cfg.rd_data !== top_test_cfg.wr_data[0])
+        `nnc_error("SINGLE WAVEGEN", $sformatf("ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", 8'hAB, top_test_cfg.wr_data[0] , top_test_cfg.rd_data))
 
     top_test_cfg.burst_size = 10;
-    `WR_BURST_WAVEGEN_REG(8'hAB, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
-    `RD_BURST_WAVEGEN_REG(8'hAB, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+    `WR_BURST_WAVEGEN_REG(8'h04, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
+    `RD_BURST_WAVEGEN_REG(8'h04, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
 
+    for (int m=0; m < top_test_cfg.burst_size; m++ ) begin
+      top_test_cfg.mask = 8'hff;
 
-    `WR_NIRS_REG(8'h01, 8'hCD, 8'h00);
-    `RD_NIRS_REG(8'h01, 8'h00, top_test_cfg.rd_data[0]);
+      if ((top_test_cfg.wr_data_burst[m] & top_test_cfg.mask) !==  top_test_cfg.rd_data_burst[m])
+        `nnc_error("BUSRT WAVEGEN", $sformatf("Index: %2d, ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", m, top_test_cfg.burst_size - 1 -m, top_test_cfg.wr_data_burst[m] & top_test_cfg.mask, top_test_cfg.rd_data_burst[m]))
+    end
 
-    top_test_cfg.burst_size = 10;
-    `WR_BURST_NIRS_REG(8'h01, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
-    `RD_BURST_NIRS_REG(8'h01, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+    top_test_cfg.wr_data[0] = 8'h01;
+    `WR_NIRS_REG(8'h00, top_test_cfg.wr_data[0], 8'h00);
+    `RD_NIRS_REG(8'h00, 8'h00, top_test_cfg.rd_data);
+     if (top_test_cfg.rd_data !== top_test_cfg.wr_data[0])
+        `nnc_error("SINGLE NIRS", $sformatf("ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", 8'h00, top_test_cfg.wr_data[0] , top_test_cfg.rd_data))
 
-    //`WR_WAVEGEN_REG(`SOC_OTP_TRIM_1_REG, 8'h34, 8'h00);
-    //`RD_WAVGEN_REG(`SOC_OTP_TRIM_1_REG, 8'h00, top_test_cfg.rd_data[0]);
+    top_test_cfg.wr_data[0] = 8'h01;
+    `WR_NIRS_REG(8'h01, top_test_cfg.wr_data[0], 8'h00);
+    `RD_NIRS_REG(8'h01, 8'h00, top_test_cfg.rd_data);
+     if (top_test_cfg.rd_data !== top_test_cfg.wr_data[0])
+        `nnc_error("SINGLE NIRS", $sformatf("ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", 8'h00, top_test_cfg.wr_data[0] , top_test_cfg.rd_data))
 
-    //`WR_NIRS_REG(`SOC_OTP_TRIM_1_REG, 8'h34, 8'h00);
-    //`RD_NIRS_REG(`SOC_OTP_TRIM_1_REG, 8'h00, top_test_cfg.rd_data[0]);
+    top_test_cfg.burst_size = 14;
+    `WR_BURST_NIRS_REG(8'h02, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
+    `RD_BURST_NIRS_REG(8'h02, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+    for (int m=0; m < top_test_cfg.burst_size; m++ ) begin
+       if (top_test_cfg.burst_size - 1 - m + 8'h02 == 8'h0B) top_test_cfg.mask = 8'h3F;
+       else if (top_test_cfg.burst_size - 1 - m + 8'h02 == 8'h0E) top_test_cfg.mask = 8'h7F;
+       else if (top_test_cfg.burst_size - 1 - m + 8'h02 == 8'h0F) top_test_cfg.mask = 8'h03;
+       else top_test_cfg.mask = 8'hff;
 
+      if ((top_test_cfg.wr_data_burst[m] & top_test_cfg.mask) !==  top_test_cfg.rd_data_burst[m])
+        `nnc_error("BUSRT NIRS", $sformatf("Index: %2d, ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", m, top_test_cfg.burst_size - 1  - m + 8'h02, top_test_cfg.wr_data_burst[m] & top_test_cfg.mask, top_test_cfg.rd_data_burst[m]))
+
+    end
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------

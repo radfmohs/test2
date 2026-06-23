@@ -219,6 +219,71 @@ class `TESTNAME extends soc_base_test;
     if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
        `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
     end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_9_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[12] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_10_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[13] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_11_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[14] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_12_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[15] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_13_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[16] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_14_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[17] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_TRIM_15_REG; mask == 8'hff;foreach(data[i]) data[i]>8'h10;});
+    `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
+    repeat(3) @(posedge `DUT_IF.sys_clk);
+    `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+    top_test_cfg.reg_to_otp_data[18] = top_test_cfg.rd_data;                    
+    if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
+       `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
+    end
+
+
     // --------------------------------------------------------
     // Part II: make unlock bit to 1 
     // --------------------------------------------------------
@@ -292,13 +357,13 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", "[EPROM BIST MASTER] Complete successully this phase", UVM_LOW);
 
     `nnc_info("SOC_TEST", "Read trim regs", UVM_LOW);
-    top_test_cfg.otp_data =new[8'h0c];
+    top_test_cfg.otp_data =new[8'h13];
 
-    for(int i=0; i<8'h0C; i++) begin
+    for(int i=0; i<8'h13; i++) begin
         `BISTM_SINGLE_READ(top_test_cfg.OTP_SEL, i, top_test_cfg.otp_data[i]);        
     end
 
-    for(int i=0; i<8'h0C ; i++) begin
+    for(int i=0; i<8'h13 ; i++) begin
         if(top_test_cfg.reg_to_otp_data[i] !== top_test_cfg.otp_data[i][7:0]) `nnc_error("SOC_TEST", $sformatf("reg_to_otp_data %8b !== bist_otp_data %8b!!!", top_test_cfg.reg_to_otp_data[i], top_test_cfg.otp_data[i][7:0]))
         else `nnc_info("SOC_TEST", $sformatf("save_trim_wdata %8b === bist_otp_data %8b!!!", top_test_cfg.reg_to_otp_data[i], top_test_cfg.otp_data[i][7:0]), UVM_LOW); 
     end

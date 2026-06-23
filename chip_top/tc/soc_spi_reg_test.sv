@@ -39,6 +39,7 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic [7:0] nirs_burst_size;       
   rand logic [7:0] nirs_burst_addr_start; 
   logic [7:0]      rd_data_burst[];
+  logic [7:0]      rd_data_burst_tmp[];
 
   rand logic [7:0] burst_size;
 
@@ -164,7 +165,9 @@ class `TESTNAME extends soc_base_test;
     // -------------------
     // `OTP_SCOREBOARD_EN = 1;
     // `SPIM_SCOREBOARD_EN = 1;
+    `ifdef BEHAVIORAL
     `ANALOG_SCOREBOARD_EN = 1;
+    `endif
     // `IMEAS_SCOREBOARD_EN = 1;
     // `CLKRST_SCOREBOARD_EN = 1;
 
@@ -455,6 +458,7 @@ class `TESTNAME extends soc_base_test;
     end
     end
 
+    `DUT_IF.otp_ignore_check_en  = 1'b0;
     // ---------------------------------------------------------------------------
     // Checking Write 1 to registers
     // ---------------------------------------------------------------------------
@@ -557,22 +561,16 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("SOC_TEST", $sformatf("**************************************************************\n"), NNC_LOW)
     for(int j=0;j < `WAVEGEN_DRIVER_NUM ; j++)begin
       if (`DUT_IF.wavegen_reg_all == 1'b0) j = `DUT_IF.wavegen_reg_num;
-      // for(int i=0 ; i<nnc_wavegen_reg.size();i++)begin
       `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("WAVEGEN REG: CHECK REGS (write 0xFF) of DRIVER: %2d", j), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
-//Vuong modify
-      //if(j%4 == 0)
       if(((j%4 == 0)&&(`DUT_IF.wavegen_reg_all == 1'b1)) || (`DUT_IF.wavegen_reg_all == 1'b0 ))
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
         top_test_cfg.wr_data[0] = 8'hFF;
-        // if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 || i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 +`WAVEGEN_DRIVER_OFFSET) top_test_cfg.wr_data[0] = 8'h7F; 
         if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0) begin
            top_test_cfg.wr_data[0] = 8'h3F;
         end
-	//nnc_wavegen_reg[i].write_read(top_test_cfg.wr_data[0]);
-	//`nnc_info("SOC_TEST", $sformatf("NOT (0x3c): j= %2d, wr_data=%2d, OFFSET=%2d, i=%2d", j, wr_data[0],`WAVEGEN_DRIVER_OFFSET,i), NNC_LOW)
         nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].write_read(top_test_cfg.wr_data[0]);
       end
       if (`DUT_IF.wavegen_reg_all == 1'b0) break;
@@ -582,7 +580,6 @@ class `TESTNAME extends soc_base_test;
     // ---------------------------------------------------------------------------
     // Checking Write random to registers
     // ---------------------------------------------------------------------------
-
     // ************************************************
     // check write/read to all bits for random value
     // ************************************************
@@ -593,7 +590,6 @@ class `TESTNAME extends soc_base_test;
     for(int i=1 ; i<nnc_normal_reg.size();i++)begin
       top_test_cfg.wr_data[0] = $random();
       if(i== `SOC_GPIO_PD_CTRL_REG) continue;
-      // if(i== `SOC_GPIO_DS_CTRL_REG) continue;
       if(i== `SOC_GPIO_SR_PDRV0_1_CTRL_REG) continue;
       if(i== `SOC_STIM_PAD_CTRL1) continue;
       if(i== `SOC_GENERAL_INT_STS_7_REG) continue;
@@ -603,7 +599,6 @@ class `TESTNAME extends soc_base_test;
       if(i== `SOC_GENERAL_INT_STS_B_REG) continue; 
       if(i== `SOC_PMU_REG1) continue; // do not write bit [0] - otp rst , otherwise otp trim will be resetted
       if(i == `SOC_FILTER_LPF_COEFF_ADDR_REG) top_test_cfg.wr_data[0] = $urandom_range(0,21); // address range suuporte is 8'h0 to 8'h15
-      //if(i== `SOC_ANA_ENABLE_REG_0 && `DUT_IF.ext_clk_en == 1'b0)  top_test_cfg.wr_data[0][1] =1'b1; // keep OSC2MHZ_EN==1
       if (i == `SOC_STIM_MON_INT) begin 
 	      `WR_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.wr_data[0], top_test_cfg.pads);
 	      `RD_NORMAL_REG(`SOC_STIM_MON_INT, top_test_cfg.pads, top_test_cfg.rd_data);
@@ -637,8 +632,11 @@ class `TESTNAME extends soc_base_test;
       else begin
         nnc_normal_reg[i].write_read(top_test_cfg.wr_data[0]);
       end
+
       // avoid set burst for shape register.
-      `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, 8'h00, top_test_cfg.pads);
+      if (i==`SOC_WAVEGEN_GLOBAL_REG) begin
+        `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, 8'h00, top_test_cfg.pads);
+      end
     end
     end
 
@@ -674,7 +672,6 @@ class `TESTNAME extends soc_base_test;
     end
     end
 
-
     if ((`DUT_IF.wavegen_reg_en == 1'b1) && (`DUT_IF.default_only_en !== 1'b1)) begin // 1
     `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
     `nnc_info("SOC_TEST", $sformatf("WAVEGEN REG: write random to each bit of each register and compare"), NNC_LOW)
@@ -684,19 +681,13 @@ class `TESTNAME extends soc_base_test;
       `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("WAVEGEN REG: CHECK REGS (write random) of DRIVER: %2d", j), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
-//Vuong modify
-      //if(j%4 == 0)
       if(((j%4 == 0)&&(`DUT_IF.wavegen_reg_all == 1'b1)) || (`DUT_IF.wavegen_reg_all == 1'b0 ))
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
-      // for(int i=0 ; i<nnc_wavegen_reg.size();i++)begin
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
         top_test_cfg.wr_data[0] = $random();
-        //if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 || i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 +`WAVEGEN_DRIVER_OFFSET) top_test_cfg.wr_data[0] = $urandom_range(0,8'h7F); //max addr supported is 'd127
         if(i === `SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0) begin
           top_test_cfg.wr_data[0] = $urandom_range(0, 8'h3F);
         end
-	//`nnc_info("SOC_TEST", $sformatf("NOT (0x3c): j= %2d, wr_data=%2d, OFFSET=%2d, i=%2d", j, wr_data[0],`WAVEGEN_DRIVER_OFFSET,i), NNC_LOW)
-        //nnc_wavegen_reg[i].write_read(top_test_cfg.wr_data[0]);
         nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].write_read(top_test_cfg.wr_data[0]);
       end
      if (`DUT_IF.wavegen_reg_all == 1'b0) break;
@@ -732,6 +723,8 @@ class `TESTNAME extends soc_base_test;
     // trying to achieve reading debug_sel register for all channels(CH0~CH7) and each has LED0,LED1 so LED0 and LED1 of each channels again got different configuration.
     // At first LED0 enabled --> all CH0 to CH7 configured with different value, along with debug_sel reg set to achieve reading the same reg
     // then LED1 enabled -->     all CH0 to CH7 configured with different value, along with debug_sel reg set to achieve reading the same reg
+    top_test_cfg.wr_data[0] = 8'h00;
+    `WR_NIRS_REG(8'h10, top_test_cfg.wr_data[0], 8'h00);
     for(int k=0; k<2; k++)begin   //for reading led0 and led1 data for all 8 channels
          `nnc_info("SOC_TEST", $sformatf("burst write_read  :: nirs reg DEBUG_SEL_REG[4] LED num %0d", k),NNC_LOW);  
       for(int j=0; j<8; j++)begin //all channel configuration, configuring each channel one by one
@@ -744,14 +737,34 @@ class `TESTNAME extends soc_base_test;
              48: top_test_cfg.nirs_wr_data_burst[i] = {3'h0, k[0], j[3:0]};                //debug select register w.r.t channel en reg
              default:   top_test_cfg.nirs_wr_data_burst[i] = $urandom_range(255,0);
            endcase
-         end 
-         top_test_cfg.nirs_burst_size       = 8'h41;
-         top_test_cfg.nirs_burst_addr_start = 8'h00;
+         end
+         // Set debug register
+         top_test_cfg.wr_data[0] = j | (k << 4);
+         `WR_NIRS_REG(8'h10, top_test_cfg.wr_data[0], 8'h00);
+         // Select Channel 
+         top_test_cfg.wr_data[0] = 1 << j;
+         `WR_NIRS_REG(8'h00, top_test_cfg.wr_data[0], 8'h00);
+         // Select LED
+         top_test_cfg.wr_data[0] = 1 << k;
+         `WR_NIRS_REG(8'h01, top_test_cfg.wr_data[0], 8'h00);
+         
+         top_test_cfg.nirs_burst_size       = 14;
+         top_test_cfg.nirs_burst_addr_start = 8'h02;
          //`WR_BURST_NIRS_REG(8'h00, top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
-         `WR_BURST_NIRS_REG(8'h00, top_test_cfg.nirs_burst_size, top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_wr_data_burst);
+         `WR_BURST_NIRS_REG(top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_burst_size, top_test_cfg.pads, top_test_cfg.nirs_wr_data_burst);
          //based on debug_sel register( at 0x10) value , particluar channel will be read, as all 8 channel and each channel got led0,led1 so configuration value is different for all channel w.r.t led0,led1. channeles are enabled one by one along with led0 and led1 also enabled one by one 
          //`RD_BURST_NIRS_REG(8'h00, top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
          `RD_BURST_NIRS_REG(top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_burst_size, top_test_cfg.rd_data_burst);
+         
+         for (int m=0; m < top_test_cfg.nirs_burst_size; m++) begin
+           if (top_test_cfg.nirs_burst_size - 1 - m + top_test_cfg.nirs_burst_addr_start == 8'h0B) top_test_cfg.mask = 8'h3F;
+           else if (top_test_cfg.nirs_burst_size - 1 - m + top_test_cfg.nirs_burst_addr_start == 8'h0E) top_test_cfg.mask = 8'h7F;
+           else if (top_test_cfg.nirs_burst_size - 1 - m + top_test_cfg.nirs_burst_addr_start == 8'h0F) top_test_cfg.mask = 8'h03;
+           else top_test_cfg.mask = 8'hff;
+
+           if ((top_test_cfg.nirs_wr_data_burst[m] & top_test_cfg.mask) !==  top_test_cfg.rd_data_burst[m])
+               `nnc_error("BUSRT NIRS", $sformatf("Index: %2d, ADDR: 0x%2h, WRITE_DATA: %2h is not equal to READ_DATA: %2h", m, top_test_cfg.nirs_burst_size - 1 - m + top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_wr_data_burst[m] & top_test_cfg.mask, top_test_cfg.rd_data_burst[m]))
+         end
          //#1ms;
       end
    end
@@ -771,98 +784,128 @@ class `TESTNAME extends soc_base_test;
       `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
 
       // Set to select DRV
-//Vuong modify
-      if(j%4 == 0)
       if(((j%4 == 0)&&(`DUT_IF.wavegen_reg_all == 1'b1)) || (`DUT_IF.wavegen_reg_all == 1'b0 ))
-      `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
-      `WR_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_CONFIG_REG0+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
-      `RD_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_CONFIG_REG0+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+        `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
+
+      top_test_cfg.burst_size = 30;
+      `WR_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_REST_T_REG01+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
+      `RD_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_REST_T_REG01+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
 
       `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("WAVEGEN REG: CHECK BURST SHAPE REGS (write random) of DRIVER: %2d", j), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
-
+   
       // Set address for access to SHAPE REG to 0x00
       assert(top_test_cfg.randomize() with {reg_addr == (`SOC_ADDR_WG_DRV_IN_WAVE_ADDR_REG0 + (`WAVEGEN_DRIVER_OFFSET * (j%4))); wr_data[0] == 8'h00;});
-      `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads); 
+      `WR_WAVEGEN_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
+      top_test_cfg.burst_size = 64;
+      `RD_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_IN_WAVE_REG01+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, top_test_cfg.rd_data_burst_tmp); 
 
       // Set burst mode for Wavegen Shape register (set bit-4 to 1)
       assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
       `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
       top_test_cfg.wr_data[0] = top_test_cfg.rd_data | 8'h10;
-      top_test_cfg.burst_size = 64;
+      
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
 
       // Write burst to shape array
+      top_test_cfg.burst_size = 64;
       `WR_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_IN_WAVE_REG01+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, 8'h00, top_test_cfg.wr_data_burst);
+
+`ifdef BEHAVIORAL
       for (int k=0; k < top_test_cfg.burst_size; k++) begin
         case(j)
            0: begin 
-              if (`SPI_REG.wg_reg_block[0].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[0].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_0.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_0.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            1: begin 
-              if (`SPI_REG.wg_reg_block[1].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[1].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_1.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_1.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            2: begin 
-              if (`SPI_REG.wg_reg_block[2].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[2].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_2.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_2.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            3: begin 
-              if (`SPI_REG.wg_reg_block[3].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[3].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_3.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_3.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            4: begin 
-              if (`SPI_REG.wg_reg_block[4].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[4].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_4.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_4.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            5: begin 
-              if (`SPI_REG.wg_reg_block[5].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[5].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_5.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_5.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            6: begin 
-              if (`SPI_REG.wg_reg_block[6].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[6].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_6.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_6.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            7: begin 
-              if (`SPI_REG.wg_reg_block[7].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[7].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_7.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_7.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            8: begin 
-              if (`SPI_REG.wg_reg_block[8].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[8].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_8.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_8.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            9: begin 
-              if (`SPI_REG.wg_reg_block[9].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[9].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_9.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_9.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            10: begin 
-              if (`SPI_REG.wg_reg_block[10].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[10].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_10.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_10.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            11: begin 
-              if (`SPI_REG.wg_reg_block[11].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[11].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_11.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_11.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            12: begin 
-              if (`SPI_REG.wg_reg_block[12].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[12].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_12.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_12.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            13: begin 
-              if (`SPI_REG.wg_reg_block[13].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[13].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_13.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_13.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            14: begin 
-              if (`SPI_REG.wg_reg_block[14].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[14].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_14.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_14.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
            15: begin 
-              if (`SPI_REG.wg_reg_block[15].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
-                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_REG.wg_reg_block[15].u_spi_reg_wavegen.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
+              if (`SPI_WG_REG_BLOCK_15.reg_wg_driver_in_wave[k][7:0] !== top_test_cfg.wr_data_burst[63-k])
+                `nnc_error("SPI TEST", $sformatf("check burst to shape for WG[%2d] addr =%02h , mem_data=%02h, exp=8'h0", j, k, `SPI_WG_REG_BLOCK_15.reg_wg_driver_in_wave[k][7:0], top_test_cfg.wr_data_burst[63-k]))
            end
         endcase 
       end
+`endif
+
+      // Set burst mode for Wavegen Shape register (set bit-4 to 0)
+      assert(top_test_cfg.randomize() with {reg_addr == `SOC_WAVEGEN_GLOBAL_REG;}); 
+      `RD_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.pads, top_test_cfg.rd_data);
+      top_test_cfg.wr_data[0] = top_test_cfg.rd_data & 8'hEF;
+      
+      `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
+      `SPI_SCB_EN = 1'b0;
+      // Read burst of Normal to make sure the data written to shape buffer which didn't override Normal Regs
+      top_test_cfg.burst_size = 64;
+      `RD_BURST_WAVEGEN_REG(`SOC_ADDR_WG_DRV_IN_WAVE_REG01+(`WAVEGEN_DRIVER_OFFSET * (j%4)), top_test_cfg.burst_size, top_test_cfg.rd_data_burst);
+
+      // Compare the data before and after writting, expectation isn't mismatched
+      for (int m=0; m < top_test_cfg.burst_size; m++) begin
+         if ((top_test_cfg.rd_data_burst[m] !== top_test_cfg.rd_data_burst_tmp[m]) && (top_test_cfg.burst_size -m -1 != 0)) // Non checking DATA REG od Shape
+                `nnc_error("SPI TEST", $sformatf("check normal registers after writting to Shape: Address: %02h, DATA_BEFORE[%2d]: %02h, DATA_AFTER[%2d]=%02h", top_test_cfg.burst_size -m -1, m, top_test_cfg.rd_data_burst_tmp[m], m, top_test_cfg.rd_data_burst[m]))  
+      end
+
+      if (`DUT_IF.spi_dual_mode_en == 1'b0) begin 
+        `SPI_SCB_EN = 1'b1;
+      end
+
       // Clear back
       top_test_cfg.wr_data[0] = top_test_cfg.rd_data & 8'h00;
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);      
@@ -916,15 +959,10 @@ class `TESTNAME extends soc_base_test;
       `nnc_info("SOC_TEST", $sformatf("******************************************************************"), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("WAVEGEN REG: CHECK RESERVED REGS of DRIVER: %2d", j), NNC_LOW)
       `nnc_info("SOC_TEST", $sformatf("*******************************************************************\n"), NNC_LOW)
-//Vuong modify
-      //if(j%4 == 0)
       if(((j%4 == 0)&&(`DUT_IF.wavegen_reg_all == 1'b1)) || (`DUT_IF.wavegen_reg_all == 1'b0 ))
       `WR_NORMAL_REG(`SOC_WAVEGEN_GLOBAL_REG, (`INIT_SOC_WAVEGEN_GLOBAL_REG | ((j/4) << 1)), 8'h00);
-      //for(int i=0 ; i<nnc_wavegen_reg.size();i++)begin
       for(int i=0 ; i<`WAVEGEN_DRIVER_OFFSET;i++)begin
         top_test_cfg.wr_data[0] = $random();
-        //if(^nnc_wavegen_reg[i].address === 1'bx)begin
-        //  nnc_wavegen_reg[i].check_reserved_regs(i,top_test_cfg.wr_data[0]);
         if(^nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].address === 1'bx)begin
           nnc_wavegen_reg[i+ (`WAVEGEN_DRIVER_OFFSET * (j%4))].check_reserved_regs(i+ (`WAVEGEN_DRIVER_OFFSET * (j%4)),top_test_cfg.wr_data[0]);  
         end

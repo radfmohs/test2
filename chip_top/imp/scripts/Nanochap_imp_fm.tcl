@@ -32,6 +32,17 @@ set verification_assume_reg_init none
 # Enable identification of clock gating in the design
 set_app_var verification_clock_gate_edge_analysis true
 
+# -----------------------------------------------------------------------------------
+# Identify the mode of clock gating if used in the design
+# -----------------------------------------------------------------------------------
+#"collapse_all_cg_cells" - same as "low", but also considers all pri-
+#mary output ports and black-box input pins to be candidate  rising-  or
+#falling-edge-triggered  clock pins, and ignores clock-gating latches in
+#their fan-in as well as those in the fan-in of the clock pins of  known
+#flip-flops.
+set_app_var verification_clock_gate_hold_mode collapse_all_cg_cells
+set_app_var verification_clock_gate_hold_mode low
+
 # Account for inversions across register boundaries
 set_app_var verification_inversion_push true
 
@@ -76,11 +87,17 @@ set_app_var verification_verify_directly_undriven_output true
 # -----------------------------------------------------------------------------------
 
 if {$stage != "postlayout"} {
-  set_svf ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
-  synthesis_prescan_dct_BUD=yes_sdf
+  if {$bottom_up == "yes"} {
+    set_svf ../scripts/Nanochap_imp_fm_rename.svf
+    set_svf -append ../data/synthesis_l3/filter_wrapper.svf
+    set_svf -append ../data/synthesis_l2/imeas_wrapper.svf
+    set_svf -append ../data/synthesis_prescan_dct.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  } else {
+    set_svf ../data/synthesis_prescan_dct.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.svf
+  }
 }
 if {$stage == "postscan_dct"} {
-  set_svf -append ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
+  set_svf -append ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 }
 
 #if {$stage == "postscan_pteco"} {
@@ -140,7 +157,7 @@ set_top r:/WORK/${rm_project_top}
 
 # Netlist file name ${netlist}.v - is passed through from fm_shell invocation
 
-read_verilog -i -work_library WORK -netlist ../data/synthesis_${stage}_${generate_sdf}/${rm_project_top}.${stage}.v
+read_verilog -i -work_library WORK -netlist ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.v
 	
 #if {$stage == "postlayout"} {
 #read_verilog -i -work_library WORK -netlist 
@@ -162,17 +179,6 @@ set_compare_rule i:/WORK/${rm_project_top} -from {gen_rar.} -to {}
 
 set_compare_rule r:/WORK/${rm_project_top} -from {gen_non_rar.} -to {}
 set_compare_rule i:/WORK/${rm_project_top} -from {gen_non_rar.} -to {}
-
-# -----------------------------------------------------------------------------------
-# Identify the mode of clock gating if used in the design
-# -----------------------------------------------------------------------------------
-#"collapse_all_cg_cells" - same as "low", but also considers all pri-
-#mary output ports and black-box input pins to be candidate  rising-  or
-#falling-edge-triggered  clock pins, and ignores clock-gating latches in
-#their fan-in as well as those in the fan-in of the clock pins of  known
-#flip-flops.
-set_app_var verification_clock_gate_hold_mode collapse_all_cg_cells
-set_app_var verification_clock_gate_hold_mode low
 
 # -----------------------------------------------------------------------------------
 # Set reference and implementation designs
@@ -208,8 +214,8 @@ if {$stage == "prescan"} {
 
 if {$stage == "postscan" || $stage == "postscan_dct"} {
 # set normal mode
-set_constant  r:/WORK/${rm_project_top}/iopad_testmode0 0 -type port
-set_constant  i:/WORK/${rm_project_top}/iopad_testmode0 0 -type port
+set_constant  r:/WORK/${rm_project_top}/iopad_testmode0 1 -type port
+set_constant  i:/WORK/${rm_project_top}/iopad_testmode0 1 -type port
 
 set_constant  r:/WORK/${rm_project_top}/iopad_testmode1 0 -type port
 set_constant  i:/WORK/${rm_project_top}/iopad_testmode1 0 -type port
@@ -225,8 +231,8 @@ set_constant  i:/WORK/${rm_project_top}/iopad_testmode1 0 -type port
 
 if {$stage == "postlayout"} {
 # scan enable set to 0
-set_constant  r:/WORK/${rm_project_top}/iopad_testmode0 0 -type port
-set_constant  i:/WORK/${rm_project_top}/iopad_testmode0 0 -type port
+set_constant  r:/WORK/${rm_project_top}/iopad_testmode0 1 -type port
+set_constant  i:/WORK/${rm_project_top}/iopad_testmode0 1 -type port
 
 set_constant  r:/WORK/${rm_project_top}/iopad_testmode1 0 -type port
 set_constant  i:/WORK/${rm_project_top}/iopad_testmode1 0 -type port

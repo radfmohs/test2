@@ -67,13 +67,13 @@ set_app_var mw_design_library $rm_project_top
 
 set stage prescan_dct
 
-set out_rep  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}
-set out_data ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}
+set out_rep  ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}
+set out_data ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}
 
 sh mkdir -p $out_rep
 sh mkdir -p $out_data
 
-set_svf ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
+set_svf ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.svf
 
 # ------------------------------------------------------------------------------
 # Setup for SAIF name mapping database
@@ -195,13 +195,13 @@ if {[file exists def.f] == 1 } {
     set def_list [regsub -all {\s+} [read $d] " "];#read into variable and replace whitespace with ,
     puts $def_list
     puts $file_list
-    redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
+    redirect -tee ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
     	read_file -define $def_list $file_list -auto -top ${rm_project_top}};#read in
     close $d
     close $f
     exec rm rtl.f rtl_tmp.f def.f
 } else {
-    redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
+    redirect -tee ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.read_file { \
     analyze  $file_list -auto -top ${rm_project_top}}
     close $f 
     exec rm rtl.f rtl_tmp.f
@@ -209,7 +209,7 @@ if {[file exists def.f] == 1 } {
 
 	#read_file $file_list -auto -top ${rm_project_top}}
 # Tee elaboration output to separate log file
-redirect -tee ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.elaborate { \
+redirect -tee ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.elaborate { \
   elaborate -architecture verilog ${rm_project_top}}
 
 if {$bottom_up == "yes"} {  
@@ -295,7 +295,7 @@ set_app_var physopt_enable_via_res_support true
 set placer_tns_driven true
 set_app_var placer_max_cell_density_threshold 0.65
 set_app_var placer_enable_enhanced_router true
-set_app_var compile_prefer_mux true
+set_app_var compile_prefer_mux false
 #set_app_var compile_high_pin_density_cell_optimization true
 #set_app_var compile_high_pin_density_cell_optimization_utilization_threshold 0.3
 
@@ -318,10 +318,6 @@ set_app_var power_cg_physically_aware_cg true
 #	-cut_names {Vs Vs Vs} \
 #	-cut_rows {2 2 1 } \
 #	-cuts_per_row {1 2 2}
-
-
-# run this in ICC and provide result below: write_def -version 5.7 -rows_tracks_gcells -macro -pins -blockages -specialnets -vias -regions_groups -verbose -output my_physical_data.def
-#extract_physical_constraints /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/ens2_run1_1710/Nanochap_ENS2.def
 ###############################################
 
 # ------------------------------------------------------------------------------
@@ -338,11 +334,13 @@ foreach i $scenarios {
 set_active_scenarios [all_scenarios]
 current_scenario S111_max
 
+# run this in ICC and provide result below: write_def -version 5.7 -rows_tracks_gcells -macro -pins -blockages -specialnets -vias -regions_groups -verbose -output my_physical_data.def
+extract_physical_constraints /projects/libs/ens2/digital_work/GY_ENS2_DIG/pnr/ens2_run1_1710/Nanochap_ENS2.def
 
-#write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.link.v
+#write -f verilog  -hierarchy -output ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.link.v
 check_design -no_warnings
 check_design -multiple_designs > \
-  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_initial.check_design
+  ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_initial.check_design
 
 compile_ultra -check
 compile_ultra  -scan -gate_clock -no_autoungroup; # -spg;# -self_gating;#use place_opt -spg in ICC
@@ -361,7 +359,7 @@ set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
 
 define_name_rules verilog -case_insensitive
 change_names -rules verilog -hierarchy -verbose > \
-  ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.change_names
+  ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.change_names
 
 # ------------------------------------------------------------------------------
 # Write out design data
@@ -371,27 +369,27 @@ set_app_var verilogout_no_tri true
 # set_app_var power_cg_auto_identify true
 
 #sh mkdir ../data
-write -format ddc -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.ddc
-write -f verilog  -hierarchy -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.v
+write -format ddc -hierarchy -output ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.ddc
+write -f verilog  -hierarchy -output ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.${stage}.v
 
 # Write and close SVF file, make it available for immediate use
 set_svf -off
 
 # Write parasitics data from DCT placement for static timing analysis
-write_parasitics -output ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.spef
+write_parasitics -output ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.spef
 
 # Write SDF backannotation data from DCT placement for static timing analysis
-write_sdf ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdf
+write_sdf ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdf
 
 # Do not write out net RC info into SDC
 set_app_var write_sdc_output_lumped_net_capacitance false
 set_app_var write_sdc_output_net_resistance false
 
 # Write out SDC version 2.0 to omit set_voltage for backwards compatibility
-write_sdc -version 2.1 -nosplit ../data/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdc
+write_sdc -version 2.1 -nosplit ../data/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.sdc
 
 # If SAIF is used, write out SAIF name mapping file for PrimeTime-PX
-saif_map -type ptpx -write_map ../reports/synthesis_${stage}_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_SAIF.namemap
+saif_map -type ptpx -write_map ../reports/synthesis_${stage}.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}_SAIF.namemap
 
 ######################################################################################
 # ------------------------------------------------------------------------------

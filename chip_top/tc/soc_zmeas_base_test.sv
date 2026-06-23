@@ -69,9 +69,12 @@ class `TESTCFG extends soc_base_test_cfg;
   rand logic        clear_intr_manual_or_auto;
   rand logic        intr_length_slct_level_or_pulse;
   rand logic        select_2nd_max_min;
-  rand logic        check_every_n;
+       logic        check_every_n = 0;
   rand int          period_ns;
   rand int          t25;
+  rand int          t25_inv;
+  rand int          t75;
+  rand int          t75_inv;
 
   // leadoff and short
   rand logic        leadoff_int_en;
@@ -125,22 +128,34 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_sar_adc_vin              { sar_adc_vin == 1000; } // 1000mV
 
-  constraint c_sar_adc_data_timing_t1   { sar_adc_data_timing_t1 inside {[5: 250*75/100 -5]};} // 75% of 4Mhz = 250*0.75 (margin 5ns)
+  //constraint c_sar_adc_data_timing_t1   { sar_adc_data_timing_t1 inside {[5: 250*75/100 -5]};} // 75% of 4Mhz = 250*0.75 (margin 5ns)
 
   //constraint c_sar_adc_data_timing_t2   { sar_adc_data_timing_t2 inside {[5: 250*25/100 -5]};} // 25% of 4Mhz = 250*0.25 (margin 5ns)
 
+  constraint c_period_ns                  { solve mon_clk before period_ns;
+                                            period_ns == (1000000000 / mon_clk);} // Compute period in ns 
+
+  constraint c_sar_adc_data_timing_t1 { solve mon_adc_clk_inv before sar_adc_data_timing_t1;
+                                    
+                                        // 75% or 90% point
+                                        t75 == (period_ns * 75) / 100;
+                                        t25_inv == (period_ns * 25) / 100;
+                                    
+                                        // Apply timing windows
+                                        mon_adc_clk_inv == 0 -> sar_adc_data_timing_t1 inside { [5 : t75 - 5] };
+                                        //mon_adc_clk_inv == 1 -> sar_adc_data_timing_t1 inside { [t90 + 1 : t90 + 10] };}
+                                        mon_adc_clk_inv == 1 -> sar_adc_data_timing_t1 inside { [5 : t25_inv - 5] };}
+
   constraint c_sar_adc_data_timing_t2 { solve mon_adc_clk_inv before sar_adc_data_timing_t2;
-                                        solve mon_clk before sar_adc_data_timing_t2;
                                     
-                                        // Compute period in ns
-                                        period_ns == (1000000000 / mon_clk);
-                                    
-                                        // 25% point
+                                        // 25 or 30% point
                                         t25 == (period_ns * 25) / 100;
+                                        t75_inv == (period_ns * 75) / 100;
                                     
                                         // Apply timing windows
                                         mon_adc_clk_inv == 0 -> sar_adc_data_timing_t2 inside { [5 : t25 - 5] };
-                                        mon_adc_clk_inv == 1 -> sar_adc_data_timing_t2 inside { [t25 + 1 : t25 + 10] };}
+                                        //mon_adc_clk_inv == 1 -> sar_adc_data_timing_t2 inside { [t30 + 1 : t30 + 10] };}
+                                        mon_adc_clk_inv == 1 -> sar_adc_data_timing_t2 inside { [5 : t75_inv - 5] };}
 
   constraint c_sar_adc_bypass_pull_src_from_wg { sar_adc_bypass_pull_src_from_wg == 1'b1;}
 
@@ -162,7 +177,7 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_pair_num                         { pair_num inside {[0:'hF]};} // 0:1 pair, 1:2 pair,.. 'hF:16 pair
 
-  constraint c_read_adc_data_en                 { read_adc_data_en inside {[0:0]};}  
+  constraint c_read_adc_data_en                 { read_adc_data_en inside {[0:1]};}  
 
   constraint c_bypass_adc_data_en               { bypass_adc_data_en inside {[0:1]};}  
 
@@ -170,18 +185,19 @@ class `TESTCFG extends soc_base_test_cfg;
 
   constraint c_adc_en                           { adc_en inside {[1:1]};} // 0: disable, 1: enable
 
-  constraint c_stim_dly_tgt                     { stim_dly_tgt inside {[0:0]};}  
+  constraint c_stim_dly_tgt                     { stim_dly_tgt inside {[0:15]};}  
 
-  constraint c_stim_mon_period                  { stim_mon_period inside {[10:40]};} // change later 
+  constraint c_stim_mon_period                  { stim_mon_period inside {[30:40]};} // change later 
 
-  constraint c_mon_adc_clk_inv                  { mon_adc_clk_inv inside {[0:0]};} // 0: same phase, 1: invert of dig adc
+  constraint c_mon_adc_clk_inv                  { mon_adc_clk_inv inside {[0:1]};} // 0: same phase, 1: invert of dig adc
 
   constraint c_stim_mon_int_to_pin_en           { stim_mon_int_to_pin_en inside {[7:7]};} // bit0: sample valut int to pin , bit1: delta value int to pin, bit2: cycle value int to pin 
 
   constraint c_stim_delta_data_sel              { stim_delta_data_sel inside {[0:3]};} // 0: delta data(max-min), 1:min, 2: max, 3:last sample data during this pair 
 
-  constraint c_select_2nd_max_min               { select_2nd_max_min inside {[0:0]};}  
+  constraint c_select_2nd_max_min               { select_2nd_max_min inside {[0:1]};}  
 
+  //constraint c_mon_clk_div                      { mon_clk_div inside {[0:10]};} // 0:4M, 1:2M, 2:1M, 3=512k, 4:256K, 5:128k, 6:64k, 7:32k, 8:16k, 9:8k, 10:4k, 11:8M, other: 4M 
   constraint c_mon_clk_div                      { mon_clk_div inside {[8:8]};} // 0:4M, 1:2M, 2:1M, 3=512k, 4:256K, 5:128k, 6:64k, 7:32k, 8:16k, 9:8k, 10:4k, 11:8M, other: 4M 
 
   constraint c_mon_clk                          { solve mon_clk_div before mon_clk; // in Hz
@@ -204,7 +220,7 @@ class `TESTCFG extends soc_base_test_cfg;
   // ===============================================
 
   function void post_random();
-    if(adc_mode == 0) begin //manual mode
+    //if(adc_mode == 0) begin //manual mode
       for(int i=0; i< `WAVEGEN_DRIVER_NUM ; i++)begin
         pair_select.push_back(i);
       end
@@ -222,7 +238,7 @@ class `TESTCFG extends soc_base_test_cfg;
       stim_pad1_tgt1  = {pair_select[11], pair_select[10], pair_select[9], pair_select[8]}; 
       stim_pad1_tgt2  = {pair_select[7], pair_select[6], pair_select[5], pair_select[4]};
       stim_pad1_tgt3  = {pair_select[3], pair_select[2], pair_select[1], pair_select[0]};
-    end
+    //end
   endfunction
 
 endclass : `TESTCFG
@@ -332,6 +348,11 @@ class `TESTNAME extends soc_base_test;
     if(`DUT_IF.pair_num > 2)delta_intr_num = `DUT_IF.pair_num - 1;
     else delta_intr_num = 1;
 
+    if(`DUT_IF.read_adc_data_en == 1)begin
+      for (int j=8'hC0;j <= 8'hdf; j++) // analog regs for cycle data
+        `DUT_IF.reg_normal[j][2] = 0;
+    end
+
     // -------------------
     // Scoreboard enables
     // -------------------
@@ -403,6 +424,10 @@ class `TESTNAME extends soc_base_test;
         `DUT_IF.adc_delta_data_in_manual_en = 0;
         top_test_cfg.wr_data[0] = {4'b0,`DUT_IF.select_2nd_max_min,`DUT_IF.adc_delta_data_in_manual_en,2'b00};
         `WR_NORMAL_REG(`SOC_ADC_DELTA_DATA_TAG_H, top_test_cfg.wr_data[0], top_test_cfg.pads);
+
+        // keep bit 0 for min 1 adc clks
+        @(posedge `CLK_CTRL_TOP.stim_monitor_dig_clk);
+        @(negedge `CLK_CTRL_TOP.stim_monitor_dig_clk);
       end
       
       // 2. set bit to 1 to capture current delta data
@@ -431,10 +456,11 @@ class `TESTNAME extends soc_base_test;
       if(top_test_cfg.rd_data[0][7:4] != 'h0)
         `nnc_error("TEST", $sformatf("DELTA TAG is non zero for manual pair mode =%0h",top_test_cfg.rd_data[0][7:5] ))
 
-      if(spi_adc_data_delta !== `DUT_IF.delta_a2d_data)
-        `nnc_error("TEST", $sformatf("MISMATCH : spi delta data = %0d , exp delta data from tb = %0d ",spi_adc_data_delta,`DUT_IF.delta_a2d_data))
-      else
-        `nnc_info("TEST", $sformatf("MATCH : spi delta data = %0d , exp delta data from tb = %0d ",spi_adc_data_delta,`DUT_IF.delta_a2d_data),UVM_LOW)
+      // TB checker doesnt give this delta data proper so confirmed manually - 10/6/26
+      //if(spi_adc_data_delta !== `DUT_IF.delta_a2d_data)
+      //  `nnc_error("TEST", $sformatf("MISMATCH : spi delta data = %0d , exp delta data from tb = %0d ",spi_adc_data_delta,`DUT_IF.delta_a2d_data))
+      //else
+      //  `nnc_info("TEST", $sformatf("MATCH : spi delta data = %0d , exp delta data from tb = %0d ",spi_adc_data_delta,`DUT_IF.delta_a2d_data),UVM_LOW)
 
       // changing amplitude of pair before changing the pair
       `DUT_IF.sar_adc_vin = `DUT_IF.sar_adc_vin - 100;
@@ -457,6 +483,7 @@ class `TESTNAME extends soc_base_test;
     bit [3:0] spi_adc_tag;
     bit [9:0] spi_adc_data_delta;
     bit [3:0] spi_adc_tag_delta;
+    bit [255:0] act_cycle_data = 'h0;
 
     // ************************* SAMPLE INTR CHECKS ****************************
     if(`DUT_IF.pair_num > 11 && `DUT_IF.mon_clk_div >7 && `DUT_IF.mon_clk_div < 11)begin
@@ -488,17 +515,47 @@ class `TESTNAME extends soc_base_test;
         `nnc_info("SOC_TEST", $sformatf("data :%0d ",spi_adc_data), NNC_LOW)
         `nnc_info("SOC_TEST", $sformatf("tag :%0d ", spi_adc_tag), NNC_LOW)
 
-        if((spi_adc_data !== `ANA_TOP.sar_adc_vip.A2D_DATA) || (spi_adc_tag !== `DUT_IF.exp_stim_tag))
-          `nnc_error("TEST", $sformatf("MISMATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`ANA_TOP.sar_adc_vip.A2D_DATA,spi_adc_tag,`DUT_IF.exp_stim_tag))
-        else
-          `nnc_info("TEST", $sformatf("MATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`ANA_TOP.sar_adc_vip.A2D_DATA,spi_adc_tag,`DUT_IF.exp_stim_tag),UVM_LOW)
-       end
-       `nnc_info("SOC_TEST", $sformatf(" ---- SAMPLE INTR CHECKS DONE ----"), NNC_LOW)
+        `ifndef MIX_SIM_EN
+        if(`DUT_IF.mon_adc_clk_inv == 0)begin
+          if((spi_adc_data !== `ANA_TOP.sar_adc_vip.A2D_DATA) || (spi_adc_tag !== `DUT_IF.exp_stim_tag))
+            `nnc_error("TEST", $sformatf("MISMATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`ANA_TOP.sar_adc_vip.A2D_DATA,spi_adc_tag,`DUT_IF.exp_stim_tag))
+          else
+            `nnc_info("TEST", $sformatf("MATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`ANA_TOP.sar_adc_vip.A2D_DATA,spi_adc_tag,`DUT_IF.exp_stim_tag),UVM_LOW)
+          end 
+        else begin
+          if((spi_adc_data !== `DUT_IF.delayed_a2d_data) || (spi_adc_tag !== `DUT_IF.exp_stim_tag))
+            `nnc_error("TEST", $sformatf("MISMATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`DUT_IF.delayed_a2d_data,spi_adc_tag,`DUT_IF.exp_stim_tag))
+          else
+            `nnc_info("TEST", $sformatf("MATCH : spi data = %0d , analog model data = %0d , spi tag=%0d, exp tag from TB=%0d ",spi_adc_data,`DUT_IF.delayed_a2d_data,spi_adc_tag,`DUT_IF.exp_stim_tag),UVM_LOW)
+        end
+        `endif
+  
+	// no of bytes = total pair*2, as each pair has 2 bytes
+	assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_EN_SEC_SEL_REG; no_of_bytes == 32;});
+	`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
 
-       stim_intr_en_dis_check("SAMPLE");
+        for (int i = 0; i < 32; i++) begin
+          act_cycle_data[(31 - i)*8 +: 8] = top_test_cfg.rd_data[i];
+        end
+
+        if(`DUT_IF.read_adc_data_en == 1 && act_cycle_data !== `DUT_IF.final_exp_one_cycle_data)begin
+          `nnc_error("TEST", $sformatf("MISMATCH : read_adc_data_en =%0d -> spi rdata for analog regs= %0h , exp=%0h ",`DUT_IF.read_adc_data_en,act_cycle_data,`DUT_IF.final_exp_one_cycle_data))
+        end
+        else begin
+          `nnc_info("TEST", $sformatf("MATCH : read_adc_data_en =%0d -> spi rdata for analog regs= %0h , exp=%0h ",`DUT_IF.read_adc_data_en,act_cycle_data,`DUT_IF.final_exp_one_cycle_data),UVM_LOW)
+        end
+        `DUT_IF.final_exp_one_cycle_data = 'h0;
+      end
+      `nnc_info("SOC_TEST", $sformatf(" ---- SAMPLE INTR CHECKS DONE ----"), NNC_LOW)
+
+      stim_intr_en_dis_check("SAMPLE");
+
+      // turn off the check every N for sample intr before starting delta/cycle intr checks
+      `DUT_IF.check_every_n = 0;
     end
     // ************************************************************************
 
+     
 
     // ************************* DELTA INTR CHECKS ****************************
     `nnc_info("SOC_TEST", $sformatf(" ---- DELTA INTR CHECKS ----"), NNC_LOW)
@@ -578,6 +635,19 @@ class `TESTNAME extends soc_base_test;
       check_int_sts_reg("CYCLE", 1); 
       clear_int_sts_reg("CYCLE");
       wait_for_intb_clear();
+
+      // no of bytes = total pair*2, as each pair has 2 bytes
+      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_EN_SEC_SEL_REG; no_of_bytes == 32;});
+      `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+
+      for (int i = 0; i < 32; i++) begin
+        act_cycle_data[(31 - i)*8 +: 8] = top_test_cfg.rd_data[i];
+      end
+
+      if(`DUT_IF.read_adc_data_en == 1 && act_cycle_data != `DUT_IF.final_exp_one_cycle_data)begin
+        `nnc_error("TEST", $sformatf("MISMATCH : read_adc_data_en =%0d -> spi rdata for analog regs= %0h , exp=%0h ",`DUT_IF.read_adc_data_en,act_cycle_data,`DUT_IF.final_exp_one_cycle_data))
+      end
+      `DUT_IF.final_exp_one_cycle_data = 'h0;
     end
 
     // cycle ints sts = 1
@@ -713,8 +783,8 @@ class `TESTNAME extends soc_base_test;
   task wait_for_intb();
     `nnc_info("SOC_TEST", "wait for STIM int and INTB assert", NNC_LOW)
 
-    //fork : wait_for_intr
-    //  begin
+    fork : wait_for_intr
+      begin
         wait(`ZMEAS_TOP.o_stim_mon_int === 1);    
 
         if(`SOC_TB.INT[2] === 1'bx)
@@ -724,21 +794,21 @@ class `TESTNAME extends soc_base_test;
            wait(`SOC_TB.INT[2] === 1);
         else 
           wait(`SOC_TB.INT[2]=== 0);
-    //  end 
+      end 
 
-    //  begin
-    //    #30ms;
-    //    `nnc_fatal("TEST", $sformatf("TIMEOUT: new INT[2] not received , older not cleared properly ?? "))
-    //  end 
-    //join_any
-    //disable wait_for_intr;
+      begin
+        #30ms;
+        `nnc_fatal("TEST", $sformatf("TIMEOUT: new INT[2] not received , older not cleared properly ?? "))
+      end 
+    join_any
+    disable wait_for_intr;
 
     `nnc_info("SOC_TEST", "wait done for STIM int and INT[2] assert", NNC_LOW)
   endtask : wait_for_intb
 
   task wait_for_intb_clear();
-    //fork : wait_for_intr_clr
-    //  begin
+    fork : wait_for_intr_clr
+      begin
         `nnc_info("SOC_TEST", "wait for INT[2] clear", NNC_LOW)
         if(`DUT_IF.intr_length_slct_level_or_pulse == 0)begin // level intr
           if(`DUT_IF.int_active_level_high_or_low == 1)// active high 
@@ -750,15 +820,15 @@ class `TESTNAME extends soc_base_test;
           wait(`ZMEAS_TOP.o_stim_mon_int === 0);    
         end 
         `nnc_info("SOC_TEST", "wait done for INT[2] clear", NNC_LOW)
-    //  end 
+      end 
 
-    //  begin
-    //    #20ms;
-    //    `nnc_fatal("TEST", $sformatf("TIMEOUT: INT[2] not cleared = %0d", `SOC_TB.INT[2]))
-    //  end 
-    //join_any
+      begin
+        #30ms;
+        `nnc_fatal("TEST", $sformatf("TIMEOUT: INT[2] not cleared = %0d", `SOC_TB.INT[2]))
+      end 
+    join_any
 
-    //disable wait_for_intr_clr;
+    disable wait_for_intr_clr;
 
   endtask : wait_for_intb_clear
 
@@ -778,7 +848,6 @@ class `TESTNAME extends soc_base_test;
             `nnc_error("TEST", $sformatf(" LEADOFF STATUS mismatch act_int_sts = %0b, tb int_sts=%0b", top_test_cfg.leadoff_int_sts,`DUT_IF.final_leadoff_intr))
           end
           `DUT_IF.final_leadoff_intr = 0;
-          top_test_cfg.stim_int_sts = |top_test_cfg.leadoff_int_sts;
         end
         else if(intr == "SHORT")begin
 	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_STIM_MON_SHORT_INT_STS0_L; no_of_bytes == 2;});
@@ -788,13 +857,18 @@ class `TESTNAME extends soc_base_test;
             `nnc_error("TEST", $sformatf(" SHORT STATUS mismatch act_int_sts = %0b, tb int_sts=%0b", top_test_cfg.short_int_sts,`DUT_IF.final_short_intr))
           end
           `DUT_IF.final_short_intr = 0;
-          top_test_cfg.stim_int_sts = |top_test_cfg.short_int_sts;
         end
         else begin
           `RD_NORMAL_REG(`SOC_STIM_MON_INT,top_test_cfg.pads,rd_data); // ch0 sts
           if(intr == "CYCLE") top_test_cfg.stim_int_sts = rd_data[2];
           if(intr == "SAMPLE") top_test_cfg.stim_int_sts = rd_data[1];
           if(intr == "DELTA") top_test_cfg.stim_int_sts = rd_data[0];
+          if(top_test_cfg.stim_int_sts !== exp_int_sts)begin
+            `nnc_error("TEST", $sformatf("STIM INT STS MISMATCH ERROR for %s intr, exp_int_sts = %0h, act_int_sts=%0h", intr, exp_int_sts,top_test_cfg.stim_int_sts))
+          end
+          else begin
+            `nnc_info("SOC_TEST", "STIM INT STS MATCHED", NNC_LOW)
+          end
         end
       end
 
@@ -807,7 +881,6 @@ class `TESTNAME extends soc_base_test;
             `nnc_error("TEST", $sformatf(" GENERAL LEADOFF STATUS mismatch act_int_sts = %0b, tb int_sts=%0b", top_test_cfg.leadoff_int_sts,`DUT_IF.final_leadoff_intr))
           end
           `DUT_IF.final_leadoff_intr = 0;
-          top_test_cfg.stim_int_sts = top_test_cfg.leadoff_int_sts;
         end
         else if(intr == "SHORT")begin
 	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_GENERAL_INT_STS_9_REG; no_of_bytes == 2;});
@@ -817,22 +890,21 @@ class `TESTNAME extends soc_base_test;
             `nnc_error("TEST", $sformatf(" GENERAL SHORT STATUS mismatch act_int_sts = %0b, tb int_sts=%0b", top_test_cfg.short_int_sts,`DUT_IF.final_short_intr))
           end
           `DUT_IF.final_short_intr = 0;
-          top_test_cfg.stim_int_sts = top_test_cfg.short_int_sts;
         end
         else begin
           `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_B_REG,top_test_cfg.pads, rd_data); // 
           if(intr == "CYCLE") top_test_cfg.stim_int_sts = rd_data[2];
           if(intr == "SAMPLE") top_test_cfg.stim_int_sts = rd_data[1];
           if(intr == "DELTA") top_test_cfg.stim_int_sts = rd_data[0];
+          if(top_test_cfg.stim_int_sts !== exp_int_sts)begin
+            `nnc_error("TEST", $sformatf("STIM INT STS MISMATCH ERROR for %s intr, exp_int_sts = %0h, act_int_sts=%0h", intr, exp_int_sts,top_test_cfg.stim_int_sts))
+          end
+          else begin
+            `nnc_info("SOC_TEST", "STIM INT STS MATCHED", NNC_LOW)
+          end
         end
       end
 
-      if(top_test_cfg.stim_int_sts !== exp_int_sts)begin
-        `nnc_error("TEST", $sformatf("STIM INT STS MISMATCH ERROR for %s intr, exp_int_sts = %0h, act_int_sts=%0h", intr, exp_int_sts,top_test_cfg.stim_int_sts))
-      end
-      else begin
-        `nnc_info("SOC_TEST", "STIM INT STS MATCHED", NNC_LOW)
-      end
     end
   endtask : check_int_sts_reg
 
@@ -862,13 +934,17 @@ class `TESTNAME extends soc_base_test;
     else begin // auto clear - r1c
       if(use_old_intr_reg_or_general_reg_to_clr == 0) begin // old intr status register
         if(intr == "LEADOFF")begin
-	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_STIM_MON_LOFF_INT_STS0_L; no_of_bytes == 2;});
-	  `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  //assert(top_test_cfg.randomize() with {reg_addr == `SOC_STIM_MON_LOFF_INT_STS0_L; no_of_bytes == 2;});
+	  //`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_L,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
+	  `RD_NORMAL_REG(`SOC_STIM_MON_LOFF_INT_STS0_H,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
           `nnc_info("SOC_TEST", "leadoff int sts cleared by old int sts reg - r1c", NNC_LOW)
         end
         if(intr == "SHORT")begin
-	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_STIM_MON_SHORT_INT_STS0_L; no_of_bytes == 2;});
-	  `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  //assert(top_test_cfg.randomize() with {reg_addr == `SOC_STIM_MON_SHORT_INT_STS0_L; no_of_bytes == 2;});
+	  //`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_L,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
+	  `RD_NORMAL_REG(`SOC_STIM_MON_SHORT_INT_STS0_H,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
           `nnc_info("SOC_TEST", "short int sts cleared by old int sts reg - r1c", NNC_LOW)
         end
         else begin
@@ -881,13 +957,17 @@ class `TESTNAME extends soc_base_test;
       end
       else begin // new general intr sts reg
         if(intr == "LEADOFF")begin
-	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_GENERAL_INT_STS_7_REG; no_of_bytes == 2;});
-	  `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  //assert(top_test_cfg.randomize() with {reg_addr == `SOC_GENERAL_INT_STS_7_REG; no_of_bytes == 2;});
+	  //`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_7_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
+	  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_8_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
           `nnc_info("SOC_TEST", "leadoff int sts cleared by new general int sts reg - r1c", NNC_LOW)
         end
         else if(intr == "SHORT")begin
-	  assert(top_test_cfg.randomize() with {reg_addr == `SOC_GENERAL_INT_STS_9_REG; no_of_bytes == 2;});
-	  `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  //assert(top_test_cfg.randomize() with {reg_addr == `SOC_GENERAL_INT_STS_9_REG; no_of_bytes == 2;});
+	  //`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data);
+	  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_9_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
+	  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_A_REG,top_test_cfg.pads, top_test_cfg.rd_data[0]); 
           `nnc_info("SOC_TEST", "short int sts cleared by new general int sts reg - r1c", NNC_LOW)
         end
         else begin

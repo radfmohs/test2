@@ -34,26 +34,11 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 
   constraint c_imeas_en_dis_ch     {  imeas_en_dis_ch == 'h0 ;} // all channels enabled 
 
-  //constraint c_iclk_sel            { iclk_sel inside {[3:3]};} 
-
-  constraint c_spi_sclk_freq       { spi_sclk_freq == 20000;} 
-
-  //constraint c_imeas_cic_rate      { imeas_cic_rate == 5; }
-
-  constraint c_no_of_samples       {  no_of_samples  inside {[10:10]}; }  
+  constraint c_no_of_samples       {  no_of_samples  inside {[10:20]}; }  
 
   constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
 
   constraint c_imeas_24bitdata_en  { imeas_24bitdata_en inside {0,0}; }// 0: 16bit, 1 :32 bit
-
-  // Set SPI timing protocol for tCSSO (Min 20ns)
-  constraint c_tcssc                  { spi_dual_mode_en == 1 -> soft tcssc  == `SPI_MIN_TCSSO;}   // ~tCSSO 
-
-  // Set SPI timing protocol for tCSH1 (Min 20ns)
-  constraint c_tsccs                  { spi_dual_mode_en == 1 -> tsccs == `SPI_MIN_TCSH1; }   // ~tCSH1 
-
-  // Set SPI timing protocol for tCSPW (Min 20ns)
-  constraint c_tcsh                   { spi_dual_mode_en == 1 -> tcsh == 20; }   // ~tCSPW 
 
 
   // -----------------------------------------------
@@ -74,8 +59,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    //uvm_top.set_timeout(2s);
-    uvm_top.set_timeout(10ms);
+    uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(10ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 

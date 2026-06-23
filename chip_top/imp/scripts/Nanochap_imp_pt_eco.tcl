@@ -9,8 +9,8 @@ print_suppressed_messages
 #set scenario S111_max
 #set dmsa yes
 
-sh mkdir -p ../reports/synthesis_postscan_pteco_sdf
-sh mkdir -p ../data/synthesis_postscan_pteco_sdf
+sh mkdir -p ../reports/synthesis_postscan_pteco.BUD=${bottom_up}_sdf
+sh mkdir -p ../data/synthesis_postscan_pteco.BUD=${bottom_up}_sdf
 
 # -----------------------------------------------------------------------------------
 # Setup the Target Technology
@@ -98,7 +98,7 @@ update_power
 #report_constraint -all_violators > ../reports/synthesis_postscan_sdf/all_vio_${stage}_${corner}_${mode}_pteco_${fname_time}.rpt
 #report_timing -slack_lesser_than 0.0 -delay min_max -nosplit -input -net -cap -path full_clock > ../reports/synthesis_postscan_sdf/${rm_project_top}_${fname_time}.timing_vio_min
 if {[info exist scenario]} {
-  report_constraint -all_violators > ../reports/synthesis_postscan_pteco_sdf/all_vio_${scenario}_pteco_before_fix.rpt
+  report_constraint -all_violators > ../reports/synthesis_postscan_pteco.BUD=${bottom_up}_sdf/all_vio_${scenario}_pteco_before_fix.rpt
 }
 
 set eco_report_unfixed_reason_max_endpoints 1

@@ -386,6 +386,7 @@ interface dut_interface();
   logic [31:0] imeas_sample_num_per_period;
   logic [39:0] exp_status_bits;
   logic        pull_source_stim_on;
+  logic        delayed_pull_source_stim_on=0;
   logic        exp_stim_flag_on;
 
   logic [31:0] python_imeas_length;
@@ -417,6 +418,7 @@ interface dut_interface();
 
   logic [`FILTER_DATA_WIDTH-1:0] filter_data_out[`FILTER_NUM-1:0] ;
   logic [`FILTER_DATA_WIDTH-1:0] filter_data_out_dev2[`FILTER_NUM-1:0] ;
+
   logic        filter_case;
 
   logic [4:0]  max_ch_dev1; 
@@ -569,7 +571,7 @@ interface dut_interface();
    logic [15:0] stim_pad1_tgt3;
    logic [15:0] exp_stim_period_cnt =0;
    logic [15:0] exp_sample_cnt_for_sample_intr =0;
-   integer      exp_stim_tag =0;
+   logic [3:0]  exp_stim_tag =0;
    logic [9:0]  max_a2d_data = 0;
    logic [9:0]  min_a2d_data = 'h3FF; // 10 bit biggest value
    logic [9:0]  max_a2d_data_2nd = 0;
@@ -577,14 +579,21 @@ interface dut_interface();
    logic [9:0]  prev_a2d_data_max = 0;
    logic [9:0]  prev_a2d_data_min = 'h3FF; // 10 bit biggest value
    logic [9:0]  delta_a2d_data = 0;
-   integer      exp_stim_delta_tag =0;
+   logic [3:0]  exp_stim_delta_tag =0;
    logic        adc_delta_data_in_manual_en;
    logic        exp_stim_pair_int_sts;
    logic        exp_stim_cycle_int_sts;
    logic        pair_change =0;
    logic        valid_data =0;
+   logic        data_latch_condition =1;
+   logic        data_latch_condition_d1 =1;
    logic        select_2nd_max_min;
    logic        check_every_n;
+   logic [15:0] sample_num;
+   logic [255:0] exp_one_cycle_data = 'h0;
+   logic [255:0] final_exp_one_cycle_data = 'h0;
+   logic [9:0]  delayed_a2d_data = 0;
+   logic        first_data=1;
 
    // leadoff and short
    logic        leadoff_int_en;
@@ -672,6 +681,8 @@ interface dut_interface();
   logic [31:0] wg_wave2_rest_clk_num[`WAVEGEN_DRIVER_NUM];
 
   logic [5:0]  wg_discharge_num[`WAVEGEN_DRIVER_NUM];
+  logic [31:0] wg_dds_out;
+  logic [31:0] wg_ems_out;
 
   logic        wg_rest_en;
   logic        wg_ems_en;
@@ -679,7 +690,16 @@ interface dut_interface();
   logic        wg_dds_en;
   logic        wg_discharge_en;
   logic        wg_interrupt_en;
-  
+
+  //sysc checker enable
+  bit         d2a_ina_pga_clk_checker_en=1'b0; 
+  bit         pga_clk_enable=1'b0;  //0: enable, 1: disable
+  bit         d2a_stim_mon_adc_clk_checker_en=1'b0;
+  bit         sim_mon_adc_clk_enable=0; //0:disable, 1:enable
+  bit         stim_mon_adc_clk_inv=0;
+  bit         d2a_clk_nirs_ppg_checker_en=1'b0;
+  bit         nirs_ppg_clk_enable=1'b0; //0:enable, 1:disable
+  bit         ana_nirs_ppg_clk_inv=1'b0; //0:smae phase, 1: invert
 endinterface: dut_interface
 `endif
 

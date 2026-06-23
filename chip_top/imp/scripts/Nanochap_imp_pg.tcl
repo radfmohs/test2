@@ -14,6 +14,8 @@ echo [pwd]
 
 print_suppressed_messages
 
+#set bottom_up yes
+
 # ------------------------------------------------------------------------------
 # Set-up Design Configuration Options
 # ------------------------------------------------------------------------------
@@ -28,11 +30,6 @@ set dc_sel  DC;#topographical not needed here
 
 source -echo -verbose ../scripts/Nanochap_imp_tech.tcl
 
-#set stage postscan_pteco
-sh mkdir -p ../reports/synthesis_postscan_pteco_sdf
-sh mkdir -p ../data/synthesis_postscan_pteco_sdf
-
-
 # -----------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -43,12 +40,7 @@ set_app_var search_path [concat . $stdcell_search_path $otp_search_path $io_sear
 #set_app_var synthetic_library dw_foundation.sldb
 #set_app_var symbol_library $stdcell_sdb
 
-if {$stage == "postscan_pteco"} {
-    read_verilog  ../data/synthesis_postscan_sdf/${rm_project_top}.postscan.v
-}
-if {$stage != "postscan_pteco"} {
-    read_verilog  ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan_pteco.v
-}
+read_verilog  ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan_pteco.v
 
 set_app_var target_library $stdcell_library(db,$fast_corner_pvt)
 set_app_var link_library [concat * $target_library $otp_min_library $io_min_library $ana_min_library];# $synthetic_library]
@@ -63,7 +55,7 @@ source -e -v ../scripts/Nanochap_imp_upf.tcl
 set_voltage 0.0 -object_list {VSS_DIG }
 set_voltage 1.65 -object_list {VDD_DIG }
 
-write -f verilog  -hierarchy -output ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan_pteco_pg.v -pg
+write -f verilog  -hierarchy -output ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan_pteco_pg.v -pg
 
 print_message_info
 

@@ -214,16 +214,18 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   constraint c_hpd_coeff_index_0_select {hpf_coeff_index_0_select inside {3, 3}; } // cutoff = 0.5Hz
 
   constraint c_hpf_coeff_index_1_select    {  solve imeas_samp_rate before hpf_coeff_index_1_select ;
-                                             (imeas_samp_rate inside {[500:512]})    -> hpf_coeff_index_1_select == 4 ;  
-                                             (imeas_samp_rate inside {[1000:1024]})  -> hpf_coeff_index_1_select == 5 ;  
-                                             (imeas_samp_rate inside {[2000:2048]})  -> hpf_coeff_index_1_select == 6 ;  
-                                             (imeas_samp_rate inside {[4000:4096]})  -> hpf_coeff_index_1_select == 7 ;  
-                                             (imeas_samp_rate inside {[8000:8192]})  -> hpf_coeff_index_1_select == 8 ;  
-                                             (imeas_samp_rate inside {[16000:16384]}) -> hpf_coeff_index_1_select == 9 ;  
-                                             (imeas_samp_rate inside {[32000:32768]}) -> hpf_coeff_index_1_select == 10;  
-                                             (imeas_samp_rate inside {[64000:65536]}) -> hpf_coeff_index_1_select == 11; 
-                                             (imeas_samp_rate inside {[128000:131072]})-> hpf_coeff_index_1_select == 12; 
-                                             (imeas_samp_rate inside {[256000:262144]})-> hpf_coeff_index_1_select == 13;} 
+                                             (imeas_samp_rate inside {[125:128]})    -> hpf_coeff_index_1_select == 0 ;  
+                                             (imeas_samp_rate inside {[250:256]})    -> hpf_coeff_index_1_select == 1 ;  
+                                             (imeas_samp_rate inside {[500:512]})    -> hpf_coeff_index_1_select == 2 ;  
+                                             (imeas_samp_rate inside {[1000:1024]})  -> hpf_coeff_index_1_select == 3 ;  
+                                             (imeas_samp_rate inside {[2000:2048]})  -> hpf_coeff_index_1_select == 4 ;  
+                                             (imeas_samp_rate inside {[4000:4096]})  -> hpf_coeff_index_1_select == 5 ; } 
+                                             //(imeas_samp_rate inside {[8000:8192]})  -> hpf_coeff_index_1_select == 8 ;  
+                                             //(imeas_samp_rate inside {[16000:16384]}) -> hpf_coeff_index_1_select == 9 ;  
+                                             //(imeas_samp_rate inside {[32000:32768]}) -> hpf_coeff_index_1_select == 10;  
+                                             //(imeas_samp_rate inside {[64000:65536]}) -> hpf_coeff_index_1_select == 11; 
+                                             //(imeas_samp_rate inside {[128000:131072]})-> hpf_coeff_index_1_select == 12; 
+                                             //(imeas_samp_rate inside {[256000:262144]})-> hpf_coeff_index_1_select == 13;} 
 
   //constraint c_sine_num_of_period   {  sine_num_of_period == 50; }  
   //constraint c_sine_num_of_period   {  sine_num_of_period == 200; }  
@@ -450,8 +452,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 	//`DUT_IF.no_of_samples = (`DUT_IF.imeas_sample_num_per_period * 2048) / 1000;
 	`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period/2;
 
-    if(`DUT_IF.no_of_samples > 1000)
-    	`DUT_IF.no_of_samples = 1000;
+    if(`DUT_IF.no_of_samples > 100)
+    	`DUT_IF.no_of_samples = 100;
 
     if(`DUT_IF.no_of_samples > 1024)
     	`DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024

@@ -357,6 +357,7 @@ module spi_reg #(
   input [ADDR_WIDTH-1:0] i_addr,
   input                  i_wr,
   input                  i_rd,
+  input [DATA_WIDTH-1:0] i_int_allowed, 
   input                  wavegen_cmd_reg,
   input                  i_wavegen_wr,
   input                  i_wavegen_rd,
@@ -537,6 +538,9 @@ output wire [1:0]  D2A_ADBUF_GSEL,
   output  wire 	          o_wave_gen_rst
 );
 
+ wire int_allowed_en; 
+ wire [DATA_WIDTH-1:0] int_allowed;
+
 //reg [3:0] counter_cnt_dbg_sel;
 //wire [31:0]  counter_cnt_dbg;
 
@@ -627,7 +631,7 @@ output wire [1:0]  D2A_ADBUF_GSEL,
  reg            wavegen_burst_slct;
  reg            stimu_en;
  reg [1:0]      drive_slct_03_47;
- 
+// reg [1:0]      stop_wavegen; 
  reg [1:0]      atm_hc_sel_reg;
 
  reg [7:0]      wavegen_reg_acc_0_7;
@@ -745,14 +749,14 @@ always @(posedge i_clk or negedge i_rst_n) begin
     anac_ctrl            <= 8'h30;
     tsc_ctrl             <= 4'b0;
     sample_duration      <= 8'h10;
-    stable_duration      <= 12'h1ff;
+    stable_duration      <= 12'h3ff;
     en_reg_sel           <= 8'b0;
     tsc_vdac8b_din_ch1   <= 8'hFF;    
     drivea_global_en     <= 1'b0;
     wavegen_burst_slct   <= 1'b0;
     wavegen_reg_acc_0_7  <= 8'h00;
     wavegen_reg_acc_8_15 <= 8'h00;
-
+//    stop_wavegen         <= 2'b0;
     stimu_en             <= 1'b0;
     drive_slct_03_47     <= 2'b0;
  // counter_cnt_dbg_sel  <= 4'b0;
@@ -783,7 +787,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
       `TSC_CTRL                  : tsc_ctrl              <=  i_wr ?  i_wr_data[3:0]: tsc_ctrl;
       `TSC_VDAC8B_DIN_CH1        : tsc_vdac8b_din_ch1    <=  i_wr ?  i_wr_data[7:0]: tsc_vdac8b_din_ch1;
       `TSC_INT_CRTL              : tsc_int_crtl_reg      <=  i_wr ?  i_wr_data[1:0]: tsc_int_crtl_reg;
-      `TSC_INT_STATUS            : tsc_intr_sts_clr      <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? {tsc_intr_sts & i_rd} : 1'b0;
+      `TSC_INT_STATUS            : tsc_intr_sts_clr      <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? {tsc_intr_sts & i_rd & int_allowed[0]} : 1'b0;
       `SMP_DURATION	         : sample_duration       <=  i_wr ?  i_wr_data[7:0]: sample_duration;		
       `STABLE_DURATION_L	 : stable_duration[7:0]  <=  i_wr ?  i_wr_data[7:0]: stable_duration[7:0];		
       `STABLE_DURATION_H	 : stable_duration[11:8] <=  i_wr ?  i_wr_data[3:0]: stable_duration[11:8];		
@@ -826,7 +830,7 @@ reg [7:0] stim_pad1_tgt3_l;
 reg [7:0] stim_pad1_tgt3_h;
 
 reg[7:0] stim_mon_loff_short_int_ctrl; //3:0 is for int en
-					//5:4 
+          //5:4 
 wire read_adc_data_en;
 assign bypass_adc_data_en = stim_pad_ctrl1[7];
 assign read_adc_data_en = stim_pad_ctrl1[6];
@@ -885,8 +889,8 @@ assign stim_pad1_tgt[15] = stim_pad1_tgt3_h[7:4];
 /*
 assign stim_pad0_tgt = {stim_pad0_tgt3_h,stim_pad0_tgt3_l,
                         stim_pad0_tgt2_h,stim_pad0_tgt2_l,
-			stim_pad0_tgt1_h,stim_pad0_tgt1_l,
-			stim_pad0_tgt0_h,stim_pad0_tgt0_l};
+      stim_pad0_tgt1_h,stim_pad0_tgt1_l,
+      stim_pad0_tgt0_h,stim_pad0_tgt0_l};
 assign stim_pad1_tgt = {stim_pad1_tgt3_h,stim_pad1_tgt3_l,
                         stim_pad1_tgt2_h,stim_pad1_tgt2_l,
                         stim_pad1_tgt1_h,stim_pad1_tgt1_l,
@@ -897,28 +901,28 @@ generate
     for (g_i = 0; g_i < 8; g_i = g_i + 1) begin : gen_bit_ctrl
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n)begin
-	stim_mon_leadoff_int_clr[g_i] <= 1'b0;   //from spi
-	stim_mon_leadoff_int_clr[8+g_i] <= 1'b0;   //from spi
-	stim_mon_short_int_clr[g_i] <= 1'b0;   //from spi
-	stim_mon_short_int_clr[8+g_i] <= 1'b0;   //from spi
+  stim_mon_leadoff_int_clr[g_i] <= 1'b0;   //from spi
+  stim_mon_leadoff_int_clr[8+g_i] <= 1'b0;   //from spi
+  stim_mon_short_int_clr[g_i] <= 1'b0;   //from spi
+  stim_mon_short_int_clr[8+g_i] <= 1'b0;   //from spi
    end else begin
-	stim_mon_leadoff_int_clr[g_i]   <= 1'b0;
+  stim_mon_leadoff_int_clr[g_i]   <= 1'b0;
         stim_mon_leadoff_int_clr[8+g_i] <= 1'b0;
         stim_mon_short_int_clr[g_i]     <= 1'b0;
         stim_mon_short_int_clr[8+g_i]   <= 1'b0;	
      case (i_addr[7:0])
-	`STIM_MON_LOFF_INT_STS0, `GENERAL_INTERUPT_STATUS_REG07 : begin
-				 stim_mon_leadoff_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[g_i] & i_rd) : 1'b0;
-			   end             
+  `STIM_MON_LOFF_INT_STS0, `GENERAL_INTERUPT_STATUS_REG07 : begin
+         stim_mon_leadoff_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[g_i] & i_rd & int_allowed[g_i]) : 1'b0;
+         end             
 `STIM_MON_LOFF_INT_STS1, `GENERAL_INTERUPT_STATUS_REG08 : begin
-				 stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd) : 1'b0;
-			   end             
+         stim_mon_leadoff_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_leadoff_int_sts[8+g_i] & i_rd & int_allowed[g_i]) : 1'b0;
+         end             
 `STIM_MON_SHORT_INT_STS0, `GENERAL_INTERUPT_STATUS_REG09 : begin
-				 stim_mon_short_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[g_i] & i_rd) : 1'b0;
-			   end             
+         stim_mon_short_int_clr[g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[g_i] & i_rd & int_allowed[g_i]) : 1'b0;
+         end             
 `STIM_MON_SHORT_INT_STS1, `GENERAL_INTERUPT_STATUS_REG0A : begin
-				 stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd) : 1'b0;
-			   end             
+         stim_mon_short_int_clr[8+g_i]    <= (i_wr & !int_clear_type)? i_wr_data[g_i]: (i_rd & int_clear_type)? (stim_mon_short_int_sts[8+g_i] & i_rd & int_allowed[g_i]) : 1'b0;
+         end             
 default: ;
     endcase
   end
@@ -928,45 +932,45 @@ endgenerate
 
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n)begin
-	stim_mon_int_topin_en_reg <= 3'b0;   //from spi
-	stim_mon_delta_data_sel <= 2'b0;   //from spi
-	stim_pad_ctrl        <= 8'hF;
-	stim_pad_ctrl1        <= 8'h20;
-	stim_mon_period_l    <= 8'h0;
-	stim_mon_period_h    <= 8'h0;
-	stim_mon_period_l_h    <= 8'h0;
-	stim_mon_period_h_h    <= 8'h0;
-	stim_mon_ctrl2 <= 7'h04;
-	stim_mon_ctrl3 <= 6'h08;
-	stim_pad0_tgt0_l     <= 8'h10;
-	stim_pad0_tgt0_h     <= 8'h32;
-	stim_pad0_tgt1_l     <= 8'h54;
-	stim_pad0_tgt1_h     <= 8'h76;
-	stim_pad0_tgt2_l     <= 8'h98;
-	stim_pad0_tgt2_h     <= 8'hBA;
-	stim_pad0_tgt3_l     <= 8'hDC;
-	stim_pad0_tgt3_h     <= 8'hFE;
-	stim_pad1_tgt0_l     <= 8'h01;
-	stim_pad1_tgt0_h     <= 8'h23;
-	stim_pad1_tgt1_l     <= 8'h45;
-	stim_pad1_tgt1_h     <= 8'h67;
-	stim_pad1_tgt2_l     <= 8'h89;
-	stim_pad1_tgt2_h     <= 8'hAB;
-	stim_pad1_tgt3_l     <= 8'hCD;
-	stim_pad1_tgt3_h     <= 8'hEF;
+  stim_mon_int_topin_en_reg <= 3'b0;   //from spi
+  stim_mon_delta_data_sel <= 2'b0;   //from spi
+  stim_pad_ctrl        <= 8'hF;
+  stim_pad_ctrl1        <= 8'h20;
+  stim_mon_period_l    <= 8'h0;
+  stim_mon_period_h    <= 8'h0;
+  stim_mon_period_l_h    <= 8'h0;
+  stim_mon_period_h_h    <= 8'h0;
+  stim_mon_ctrl2 <= 7'h04;
+  stim_mon_ctrl3 <= 6'h08;
+  stim_pad0_tgt0_l     <= 8'h10;
+  stim_pad0_tgt0_h     <= 8'h32;
+  stim_pad0_tgt1_l     <= 8'h54;
+  stim_pad0_tgt1_h     <= 8'h76;
+  stim_pad0_tgt2_l     <= 8'h98;
+  stim_pad0_tgt2_h     <= 8'hBA;
+  stim_pad0_tgt3_l     <= 8'hDC;
+  stim_pad0_tgt3_h     <= 8'hFE;
+  stim_pad1_tgt0_l     <= 8'h01;
+  stim_pad1_tgt0_h     <= 8'h23;
+  stim_pad1_tgt1_l     <= 8'h45;
+  stim_pad1_tgt1_h     <= 8'h67;
+  stim_pad1_tgt2_l     <= 8'h89;
+  stim_pad1_tgt2_h     <= 8'hAB;
+  stim_pad1_tgt3_l     <= 8'hCD;
+  stim_pad1_tgt3_h     <= 8'hEF;
         stim_mon_delta_int_clr <= 1'b0;
         stim_mon_cycle_int_clr <= 1'b0;
-	stim_mon_int_clr <= 1'b0;
-	threshold_leadoff <= 10'b0;  	
-	threshold_short <= 10'b0;  	
-	threshold_tgt <= 8'b0;
-	stim_mon_loff_short_int_ctrl <= 8'b0;
- 	adc_delta_data_cap_in_manual <= 1'b0;
- 	select_2nd_max_min <= 1'b0;
+  stim_mon_int_clr <= 1'b0;
+  threshold_leadoff <= 10'b0;  	
+  threshold_short <= 10'b0;  	
+  threshold_tgt <= 8'b0;
+  stim_mon_loff_short_int_ctrl <= 8'b0;
+   adc_delta_data_cap_in_manual <= 1'b0;
+   select_2nd_max_min <= 1'b0;
    end else begin
         stim_mon_delta_int_clr <= 1'b0;
         stim_mon_cycle_int_clr <= 1'b0;
-	stim_mon_int_clr <= 1'b0;
+  stim_mon_int_clr <= 1'b0;
      case (i_addr[7:0])
        `STIM_PAD_CTRL       :   stim_pad_ctrl <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl;        
        `STIM_PAD_CTRL1      :   stim_pad_ctrl1 <= i_wr ? i_wr_data[7:0] : stim_pad_ctrl1;        
@@ -979,17 +983,17 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_MON_CTRL3:  stim_mon_ctrl3 <= i_wr ? i_wr_data[5:0] : stim_mon_ctrl3;      
 
        `STIM_MON_INT_STS    : begin  
-				 stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
-				 stim_mon_delta_data_sel <= i_wr ? i_wr_data[4:3] : stim_mon_delta_data_sel;
-				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
-				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
-				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
+         stim_mon_int_topin_en_reg <= i_wr ? i_wr_data[7:5] : stim_mon_int_topin_en_reg;
+         stim_mon_delta_data_sel <= i_wr ? i_wr_data[4:3] : stim_mon_delta_data_sel;
+         stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd & int_allowed[2]) : 1'b0;
+         stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd & int_allowed[0]) : 1'b0;
+         stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd & int_allowed[1]) : 1'b0;
        end
-	`GENERAL_INTERUPT_STATUS_REG0B : begin
-				 stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd) : 1'b0;
-				 stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd) : 1'b0;
-				 stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd) : 1'b0;
-	end
+  `GENERAL_INTERUPT_STATUS_REG0B : begin
+         stim_mon_cycle_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[2]: (i_rd & int_clear_type)? (stim_mon_cycle_int_sts & i_rd & int_allowed[2]) : 1'b0;
+         stim_mon_delta_int_clr    <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (stim_mon_delta_int_sts & i_rd & int_allowed[0]) : 1'b0;
+         stim_mon_int_clr          <= (i_wr & !int_clear_type)? i_wr_data[1]: (i_rd & int_clear_type)? (stim_mon_int_sts & i_rd & int_allowed[1]) : 1'b0;
+  end
 
        `STIM_PAD0_TGT0_L    :   stim_pad0_tgt0_l <= i_wr ? i_wr_data : stim_pad0_tgt0_l; 
        `STIM_PAD0_TGT0_H    :   stim_pad0_tgt0_h <= i_wr ? i_wr_data : stim_pad0_tgt0_h; 
@@ -1009,9 +1013,9 @@ always @(posedge i_clk or negedge i_rst_n) begin
        `STIM_PAD1_TGT3_H    :   stim_pad1_tgt3_h <= i_wr ? i_wr_data : stim_pad1_tgt3_h; 
 
        `STIM_ADC_DELTA_DATA_TAG_H    :   begin 
-					adc_delta_data_cap_in_manual <= i_wr ? i_wr_data[2] : adc_delta_data_cap_in_manual;
-					select_2nd_max_min <= i_wr ? i_wr_data[3] : select_2nd_max_min;
-					 end 
+          adc_delta_data_cap_in_manual <= i_wr ? i_wr_data[2] : adc_delta_data_cap_in_manual;
+          select_2nd_max_min <= i_wr ? i_wr_data[3] : select_2nd_max_min;
+           end 
 
 `STIM_MON_LOFF_SHORT_INT_CTRL   :  stim_mon_loff_short_int_ctrl <=  i_wr ? i_wr_data : stim_mon_loff_short_int_ctrl;    
 `STIM_MON_LOFF_TH0           	:     threshold_leadoff[7:0] <=  i_wr ? i_wr_data : threshold_leadoff[7:0]; 
@@ -1019,7 +1023,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 `STIM_MON_SHORT_TH0           	:      threshold_short[7:0] <=  i_wr ? i_wr_data : threshold_short[7:0];
 `STIM_MON_SHORT_TH1           	:      threshold_short[9:8] <=  i_wr ? i_wr_data[1:0] : threshold_short[9:8];
 `STIM_MON_TH_TGT           	:      threshold_tgt <=  i_wr ? i_wr_data : threshold_tgt;
-	default : ;
+  default : ;
     endcase
   end
 end
@@ -1077,8 +1081,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
      ana_gen_sec_reg	<= 3'b0;
 
 /* Truong changed logic to reset all regs in all sections - 23/04/2026
-			for (int j = 0; j < 14; j++)begin
-				ana_gen_reg[ana_gen_sec_reg][j] <= 8'h00;	
+      for (int j = 0; j < 14; j++)begin
+        ana_gen_reg[ana_gen_sec_reg][j] <= 8'h00;	
       end		
 */
      for (int i = 0; i < 8; i++) begin
@@ -1111,7 +1115,7 @@ always @(posedge i_clk or negedge i_rst_n) begin
 end
 assign ATM_MODE = {atm_adj_mode[13],atm_adj_mode[12],atm_adj_mode[11], atm_adj_mode[10], atm_adj_mode[9] || atm_adj_mode[8], atm_adj_mode[7] || atm_adj_mode[6],  atm_adj_mode[2] || atm_adj_mode[1], atm_adj_mode[0] || atm_adj_mode[14]};
 
-	
+  
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
     ana_gen_reg[0][14] <= 8'h00;
@@ -1128,8 +1132,8 @@ always @(posedge i_clk or negedge i_rst_n) begin
          for (int x = 0; x < 8; x = x + 1)begin
            if (x == ana_gen_sec_reg) begin
              ana_gen_reg[x][14] <= i_wr_data;
-	   end
-	 end
+     end
+   end
       end
     end
     // IO WRITE ATM ADJ MODE
@@ -1220,21 +1224,23 @@ always @(posedge i_clk or negedge i_rst_n) begin
   end
 end
 
-reg [2:0] int_ctrl_reg;
+reg [3:0] int_ctrl_reg;
 always @(posedge i_clk or negedge i_rst_n) begin
   if (!i_rst_n) begin
-     int_ctrl_reg    <= 3'b100;      
+     int_ctrl_reg    <= 4'b1100;      
   end
   else begin
     case (i_addr[ADDR_WIDTH-1:0])
-     `GENERAL_INTERUPT_CTRL_REG   : int_ctrl_reg   <= i_wr ? i_wr_data[2:0] : int_ctrl_reg;        
+     `GENERAL_INTERUPT_CTRL_REG   : int_ctrl_reg   <= i_wr ? i_wr_data[3:0] : int_ctrl_reg;        
     endcase
   end
 end
 
-assign int_length_slct  = int_ctrl_reg[0];//0:level; 1:pulse
-assign int_clear_type   = int_ctrl_reg[1];//0:W1C;   1:R1C
-assign int_active_level = int_ctrl_reg[2];//0:low    1: high
+assign int_length_slct  = int_ctrl_reg[0];//0:level;   1:pulse
+assign int_clear_type   = int_ctrl_reg[1];//0:W1C;     1:R1C
+assign int_active_level = int_ctrl_reg[2];//0:low      1: high
+assign int_allowed_en   = int_ctrl_reg[3];//0:disabled 1:enabled
+assign int_allowed      = int_allowed_en ? i_int_allowed : 8'hFF;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////anac register ///////////////////////////////////////////////
@@ -1565,8 +1571,8 @@ always @(posedge i_clk or negedge i_rst_n) begin : FILTER_SPI_REG
       `FILTER_NOF_BP_L       :  notch_filter_bypass[7:0]           <= i_wr ? i_wr_data[7:0] : notch_filter_bypass[7:0]; 
       `FILTER_NOF_BP_H       :  notch_filter_bypass[15:8]          <= i_wr ? i_wr_data[7:0] : notch_filter_bypass[15:8]; 
       `FILTER_INT_CTRL       :  eeg_int_en                         <= i_wr ? i_wr_data[1:0] : eeg_int_en; 
-      `FILTER_INT_STS        :  eeg_int_clr                        <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (eeg_int_sts & i_rd) : 1'b0;
-      `GENERAL_INTERUPT_STATUS_REG01  :  eeg_int_clr               <= (i_rd & int_clear_type)? (eeg_int_sts & i_rd) : 1'b0;
+      `FILTER_INT_STS        :  eeg_int_clr                        <= (i_wr & !int_clear_type)? i_wr_data[0]: (i_rd & int_clear_type)? (eeg_int_sts & i_rd & int_allowed[0]) : 1'b0;
+      `GENERAL_INTERUPT_STATUS_REG01  :  eeg_int_clr               <= (i_rd & int_clear_type)? (eeg_int_sts & i_rd & int_allowed[1]) : 1'b0;
       `FILTER_NOTCH_DATA_GONE_L       :  cic_data_ignore_tar[7:0]  <= i_wr ? i_wr_data[7:0] : cic_data_ignore_tar[7:0]; 
       `FILTER_NOTCH_DATA_GONE_H       :  cic_data_ignore_tar[15:8] <= i_wr ? i_wr_data[7:0] : cic_data_ignore_tar[15:8]; 
       `FILTER_COEFF_ADDR     :  coeff_addr                         <= i_wr ? i_wr_data[7:0] : coeff_addr;
@@ -1835,14 +1841,19 @@ assign spi_data_read  = spi_otp.os_ctrl[26:19];
 /////////////////////////////////wave gen inst //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 assign spi_wg.global_en = drivea_global_en;
-assign spi_wg.stop_wavegen = 1'b0; //ana_int_stop_wavegen_reg & ana_stimu_ch_intr_sts;
+assign spi_wg.stop_wavegen = 16'b0;//(stop_wavegen==2'b00)? 16'b0 : (stop_wavegen==2'b01)? stim_mon_leadoff_int_sts : (stop_wavegen==2'b10)? stim_mon_short_int_sts : (stim_mon_short_int_sts | stim_mon_leadoff_int_sts); //ana_int_stop_wavegen_reg & ana_stimu_ch_intr_sts;
 assign spi_wg.stimu_en = stimu_en;
 
-wire i_rd_normal;
-assign i_rd_normal = (drive_slct_03_47==2'b00)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG02) & i_rd :
-                     (drive_slct_03_47==2'b01)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG03) & i_rd :
-                     (drive_slct_03_47==2'b10)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG04) & i_rd : 
-                     (drive_slct_03_47==2'b11)? (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG05) & i_rd : (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG02) & i_rd ;
+wire [15:0] i_rd_normal;
+wire i_rd_normal_0,i_rd_normal_1,i_rd_normal_2,i_rd_normal_3;
+assign i_rd_normal_0 = (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG02) & i_rd & |int_allowed;
+assign i_rd_normal_1 = (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG03) & i_rd & |int_allowed;
+assign i_rd_normal_2 = (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG04) & i_rd & |int_allowed;
+assign i_rd_normal_3 = (i_addr[ADDR_WIDTH-1:0] == `GENERAL_INTERUPT_STATUS_REG05) & i_rd & |int_allowed;
+
+
+assign i_rd_normal = {{4{i_rd_normal_3}},{4{i_rd_normal_2}},{4{i_rd_normal_1}},{4{i_rd_normal_0}}};
+
 
 wire [7:0] o_wg_driver_rd_data[NO_OF_WAVEGEN-1:0];
 
@@ -1876,7 +1887,7 @@ assign wavegen_reg_acc_addr[i] = wavegen_reg_acc[i]?   ({2'b00,i_addr} + 10'h40 
    .i_wr                      (wavegen_reg_acc_wr[i]),
    .i_rd			(i_wavegen_rd),
    .int_clear_type            (int_clear_type),
-   .i_rd_normal               (i_rd_normal),
+   .i_rd_normal               (i_rd_normal[i]),
    .i_addr			(wavegen_reg_acc_addr[i]),
    .i_wr_data			(i_wr_data),
    . wavegen_burst_slct          ( wavegen_burst_slct),
@@ -1964,6 +1975,7 @@ wire [7:0] nirs_rd_data;
 //  .i_rd_normal          (i_rd),
     .i_wr_data            (i_wr_data),
     .o_rd_data            (nirs_rd_data),
+    .i_int_allowed        (int_allowed),
 
     .atm_adj_mode         (atm_adj_mode[5:3]),
     .atm_adj              (atm_adj),

@@ -143,19 +143,15 @@ class `TESTNAME extends soc_base_test;
     `PINMUX_SCOREBOARD_EN = 1'b1;
 
     #100000ns;
- `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif  
-  
-    // ------------------------------------------------------- 
+
+  `ifdef BEHAVIORAL
+    top_test_cfg.atm = `ATM_PINMUX_IF; // Checked on Pinmux 
     // Checking ATM
-    // -------------------------------------------------------
-    if (top_test_cfg.atm !== 8'b0)
+    if (top_test_cfg.atm !== 30'h0)
       begin
-        `nnc_error("BIST_MODE", $sformatf("ATM[0:7] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (8'b1000_0000 >> `SOC_TOP.IOBUF_PAD[10:8]-1)))
-      end      
+        `nnc_error("BIST MODE", $sformatf("ATM[0:29] = %b is not as expectation as %b", top_test_cfg.atm, 30'h0));
+      end  
+  `endif
 
     // -------------------------------------------------------
     // Checking pin TCK

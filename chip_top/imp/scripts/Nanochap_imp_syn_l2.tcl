@@ -75,6 +75,8 @@ set_app_var compile_seqmap_propagate_constants false
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
 
+set_app_var hdlin_enable_hier_map true
+
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
 
@@ -143,12 +145,14 @@ elaborate imeas_wrapper
 
 link
 
+set_verification_top
+
 #current_design filter_wrapper
 #reset_design
 #current_design imeas_wrapper
 
-set_dont_touch [get_designs filter_wrapper]
-get_attribute [get_designs filter_wrapper] is_mapped
+set_dont_touch [get_designs "*filter_wrapper*"]
+get_attribute [get_designs "*filter_wrapper*"] is_mapped
 get_attribute [get_designs "*filter_wrapper*"] dont_touch
 #report_reference
 
@@ -180,12 +184,14 @@ set rm_project_top imeas_wrapper
 #set_active_scenarios [all_scenarios]
 #current_scenario S111_max
 
-#compile_ultra -check
-compile_ultra -scan -gate_clock -no_autoungroup
-
 sh rm -rf ../data/synthesis_l2
-sh rm -rf ../report/synthesis_l2
 file mkdir ../data/synthesis_l2
+set_svf ../data/synthesis_l2/imeas_wrapper.svf
+
+#compile_ultra -check
+compile_ultra -scan -gate_clock
+
+sh rm -rf ../report/synthesis_l2
 file mkdir ../report/synthesis_l2
 
 #uniquify -force
@@ -196,6 +202,8 @@ write -f verilog -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.v
 
 #write_milkyway -output [get_object_name [current_design]] -overwrite
 write -format ddc -hierarchy -output ../data/synthesis_l2/imeas_wrapper.prescan.ddc
+
+set_svf -off
 
 #foreach i $scenarios {
 #  current_scenario $i

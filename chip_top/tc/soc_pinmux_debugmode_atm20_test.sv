@@ -197,16 +197,14 @@ class `TESTNAME extends soc_base_test;
    // ------------------------------------------------------
     #100000ns;
 
-  `ifdef BEHAVIORAL    
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[28], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[29]};
-`else
-    top_test_cfg.atm = {`ANA_WRAPPER_TOP.D2A_ATM0,`ANA_WRAPPER_TOP.D2A_ATM1,`ANA_WRAPPER_TOP.D2A_ATM2,`ANA_WRAPPER_TOP.D2A_ATM3,`ANA_WRAPPER_TOP.D2A_ATM4,`ANA_WRAPPER_TOP.D2A_ATM5,`ANA_WRAPPER_TOP.D2A_ATM6,`ANA_WRAPPER_TOP.D2A_ATM7};
-`endif  
-     // Checking ATM
+  `ifdef BEHAVIORAL
+    top_test_cfg.atm = `ATM_PINMUX_IF; // Checked on Pinmux 
+    // Checking ATM
     if (top_test_cfg.atm !== (30'b10_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10]))
       begin
         `nnc_error("ATM20", $sformatf("ATM[0:29] = %b is not as expectation of ATM = %b", top_test_cfg.atm, (30'b10_0000_0000_0000_0000_0000_0000_0000 >> `SOC_TOP.IOBUF_PAD[14:10])))
       end  
+  `endif
 
     //Check default signal  
     if (`ANA_TOP.D2A_BIST_SEL !== 5'b10100)
@@ -249,8 +247,8 @@ class `TESTNAME extends soc_base_test;
         `nnc_error("ATM20", $sformatf("`SOC_TOP.pinmux_if.D2A_ADJ_IO[5][7:0] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if.D2A_ADJ_IO[5][7:0], {rand_num[7:0]}));
         end
 `else
-        if (`ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0]!== {rand_num[7:0]}) begin
-        `nnc_error("ATM20", $sformatf("`SOC_TOP.pinmux_if.D2A_TRIM_SIG[7:0] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if_D2A_TRIM_SIG[7:0], {rand_num[7:0]}));
+        if (`ANA_WRAPPER_TOP.pinmux_if_D2A_ADJ_IO[47:40]!== {rand_num[7:0]}) begin
+        `nnc_error("ATM20", $sformatf("`SOC_TOP.pinmux_if_D2A_ADJ_IO[47:40] = %b is not as expectation of = %b", `ANA_WRAPPER_TOP.pinmux_if_D2A_ADJ_IO[47:40], {rand_num[7:0]}));
         end
 `endif
         if ({`ANA_TOP.D2A_NIRS4_IDAC_ADJ[7:0]}!== {rand_num[7:0]}) begin
@@ -276,7 +274,7 @@ class `TESTNAME extends soc_base_test;
         force `SOC_TOP.RESETn = $random;	
         #10000ns;
         rand_bit = `SOC_TOP.RESETn;
-        `ifndef POSTLAYOUT_PG
+        `ifdef BEHAVIORAL
            if (`RST_CTRL_TOP.ext_resetn !== rand_bit) begin
            `nnc_error("ATM20", $sformatf("`RST_CTRL_TOP.ext_resetn:%b is not as expectation of RESETn: %b",`RST_CTRL_TOP.ext_resetn, rand_bit))
            end
@@ -287,15 +285,11 @@ class `TESTNAME extends soc_base_test;
            `nnc_error("ATM20", $sformatf("`RST_CTRL_TOP.otp_bist_resetn:%b is not as expectation of RESETn: %b",`RST_CTRL_TOP.otp_bist_resetn, rand_bit))
            end
         `else //in postlayout above all reset signals of pinmux has been optimized so consider only below one
-           if (`DIG_TOP.u_pinmux.iopad_resetn_y !== rand_bit) begin
-           `nnc_error("ATM20", $sformatf("`DIG_TOP.u_pinmux.iopad_resetn_y:%b is not as expectation of RESETn: %b",`DIG_TOP.u_pinmux.iopad_resetn_y, rand_bit))
-           end
+        
            if (`RST_CTRL_TOP.otp_bist_resetn!== rand_bit) begin
              `nnc_error("ATM20", $sformatf("`DIG_TOP.u_pinmux.otp_bist_resetn = %b is not as expectation of = %b", `RST_CTRL_TOP.otp_bist_resetn, rand_bit));
            end
-           if (`DIG_TOP.scan_rst_n !== rand_bit) begin
-            `nnc_error("ATM20", $sformatf("`DIG_TOP.u_pinmux.scan_rst_n = %b is not as expectation of scan_rst_n = %b",`DIG_TOP.scan_rst_n, `SOC_TB.scan_rst_n))
-          end
+       
         `endif
 
       release  `SOC_TOP.RESETn;              

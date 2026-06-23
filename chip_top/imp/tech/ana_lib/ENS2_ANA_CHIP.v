@@ -382,8 +382,8 @@ assign (pull1,pull0) A2D_LVD                    = '0;
 assign (pull1,pull0) A2D_SPARE_RO_REG_0         = '0;
 assign (pull1,pull0) A2D_DRIVERC_LEAD_OFF_OUT   = '0;
 assign (pull1,pull0) A2D_DRIVERC_SHORT_DET_OUT  = '0;
-assign (pull1,pull0) A2D_LOFF_STATP             = '0;
-assign (pull1,pull0) A2D_LOFF_STATN             = '0;
+assign (pull1,pull0) A2D_LOFF_STATP             = 16'hFFFF;
+assign (pull1,pull0) A2D_LOFF_STATN             = 16'hFFFF;
 
 // --------------------------------------------------------
  // Instantiate OSC

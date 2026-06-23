@@ -661,7 +661,7 @@ always @(posedge clk, negedge reset) begin
 							          end
 							          else if (alt_cnt < alt_lim + alt_rest_lim-1) begin
 							          	source[0] <= 0;
-							          	source[1] <= 1;
+							          	source[1] <= 0;
 							          	alt_cnt <= alt_cnt + 1;
 							          end
 							          else if (alt_cnt < alt_lim + alt_silent_lim + alt_rest_lim- 1) begin

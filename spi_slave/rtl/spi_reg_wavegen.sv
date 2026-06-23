@@ -1191,9 +1191,9 @@ always@(posedge i_clk or negedge i_rst_n) begin
   end
   else begin
 	  case (i_addr[ADDR_WIDTH-1:0])
-            `DRIVE_REG_CTRL0+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg0   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg0; 
-            `DRIVE_REG_CTRL1+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg1   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg1;
-            `DRIVE_REG_CTRL2+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg2   <= i_wr? i_wr_data[7:0]   : drive_ctrl_reg2;
+            `DRIVE_REG_CTRL0+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg0   <= i_wr_burst? i_wr_data[7:0]   : drive_ctrl_reg0; 
+            `DRIVE_REG_CTRL1+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg1   <= i_wr_burst? i_wr_data[7:0]   : drive_ctrl_reg1;
+            `DRIVE_REG_CTRL2+10'h40 * NO_OF_WAVEGEN      :  drive_ctrl_reg2   <= i_wr_burst? i_wr_data[7:0]   : drive_ctrl_reg2;
      endcase
   end
 end
@@ -1214,9 +1214,9 @@ always@(posedge i_clk or negedge i_rst_n) begin
   end
   else begin
 	  case (i_addr[ADDR_WIDTH-1:0])
-            `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN  :  {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}  <= i_wr? i_wr_data[3:0] : {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
-            `NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[7:0]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
-            `NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[15:8]      <= i_wr? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
+            `NO_OF_NUM_SLIENT_CTR0+10'h40 * NO_OF_WAVEGEN  :  {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}  <= i_wr_burst? i_wr_data[3:0] : {dds_mode,mul_wave_repeat,w_isel_reg,o_no_of_num_slient_disable}; 
+            `NO_OF_NUM_SLIENT_TAR0+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[7:0]      <= i_wr_burst? i_wr_data[7:0] : o_no_of_num_slient_tar[7:0];
+            `NO_OF_NUM_SLIENT_TAR1+10'h40 * NO_OF_WAVEGEN  :  o_no_of_num_slient_tar[15:8]      <= i_wr_burst? i_wr_data[7:0] : o_no_of_num_slient_tar[15:8];
      endcase
   end
 end

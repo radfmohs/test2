@@ -74,7 +74,7 @@ set hdlin_infer_multibit default_all
 
 #create_mw_lib -technology $tech_file \
 #	      -mw_reference_library $mw_reference_library \
-	                            $mw_design_library
+#	                            $mw_design_library
 
 #open_mw_lib $mw_design_library
 
@@ -87,6 +87,8 @@ set_app_var compile_seqmap_propagate_constants false
 # Identify architecturally instantiated clock gates
 # Note: This application variable must be set BEFORE the RTL is read in.
 set_app_var power_cg_auto_identify true
+
+set_app_var hdlin_enable_hier_map true
 
 # Check for latches in RTL
 set_app_var hdlin_check_no_latch true
@@ -148,8 +150,10 @@ set_clock_gating_style -sequential_cell latch \
 ###################################################### LEVEL 3 individual channel filter compile
 
 analyze -autoread  {../../../../logical/imeas/rtl/filter_wrapper.sv ../../../../logical/imeas/rtl/filter_ctrl.sv ../../../../logical/imeas/rtl/filter_fir_lpf.sv ../../../../logical/imeas/rtl/filter_iir_hpf.v ../../../../logical/imeas/rtl/notch_filter.sv ../../../../logical/imeas/rtl/imeas.sv ../../../../logical/imeas/rtl/imeas_cdc.sv ../../../../logical/imeas/rtl/imeas_cic.sv ../../../../logical/imeas/rtl/imeas_ctrl.sv ../../../../logical/imeas/rtl/imeas_reg.sv ../../../common/common_pulse_rising.v ../../../common/common_pulse_sync.v ../../../common/common_bit_sync.v}
-elaborate filter_wrapper
+elaborate filter_wrapper -parameters "DATA_WIDTH=24"
 link
+
+set_verification_top
 
 # Disable register merging
 set_register_merging [all_registers] false
@@ -164,7 +168,7 @@ set_fix_multiple_port_nets -all -buffer_constants [get_designs]
 #report_ignored_layers
 
 #lappend scenarios S111_min S112_min S121_min S122_min S22_min S3_min S111_max S112_max S121_max S122_max S22_max S3_max;#SXYZ => X: 1=Normal Mode, 2=CP test Mode, 3=Bist Mode. Y: 1=Internal Clock, 2=External Clock. Z: 1=CPHA 0, 2=CPHA 1.
-set rm_project_top filter_wrapper
+set rm_project_top filter_wrapper_DATA_WIDTH24
 #foreach i $scenarios { 
 #    create_scenario $i 
 #    set_scenario_options -setup true -hold true -cts_mode true -leakage_power true -dynamic_power true -cts_corner min_max
@@ -176,10 +180,12 @@ set rm_project_top filter_wrapper
 #set_active_scenarios [all_scenarios]
 #current_scenario S111_max
 
+file mkdir ../data/synthesis_l3
+set_svf ../data/synthesis_l3/filter_wrapper.svf
+
 #compile_ultra -check
 compile_ultra -scan -gate
 
-file mkdir ../data/synthesis_l3
 file mkdir ../report/synthesis_l3
 
 # create canonical scan boundary ports
@@ -238,6 +244,8 @@ write -format ddc -hierarchy -output ../data/synthesis_l3/single_channel.ddc
   set i DC
   write_sdc -version 2.1 -nosplit ../data/synthesis_l3/filter_wrapper.${i}.sdc
 #}
+
+set_svf -off
 
 print_message_info
 

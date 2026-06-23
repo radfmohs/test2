@@ -343,6 +343,7 @@ output wire [1:0]  D2A_ADBUF_GSEL,
 
 //internal signals
 wire [addr_width-1:0] addr;
+wire [data_width-1:0] int_allowed;
 wire                  wr;
 wire                  rd;
 wire                  wavegen_wr;
@@ -440,7 +441,7 @@ spi_slv_ctrl_u (
   .daisy_in      (DAISY_IN_Y),
   .daisy_en      (daisy_en),
   .mode          (mode), 
-//.atpg_en	 (SCANMODE),
+  .atpg_en	     (SCANMODE),
   .i_cs_n        (i_cs_n),
   .i_mosi         (i_mosi),
   .i_mosi1        (i_mosi1),
@@ -450,6 +451,7 @@ spi_slv_ctrl_u (
   .o_dual_en     (o_dual_en),
   .o_dual_wr     (o_dual_wr),
   .o_addr        (addr),
+  .o_int_allowed (int_allowed),
 //.o_addr_vld_for_int_clr(addr_vld_for_int_clr),
   .o_wr          (wr),
   .o_rd          (rd),
@@ -548,6 +550,7 @@ spi_reg_u (
   .i_addr(addr),
   .i_wr(wr),
   .i_rd(rd),
+  .i_int_allowed(int_allowed),
   .wavegen_cmd_reg(wavegen_cmd_reg),
   .i_wavegen_wr(wavegen_wr),
   .i_wavegen_rd(wavegen_rd),

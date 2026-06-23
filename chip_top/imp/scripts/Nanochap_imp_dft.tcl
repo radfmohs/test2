@@ -106,7 +106,7 @@ set_app_var report_default_significant_digits 3
 # Read pre-scan insertion synthesis DDC
 # -----------------------------------------------------------------------------
 
-read_ddc ../data/synthesis_prescan_dct_BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
+read_ddc ../data/synthesis_prescan_dct.BUD=${bottom_up}_${generate_sdf}/${rm_project_top}.prescan_dct.ddc
 
 if {$bottom_up == "yes"} {
   remove_attribute [get_cells u_top_dig/u_imeas_wrapper] dont_touch
@@ -120,6 +120,9 @@ if {$bottom_up == "yes"} {
   remove_attribute [get_nets -hierarchical *scan*]   dont_touch
   remove_attribute [get_nets -hierarchical *test_se*] dont_touch
   remove_attribute [get_nets -hierarchical *atpg*]   dont_touch
+  
+  # Write and close SVF file, make it available for immediate use
+  set_svf -off
 }
 
 # ------------------------------------------------------------------------------
@@ -468,6 +471,21 @@ compile_ultra -check_only
 compile_ultra -incremental
 
 # -----------------------------------------------------------------------------
+# Change names before output
+# -----------------------------------------------------------------------------
+
+# If this will be a sub-block in a hierarchical design, uniquify with block
+# unique names to avoid name collisions when integrating the design at the top
+# level
+set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
+#if {$bottom_up != "yes"} {
+  uniquify -force
+#}
+
+define_name_rules verilog -case_insensitive
+change_names -rules verilog -hierarchy -verbose > $out_rep/${rm_project_top}.change_names
+
+# -----------------------------------------------------------------------------
 # DFT: Write out test protocols and reports
 # -----------------------------------------------------------------------------
 
@@ -495,29 +513,14 @@ report_scan_path -chain all > $out_rep/${rm_project_top}.scanpath_chain
 report_scan_path -cell  all > $out_rep/${rm_project_top}.scanpath_cell
 write_test_protocol -names verilog -test_mode compress_scan -output $out_data/${rm_project_top}.dft_scan_spf
 
-# -----------------------------------------------------------------------------
-# Change names before output
-# -----------------------------------------------------------------------------
-
-# If this will be a sub-block in a hierarchical design, uniquify with block
-# unique names to avoid name collisions when integrating the design at the top
-# level
-set_app_var uniquify_naming_style ${rm_project_top}_%s_%d
-#if {$bottom_up != "yes"} {
-  uniquify -force
-#}
-
-define_name_rules verilog -case_insensitive
-change_names -rules verilog -hierarchy -verbose > $out_rep/${rm_project_top}.change_names
-
 # ------------------------------------------------------------------------------
 # Write out design data
 # ------------------------------------------------------------------------------
 
 #remove modules whose all outputs are floating
-source ../scripts/Nanochap_imp_rm_float.tcl
+#source ../scripts/Nanochap_imp_rm_float.tcl
 # Execute the procedure
-find_and_remove_fully_floating_modules
+#find_and_remove_fully_floating_modules
 
 set_app_var verilogout_higher_designs_first true
 set_app_var verilogout_no_tri true
@@ -529,9 +532,10 @@ write -f verilog  -hierarchy -output $out_data/${rm_project_top}.${stage}.v
 # ------------------------------------------------------------------------------
 # Write out design data
 # ------------------------------------------------------------------------------
-
-# Write and close SVF file, make it available for immediate use
-set_svf -off
+if {$bottom_up != "yes"} {
+  # Write and close SVF file, make it available for immediate use
+  set_svf -off
+}
 
 # Write parasitics data from DCT placement for static timing analysis
 write_parasitics -output $out_data/${rm_project_top}.${stage}.spef

@@ -91,6 +91,7 @@ module spi_reg_nirs #(
 //input                   i_rd_normal,
   input  [DATA_WIDTH-1:0] i_wr_data,
   output [DATA_WIDTH-1:0] o_rd_data,
+  input  [DATA_WIDTH-1:0] i_int_allowed,
 
   input  reg  [2:0]       atm_adj_mode,
   input  reg              atm_adj,
@@ -268,11 +269,11 @@ always @(posedge i_clk or negedge i_rst_n) begin
     for (int x = 0; x < NO_OF_CHANNEL; x++) begin
       if (nirs_int_sts_wr & i_wr_data[x] & !int_clear_type) begin // WRITE 1 to clear RW1C
         nirs_int_clr[x] <= 1'b1;
-      end else if (nirs_int_sts_rd      & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - NIRS INT reg
+      end else if (nirs_int_sts_rd      & int_clear_type & nirs_int_sts_sync[x] & i_int_allowed[x]) begin // READ 1 to clear - NIRS INT reg
         nirs_int_clr[x] <= 1'b1;
 //    end else if (int_gen_sts_rd       & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - GEN INT reg
 //      nirs_int_clr[x] <= 1'b1;
-      end else if (nirs_int_dout_rd[x]  & int_clear_type & nirs_int_sts_sync[x]) begin // READ 1 to clear - DOUT0 of each channel reg
+      end else if (nirs_int_dout_rd[x]  & int_clear_type & nirs_int_sts_sync[x] & & i_int_allowed[7]) begin // READ 1 to clear - DOUT0 of each channel reg
         nirs_int_clr[x] <= 1'b1;
         
       end else begin

@@ -290,7 +290,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("Checking ATM - Start", "Checking ATM 0 Done", UVM_LOW);
     // Enter ATM0 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM0 !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00000) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -322,7 +322,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM1 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM1 !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00001) `nnc_error("ATM1",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -352,7 +352,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM2 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM2 !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00010) `nnc_error("ATM2",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -382,7 +382,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM3 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM3 !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00011) `nnc_error("ATM3",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -412,7 +412,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM4 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM4 !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00100) `nnc_error("ATM4",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -442,7 +442,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM5 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM5 !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00101) `nnc_error("ATM5",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -473,7 +473,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM6 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM6 !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00110) `nnc_error("ATM6",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -505,7 +505,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM7 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM7 !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00111) `nnc_error("ATM7",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -535,7 +535,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM8 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM8 !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01000) `nnc_error("ATM8",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -565,7 +565,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM9 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM9 !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01001) `nnc_error("ATM9",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -595,7 +595,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM10 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM10 !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01010) `nnc_error("ATM10",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -625,7 +625,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM11 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM11 !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01011) `nnc_error("ATM11",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -701,7 +701,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM12 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM12 !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01100) `nnc_error("ATM12",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -786,7 +786,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM13 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM13 !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01101) `nnc_error("ATM13",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -866,7 +866,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM14 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM14 !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01110) `nnc_error("ATM14",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -904,7 +904,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM15 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM15 !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01111) `nnc_error("ATM15",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -939,7 +939,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM16 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM16 !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10000) `nnc_error("ATM16",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -974,7 +974,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM17 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM17 !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10001) `nnc_error("ATM17",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1009,7 +1009,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM18 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM18 !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10010) `nnc_error("ATM18",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1045,7 +1045,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM19 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM19 !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10011) `nnc_error("ATM19",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1081,7 +1081,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM20 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM20 !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10100) `nnc_error("ATM20",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1160,7 +1160,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM21 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM21 !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10101) `nnc_error("ATM21",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1240,7 +1240,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM22 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM22 !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10110) `nnc_error("ATM22",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1320,7 +1320,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM23 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM23 !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10111) `nnc_error("ATM23",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1400,7 +1400,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM24 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM24 !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11000) `nnc_error("ATM24",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1479,7 +1479,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM25 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM25 !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11001) `nnc_error("ATM25",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1559,7 +1559,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM26 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM26 !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11010) `nnc_error("ATM26",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1639,7 +1639,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM27 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM27 !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11011) `nnc_error("ATM27",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1719,7 +1719,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM28 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM28 !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11100) `nnc_error("ATM28",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1758,7 +1758,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM29 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM29 !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11101) `nnc_error("ATM29",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1789,7 +1789,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("Checking ATM - Start", "Checking ATM 0 Done", UVM_LOW);
     // Enter ATM0 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM0 !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00000) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1817,7 +1817,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM1 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM1 !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00001) `nnc_error("ATM1",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1845,7 +1845,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM2 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM2 !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00010) `nnc_error("ATM2",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1873,7 +1873,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM3 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM3 !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00011) `nnc_error("ATM3",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1901,7 +1901,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM4 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM4 !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00100) `nnc_error("ATM4",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1929,7 +1929,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM5 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM5 !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00101) `nnc_error("ATM5",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1958,7 +1958,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM6 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM6 !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00110) `nnc_error("ATM6",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -1988,7 +1988,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM7 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM7 !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b00111) `nnc_error("ATM7",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b00111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2016,7 +2016,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM8 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM8 !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01000) `nnc_error("ATM8",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2044,7 +2044,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM9 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM9 !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01001) `nnc_error("ATM9",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2072,7 +2072,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM10 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM10 !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01010) `nnc_error("ATM10",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2100,7 +2100,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM11 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM11 !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01011) `nnc_error("ATM11",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2128,7 +2128,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM12 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM12 !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01100) `nnc_error("ATM12",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2161,7 +2161,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM13 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM13 !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01101) `nnc_error("ATM13",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2193,7 +2193,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM14 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM14 !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01110) `nnc_error("ATM14",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2225,7 +2225,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM15 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM15 !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b01111) `nnc_error("ATM15",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b01111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2254,7 +2254,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM16 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM16 !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10000) `nnc_error("ATM16",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2283,7 +2283,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM17 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM17 !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10001) `nnc_error("ATM17",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2312,7 +2312,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM18 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM18 !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10010) `nnc_error("ATM18",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2342,7 +2342,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM19 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM19 !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10011) `nnc_error("ATM19",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2372,7 +2372,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM20 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM20 !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10100) `nnc_error("ATM20",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2403,7 +2403,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM21 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM21 !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10101) `nnc_error("ATM21",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2435,7 +2435,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM22 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM22 !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10110) `nnc_error("ATM22",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10110",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2467,7 +2467,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM23 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM23 !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b10111) `nnc_error("ATM23",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b10111",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2499,7 +2499,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM24 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM24 !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11000) `nnc_error("ATM24",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11000",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2531,7 +2531,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM25 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM25 !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11001) `nnc_error("ATM25",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11001",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2563,7 +2563,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM26 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM26 !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11010) `nnc_error("ATM26",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11010",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2595,7 +2595,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM27 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM27 !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11011) `nnc_error("ATM27",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11011",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2627,7 +2627,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM28 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM28 !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11100) `nnc_error("ATM28",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11100",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2660,7 +2660,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM29 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM29 !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== 5'b11101) `nnc_error("ATM29",$sformatf("D2A_BIST_SEL error, Real data:%b not match 5'b11101",`ANA_TOP.D2A_BIST_SEL)); 
@@ -2691,7 +2691,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("Checking ATM - Start", "Checking ATM 0 Done", UVM_LOW);
     // Enter ATM0 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM0 !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM0",$sformatf("Enter atm1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2719,7 +2719,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM1 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM1 !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM1",$sformatf("Enter ATM1 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2747,7 +2747,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM2 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM2 !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM2",$sformatf("Enter ATM2 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2775,7 +2775,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM3 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM3 !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM3",$sformatf("Enter ATM3 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2803,7 +2803,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM4 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM4 !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM4",$sformatf("Enter ATM4 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2831,7 +2831,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM5 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM5 !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM5",$sformatf("Enter ATM5 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2860,7 +2860,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM6 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM6 !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM6",$sformatf("Enter ATM6 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2890,7 +2890,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM7 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM7 !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM7",$sformatf("Enter ATM7 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2918,7 +2918,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM8 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM8 !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM8",$sformatf("Enter ATM8 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2946,7 +2946,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM9 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM9 !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM9",$sformatf("Enter ATM9 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -2974,7 +2974,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM10 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM10 !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM10",$sformatf("Enter ATM10 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3002,7 +3002,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM11 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM11 !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM11",$sformatf("Enter ATM11 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3030,7 +3030,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM12 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM12 !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM12",$sformatf("Enter ATM12 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3063,7 +3063,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM13 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM13 !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM13",$sformatf("Enter ATM13 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3095,7 +3095,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM14 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM14 !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_OTP_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM14",$sformatf("Enter ATM14 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3127,7 +3127,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM15 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM15 !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[0] !== 1'b1) `nnc_error("ATM15",$sformatf("Enter ATM15 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3156,7 +3156,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM16 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM16 !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[1] !== 1'b1) `nnc_error("ATM16",$sformatf("Enter ATM16 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3185,7 +3185,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM17 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM17 !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[2] !== 1'b1) `nnc_error("ATM17",$sformatf("Enter ATM17 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3214,7 +3214,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM18 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM18 !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[3] !== 1'b1) `nnc_error("ATM18",$sformatf("Enter ATM18 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3244,7 +3244,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM19 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM19 !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[4] !== 1'b1) `nnc_error("ATM19",$sformatf("Enter ATM19 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3274,7 +3274,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM20 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM20 !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[5] !== 1'b1) `nnc_error("ATM20",$sformatf("Enter ATM20 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3305,7 +3305,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM21 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM21 !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[6] !== 1'b1) `nnc_error("ATM21",$sformatf("Enter ATM21 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3337,7 +3337,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM22 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM22 !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[7] !== 1'b1) `nnc_error("ATM22",$sformatf("Enter ATM22 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3369,7 +3369,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM23 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM23 !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[8] !== 1'b1) `nnc_error("ATM23",$sformatf("Enter ATM23 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3401,7 +3401,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM24 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM24 !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[9] !== 1'b1) `nnc_error("ATM24",$sformatf("Enter ATM24 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3433,7 +3433,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM25 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM25 !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[10] !== 1'b1) `nnc_error("ATM25",$sformatf("Enter ATM25 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3465,7 +3465,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM26 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM26 !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[11] !== 1'b1) `nnc_error("ATM26",$sformatf("Enter ATM26 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3497,7 +3497,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM27 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM27 !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[12] !== 1'b1) `nnc_error("ATM27",$sformatf("Enter ATM27 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3529,7 +3529,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM28 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM28 !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[13] !== 1'b1) `nnc_error("ATM28",$sformatf("Enter ATM28 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 
@@ -3562,7 +3562,7 @@ class `TESTNAME extends soc_base_test;
     
     // Enter ATM29 mode
     //Checking Enter ATM
-    if(`DIG_TOP.u_pinmux.ATM29 !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
+    if(`DIG_TOP.u_pinmux.o_SPI_ATM_MODE_SEL[14] !== 1'b1) `nnc_error("ATM29",$sformatf("Enter ATM29 error!!!"));          
     
     //Checking ATM fixed value
     if(`ANA_TOP.D2A_BIST_SEL !== reg_ana_en_0_0[5:1]) `nnc_error("ATM0",$sformatf("D2A_BIST_SEL error, Real data:%b not match %b",`ANA_TOP.D2A_BIST_SEL, reg_ana_en_0_0[5:1])); 

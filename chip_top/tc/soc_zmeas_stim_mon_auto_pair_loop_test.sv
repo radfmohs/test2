@@ -34,16 +34,6 @@ class `TESTCFG extends soc_zmeas_base_test_cfg;
 
   constraint c_adc_mode                         { adc_mode inside {[1:1]};} // 0: manual , 1: automatic
 
-  constraint c_pair_num                         { pair_num inside {[0:'hF]};} // 0:1 pair, 1:2 pair,.. 'hF:16 pair
-
-  constraint c_read_adc_data_en                 { read_adc_data_en inside {[0:0]};}  
-
-  constraint c_stim_dly_tgt                     { stim_dly_tgt inside {[0:0]};}  
-
-  constraint c_stim_mon_period                  { stim_mon_period inside {[30:30]};} // change later 
-
-  constraint c_mon_adc_clk_inv                  { mon_adc_clk_inv inside {[0:0]};} // 0: same phase, 1: invert of dig adc
-
   // -----------------------------------------------
   // End of adding constraints of randomization
   // -----------------------------------------------
@@ -74,15 +64,7 @@ class `TESTNAME extends soc_zmeas_base_test;
     assert(top_test_cfg.randomize());
 
     `DUT_IF.adc_mode                    = top_test_cfg.adc_mode;
-    `DUT_IF.pair_num                    = top_test_cfg.pair_num;
-    `DUT_IF.stim_mon_period             = top_test_cfg.stim_mon_period;
-    `DUT_IF.mon_adc_clk_inv             = top_test_cfg.mon_adc_clk_inv;
-    `DUT_IF.read_adc_data_en            = top_test_cfg.read_adc_data_en;
-    `DUT_IF.stim_dly_tgt                = top_test_cfg.stim_dly_tgt;
     stim_intr_checks_en = 1;
-
-    `DUT_IF.sar_adc_data_timing_t1 = top_test_cfg.sar_adc_data_timing_t1;
-    `DUT_IF.sar_adc_data_timing_t2 = top_test_cfg.sar_adc_data_timing_t2;
 
     phase.drop_objection(this);
   endtask : pre_reset_phase
@@ -105,9 +87,11 @@ class `TESTNAME extends soc_zmeas_base_test;
         super.main_phase(phase);
       end
       begin
+        `ifndef MIX_SIM_EN
         force `ANA_TOP.sar_adc_vip.A2D_ADC_DATA_EN = 0;
         repeat(4) @(negedge `CLK_CTRL_TOP.stim_monitor_dig_clk);
         release `ANA_TOP.sar_adc_vip.A2D_ADC_DATA_EN;
+        `endif
       end
     join
 

@@ -43,7 +43,13 @@
   };
 
 `define SPI_TCH_MAX 20     //(ns) - 20
+
+`ifdef BEHAVIORAL
 `define SPI_MAX_FREQ 20000 // 20Mhz
+`else
+`define SPI_MAX_FREQ 19000 // 19Mhz
+`endif
+
 `define SPI_MIN_TCH  20    // 20ns - tch (% of high pulse / period)
 `define SPI_MIN_TCL  20    // 20ns - tcl (% of low pulse / period)
 `define SPI_MIN_TCSSO 20   // 20ns - tCSSO: clock will be valid after tCS
@@ -591,19 +597,19 @@ class `TESTCFG extends nnc_object;
 
     constraint c_nirs_irefcoarse_length     {
                                                foreach (nirs_irefcoarse_length[i]) {
-                                                  nirs_irefcoarse_length[i] inside {[180:5000]}; // >(greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ) PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle 
+                                                  nirs_irefcoarse_length[i] inside {[500:5000]}; // >(greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ) PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle 
                                                }
                                             }
 
     constraint c_nirs_ireffine_length     {
                                                foreach (nirs_ireffine_length[i]) {
-                                                  nirs_ireffine_length[i] inside {[180:5000]}; // (greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ), PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle
+                                                  nirs_ireffine_length[i] inside {[500:5000]}; // (greater than one clock set as minimum & maximum 40 clock cycles if default is 8MHZ), PPG CLK can be 8MHZ(125ns),6MHZ,4MHZ,2MHZ, for Ideally A2D_IREF_COARSE to be one clock cycle
                                                }
                                           }
 
     constraint c_nirs_irefcoarse_iref_delay {
                                                foreach (nirs_irefcoarse_iref_delay[i]) {
-                                                  nirs_irefcoarse_iref_delay[i] inside {[180:1250]}; // minimum delay between A2D_NIRS_IREFCOARSE and A2D_NIRSFINE should be one clock,(greater than one clock ==> set as minimum & maximum 10 clock cycles if default is 8MHZ),
+                                                  nirs_irefcoarse_iref_delay[i] inside {[500:1250]}; // minimum delay between A2D_NIRS_IREFCOARSE and A2D_NIRSFINE should be one clock,(greater than one clock ==> set as minimum & maximum 10 clock cycles if default is 8MHZ),
                                                }
                                             }
    //constraint c_nirs_irefcoarse_length     { nirs_irefcoarse_length inside {[100:2000]};}
@@ -1472,13 +1478,16 @@ task `TESTNAME::reset_phase(nnc_phase phase);
 
     //if (`DUT_IF.altf_sel !== 2'b00) begin      
     if ((`DUT_IF.no_of_adc_dev1 !== 3'b000)) begin
-
+      
       assert(top_test_cfg.randomize() with { testmode_sel == 2'b10; dont_check_conf_first_en == 1'b1; mult_chip_en == `DUT_IF.mult_chip_en; });
       `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
       // Don't dont_check_conf_first_en 
       `DUT_IF.dont_check_conf_first_en = top_test_cfg.dont_check_conf_first_en;
       if(`DUT_IF.mult_chip_en == 1)
         `DUT_IF.mult_chip_en = 0; // turning off DEV2
+
+       wait(`SOC_TOP.VDD_DIG);
+       #100us;
 
        `nnc_info("SOC_TEST", "[EPROM BIST MASTER][0] Sending Reset Command to EPROM", NNC_LOW);
        `BISTM_RESET;

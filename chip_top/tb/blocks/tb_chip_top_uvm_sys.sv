@@ -54,8 +54,8 @@ assign clk_if.ext_clk_en      =    dut_vif.ext_clk_en ;
 assign clk_if.pclk            =    `CLK_CTRL_TOP.pclk     ;
 assign clk_if.A2D_OSC_OUT     =    `DIG_TOP.A2D_OSC_OUT  ;
 assign clk_if.EXT_CLK         =    IOBUF_PAD[0]  ;
-assign clk_if.gpio9           =    IOBUF_PAD[9] ;
-assign clk_if.gpio10          =    IOBUF_PAD[10] ;
+assign clk_if.gpio9           =    IOBUF_PAD[12] ; //IOBUF_PAD[9] ;
+assign clk_if.gpio10          =    IOBUF_PAD[13] ; //IOBUF_PAD[10] ;
 assign clk_if.wavegen_clk     =    `WG_DRIVER_TOP.i_pclk;       
 // leadoff removed // assign clk_if.leadoff_clk     =    `LEADOFF_WRAPPER_TOP.i_pclk;       
 assign clk_if.anac_clk        =    `ANAC_TOP.sysclk;       
@@ -63,7 +63,12 @@ assign clk_if.otp_clk         =    `EPROM_TOP.clk;
 assign clk_if.adc_dig_clk     =    `CLK_CTRL_TOP.imeas_dig_adc_clk[0];
 assign clk_if.adc_ana_clk     =    `ANA_TOP.D2A_SDMCLK;
 
+`ifdef BEHAVIORAL
 assign clk_if.adc_dig_clk_en  =    `CLK_CTRL_TOP.u_cmsdk_clock_gate_iadc_clk[0].enable;
+`else
+assign clk_if.adc_dig_clk_en  =    `CLK_CTRL_TOP.u_cmsdk_clock_gate_iadc_clk_0_.enable;
+`endif
+
 assign clk_if.adc_ana_clk_en  =    `CLK_CTRL_TOP.u_cmsdk_clock_gate_analog_adcclk.enable;
 
 initial begin
@@ -74,6 +79,76 @@ end
 `define  CLKDIV_CHECK_EN        `SYS_CTRL_CFG.clkdiv_check_en 
 `define  BOOST_CFG              top_cfg.boost_cfg
 `define  BOOST_CHECK_EN         `BOOST_CFG.boost_checker_en 
+
+//add quick checker for interface D2A_INA_CLK(INA_PGA_CLK)
+always @(posedge `CLK_CTRL_TOP.fclk)begin
+      if(dut_vif.d2a_ina_pga_clk_checker_en === 1'b1)begin
+        if(dut_vif.pga_clk_enable === 1'b0)begin
+            if(`CLK_CTRL_TOP.ina_pga_ana_clk !== `ANA_TOP.D2A_INA_CLK)
+              `nnc_error("TB_SYS",$sformatf("Mismatch of ina_pga_ana_clk =%0h and ANA_TOP.D2A_INA_CLK =%0h!!!!\n", `CLK_CTRL_TOP.ina_pga_ana_clk, `ANA_TOP.D2A_INA_CLK))
+            else
+               `uvm_info("TB_SYS",$sformatf("Match of ina_pga_ana_clk =%0h and ANA_TOP.D2A_INA_CLK =%0h \n",`CLK_CTRL_TOP.ina_pga_ana_clk, `ANA_TOP.D2A_INA_CLK),UVM_MEDIUM) 
+        end
+        else begin
+            if(`CLK_CTRL_TOP.ina_pga_ana_clk !== 1'b0 && `ANA_TOP.D2A_INA_CLK !== 1'b0)
+              `nnc_error("TB_SYS",$sformatf("INA_PGA_CLK NOT DISABLED!!!!!, ina_pga_ana_clk =%0h and ANA_TOP.D2A_INA_CLK =%0h\n", `CLK_CTRL_TOP.ina_pga_ana_clk, `ANA_TOP.D2A_INA_CLK))
+            else
+               `uvm_info("TB_SYS",$sformatf("INA_PGA_CLK DISABLED!!!!!Match of ina_pga_ana_clk =%0h and ANA_TOP.D2A_INA_CLK =%0h \n",`CLK_CTRL_TOP.ina_pga_ana_clk, `ANA_TOP.D2A_INA_CLK),UVM_MEDIUM) 
+        end
+      end
+end
+
+//add quick checker for interface D2A_ADC_CLK(STIM_MON)
+always @(posedge `CLK_CTRL_TOP.fclk)begin
+      if(dut_vif.d2a_stim_mon_adc_clk_checker_en === 1'b1)begin
+        if(dut_vif.sim_mon_adc_clk_enable === 1'b1)begin
+            if(dut_vif.stim_mon_adc_clk_inv === 1'b0)begin
+              if(`CLK_CTRL_TOP.stim_monitor_dig_clk !== `ANA_TOP.D2A_ADC_CLK)
+                `nnc_error("TB_SYS",$sformatf("Mismatch(same phase) of stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h!!!!\n", `CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK))
+              else
+                 `uvm_info("TB_SYS",$sformatf("Match(same phase) of stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h \n",`CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK),UVM_MEDIUM)
+              end
+            else begin
+              if(`CLK_CTRL_TOP.stim_monitor_dig_clk !== ~`ANA_TOP.D2A_ADC_CLK)
+                `nnc_error("TB_SYS",$sformatf("Mismatch(invert) of stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h!!!!\n", `CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK))
+              else
+                 `uvm_info("TB_SYS",$sformatf("Match(invert) of stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h \n",`CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK),UVM_MEDIUM)
+            end  
+        end
+        else begin
+            if(`CLK_CTRL_TOP.stim_monitor_dig_clk !== 1'b0 && `ANA_TOP.D2A_ADC_CLK !== 1'b0)
+              `nnc_error("TB_SYS",$sformatf("SIM_MON CLK NOT DISABLED!!!!!, stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h\n", `CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK))
+            else
+               `uvm_info("TB_SYS",$sformatf("STIM MON CLK DISABLED!!!!!Match of stim_monitor_dig_clk =%0h and ANA_TOP.D2A_ADC_CLK =%0h \n",`CLK_CTRL_TOP.stim_monitor_dig_clk, `ANA_TOP.D2A_ADC_CLK),UVM_MEDIUM) 
+        end
+      end
+end
+
+//add quick checker for interface D2A_CLK_NIRS(NIRS_PPG_CLK)
+always @(posedge `CLK_CTRL_TOP.fclk)begin
+      if(dut_vif.d2a_clk_nirs_ppg_checker_en === 1'b1)begin
+        if(dut_vif.nirs_ppg_clk_enable === 1'b0)begin
+            if(dut_vif.ana_nirs_ppg_clk_inv === 1'b0)begin
+              if(`CLK_CTRL_TOP.clk_ppg !== `ANA_TOP.D2A_CLK_NIRS)
+                `nnc_error("TB_SYS",$sformatf("Mismatch(same phase) of clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h!!!!\n", `CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS))
+              else
+                 `uvm_info("TB_SYS",$sformatf("Match(same phase) of clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h \n",`CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS),UVM_MEDIUM)
+              end
+            else begin
+              if(`CLK_CTRL_TOP.clk_ppg !== ~`ANA_TOP.D2A_CLK_NIRS)
+                `nnc_error("TB_SYS",$sformatf("Mismatch(invert) of clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h!!!!\n", `CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS))
+              else
+                 `uvm_info("TB_SYS",$sformatf("Match(invert) of clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h \n",`CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS),UVM_MEDIUM)
+            end  
+        end
+        else begin
+            if(`CLK_CTRL_TOP.clk_ppg !== 1'b0 && `ANA_TOP.D2A_CLK_NIRS !== 1'b0)
+              `nnc_error("TB_SYS",$sformatf("SIM_MON CLK NOT DISABLED!!!!!, clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h\n", `CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS))
+            else
+               `uvm_info("TB_SYS",$sformatf("STIM MON CLK DISABLED!!!!!Match of clk_ppg =%0h and ANA_TOP.D2A_CLK_NIRS =%0h \n",`CLK_CTRL_TOP.clk_ppg, `ANA_TOP.D2A_CLK_NIRS),UVM_MEDIUM) 
+        end
+      end
+end
 
 nnc_boost_interface     boost_vif();
 

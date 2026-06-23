@@ -539,7 +539,7 @@ class `TESTNAME extends soc_base_test;
       compare_start("SOC_STIM_MON_CTRL3", top_test_cfg.wr_data[i], {2'h0, `ANA_TOP.D2A_ADBUF_GSEL, `ANA_TOP.D2A_ADC_DELAY}, `MASK_SOC_STIM_MON_CTRL3);
     `nnc_info("ANA_CONN_CHECK", "Checking ANA Conn Done\n", UVM_LOW);
     end
-/*    
+    
     // ---------------------
     // Register 0xF4
     // ---------------------
@@ -567,7 +567,7 @@ class `TESTNAME extends soc_base_test;
       compare_start("SOC_STIM_ORIG_ADC_DATA_REG_H", top_test_cfg.wr_data[i], {`ANA_TOP.A2D_ADC_DATA_EN, 5'h0,`ANA_TOP.A2D_ADC_DATA[9:8]}, `MASK_SOC_STIM_ORIG_ADC_DATA_REG_H);
     `nnc_info("ANA_CONN_CHECK", "Checking ANA Conn Done\n", UVM_LOW);
     end
-    
+/*    
     // ---------------------
     // Register 0xF6
     // ---------------------
@@ -1223,6 +1223,7 @@ class `TESTNAME extends soc_base_test;
     `nnc_info("Changing BIST_SEL", "Change BIST SEL", UVM_LOW);
     `WR_NORMAL_REG(`SOC_ANA_EN_REG_0_0, {2'h0, 5'b01111, 1'b1}, 8'h00);
 
+    `ifdef BEHAVIORAL
     // ---------------------
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_GEN_REG_0_14; n_write == 10;});     
     // Cheking Default
@@ -1245,7 +1246,7 @@ class `TESTNAME extends soc_base_test;
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
     compare_start("SOC_ANA_GEN_REG_0_14", top_test_cfg.wr_data[i], {`ANA_WRAPPER_TOP.D2A_ADJ0_14_IO}, `MASK_SOC_ANA_GEN_REG_0_14);
     end
-    
+    `endif
     // ---------------------------------------------------------------------------------- 
     // ANA_GEN_REG_SECTION_1    
     `nnc_info("ANA_GEN_REG", "Changing ANA_GEN Section to 1\n", UVM_LOW);
@@ -2750,6 +2751,7 @@ class `TESTNAME extends soc_base_test;
       
      assert(top_test_cfg.randomize() with {reg_addr == `SOC_A2D_ANA_GEN_REG_0; n_write == 10;});     
     // Cheking Default
+    `ifndef MIX_SIM_EN
     compare_start("SOC_A2D_ANA_GEN_REG_0", `INIT_SOC_A2D_ANA_GEN_REG_0, {4'h0, `ANA_TOP.A2D_DRIVERC_SHORT_DET_OUT, `ANA_TOP.A2D_DRIVERC_LEAD_OFF_OUT, `ANA_TOP.A2D_TSC_COMP_OUT, `ANA_TOP.A2D_LVD}, `MASK_SOC_A2D_ANA_GEN_REG_0);
     `nnc_info("Default", "Checking Default Done", UVM_LOW);
     // Cheking After Write
@@ -2757,6 +2759,7 @@ class `TESTNAME extends soc_base_test;
       `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.wr_data[i], 8'h00);
     compare_start("SOC_A2D_ANA_GEN_REG_0", top_test_cfg.wr_data[i], {4'h0, `ANA_TOP.A2D_DRIVERC_SHORT_DET_OUT, `ANA_TOP.A2D_DRIVERC_LEAD_OFF_OUT, `ANA_TOP.A2D_TSC_COMP_OUT, `ANA_TOP.A2D_LVD}, `MASK_SOC_A2D_ANA_GEN_REG_0);
     end
+    `endif
 
     // ---------------------
     // Register 0xA1

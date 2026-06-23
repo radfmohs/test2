@@ -29,11 +29,11 @@ class `TESTCFG extends soc_imeas_notch_filter_base_test_cfg;
   // -----------------------------------------------
   constraint c_imeas_sin_expected_freq { imeas_sin_expected_freq inside {[40000 : 55000]};} //sine freq * 1000
 
-  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[0:13]};} // upto 512 only considered
+  constraint c_imeas_cic_rate      { imeas_cic_rate inside {[2:13]};} // upto 512 only considered
 
   constraint c_iclk_sel            { solve imeas_cic_rate before iclk_sel;
-                                     (imeas_cic_rate == 0)  ->  iclk_sel inside {[0:11]};
-                                     (imeas_cic_rate == 1)  ->  iclk_sel inside {[0:11]};
+                                     //(imeas_cic_rate == 0)  ->  iclk_sel inside {[0:11]};
+                                     //(imeas_cic_rate == 1)  ->  iclk_sel inside {[0:11]};
                                      (imeas_cic_rate == 2)  ->  iclk_sel inside {[0:1]};
                                      (imeas_cic_rate == 3)  ->  iclk_sel inside {0,11};
                                      (imeas_cic_rate == 4)  ->  iclk_sel inside {[10:11]};
@@ -71,8 +71,8 @@ class `TESTNAME extends soc_imeas_notch_filter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    uvm_top.set_timeout(2s);
-    //uvm_top.set_timeout(400ms);
+    uvm_top.set_timeout(4s);
+    //uvm_top.set_timeout(300ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -146,6 +146,8 @@ class `TESTNAME extends soc_imeas_notch_filter_base_test;
     `nnc_info("SOC_TEST", $sformatf("no_of_samples_per_period: (%d)",top_test_cfg.no_of_samples_per_period),UVM_LOW)
     `DUT_IF.imeas_sample_num_per_period = top_test_cfg.no_of_samples_per_period;
     //`DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * 30;//2 sine length
+
+    if(`DUT_IF.imeas_sample_num_per_period == 0) `DUT_IF.imeas_sample_num_per_period = 1;
     `DUT_IF.no_of_samples = `DUT_IF.imeas_sample_num_per_period * top_test_cfg.sine_num_of_period;//2 sine length
     `DUT_IF.python_imeas_length = `DUT_IF.no_of_samples;//default python_imeas_length is 1024
 

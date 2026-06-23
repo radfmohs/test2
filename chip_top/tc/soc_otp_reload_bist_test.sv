@@ -146,7 +146,7 @@ class `TESTNAME extends soc_base_test;
     #150us;
     //release soc_top_tb.VDD_DIG;
     release soc_top_tb.iopad_resetn;
-
+    #150us;
     //`EPROM_BIST_MASTER_VIP.set_freq_sel(top_test_cfg.TCK_SEL);   //2'b00->1M  ;  2'b01->10M ;  2'b10 -> 20M ;  2'b11 -> 32M
     //top_test_cfg.TCK_SEL.rand_mode(0);
     
@@ -168,24 +168,46 @@ class `TESTNAME extends soc_base_test;
     `BISTM_SINGLE_PROGRAM(top_test_cfg.OTP_SEL, 11, top_test_cfg.trim_wdata[8], top_test_cfg.vpp_pos_cnt, top_test_cfg.vpp_width);
     top_test_cfg.trim_wdata.rand_mode(0);
    
-    #100000ns;    
+    #100us;    
     `nnc_info("SOC_TEST", "Requesting the RESET", UVM_LOW)
     force soc_top_tb.iopad_resetn = 1'b0;
-
+    force soc_top_tb.spim_vip.spi_rst_n = 1'b0;
     assert(top_test_cfg.randomize() with { testmode_sel == 2'b00;}) 
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
-        
-    #100000ns;
+     
+    #100us;
+    release soc_top_tb.spim_vip.spi_rst_n;
     release soc_top_tb.iopad_resetn;
-    #1000us; 
+     
+    
              
     `DUT_IF.altf_gpio_sel = `DUT_IF.altf_sel;
+
+    `nnc_info("SOC_TEST", "Waiting for SOC Reset to be asserted", UVM_LOW) 
+    wait(`DUT_IF.soc_resetn);
+    `nnc_info("SOC_TEST", "SOC Reset has just been asserted", UVM_LOW)
+
+    // Because RESET CHIP so configuration in base test will be reset while
+    // spi vip changed to dual mode and should change to DUAL again 
+    if (`DUT_IF.spi_dual_mode_en === 1'b1) begin
+        `nnc_info("SOC_TEST", "DUAL SPI MODE ENABLE", NNC_LOW)
+        `SPI_CHANGE_TO_DUAL_MODE();
+
+         $display("## ============================================================================ ##");
+         $display("##         ENS2 changed to SPI DUAL MODE successfully                           ##");
+         $display("## ============================================================================ ##");
+    end
+    else begin
+         $display("## ============================================================================ ##");
+         $display("##         ENS2 is running at SPI SINGLE MODE                                   ##");
+         $display("## ============================================================================ ##");
+    end
 
     top_test_cfg.rd_data =new[9];
     //read trim_reg
     assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_TRIM_0_REG; no_of_bytes == 9; });
     `RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[0:8]);
-    #10ms;
+    //#10ms;
     //read alt_reg
     //assert(top_test_cfg.randomize() with { reg_addr == `SOC_OTP_ALT_FUN_REG; no_of_bytes == 1; });
     //`RD_BURST_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.no_of_bytes, top_test_cfg.rd_data[2:2]);
@@ -202,7 +224,7 @@ class `TESTNAME extends soc_base_test;
     // --------------------------------------------------------
     // End of test and add any needed delay time 
     // --------------------------------------------------------
-    #10000ns;
+    #10us;
     `nnc_info("SOC_TEST", "soc_otp_reload_bist_test end now", UVM_LOW)
 
     // ----------------------------------------------------------------------------------

@@ -16,8 +16,7 @@
 `define TESTNAME soc_nirs_ppg_base_test
 `define TESTCFG soc_nirs_ppg_base_test_cfg
 
-
- logic [7:0]     NO_OF_BYTES; 
+logic [7:0]     NO_OF_BYTES; 
 
 class `TESTCFG extends soc_base_test_cfg;
 
@@ -56,7 +55,12 @@ class `TESTCFG extends soc_base_test_cfg;
   logic [7:0]          nirs_ch5_rd_data_burst[];
   logic [7:0]          nirs_ch6_rd_data_burst[];
   logic [7:0]          nirs_ch7_rd_data_burst[];
-
+  bit   [31:0]         fine_prev_val[8];
+  bit   [31:0]         fine_curr_val[8];  
+  bit   [31:0]         coarse_curr_val[8]; 
+  bit   [31:0]         coarse_prev_val[8];
+  bit   [31:0]         length_prev_val[8];
+  bit   [31:0]         length_curr_val[8]; 
   //rand logic [2:0] nirs_addr_channel_en;
   //nirs_ctrl_channel
 //  rand bit         en_config_ch0;
@@ -303,11 +307,32 @@ class `TESTCFG extends soc_base_test_cfg;
   // mask values
   constraint c_mask        { soft mask == 8'hff; }
 
+   // Set frequency for SPI (unit of 1Khz)
+   //constraint c_spi_sclk_freq          { solve spi_sclk_jitter before spi_sclk_freq; spi_sclk_freq inside {[200*100:200*(100 - 0)]};} // 25Khz to 20Mhz
+
+   //// Set Jitter for SPI CLK (0% - 100%)
+   //constraint c_spi_sclk_jitter        { spi_sclk_jitter inside {[0:0]};}
+
+   //constraint c_spi_clk_jitter         { soft spi_clk_jitter inside {[0:0]};}
+
+  constraint c_spi_sclk_freq          {  spi_sclk_freq == (190*100);} //19MHZ
+  constraint c_spi_sclk_jitter        {  spi_sclk_jitter == 0;} // min 1
+
+  //constraint c_tcssc                  {  tcssc == `SPI_MIN_TCSSO;}   // ~tCSSO 
+  //constraint c_tsccs                  {  tsccs == `SPI_MIN_TCSH1;}   // ~tCSH1 
+  constraint c_tcsh                   {  tcsh  == `SPI_MIN_TCSPW;}   //  ~tCSPW 
+  //constraint c_tch                    {  tch inside {60, 40}; }      // percent */
+
+
  //********************************************************************************************************
  //************************************NIRS_PPG Related constarints starts****************************************
  //********************************************************************************************************
  constraint c_num_of_leds_loop {num_of_leds_loop ==2;}
- constraint c_ch_en_mask {ch_en_mask inside {[1:255]};}
+
+ constraint c_ch_en_mask {ch_en_mask inside {[/*1*/255:255]};}
+
+ constraint c_gen_reg_int_clr_typ {solve rd_gen_int_sts_or_nirs_dout_chx before gen_reg_int_clr_typ;
+                                   (rd_gen_int_sts_or_nirs_dout_chx == 0) -> (gen_reg_int_clr_typ == 1'b1);}
   //nirs_ctrl_channel
 
 
@@ -508,15 +533,23 @@ class `TESTNAME extends soc_base_test;
     `DUT_IF.testmode_sel = top_test_cfg.testmode_sel;
 
     `DUT_IF.spimode_sel = top_test_cfg.spimode_sel;
-    // `DUT_IF.spi_dual_mode_en = 1'b0; //testing
+
+    `DUT_IF.spi_sclk_jitter  = top_test_cfg.spi_sclk_jitter;    
+    `DUT_IF.spi_sclk_freq = top_test_cfg.spi_sclk_freq;
+    //`DUT_IF.tch      = top_test_cfg.tch;
+    `DUT_IF.tcsh     = top_test_cfg.tcsh; ///
+    //`DUT_IF.tsccs    = top_test_cfg.tsccs;
+    //`DUT_IF.tcssc    = top_test_cfg.tcssc;
+
+    //`DUT_IF.spi_dual_mode_en = 1'b0; //testing
     //enable nirs_ppg assertion
-    `NIRS_PPG_IF.nirs_sva_enable = 1'b0;
+    `NIRS_PPG_IF.nirs_sva_enable = 1'b1;
     `NIRS_PPG_IF.gen_reg_int_clr_typ = top_test_cfg.gen_reg_int_clr_typ;     
     `NIRS_PPG_IF.gen_reg_int_length_sel = top_test_cfg.gen_reg_int_length_sel;  
     `NIRS_PPG_IF.gen_reg_int_active_level = top_test_cfg.gen_reg_int_active_level;
     `NIRS_PPG_IF.ch_en_mask               =  top_test_cfg.ch_en_mask;
     `NIRS_PPG_IF.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg = top_test_cfg.clear_int_via_gen_int_sts_reg_or_nirs_int_sts_reg;
-    `NIRS_PPG_IF.rd_gen_int_sts_or_nirs_dout_chx = 1'b0; //top_test_cfg.rd_gen_int_sts_or_nirs_dout_chx;
+    `NIRS_PPG_IF.rd_gen_int_sts_or_nirs_dout_chx = top_test_cfg.rd_gen_int_sts_or_nirs_dout_chx;
     //`DUT_IF.nirs_irefcoarse_iref_delay = top_test_cfg.nirs_irefcoarse_iref_delay;
     //`DUT_IF.en_config_ch0                 =                top_test_cfg.en_config_ch0;
     //`DUT_IF.en_config_ch1                 =                top_test_cfg.en_config_ch1;
@@ -695,7 +728,7 @@ class `TESTNAME extends soc_base_test;
       //top_test_cfg.wr_data[NO_OF_BYTES -1 -1] =  {6'b0, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_led1, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_led0};
       top_test_cfg.wr_data[NO_OF_BYTES -1 -0] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].period_ctrl, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].on_time_sel };     
       top_test_cfg.wr_data[NO_OF_BYTES -1 -1] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].led_off_time_after_ipd_sw, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].reset_on_time_ctrl,  `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].led_stable_time_beforeipd_sw};
-      top_test_cfg.wr_data[NO_OF_BYTES -1 -2] =  {2'b0, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_8_0[8:3]};
+      top_test_cfg.wr_data[NO_OF_BYTES -1 -2] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].avg_sel, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_8_0[8:3]};
       top_test_cfg.wr_data[NO_OF_BYTES -1 -3] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_8_0[2:0], `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_en, `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_en,  `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_18_16 };  
       top_test_cfg.wr_data[NO_OF_BYTES -1 -4] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_15_8[7:0]};         
       top_test_cfg.wr_data[NO_OF_BYTES -1 -5] =  {`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_7_0[7:0] };
@@ -760,81 +793,83 @@ class `TESTNAME extends soc_base_test;
           // `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[5],
           // `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[6],
           // `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[7]),NNC_LOW);
-
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch0     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[0];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch1     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[1];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch2     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[2];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch3     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[3]; 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch4     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[4];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch5     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[5];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch6     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[6];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_ch7     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[7];
+    for(int ch_num=0; ch_num<8; ch_num++)begin  //all 8 channels same configuration if all 8channels differet value from each test then don;t need this for loop, at the moment from each test this task called twice for led0/led1
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch0     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[0];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch1     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[1];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch2     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[2];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch3     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[3]; 
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch4     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[4];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch5     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[5];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch6     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[6];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_ch7     =`NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_ch[7];
  
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_led0 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_led[0];
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].en_config_led1 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_led[1];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_led0 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_led[0];
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].en_config_led1 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].en_config_led[1];
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].on_time_sel    = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].on_time_cycles;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].period_ctrl    = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].period_cycles;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].on_time_sel    = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].on_time_cycles;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].period_ctrl    = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].period_cycles;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].led_off_time_after_ipd_sw     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ledoff_cycles;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].led_stable_time_beforeipd_sw  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].stable_cycles;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].reset_on_time_ctrl            = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].reset_cycles;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].led_off_time_after_ipd_sw     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ledoff_cycles;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].led_stable_time_beforeipd_sw  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].stable_cycles;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].reset_on_time_ctrl            = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].reset_cycles;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_8_0 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_manual;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_manual_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_manual_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_en         = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].avg_sel = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].avg_sel;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].idac_manual_8_0 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_manual;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].idac_manual_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_manual_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].idac_en         = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_en;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_18_16 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_18_16;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_15_8  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_15_8;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_h_7_0   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_7_0;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].threshold_l_7_0   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_l_7_0;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].threshold_h_18_16 = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_18_16;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].threshold_h_15_8  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_15_8;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].threshold_h_7_0   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_h_7_0;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].threshold_l_7_0   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].threshold_l_7_0;
 
-    //`nnc_info("PPG_TEST",$sformatf("drive_dut_if_from_cfg: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
-    //     `NIRS_PPG_IF.threshold_h_18_16,
-    //     `NIRS_PPG_IF.threshold_h_15_8,
-    //     `NIRS_PPG_IF.threshold_h_7_0,
-    //     `NIRS_PPG_IF.threshold_l_7_0),NNC_LOW);
+        //`nnc_info("PPG_TEST",$sformatf("drive_dut_if_from_cfg: h18_16=%0d h15_8=%0d h7_0=%0d l7_0=%0d",
+        //     `NIRS_PPG_IF.threshold_h_18_16,
+        //     `NIRS_PPG_IF.threshold_h_15_8,
+        //     `NIRS_PPG_IF.threshold_h_7_0,
+        //     `NIRS_PPG_IF.threshold_l_7_0),NNC_LOW);
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_min_int_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_min_int_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].idac_max_int_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_max_int_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].iref_fine_on_not_off_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_fine_on_not_off_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].iref_fine_not_on_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_fine_not_on_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].iref_coarse_en          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_coarse_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].data_ready_en           = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].data_ready_en;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_int_pin_en         = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_int_pin_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].idac_min_int_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_min_int_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].idac_max_int_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].idac_max_int_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].iref_fine_on_not_off_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_fine_on_not_off_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].iref_fine_not_on_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_fine_not_on_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].iref_coarse_en          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_coarse_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].data_ready_en           = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].data_ready_en;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].nirs_int_pin_en         = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_int_pin_en;
 
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_mode_sel      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_mode_sel;
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_led_signle_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_mode_sel      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_mode_sel;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_led_signle_en = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en;
 
-    //`nnc_info("PPG_TEST",$sformatf("nirs_ppg_led_signle_en=%0d ", `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en),NNC_LOW);
+        //`nnc_info("PPG_TEST",$sformatf("nirs_ppg_led_signle_en=%0d ", `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_led_signle_en),NNC_LOW);
 
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_en   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_en;
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_adj  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_adj;
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].fchop_adj   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].fchop_adj;
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].chopper_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].chopper_en;
-    //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].test_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].test_en;
-    //`NIRS_PPG_IF.pdbias_en   = `NIRS_PPG_CTRL_CFG.pdbias_en;  //one time configuration at the beginning
-    //`NIRS_PPG_IF.pdbias_adj  = `NIRS_PPG_CTRL_CFG.pdbias_adj; //one time configuration at the beginning
-    //`NIRS_PPG_IF.fchop_adj   = `NIRS_PPG_CTRL_CFG.fchop_adj;  //one time configuration at the beginning
-    //`NIRS_PPG_IF.chopper_en  = `NIRS_PPG_CTRL_CFG.chopper_en; //one time configuration at the beginning
-    //`NIRS_PPG_IF.test_en     = `NIRS_PPG_CTRL_CFG.test_en;    //one time configuration at the beginning
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_en   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_en;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].pdbias_adj  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].pdbias_adj;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].fchop_adj   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].fchop_adj;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].chopper_en  = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].chopper_en;
+        //`NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].test_en     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].test_en;
+        //`NIRS_PPG_IF.pdbias_en   = `NIRS_PPG_CTRL_CFG.pdbias_en;  //one time configuration at the beginning
+        //`NIRS_PPG_IF.pdbias_adj  = `NIRS_PPG_CTRL_CFG.pdbias_adj; //one time configuration at the beginning
+        //`NIRS_PPG_IF.fchop_adj   = `NIRS_PPG_CTRL_CFG.fchop_adj;  //one time configuration at the beginning
+        //`NIRS_PPG_IF.chopper_en  = `NIRS_PPG_CTRL_CFG.chopper_en; //one time configuration at the beginning
+        //`NIRS_PPG_IF.test_en     = `NIRS_PPG_CTRL_CFG.test_en;    //one time configuration at the beginning
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ipdmirror_ratio_adj = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ipdmirror_ratio_adj;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].iref_ratio_adj      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_ratio_adj;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ratio_ctrl          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_ctrl;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ratio_mode          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_mode;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ratio_manual        = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_manual;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ipdmirror_ratio_adj = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ipdmirror_ratio_adj;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].iref_ratio_adj      = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].iref_ratio_adj;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ratio_ctrl          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_ctrl;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ratio_mode          = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_mode;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ratio_manual        = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ratio_manual;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ana_ppg_rst_reg   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_rst_reg;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ana_ppg_clk50duty = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk50duty;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ana_ppg_clk_div   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk_div;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ana_ppg_clk_inv   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk_inv;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].ppg_dis           = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ppg_dis;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ana_ppg_rst_reg   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_rst_reg;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ana_ppg_clk50duty = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk50duty;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ana_ppg_clk_div   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk_div;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ana_ppg_clk_inv   = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ana_ppg_clk_inv;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].ppg_dis           = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].ppg_dis;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].nirs_ppg_cmd = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_cmd;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].nirs_ppg_cmd = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].nirs_ppg_cmd;
 
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].debug_led     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].debug_led;
-    `NIRS_PPG_IF.nirs_ppg_cfg_array[ch][num_leds].debug_channel = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].debug_channel;   
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].debug_led     = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].debug_led;
+        `NIRS_PPG_IF.nirs_ppg_cfg_array[ch_num][num_leds].debug_channel = `NIRS_PPG_CTRL_CFG.expected_cfg[ch][num_leds].debug_channel; 
+     end //all 8 channels same configuration  
    endtask           
 
 
@@ -938,7 +973,7 @@ class `TESTNAME extends soc_base_test;
 
   //Config nirs ADJ0 reg 
   task config_nirs_adj0_reg; 
-      top_test_cfg.data[0] = {1'b0,  `NIRS_PPG_CTRL_CFG.pdbias_en,  `NIRS_PPG_CTRL_CFG.pdbias_adj,  `NIRS_PPG_CTRL_CFG.fchop_adj,  `NIRS_PPG_CTRL_CFG.chopper_en,  `NIRS_PPG_CTRL_CFG.test_en}; 
+      top_test_cfg.data[0] = {`NIRS_PPG_CTRL_CFG.d2a_nirs_power_en,  `NIRS_PPG_CTRL_CFG.pdbias_en,  `NIRS_PPG_CTRL_CFG.pdbias_adj,  `NIRS_PPG_CTRL_CFG.fchop_adj,  `NIRS_PPG_CTRL_CFG.chopper_en,  `NIRS_PPG_CTRL_CFG.test_en}; 
       `WR_NIRS_REG(`SOC_NIRS_CTRL_ADJ0_REG, top_test_cfg.data[0], top_test_cfg.pads);
       `nnc_info("SOC_TEST", $sformatf("SOC_NIRS_CTRL_ADJ0_REG top_test_cfg.data[0]: %h ",top_test_cfg.data[0]), NNC_LOW)         
   endtask
@@ -1033,9 +1068,84 @@ class `TESTNAME extends soc_base_test;
  
    endtask  
 
-   task read_nirs_idac_data;
+   task read_nirs_idac_data(logic[7:0] intr_ch_en);
+        int base_idx;
+        logic [7:0] exp_data;
+        //CH0 -> burst[31:28]
+        //CH1 -> burst[27:24]
+        //CH2 -> burst[23:20]
+        //CH3 -> burst[19:16]
+        //CH4 -> burst[15:12]
+        //CH5 -> burst[11:8]
+        //CH6 -> burst[7:4]
+        //CH7 -> burst[3:0]
         //`RD_BURST_NIRS_REG(top_test_cfg.nirs_burst_addr_start, top_test_cfg.nirs_burst_size, top_test_cfg.nirs_rd_data_burst);
-        `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h20,top_test_cfg.nirs_rd_data_burst); 
+        `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h20,top_test_cfg.nirs_rd_data_burst);
+         
+        /*if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
+          if(top_test_cfg.nirs_rd_data_burst[31] !== ({`NIRS_PPG_IF.ch_en_mask[0],`NIRS_PPG_IF.expected_dout_reg_data[0][21:15]}))begin
+            `nnc_error("NIRS_RD_CHK",$sformatf("READ DATA ERROR!!!! read_data[%0d] =%0h, expected_status[%0h] =%0h\n", 0, top_test_cfg.nirs_rd_data_burst[31], 0, {`NIRS_PPG_IF.ch_en_mask[0],`NIRS_PPG_IF.expected_idac_reg_data[0][6:0]}))
+          end
+          else
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", 0, top_test_cfg.nirs_rd_data_burst[31], {`NIRS_PPG_IF.ch_en_mask[0],`NIRS_PPG_IF.expected_dout_reg_data[0][21:15]}),NNC_LOW);
+
+          if(top_test_cfg.nirs_rd_data_burst[30] !== `NIRS_PPG_IF.expected_dout_reg_data[0][14:7])begin
+            `nnc_error("NIRS_RD_CHK",$sformatf("READ DATA ERROR!!!! read_data[%0d] =%0h, expected_status[%0h] =%0h\n", 0, top_test_cfg.nirs_rd_data_burst[30], 0, `NIRS_PPG_IF.expected_dout_reg_data[0][14:7]))
+          end
+          else
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", 0, top_test_cfg.nirs_rd_data_burst[30], `NIRS_PPG_IF.expected_dout_reg_data[0][14:7]),NNC_LOW)
+
+
+          if(top_test_cfg.nirs_rd_data_burst[29] !== ({`NIRS_PPG_IF.expected_dout_reg_data[0][6:0],`NIRS_PPG_IF.expected_idac_reg_data[0][8]}))begin
+            `nnc_error("NIRS_RD_CHK",$sformatf("READ DATA ERROR!!!! read_data[%0d] =%0h, expected_status[%0h] =%0h\n", 0, top_test_cfg.nirs_rd_data_burst[29], 0, {`NIRS_PPG_IF.expected_dout_reg_data[0][6:0],`NIRS_PPG_IF.expected_idac_reg_data[0][8]}))
+          end
+          else
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", 0, top_test_cfg.nirs_rd_data_burst[29], {`NIRS_PPG_IF.expected_dout_reg_data[0][6:0],`NIRS_PPG_IF.expected_idac_reg_data[0][8]}),NNC_LOW)
+
+
+          if(top_test_cfg.nirs_rd_data_burst[28] !== `NIRS_PPG_IF.expected_idac_reg_data[0][7:0])begin
+            `nnc_error("NIRS_RD_CHK",$sformatf("READ DATA ERROR!!!! read_data[%0d] =%0h, expected_status[%0h] =%0h\n", 0, top_test_cfg.nirs_rd_data_burst[28], 0, `NIRS_PPG_IF.expected_idac_reg_data[0][7:0])) 
+          end
+          else
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", 0, top_test_cfg.nirs_rd_data_burst[28],  `NIRS_PPG_IF.expected_idac_reg_data[0][7:0]),NNC_LOW)
+
+          //else begin
+          //end 
+        end*/
+
+        for (int ch = 0; ch < 8; ch++) begin
+        
+          base_idx = 31 - (ch * 4);
+        
+          // DOUTx_0
+          exp_data = {`NIRS_PPG_IF.ch_en_mask[ch],`NIRS_PPG_IF.expected_dout_reg_data[ch][21:15]};        
+          if (top_test_cfg.nirs_rd_data_burst[base_idx] !== exp_data)
+            `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 mismatch: read=%0h exp=%0h", ch,top_test_cfg.nirs_rd_data_burst[base_idx],exp_data))
+          else begin
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", ch,top_test_cfg.nirs_rd_data_burst[base_idx],exp_data),NNC_LOW)
+          end
+          // DOUTx_1
+          exp_data = `NIRS_PPG_IF.expected_dout_reg_data[ch][14:7];      
+          if (top_test_cfg.nirs_rd_data_burst[base_idx-1] !== exp_data)begin
+            `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT1 mismatch: read=%0h exp=%0h",ch,top_test_cfg.nirs_rd_data_burst[base_idx-1],exp_data))
+          end else begin
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", ch,top_test_cfg.nirs_rd_data_burst[base_idx-1],exp_data),NNC_LOW)
+          end        
+          // DOUTx_2
+          exp_data = {`NIRS_PPG_IF.expected_dout_reg_data[ch][6:0],`NIRS_PPG_IF.expected_idac_reg_data[ch][8]};        
+          if (top_test_cfg.nirs_rd_data_burst[base_idx-2] !== exp_data)
+            `nnc_error("NIRS_RD_CHK", $sformatf("CH[%0d] DOUT2 mismatch: read=%0h exp=%0h", ch,top_test_cfg.nirs_rd_data_burst[base_idx-2], exp_data))
+          else begin
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", ch,top_test_cfg.nirs_rd_data_burst[base_idx-2],exp_data),NNC_LOW)
+          end        
+          // DOUTx_3
+          exp_data = `NIRS_PPG_IF.expected_idac_reg_data[ch][7:0];        
+          if (top_test_cfg.nirs_rd_data_burst[base_idx-3] !== exp_data)
+            `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT3 mismatch: read=%0h exp=%0h",ch, top_test_cfg.nirs_rd_data_burst[base_idx-3],exp_data))
+          else begin
+            `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", ch,top_test_cfg.nirs_rd_data_burst[base_idx-3],exp_data),NNC_LOW)   
+          end     
+        end //for        
    endtask   
 
    task clear_interrupt_status(bit gen_reg_int_clr_typ, bit poll_pin_or_stsreg);
@@ -1127,12 +1237,13 @@ class `TESTNAME extends soc_base_test;
        `NIRS_PPG_IF.fchop_adj   = `NIRS_PPG_CTRL_CFG.fchop_adj;  //one time configuration at the beginning
        `NIRS_PPG_IF.chopper_en  = `NIRS_PPG_CTRL_CFG.chopper_en; //one time configuration at the beginning
        `NIRS_PPG_IF.test_en     = `NIRS_PPG_CTRL_CFG.test_en;    //one time configuration at the beginning
+       `NIRS_PPG_IF.d2a_nirs_power_en = `NIRS_PPG_CTRL_CFG.d2a_nirs_power_en;
 
    endtask 
 
 
   task config_general_interrupt_ctrl_reg;
-    top_test_cfg.wr_data[0] = {5'b0,`NIRS_PPG_IF.gen_reg_int_active_level, `NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.gen_reg_int_length_sel};
+    top_test_cfg.wr_data[0] = {4'b0, 1'b1,`NIRS_PPG_IF.gen_reg_int_active_level, `NIRS_PPG_IF.gen_reg_int_clr_typ, `NIRS_PPG_IF.gen_reg_int_length_sel};
     `WR_NORMAL_REG(`SOC_GENERAL_INT_CTRL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);  
   endtask
 
@@ -1202,134 +1313,197 @@ class `TESTNAME extends soc_base_test;
   task monitor_nirs_intr_sts_and_readdata_via_dout_reg();
       `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt channel_enable_reg = %0h\n", `NIRS_PPG_IF.ch_en_mask),NNC_LOW);
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[0] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt   CH0= %0h \n", `NIRS_PPG_IF.ch_en_mask[0]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT0_0_REG(R1C) to read CH0 STS\n",NNC_LOW);   
              do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h00, top_test_cfg.read_nirs_dout0_0); 
-             end while(top_test_cfg.read_nirs_dout0_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout0_0[7] ===0)); //not to change rddata/status of spi(or tx buf) in middle so not using this method, missed to get poll
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout0_0); //poll gen int sts reg, updated to read only status regs
+             //   `uvm_info("NIRS_INT",$sformatf("CH0, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout0_0 =%0h ", top_test_cfg.read_nirs_dout0_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout0_0[0] !== `NIRS_PPG_IF.ch_en_mask[0]);  
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout0_0[0], `NIRS_PPG_IF.ch_en_mask[0]),UVM_LOW)
              `nnc_info("PPG_TEST",$sformatf("CH0= %0h INT STS HIGH is NOW!!!! read_nirs_dout0_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout0_0[7]),NNC_LOW);
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT0_0,1,2,3_REG\n",NNC_LOW); 
-             `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.nirs_ch0_rd_data_burst);   // total regs to read 
+             `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.nirs_ch0_rd_data_burst);   // total regs to read
               if( top_test_cfg.nirs_ch0_rd_data_burst[3][7] !== 1'b0)begin
-                `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! nirs_ch0_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.nirs_ch0_rd_data_burst[3][7]));
-              end   
-                      
-          end
-        end //CH0
+                `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! nirs_ch1_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.nirs_ch0_rd_data_burst[3][7]));
+              end  
+              compare_data_readburst(0,`NIRS_PPG_IF.ch_en_mask[0],top_test_cfg.nirs_ch0_rd_data_burst); 
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout0_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout0_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout0_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout0_0[7]));
+             // end                        
+          end//CH0
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[1] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH1= %0h \n", `NIRS_PPG_IF.ch_en_mask[1]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT1_0_REG(R1C) to read CH1 STS\n",NNC_LOW);
              do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT1_0_REG, 8'h00, top_test_cfg.read_nirs_dout1_0); 
-             end while(top_test_cfg.read_nirs_dout1_0[7] ==0);
-             `nnc_info("PPG_TEST",$sformatf("CH1= %0h INT STS HIGH is NOW!!!! read_nirs_dout1_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[1], top_test_cfg.read_nirs_dout1_0[7]),NNC_LOW);
+             end while((top_test_cfg.read_nirs_dout1_0[7] ===0));
+             `nnc_info("PPG_TEST",$sformatf("CH1= %0h INT STS HIGH is NOW!!!! read_nirs_dout1_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[1], top_test_cfg.read_nirs_dout1_0[7]),NNC_LOW); 
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout1_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH1, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout1_0 =%0h ", top_test_cfg.read_nirs_dout1_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout1_0[1] !== `NIRS_PPG_IF.ch_en_mask[1]);  //while((top_test_cfg.read_nirs_dout1_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout1_0[7], `NIRS_PPG_IF.ch_en_mask[1]),UVM_LOW) 
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT1_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT1_0_REG, 8'h04,top_test_cfg.nirs_ch1_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch1_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH1= %0h INT STS NOT CLEARED!!!! nirs_ch1_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[1], top_test_cfg.nirs_ch1_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH1
+              end 
+              compare_data_readburst(1,`NIRS_PPG_IF.ch_en_mask[1],top_test_cfg.nirs_ch1_rd_data_burst); 
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout1_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout1_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout1_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout1_0[7]));
+             // end           
+          end//CH1
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[2] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH2= %0h \n", `NIRS_PPG_IF.ch_en_mask[2]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT2_0_REG(R1C) to read CH2 STS\n",NNC_LOW);
              do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT2_0_REG, 8'h00, top_test_cfg.read_nirs_dout2_0); 
-             end while(top_test_cfg.read_nirs_dout2_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout2_0[7] ===0));
              `nnc_info("PPG_TEST",$sformatf("CH2= %0h INT STS HIGH is NOW!!!! read_nirs_dout2_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[2], top_test_cfg.read_nirs_dout2_0[7]),NNC_LOW);
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout2_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH2, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout2_0 =%0h ", top_test_cfg.read_nirs_dout2_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout2_0[2] !== `NIRS_PPG_IF.ch_en_mask[2]);  //while((top_test_cfg.read_nirs_dout2_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout2_0[2], `NIRS_PPG_IF.ch_en_mask[2]),UVM_LOW)
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT2_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT2_0_REG, 8'h04,top_test_cfg.nirs_ch2_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch2_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH2= %0h INT STS NOT CLEARED!!!! nirs_ch2_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[2], top_test_cfg.nirs_ch2_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH2
+              end  
+              compare_data_readburst(2,`NIRS_PPG_IF.ch_en_mask[2],top_test_cfg.nirs_ch2_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout2_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout2_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout2_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout2_0[7]));
+             // end           
+          end//CH2
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[3] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH3= %0h \n", `NIRS_PPG_IF.ch_en_mask[3]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT3_0_REG(R1C) to read CH3 STS\n",NNC_LOW);
             do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT3_0_REG, 8'h00, top_test_cfg.read_nirs_dout3_0); 
-             end while(top_test_cfg.read_nirs_dout3_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout3_0[7] ===0));
              `nnc_info("PPG_TEST",$sformatf("CH3= %0h INT STS HIGH is NOW!!!! read_nirs_dout3_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[3], top_test_cfg.read_nirs_dout3_0[7]),NNC_LOW);
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout3_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH3, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout3_0 =%0h ", top_test_cfg.read_nirs_dout3_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout3_0[3] !== `NIRS_PPG_IF.ch_en_mask[3]);  //while((top_test_cfg.read_nirs_dout3_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout3_0[3], `NIRS_PPG_IF.ch_en_mask[3]),UVM_LOW)
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT3_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT3_0_REG, 8'h04,top_test_cfg.nirs_ch3_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch3_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH3= %0h INT STS NOT CLEARED!!!! nirs_ch3_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[3], top_test_cfg.nirs_ch3_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH3
+              end 
+              compare_data_readburst(3,`NIRS_PPG_IF.ch_en_mask[3],top_test_cfg.nirs_ch3_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout3_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout3_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout3_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout3_0[7]));
+             // end            
+          end//CH3
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[4] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH4= %0h \n", `NIRS_PPG_IF.ch_en_mask[4]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT4_0_REG(R1C) to read CH4 STS\n",NNC_LOW);
             do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT4_0_REG, 8'h00, top_test_cfg.read_nirs_dout4_0); 
-             end while(top_test_cfg.read_nirs_dout4_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout4_0[7] ===0) );
              `nnc_info("PPG_TEST",$sformatf("CH4= %0h INT STS HIGH is NOW!!!! read_nirs_dout4_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[4], top_test_cfg.read_nirs_dout4_0[7]),NNC_LOW);
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout4_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH4, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout4_0 =%0h ", top_test_cfg.read_nirs_dout4_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout4_0[4] !== `NIRS_PPG_IF.ch_en_mask[4]);  //while((top_test_cfg.read_nirs_dout4_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout4_0[4], `NIRS_PPG_IF.ch_en_mask[4]),UVM_LOW)
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT4_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT4_0_REG, 8'h04,top_test_cfg.nirs_ch4_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch4_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH4= %0h INT STS NOT CLEARED!!!! nirs_ch4_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[4], top_test_cfg.nirs_ch4_rd_data_burst[3][7]));
-              end           
-           end
-        end  //CH4
+              end  
+              compare_data_readburst(4,`NIRS_PPG_IF.ch_en_mask[4],top_test_cfg.nirs_ch4_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout4_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout4_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout4_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout4_0[7]));
+             // end           
+           end//CH4
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[5] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH5= %0h \n", `NIRS_PPG_IF.ch_en_mask[5]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT5_0_REG(R1C) to read CH5 STS\n",NNC_LOW);
-            do begin
+             do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT5_0_REG, 8'h00, top_test_cfg.read_nirs_dout5_0); 
-             end while(top_test_cfg.read_nirs_dout5_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout5_0[7] ===0));
              `nnc_info("PPG_TEST",$sformatf("CH5= %0h INT STS HIGH is NOW!!!! read_nirs_dout5_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[5], top_test_cfg.read_nirs_dout5_0[7]),NNC_LOW);
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout5_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH5, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout5_0 =%0h ", top_test_cfg.read_nirs_dout5_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout5_0[5] !== `NIRS_PPG_IF.ch_en_mask[5]);  //while((top_test_cfg.read_nirs_dout5_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout5_0[5], `NIRS_PPG_IF.ch_en_mask[5]),UVM_LOW)
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT5_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT5_0_REG, 8'h04,top_test_cfg.nirs_ch5_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch5_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH5= %0h INT STS NOT CLEARED!!!! nirs_ch5_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[5], top_test_cfg.nirs_ch5_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH5
+              end 
+              compare_data_readburst(5,`NIRS_PPG_IF.ch_en_mask[5],top_test_cfg.nirs_ch5_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout5_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout5_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout5_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout5_0[7]));
+             // end            
+          end//CH5
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[6] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH6= %0h \n", `NIRS_PPG_IF.ch_en_mask[6]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT6_0_REG(R1C) to read CH6 STS\n",NNC_LOW);
-            do begin
+             do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT6_0_REG, 8'h00, top_test_cfg.read_nirs_dout6_0); 
-             end while(top_test_cfg.read_nirs_dout6_0[7] ==0);
+             end while((top_test_cfg.read_nirs_dout6_0[7] ===0));
              `nnc_info("PPG_TEST",$sformatf("CH6= %0h INT STS HIGH is NOW!!!! read_nirs_dout6_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[6], top_test_cfg.read_nirs_dout6_0[6]),NNC_LOW);
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout6_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH6, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout6_0 =%0h ", top_test_cfg.read_nirs_dout6_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout6_0[6] !== `NIRS_PPG_IF.ch_en_mask[6]);  //while((top_test_cfg.read_nirs_dout6_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout6_0[6], `NIRS_PPG_IF.ch_en_mask[6]),UVM_LOW)
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT6_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT6_0_REG, 8'h04,top_test_cfg.nirs_ch6_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch6_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH6= %0h INT STS NOT CLEARED!!!! nirs_ch6_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[6], top_test_cfg.nirs_ch6_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH7
+              end  
+              compare_data_readburst(6,`NIRS_PPG_IF.ch_en_mask[6],top_test_cfg.nirs_ch6_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout6_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout6_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout6_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout6_0[7]));
+             // end           
+          end//CH6
 
-        begin
           if(`NIRS_PPG_IF.ch_en_mask[7] === 1'b1) begin
             `nnc_info("PPG_TEST",$sformatf("channel enable to detect interrupt  CH7= %0h \n", `NIRS_PPG_IF.ch_en_mask[7]),NNC_MEDIUM);
              `nnc_info("PPG_TEST","Poll SOC_NIRS_DOUT7_0_REG(R1C) to read CH7 STS\n",NNC_LOW);
-            do begin
+             do begin
                `RD_NIRS_REG(`SOC_NIRS_DOUT7_0_REG, 8'h00, top_test_cfg.read_nirs_dout7_0); 
-             end while(top_test_cfg.read_nirs_dout7_0[7] ==0);
-             `nnc_info("PPG_TEST",$sformatf("CH7= %0h INT STS HIGH is NOW!!!! read_nirs_dout7_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[7], top_test_cfg.read_nirs_dout7_0[7]),NNC_LOW);
+             end while(/*`NIRS_PPG_IF.gen_reg_int_active_level ? (top_test_cfg.read_nirs_dout7_0[7] ==0) : */(top_test_cfg.read_nirs_dout7_0[7] ===0));
+             `nnc_info("PPG_TEST",$sformatf("CH7= %0h INT STS HIGH is NOW!!!! read_nirs_dout7_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[7], top_test_cfg.read_nirs_dout7_0[7]),NNC_LOW); 
+             //do begin
+             //  `RD_NORMAL_REG(`SOC_GENERAL_INT_STS_6_REG, 8'h00, top_test_cfg.read_nirs_dout7_0); //poll gen int sts reg, updated to read only status regs
+             //  `uvm_info("NIRS_INT",$sformatf("CH7, Poll NIRS GEN_INT STATUS for top_test_cfg.read_nirs_dout7_0 =%0h ", top_test_cfg.read_nirs_dout7_0),UVM_LOW)
+             //end while(top_test_cfg.read_nirs_dout7_0[7] !== `NIRS_PPG_IF.ch_en_mask[7]);  //while((top_test_cfg.read_nirs_dout7_0 & channel_enabled) == 0);
+             //`uvm_info("NIRS_INT",$sformatf("Interrupt generated from channel_num=0 read_status =%0h expected_sts =%0h", top_test_cfg.read_nirs_dout7_0[7], `NIRS_PPG_IF.ch_en_mask[7]),UVM_LOW) 
              `nnc_info("PPG_TEST","READ BURST SOC_NIRS_DOUT7_0,1,2,3_REG\n",NNC_LOW); 
              `RD_BURST_NIRS_REG(`SOC_NIRS_DOUT7_0_REG, 8'h04,top_test_cfg.nirs_ch7_rd_data_burst);   // total regs to read 
               if( top_test_cfg.nirs_ch7_rd_data_burst[3][7] !== 1'b0)begin
                 `nnc_error("PPG_TEST",$sformatf("CH7= %0h INT STS NOT CLEARED!!!! nirs_ch7_rd_data_burst[3][7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[7], top_test_cfg.nirs_ch7_rd_data_burst[3][7]));
-              end           
-          end
-        end  //CH8
+              end 
+              compare_data_readburst(7,`NIRS_PPG_IF.ch_en_mask[7],top_test_cfg.nirs_ch7_rd_data_burst);
+             //`RD_NIRS_REG(`SOC_NIRS_DOUT0_0_REG, 8'h04,top_test_cfg.read_nirs_dout7_0);   // total regs to read
+             // if( top_test_cfg.read_nirs_dout7_0[7] !== 1'b0)begin
+             //   `nnc_error("PPG_TEST",$sformatf("CH0= %0h INT STS NOT CLEARED!!!! read_nirs_dout7_0[7] =%0h\n", `NIRS_PPG_IF.ch_en_mask[0], top_test_cfg.read_nirs_dout7_0[7]));
+             // end            
+          end//CH7
    endtask
 
 /////
@@ -1347,8 +1521,40 @@ class `TESTNAME extends soc_base_test;
     `NIRS_PPG_IF.nirs_int_pin_en = `NIRS_PPG_CTRL_CFG.nirs_int_pin_en;
   endtask
 
+  task compare_data_readburst(int ch, logic ch_en, logic [7:0] rddata_burst[]);
+
+    if (rddata_burst[3] !== ({ch,`NIRS_PPG_IF.expected_dout_reg_data[ch][21:15]}))
+     begin
+        `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 mismatch: read=%0h exp=%0h",ch_en, rddata_burst[3],{ch,`NIRS_PPG_IF.expected_dout_reg_data[ch][21:15]}));
+     end
+     else
+       `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT0 DATA MATCH!!! read=%0h exp=%0h\n", ch_en, rddata_burst[3],{ch,`NIRS_PPG_IF.expected_dout_reg_data[ch][21:15]}),NNC_LOW);
+
+    
+    if (rddata_burst[2] !==`NIRS_PPG_IF.expected_dout_reg_data[ch][14:7])
+     begin
+      `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT1 mismatch: read=%0h exp=%0h",ch_en, rddata_burst[2],`NIRS_PPG_IF.expected_dout_reg_data[ch][14:7]));
+     end
+     else
+       `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT1 DATA MATCH!!! read=%0h exp=%0h\n", ch_en,rddata_burst[2],`NIRS_PPG_IF.expected_dout_reg_data[ch][14:7] ),NNC_LOW);
 
 
+    if (rddata_burst[1] !== {`NIRS_PPG_IF.expected_dout_reg_data[ch][6:0],`NIRS_PPG_IF.expected_idac_reg_data[ch][8]})
+     begin
+       `nnc_error("NIRS_RD_CHK", $sformatf("CH[%0d] DOUT2 mismatch: read=%0h exp=%0h",ch_en, rddata_burst[1], {`NIRS_PPG_IF.expected_dout_reg_data[ch][6:0],`NIRS_PPG_IF.expected_idac_reg_data[ch][8]}));
+     end
+     else
+       `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT1 DATA MATCH!!! read=%0h exp=%0h\n", ch_en, rddata_burst[1], {`NIRS_PPG_IF.expected_dout_reg_data[ch][6:0],`NIRS_PPG_IF.expected_idac_reg_data[ch][8]} ),NNC_LOW);
+
+    
+    if (rddata_burst[0] !==`NIRS_PPG_IF.expected_idac_reg_data[ch][7:0])
+     begin
+      `nnc_error("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT3 mismatch: read=%0h exp=%0h",ch_en, rddata_burst[0],`NIRS_PPG_IF.expected_idac_reg_data[ch][7:0]));
+     end
+     else
+       `nnc_info("NIRS_RD_CHK",$sformatf("CH[%0d] DOUT1 DATA MATCH!!! read=%0h exp=%0h\n", ch_en, rddata_burst[0], `NIRS_PPG_IF.expected_idac_reg_data[ch][7:0]),NNC_LOW);
+
+  endtask
    
   // ------------------------------
   // Declare the report_phase task

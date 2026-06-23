@@ -12,6 +12,14 @@
 `define TESTNAME soc_eegfilter_base_test
 `define TESTCFG soc_eegfilter_base_test_cfg
 
+`ifdef BEHAVIORAL
+  `define EEG_INT `IMEAS_WRAPPER_TOP.o_eeg_int
+  `define EEG_STS `IMEAS_WRAPPER_TOP.eeg_int_sts
+`else
+  `define EEG_INT `PINMUX_TOP.i_eeg_int
+  `define EEG_STS `SPI_TOP.eeg_int_sts 
+`endif
+
 class `TESTCFG extends soc_base_test_cfg;
 
   `nnc_object_utils(`TESTCFG)
@@ -77,11 +85,16 @@ class `TESTCFG extends soc_base_test_cfg;
   //                                   (imeas_cic_rate >=3) ->  iclk_sel == 0 ;}
 
   constraint c_iclk_sel      { solve spi_dual_mode_en before iclk_sel;
+`ifdef BEHAVIORAL
                                spi_dual_mode_en == 0 -> iclk_sel inside {[0:11]};
                                spi_dual_mode_en == 1 -> iclk_sel inside {[0:3]};} 
+`else 
+                               iclk_sel inside {[0:3]};}
+`endif
                                      
   constraint c_imeas_cic_rate        { solve spi_dual_mode_en before imeas_cic_rate;
                                        solve iclk_sel before imeas_cic_rate;
+`ifdef BEHAVIORAL
 				       // for single mode, sample rate <= 64Khz 
                                        (spi_dual_mode_en == 0 & iclk_sel == 0)  ->  imeas_cic_rate inside {[4:11]};
                                        (spi_dual_mode_en == 0 & iclk_sel == 1)  ->  imeas_cic_rate inside {[3:11]};
@@ -89,38 +102,32 @@ class `TESTCFG extends soc_base_test_cfg;
                                        (spi_dual_mode_en == 0 & iclk_sel == 3)  ->  imeas_cic_rate inside {[1:11]};
                                        (spi_dual_mode_en == 0 & iclk_sel >= 4)  ->  imeas_cic_rate inside {[0:11]};
 
-                                       // for dual mode, sample rate > 64khz < 156Khz 
-                                       (spi_dual_mode_en == 1 & iclk_sel == 0)  ->  imeas_cic_rate inside {[3:3]};
-                                       (spi_dual_mode_en == 1 & iclk_sel == 1)  ->  imeas_cic_rate inside {[2:2]};
-                                       (spi_dual_mode_en == 1 & iclk_sel == 2)  ->  imeas_cic_rate inside {[1:1]};
-                                       (spi_dual_mode_en == 1 & iclk_sel == 3)  ->  imeas_cic_rate inside {[0:0]};}
+                                       // for dual mode, sample rate <= 64Khz 
+                                       (spi_dual_mode_en == 1 & iclk_sel == 0)  ->  imeas_cic_rate inside {[4:11]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 1)  ->  imeas_cic_rate inside {[3:11]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 2)  ->  imeas_cic_rate inside {[2:11]};
+                                       (spi_dual_mode_en == 1 & iclk_sel == 3)  ->  imeas_cic_rate inside {[1:11]};}
+`else 
+                                       // for netlist, sample rate = 64Khz 
+                                       (iclk_sel == 0)  ->  imeas_cic_rate inside {[4:4]};
+                                       (iclk_sel == 1)  ->  imeas_cic_rate inside {[3:3]};
+                                       (iclk_sel == 2)  ->  imeas_cic_rate inside {[2:2]};
+                                       (iclk_sel == 3)  ->  imeas_cic_rate inside {[1:1]};}
+`endif
                      
   // ***************************************************
 
   //constraint c_spi_sclk_freq       { solve iclk_sel before spi_sclk_freq; spi_sclk_freq > (8192/(2**iclk_sel));} // spi clk always faster than adc_clk
-  constraint c_spi_sclk_freq       {spi_sclk_freq == 20000 ;} // spi clk always faster than adc_clk
+  constraint c_spi_sclk_freq       {spi_sclk_freq == `SPI_MAX_FREQ ;} // spi clk always faster than adc_clk
 
-  // Set Jitter for SPI CLK (0% - 100%)
-//  constraint c_spi_sclk_jitter        { spi_sclk_jitter inside {[1:1]};}
-//
-//  constraint c_spi_clk_jitter         { soft spi_clk_jitter inside {[1:1]};}
-//
-//  // Set SPI timing protocol for tCSSO (Min 20ns)
-//  constraint c_tcssc                  { soft tcssc  == `SPI_MIN_TCSSO;}   // ~tCSSO 
-//
-//  // Set SPI timing protocol for tCSH1 (Min 20ns)
-//  constraint c_tsccs                  { tsccs == `SPI_MIN_TCSH1; }   // ~tCSH1 
-//
-//  // Set SPI timing protocol for tCSPW (Min 20ns)
-//  constraint c_tcsh                   { tcsh == `SPI_MIN_TCSPW; }   // ~tCSPW 
-//
-//  
-//  // Set SPI timing protocol for dist (Data is valid before clock is coming)
-//  constraint c_tdist                  { soft tdist inside {[0:0]};}        // percent : tdist * (Period_SCK/2 - 10):
-//
-//  // Set SPI timing protocol for percent : tCH >= 20ns, tCL >= 20ns
-//
-//  constraint c_tch                    {tch == `SPI_MIN_TCH;}        // percent : tch >= 25ns, tCL >= 25ns
+  // Set SPI timing protocol for tCSSO (Min 20ns)
+  constraint c_tcssc                  {  tcssc  == `SPI_MIN_TCSSO;}   // ~tCSSO 
+
+  // Set SPI timing protocol for tCSH1 (Min 20ns)
+  constraint c_tsccs                  { tsccs == `SPI_MIN_TCSH1; }   // ~tCSH1 
+
+  // Set SPI timing protocol for tCSPW (Min 20ns)
+  constraint c_tcsh                   { tcsh == 20; }   // ~tCSPW
 
   constraint c_hfosc_sel              { soft hfosc_sel inside {[0:0]}; }
 
@@ -168,13 +175,18 @@ class `TESTCFG extends soc_base_test_cfg;
   constraint c_imeas_sin_freq_unit { imeas_sin_freq_unit == 1000; }//sine frequency precision 100: imeas_sin_expected_freq in Hz/100
 
   constraint c_imeas_status_en { imeas_status_en inside {0,1}; }// default no Imeas status 
+
   constraint c_imeas_24bitdata_en { imeas_24bitdata_en inside {0,1}; }// 0: 16 bit , 1: 24 bit
 
   constraint c_no_of_samples   {  no_of_samples  inside {[5:5]}; }  
 
   constraint c_filter_case   {  filter_case == 0; }  
 
+`ifdef BEHAVIORAL
   constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:7]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
+`else 
+  constraint c_no_of_adc_dev1      {  no_of_adc_dev1 inside {[0:0]};} // 0:16, 1:14, 2:12, 3:10, 4:8, 5:6, 6:4, 7:2
+`endif
 
   //constraint c_no_of_adc_dev2             { (no_of_adc_dev1 == 0) -> no_of_adc_dev2 inside {[0:0]};
   //                                          (no_of_adc_dev1 == 1) -> no_of_adc_dev2 inside {[0:1]};
@@ -194,6 +206,7 @@ class `TESTCFG extends soc_base_test_cfg;
                                             (no_of_adc_dev1 == 6) -> no_of_adc_dev2 inside {[6:7]};
                                             (no_of_adc_dev1 == 7) -> no_of_adc_dev2 inside {[7:7]}; }
 
+`ifdef BEHAVIORAL
   // making sure atlist 1 channel keeps enable
   constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFF]}; 
                                  (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
@@ -203,6 +216,9 @@ class `TESTCFG extends soc_base_test_cfg;
                                  (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
                                  (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
                                  (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; }
+`else 
+  constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:0]};} 
+`endif
 
 
   constraint c_sine_num_of_period   {  sine_num_of_period == 20; }  
@@ -331,9 +347,13 @@ class `TESTNAME extends soc_base_test;
     super.post_reset_phase(phase);
 
     if(`DUT_IF.daisy_en === 1) `DUT_IF.total_chip_num = 2;
+
     force `ANA_TOP.A2D_LOFF_STATP = $random;                                      
     force `ANA_TOP.A2D_LOFF_STATN = $random;                                      
-
+    force `ANA_TOP_S1.A2D_LOFF_STATP = `ANA_TOP.A2D_LOFF_STATP;                                      
+    force `ANA_TOP_S1.A2D_LOFF_STATN = `ANA_TOP.A2D_LOFF_STATN;                                      
+    force `ANA_TOP_S2.A2D_LOFF_STATP = `ANA_TOP.A2D_LOFF_STATP;                                      
+    force `ANA_TOP_S2.A2D_LOFF_STATN = `ANA_TOP.A2D_LOFF_STATN;                                      
     phase.drop_objection(this);
   endtask : post_reset_phase
 
@@ -513,7 +533,7 @@ class `TESTNAME extends soc_base_test;
 
     //fork : wait_for_intr
     //  begin
-        wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 1);    
+        wait(`EEG_INT === 1);    
 
         if(`SOC_TB.INTB === 1'bx)
           `nnc_fatal("TEST", $sformatf("EEG INT asserted but INTB = %0d", `SOC_TB.INTB))
@@ -545,7 +565,7 @@ class `TESTNAME extends soc_base_test;
             wait(`SOC_TB.INTB === 1);
         end 
         else begin
-          wait(`IMEAS_WRAPPER_TOP.o_eeg_int === 0);    
+          wait(`EEG_INT === 0);    
         end 
         `nnc_info("SOC_TEST", "wait done for INTB clear", NNC_MEDIUM)
     //  end 
@@ -563,6 +583,7 @@ class `TESTNAME extends soc_base_test;
   task basic_traffic_with_multi_start_stop ();
     `nnc_info("SOC_TEST", $sformatf("no_of_conversions=%0d ", top_test_cfg.no_of_conversions), NNC_LOW)
     repeat(top_test_cfg.no_of_conversions) begin
+    //repeat(1) begin
 
       `nnc_info("SOC_TEST", $sformatf("imeas_en=%0d ,single_shot_en=%0d ", `DUT_IF.imeas_en,`DUT_IF.single_shot_en), NNC_LOW)
       use_old_intr_reg_or_general_reg_to_clr = $random; // 0: use old sts regs to clear int, 1 : use new general reg to clear int
@@ -613,6 +634,10 @@ class `TESTNAME extends soc_base_test;
         `DUT_IF.imeas_data_sel = i;
         compare_imeas_chdata (`DUT_IF.imeas_data_sel,0);
       end
+
+      //repeat(1)@(posedge `DUT_IF.adc_clk);
+      repeat(2) #imeas_clk_period; // As per Xin, for continuous , atlist 2 clocks should be there between meas_done_pos and next imeas_en
+
     end
 
   endtask : basic_traffic_with_multi_start_stop
@@ -620,7 +645,7 @@ class `TESTNAME extends soc_base_test;
   task wait_for_one_conversion_to_finish();
     `nnc_info("SOC_TEST", "wait for one conversion after stop cmd", NNC_LOW)
  
-    if(`IMEAS_WRAPPER_TOP.o_eeg_int === 1)begin
+    if(`EEG_INT === 1)begin
       fork
         clear_int_sts_reg();
 	//compare_imeas_chdata_through_rdata_cmd(0);
@@ -643,13 +668,14 @@ class `TESTNAME extends soc_base_test;
     join_any
     disable wait_for_conversion;
 
-    if(`IMEAS_WRAPPER_TOP.eeg_int_sts === 1)begin
+    if(`EEG_STS === 1)begin
       fork
         //clear_int_sts_reg();
 	compare_imeas_chdata_through_rdata_cmd(0);
         wait_for_intb_clear();
       join
     end
+
   endtask : wait_for_one_conversion_to_finish
 
   virtual task main_phase(uvm_phase phase);
@@ -725,7 +751,8 @@ class `TESTNAME extends soc_base_test;
       end
     end
     else begin
-      if(top_test_cfg.act_chdata !== `DUT_IF.exp_chdata[imeas_data_sel])begin
+      if((`DUT_IF.imeas_24bitdata_en == 0 && (top_test_cfg.act_chdata[23:8] !== `DUT_IF.exp_chdata[imeas_data_sel][23:8])) 
+         || (`DUT_IF.imeas_24bitdata_en == 1 && (top_test_cfg.act_chdata !== `DUT_IF.exp_chdata[imeas_data_sel])))begin
         `nnc_error("TEST", $sformatf("MISMATCH ERROR for reading channel %0d, exp_chdata[%0d] = %h, act_chdata=%0h", imeas_data_sel,imeas_data_sel,`DUT_IF.exp_chdata[imeas_data_sel],top_test_cfg.act_chdata))
       end
       else begin
@@ -859,7 +886,6 @@ class `TESTNAME extends soc_base_test;
           // DEV3 status check
           if(`DUT_IF.total_chip_num == 3)begin
 	    //exp_status_bits = ~exp_status_bits;
-	    `DUT_IF.exp_status_bits = `DUT_IF.exp_status_bits;
             if(`DUT_IF.imeas_24bitdata_en == 0) 
               status_byte_loc =  data_bytes_per_sample - 5 - (`DUT_IF.max_ch_dev1*2) - 5 - (`DUT_IF.max_ch_dev2*2);
             else
@@ -868,11 +894,11 @@ class `TESTNAME extends soc_base_test;
 	      act_status_bits = {top_test_cfg.rd_data[status_byte_loc - 1],top_test_cfg.rd_data[status_byte_loc - 2],top_test_cfg.rd_data[status_byte_loc - 3],
                             top_test_cfg.rd_data[status_byte_loc - 4],top_test_cfg.rd_data[status_byte_loc - 5]};
 
-            if(act_status_bits != `DUT_IF.exp_status_bits)begin
-              `nnc_error("TEST", $sformatf("DEV3 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits))
+            if(act_status_bits != ~`DUT_IF.exp_status_bits)begin
+              `nnc_error("TEST", $sformatf("DEV3 MISMATCH ERROR for STATUS exp_status_bits= %0h, act_status_bits=%0h", ~`DUT_IF.exp_status_bits,act_status_bits))
             end
             else begin
-              `nnc_info("TEST", $sformatf("DEV3 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", `DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
+              `nnc_info("TEST", $sformatf("DEV3 MATCH for STATUS exp_status_bits = %0h, act_status_bits=%0h", ~`DUT_IF.exp_status_bits,act_status_bits),NNC_LOW)
             end
 
           end
@@ -1185,7 +1211,7 @@ class `TESTNAME extends soc_base_test;
       if((`DUT_IF.intr_length_slct_level_or_pulse === 1) && (`DUT_IF.int_active_level_high_or_low === 1)) begin//if active high pulse INTB is selected
 	@(posedge `DUT_IF.sys_clk);
 	@(negedge `DUT_IF.sys_clk);
-        if(`SOC_TB.INTB !== 0 && (!(`IMEAS_WRAPPER_TOP.o_eeg_int === 1)))
+        if(`SOC_TB.INTB !== 0 && (!(`EEG_INT === 1)))
     	  `nnc_error("SOC_TEST", "Error! pulse INTB more than 1 pclk!")
 	else
 	  `nnc_info("SOC_TEST", "pulse INTB is 1 pclk!", NNC_MEDIUM)
@@ -1200,7 +1226,7 @@ class `TESTNAME extends soc_base_test;
       if((`DUT_IF.intr_length_slct_level_or_pulse === 1) && (`DUT_IF.int_active_level_high_or_low === 0)) begin//if active low pulse INTB is selected
 	@(posedge `DUT_IF.sys_clk);
 	@(negedge `DUT_IF.sys_clk);
-        if(`SOC_TB.INTB !== 1 && !((`IMEAS_WRAPPER_TOP.o_eeg_int === 1)))
+        if(`SOC_TB.INTB !== 1 && !((`EEG_INT === 1)))
     	  `nnc_error("SOC_TEST", "Error! pulse INTB more than 1 pclk!")
 	else
 	  `nnc_info("SOC_TEST", "pulse INTB is 1 pclk!", NNC_MEDIUM)
@@ -1213,7 +1239,7 @@ class `TESTNAME extends soc_base_test;
   begin
     forever @(posedge `SOC_TB.INTB or negedge `SOC_TB.INTB) begin
       if((`DUT_IF.intr_length_slct_level_or_pulse === 0) && (`DUT_IF.int_active_level_high_or_low === 1)) begin//if active high level INTB is selected
-        if(`SOC_TB.INTB !== (`IMEAS_WRAPPER_TOP.o_eeg_int))
+        if(`SOC_TB.INTB !== (`EEG_INT))
     	  `nnc_error("SOC_TEST", "Error! level INTB not expected!")
 	else
 	  `nnc_info("SOC_TEST", "level INTB is expected!", NNC_MEDIUM)
@@ -1226,7 +1252,7 @@ class `TESTNAME extends soc_base_test;
   begin
     forever @(posedge `SOC_TB.INTB or negedge `SOC_TB.INTB) begin
       if((`DUT_IF.intr_length_slct_level_or_pulse === 0) && (`DUT_IF.int_active_level_high_or_low === 0)) begin//if active low level INTB is selected
-        if(`SOC_TB.INTB !== ~(`IMEAS_WRAPPER_TOP.o_eeg_int))
+        if(`SOC_TB.INTB !== ~(`EEG_INT))
     	  `nnc_error("SOC_TEST", "Error! level INTB not expected!")
 	else
 	  `nnc_info("SOC_TEST", "level INTB is expected!", NNC_MEDIUM)

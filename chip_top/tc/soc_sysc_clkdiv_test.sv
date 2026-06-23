@@ -164,7 +164,13 @@ class `TESTNAME extends soc_base_test;
 
         //`DUT_IF.pclk_sel = top_test_cfg.data[8'h0][2:0];
         force `SOC_TB.IOBUF_PAD[10] = $random;
-        force `CLK_CTRL_TOP.u_cmsdk_clock_gate_iadc_clk[0].enable = 1;
+        `ifdef BEHAVIORAL
+             force `CLK_CTRL_TOP.u_cmsdk_clock_gate_iadc_clk[0].enable = 1;
+         `else
+             force `CLK_CTRL_TOP.imeas_working_sync = 1;
+             force `CLK_CTRL_TOP.en_channels_final[15:0] = 16'hFFFF;
+             force `CLK_CTRL_TOP.enable_cic = 1;
+         `endif
         force `CLK_CTRL_TOP.u_cmsdk_clock_gate_analog_adcclk.enable = 1;
         top_test_cfg.rd_data = new[4];
         assert(top_test_cfg.randomize() with {reg_addr == `SOC_PMU_REG; no_of_bytes == 6; });

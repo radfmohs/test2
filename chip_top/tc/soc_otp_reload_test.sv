@@ -2,7 +2,7 @@
 // Copyright 2021 Nanochap Electronics, Inc.
 // All Rights Reserved Worldwide
 //--------------------------------------------------------------------------------------
-// File Name	: soc_spi_reg_test.sv                                                   
+// File Name	: soc_otp_reload_test.sv                                                   
 // Project	: Nanochap ENS2                                  		        
 // Description	: Testcase soc_otp_reload_test                                             
 // Designer	: ddang@nanochap.com                                                                 
@@ -216,7 +216,9 @@ class `TESTNAME extends soc_base_test;
     if ((top_test_cfg.data[0] & top_test_cfg.mask) !== (top_test_cfg.rd_data & top_test_cfg.mask)) begin
        `nnc_error("SPIM INFO - WRRDCHK", $sformatf("EXPECTED WRITE DATA:%h IS NOT MATCH WITH CURRENT READ DATA:%h", top_test_cfg.data[0] & top_test_cfg.mask, top_test_cfg.rd_data & top_test_cfg.mask))
     end
-    
+  
+    `WR_NORMAL_REG(`SOC_GPIO_NORMAL_OUT_CTRL_REG, 8'h01, 8'h00);  //Config IOPAD[8] to VPP_EN
+
     assert(top_test_cfg.randomize() with {reg_addr == `SOC_OTP_UNLOCK_REG; mask == 8'h1; data[0] == 8'b10101_001;});
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0], top_test_cfg.pads);
 

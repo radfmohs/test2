@@ -20,6 +20,8 @@ foreach i $scenarios {
     }
 }
 
+#set bottom_up yes
+
 #set_host_options -num_processes 2
 
 #start_hosts
@@ -49,10 +51,10 @@ remote_execute {update_power}
 fix_eco_timing -verbose -type hold -method {insert_buffer size_cell} -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max -slack_greater_than -10  -buffer_list {DLY1_X1_A7TULL DLY1_X4_A7TULL DLY2_X1_A7TULL DLY2_X4_A7TULL DLY3_X1_A7TULL DLY3_X4_A7TULL DLY4_X1_A7TULL DLY4_X4_A7TULL BUF_X2_A7TULL BUF_X4_A7TULL BUF_X6_A7TULL BUF_X8_A7TULL BUF_X10_A7TULL BUF_X12_A7TULL BUF_X14_A7TULL BUF_X16_A7TULL BUF_X18_A7TULL BUF_X20_A7TULL } -cell_type {combinational}
 
 remote_execute {update_power}
-fix_eco_power -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max
-remote_execute {update_power}
+#fix_eco_power -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max
+#remote_execute {update_power}
 
-fix_eco_timing -verbose -type hold -method {insert_buffer size_cell} -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max -slack_greater_than -10  -buffer_list {DLY1_X1_A7TULL DLY1_X4_A7TULL DLY2_X1_A7TULL DLY2_X4_A7TULL DLY3_X1_A7TULL DLY3_X4_A7TULL DLY4_X1_A7TULL DLY4_X4_A7TULL BUF_X2_A7TULL BUF_X4_A7TULL BUF_X6_A7TULL BUF_X8_A7TULL BUF_X10_A7TULL BUF_X12_A7TULL BUF_X14_A7TULL BUF_X16_A7TULL BUF_X18_A7TULL BUF_X20_A7TULL } -cell_type {combinational}
+#fix_eco_timing -verbose -type hold -method {insert_buffer size_cell} -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max -slack_greater_than -10  -buffer_list {DLY1_X1_A7TULL DLY1_X4_A7TULL DLY2_X1_A7TULL DLY2_X4_A7TULL DLY3_X1_A7TULL DLY3_X4_A7TULL DLY4_X1_A7TULL DLY4_X4_A7TULL BUF_X2_A7TULL BUF_X4_A7TULL BUF_X6_A7TULL BUF_X8_A7TULL BUF_X10_A7TULL BUF_X12_A7TULL BUF_X14_A7TULL BUF_X16_A7TULL BUF_X18_A7TULL BUF_X20_A7TULL } -cell_type {combinational}
 remote_execute {update_timing -full}
 
 set vio 1
@@ -77,7 +79,7 @@ if {$count != 4} {
   current_scenario -all
   exec find . -iname "*.tcl" -delete;#remove previous fixes
   remote_execute {update_power}
-  fix_eco_power -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max
+  #fix_eco_power -power_mode total -dynamic_scenario S111_min -leakage_scenario S111_max
   fix_eco_timing -verbose -type hold -method {insert_buffer size_cell} -buffer_list {DLY1_X1_A7TULL DLY1_X4_A7TULL DLY2_X1_A7TULL DLY2_X4_A7TULL DLY3_X1_A7TULL DLY3_X4_A7TULL DLY4_X1_A7TULL DLY4_X4_A7TULL BUF_X2_A7TULL BUF_X4_A7TULL BUF_X6_A7TULL BUF_X8_A7TULL BUF_X10_A7TULL BUF_X12_A7TULL BUF_X14_A7TULL BUF_X16_A7TULL BUF_X18_A7TULL BUF_X20_A7TULL } -cell_type {combinational}
   remote_execute {write_changes -verbose -format dctcl -output ../pteco_fix_${scenario}.tcl} -v
   #choosing the largest tcl file as the final changes file
@@ -85,9 +87,9 @@ if {$count != 4} {
   set sorted_output [exec echo "$find_output" | sort -n -r]
   set largest_line [exec echo "$sorted_output" | head -n 1]
   set largest_path [exec echo "$largest_line" | awk "{print \$2}"]
-  eval exec mv "$largest_path" ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan.pteco_fix.tcl
+  eval exec mv "$largest_path" ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan.pteco_fix.tcl
 } else {
-  write_changes -verbose -format dctcl -output ../data/synthesis_postscan_pteco_sdf/${rm_project_top}.postscan.pteco_fix.tcl
+  write_changes -verbose -format dctcl -output ../data/synthesis_postscan_pteco_BUD=${bottom_up}_sdf/${rm_project_top}.postscan.pteco_fix.tcl
 }
 
 if {$count} {

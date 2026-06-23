@@ -139,7 +139,7 @@ class `TESTNAME extends soc_sysc_clkdiv_test;
     // Please add your code of your test here
     // ---------------------------------------------------------------------------------- 
     // write to ANA_ENABLE_REG1 to check internal oscillator disabled or not
-    assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_ENABLE_REG_0; no_of_bytes == 1; data[0][1]==0;});
+    assert(top_test_cfg.randomize() with {reg_addr == `SOC_ANA_EN_REG_0_1; no_of_bytes == 1; data[0][1]==0;});
     `nnc_info("D2A_OSC8MHZEN", "Write to SOC_ANA_ENABLE_REG_1[1] to disable D2A_OSC2MHZ_EN", NNC_LOW)
     `WR_NORMAL_REG(top_test_cfg.reg_addr, top_test_cfg.data[0],  top_test_cfg.pads);
   

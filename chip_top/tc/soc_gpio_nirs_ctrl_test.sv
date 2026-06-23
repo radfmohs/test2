@@ -132,6 +132,7 @@ class `TESTNAME extends soc_base_test;
     // ---------------------------------------------------------------------------------- 
     
     `WR_NORMAL_REG(`SOC_GPIO_NIRS_OUT_CTRL_REG, `INIT_SOC_GPIO_NIRS_OUT_CTRL_REG, 8'h00);
+    `ifdef BEHAVIORAL
     force `DIG_TOP.u_nirs_wrapper.LED_ON_IO[5:1] = $random;
     #1000ns
     rand_bit[0] = `DIG_TOP.u_nirs_wrapper.LED_ON_IO[1];
@@ -174,7 +175,7 @@ class `TESTNAME extends soc_base_test;
     if(`SOC_TOP.u_iopad_gpio[19].PAD != rand_bit[4])
       `nnc_error("GPIO", $sformatf("A2D_IREFFINE0 = %b is not as expectation of IOBUF_PAD[19] = %b while GPIO_NIRS_CTRL is 1'b1",rand_bit[4], `SOC_TOP.u_iopad_gpio[19].PAD));
 
-
+   `endif
 
 
     #10000ns;

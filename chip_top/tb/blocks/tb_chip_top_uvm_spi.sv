@@ -47,6 +47,7 @@ always @(*)
     else release dut_vif.io_model_check_off;
   end 
 
+/*
 initial begin
   force `SOC_TOP.u_iopad_gpio_0_.PAD = 1'b0;
   force `SOC_TOP.u_iopad_gpio_1_.PAD = 1'b0;
@@ -98,6 +99,7 @@ initial begin
   release `SOC_TOP_2.u_iopad_gpio_10_.PAD;
 
 end
+*/
 `endif
 
 assign    spi_vif.i_scanclk  = `SPI_TOP.i_scanclk;

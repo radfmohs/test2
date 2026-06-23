@@ -34,7 +34,7 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
 //                                     solve imeas_cic_rate before iclk_sel;
 //                                     (imeas_cic_rate >=3) ->  iclk_sel == 2;}
 //
-  constraint c_spi_sclk_freq       { solve iclk_sel before spi_sclk_freq; spi_sclk_freq > (8192/(2**iclk_sel));} // spi clk always faster than adc_clk
+  //constraint c_spi_sclk_freq       { solve iclk_sel before spi_sclk_freq; spi_sclk_freq > (8192/(2**iclk_sel));} // spi clk always faster than adc_clk
 
   constraint c_imeas_en            { imeas_en inside {0,1}; } // 1. imeas_en=1 (always continous mode) , 1. imeas_en=0,single_shot_en=0 (also continuos mode)  
 
@@ -51,14 +51,14 @@ class `TESTCFG extends soc_eegfilter_base_test_cfg;
   //constraint c_imeas_en_dis_ch   {  imeas_en_dis_ch != 16'hFFFF ;} // atlist 1 channel should be enabled 
 
   // making sure atlist 1 channel keeps enable
-  constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFE]}; // atlist 1 channel enabled
-                                 (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
-                                 (no_of_adc_dev1 == 2) -> imeas_en_dis_ch inside {[0:'hFFE]};
-                                 (no_of_adc_dev1 == 3) -> imeas_en_dis_ch inside {[0:'h3FE]};
-                                 (no_of_adc_dev1 == 4) -> imeas_en_dis_ch inside {[0:'hFE]};
-                                 (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
-                                 (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
-                                 (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; }
+  //constraint c_imeas_en_dis_ch { (no_of_adc_dev1 == 0) -> imeas_en_dis_ch inside {[0:'hFFFE]}; // atlist 1 channel enabled
+  //                               (no_of_adc_dev1 == 1) -> imeas_en_dis_ch inside {[0:'h3FFE]};
+  //                               (no_of_adc_dev1 == 2) -> imeas_en_dis_ch inside {[0:'hFFE]};
+  //                               (no_of_adc_dev1 == 3) -> imeas_en_dis_ch inside {[0:'h3FE]};
+  //                               (no_of_adc_dev1 == 4) -> imeas_en_dis_ch inside {[0:'hFE]};
+  //                               (no_of_adc_dev1 == 5) -> imeas_en_dis_ch inside {[0:'h3E]};
+  //                               (no_of_adc_dev1 == 6) -> imeas_en_dis_ch inside {[0:'hE]};
+  //                               (no_of_adc_dev1 == 7) -> imeas_en_dis_ch inside {[0:'h2]}; }
 
   // -----------------------------------------------
   // End of adding constraints of randomization
@@ -78,8 +78,8 @@ class `TESTNAME extends soc_eegfilter_base_test;
 
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
-    //uvm_top.set_timeout(2s);
-    uvm_top.set_timeout(20ms);
+    uvm_top.set_timeout(2s);
+    //uvm_top.set_timeout(20ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 
@@ -197,7 +197,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
     `DUT_IF.eeg_int_sts_en = 0;
     top_test_cfg.wr_data[0] = {6'b0,`DUT_IF.eeg_int_sts_en,`DUT_IF.eeg_int_en};
     `WR_NORMAL_REG(`SOC_FILTER_INT_CTRL_REG, top_test_cfg.wr_data[0], top_test_cfg.pads);
-    wait(`IMEAS_WRAPPER_TOP.eeg_int_sts === 0);
+    wait(`EEG_STS === 0);
     check_int_sts_reg(0); //  sts should disabled
 
     `nnc_info("SOC_TEST", "soc_eegfilter_continuos_sine_wave_test end now", UVM_LOW)

@@ -50,7 +50,7 @@ class `TESTNAME extends soc_eegfilter_base_test;
   virtual function void build_phase(nnc_phase phase);
     super.build_phase(phase);
     uvm_top.set_timeout(2s);
-    //uvm_top.set_timeout(6ms);
+   // uvm_top.set_timeout(30ms);
     top_test_cfg = `TESTCFG::type_id::create("top_test_cfg", this);
   endfunction
 

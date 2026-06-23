@@ -249,8 +249,8 @@ class `TESTNAME extends soc_base_test;
 	// expecting interrupt of over heat 
         repeat(6) @(posedge `CLK_CTRL_TOP.pclk); //wait for int
         #10ns;
-        if(top_test_cfg.tsc_ctrl[2:0] === 3'h7 && (top_test_cfg.tsc_int_en !== `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");
-        if(top_test_cfg.tsc_ctrl[2:0] !== 3'h7 && (1'b1 === `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");        
+        if(top_test_cfg.tsc_ctrl[2:0] === 3'h1 && (top_test_cfg.tsc_int_en !== `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");
+        if(top_test_cfg.tsc_ctrl[2:0] !== 3'h1 && (1'b1 === `SOC_TOP.IOBUF_PAD[8])) `nnc_error("SOC_TEST", "tsc int error");        
         
         #200000ns;
         `DUT_IF.sensor_temperature = top_test_cfg.room_temp; 

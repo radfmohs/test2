@@ -89,8 +89,15 @@ class `TESTNAME extends soc_eegfilter_base_test;
       end
 
       begin
-        wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 1);
-        wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 0);
+        `ifdef BEHAVIORAL 
+          wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 1);
+          wait(`IMEAS_WRAPPER_TOP.meas_done_pos === 0);
+        `else
+          `nnc_info("SOC_TEST", $sformatf("wait eeg sts is 1"), UVM_LOW)
+          wait(`EEG_STS === 1);
+          `nnc_info("SOC_TEST", $sformatf("wait eeg sts is 0"), UVM_LOW)  
+          wait(`EEG_STS === 0);
+        `endif
 	`nnc_info("SOC_TEST", $sformatf("conversion wait done"), UVM_LOW)
       end
     join

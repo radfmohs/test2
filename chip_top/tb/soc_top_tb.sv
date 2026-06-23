@@ -24,6 +24,7 @@
 `define ZMEAS_TOP `DIG_TOP.u_adc_cap_ctrl
 `define SPI_TOP `DIG_TOP.u_spi_top
 `define SPI_REG `SPI_TOP.spi_reg_u
+`define PINMUX_TOP `DIG_TOP.u_pinmux
 `define RESETN `DIG_TOP.u_reset_ctrl.presetn
 `define HF_RESETN `DIG_TOP.u_reset_ctrl.poresetn_hf
 `define PMU_CTRL_TOP `DIG_TOP.u_pmu
@@ -32,7 +33,11 @@
 `define EPROM_TOP `DIG_TOP.u_otp_ctrl_top
 `define EPROM_BIST_TOP `EPROM_TOP.u_eprom_bist_top
 `define EPROM_IP `EPROM_TOP.u_EO32X32GCT2Q_H3
-`define EPROM_IP1 `EPROM_TOP.WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen
+`ifdef BEHAVIORAL
+  `define EPROM_IP1 `EPROM_TOP.WAVEGEN_COEFFS[0].u_EO32X32GCT2Q_H3_wavgen
+`else
+  `define EPROM_IP1 `EPROM_TOP.WAVEGEN_COEFFS_0__u_EO32X32GCT2Q_H3_wavgen
+`endif
 `define ANAC_TOP `DIG_TOP.u_anac
 `define TSC_TOP `DIG_TOP.u_temp_sar_ctrl
 `define NIRS_PPG_TOP `DIG_TOP.u_nirs_wrapper
@@ -83,6 +88,42 @@
 
 `define SPIM_VIP `SOC_TB.spim_vip
 `define EPROM_BIST_MASTER_VIP `SOC_TB.u_eprom_bist_master
+
+`ifdef BEHAVIORAL
+`define SPI_WG_REG_BLOCK_0 `SPI_REG.wg_reg_block[0].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_1 `SPI_REG.wg_reg_block[1].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_2 `SPI_REG.wg_reg_block[2].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_3 `SPI_REG.wg_reg_block[3].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_4 `SPI_REG.wg_reg_block[4].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_5 `SPI_REG.wg_reg_block[5].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_6 `SPI_REG.wg_reg_block[6].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_7 `SPI_REG.wg_reg_block[7].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_8 `SPI_REG.wg_reg_block[8].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_9 `SPI_REG.wg_reg_block[9].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_10 `SPI_REG.wg_reg_block[10].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_11 `SPI_REG.wg_reg_block[11].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_12 `SPI_REG.wg_reg_block[12].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_13 `SPI_REG.wg_reg_block[13].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_14 `SPI_REG.wg_reg_block[14].u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_15 `SPI_REG.wg_reg_block[15].u_spi_reg_wavegen
+`else
+`define SPI_WG_REG_BLOCK_0 `SPI_REG.wg_reg_block_0__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_1 `SPI_REG.wg_reg_block_1__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_2 `SPI_REG.wg_reg_block_2__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_3 `SPI_REG.wg_reg_block_3__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_4 `SPI_REG.wg_reg_block_4__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_5 `SPI_REG.wg_reg_block_5__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_6 `SPI_REG.wg_reg_block_6__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_7 `SPI_REG.wg_reg_block_7__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_8 `SPI_REG.wg_reg_block_8__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_9 `SPI_REG.wg_reg_block_9__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_10 `SPI_REG.wg_reg_block_10__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_11 `SPI_REG.wg_reg_block_11__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_12 `SPI_REG.wg_reg_block_12__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_13 `SPI_REG.wg_reg_block_13__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_14 `SPI_REG.wg_reg_block_14__u_spi_reg_wavegen
+`define SPI_WG_REG_BLOCK_15 `SPI_REG.wg_reg_block_15__u_spi_reg_wavegen
+`endif
 
 `define SPI_SCB_EN top_cfg.spi_cfg.ens2_spi_scoreboard_en
 `define SPI_STATUS_REG_CHECK_EN top_cfg.spi_cfg.soc_spi_status_reg_check_en
@@ -173,6 +214,104 @@
 
 `define GPIO_NUM 22
 `define SCAN_SIZE 9
+
+`ifdef BEHAVIORAL
+  `define ATM_PINMUX_IF {`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[28], `ANA_WRAPPER_TOP.pinmux_if.D2A_ATM[29]}
+`else
+  `define ATM_PINMUX_IF {`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[0],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[1],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[2],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[3],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[4],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[5],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[6],`ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[7], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[8], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[9], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[10], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[11], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[12], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[13], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[14], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[15], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[16], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[17], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[18], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[19], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[20], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[21], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[22], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[23], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[24], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[25], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[26], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[27], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[28], `ANA_WRAPPER_TOP.pinmux_if_D2A_ATM[29]}
+`endif
+
+`ifdef BEHAVIORAL
+`define NIR0 `NIRS_PPG_TOP.u_nirs_ctrl_top[0]
+`define NIR1 `NIRS_PPG_TOP.u_nirs_ctrl_top[1]
+`define NIR2 `NIRS_PPG_TOP.u_nirs_ctrl_top[2]
+`define NIR3 `NIRS_PPG_TOP.u_nirs_ctrl_top[3]
+`define NIR4 `NIRS_PPG_TOP.u_nirs_ctrl_top[4]
+`define NIR5 `NIRS_PPG_TOP.u_nirs_ctrl_top[5]
+`define NIR6 `NIRS_PPG_TOP.u_nirs_ctrl_top[6]
+`define NIR7 `NIRS_PPG_TOP.u_nirs_ctrl_top[7]
+`else
+`define NIR0 `NIRS_PPG_TOP.u_nirs_ctrl_top_0_
+`define NIR1 `NIRS_PPG_TOP.u_nirs_ctrl_top_1_
+`define NIR2 `NIRS_PPG_TOP.u_nirs_ctrl_top_2_
+`define NIR3 `NIRS_PPG_TOP.u_nirs_ctrl_top_3_
+`define NIR4 `NIRS_PPG_TOP.u_nirs_ctrl_top_4_
+`define NIR5 `NIRS_PPG_TOP.u_nirs_ctrl_top_5_
+`define NIR6 `NIRS_PPG_TOP.u_nirs_ctrl_top_6_
+`define NIR7 `NIRS_PPG_TOP.u_nirs_ctrl_top_7_
+`endif
+
+`ifdef BEHAVIORAL
+  `define WG_CORE_0 `WG_DRIVER_CORE.WG_SUB_BLOCK[0].arb_wave_gen_inst
+  `define WG_CORE_1 `WG_DRIVER_CORE.WG_SUB_BLOCK[1].arb_wave_gen_inst
+  `define WG_CORE_2 `WG_DRIVER_CORE.WG_SUB_BLOCK[2].arb_wave_gen_inst
+  `define WG_CORE_3 `WG_DRIVER_CORE.WG_SUB_BLOCK[3].arb_wave_gen_inst
+  `define WG_CORE_4 `WG_DRIVER_CORE.WG_SUB_BLOCK[4].arb_wave_gen_inst
+  `define WG_CORE_5 `WG_DRIVER_CORE.WG_SUB_BLOCK[5].arb_wave_gen_inst
+  `define WG_CORE_6 `WG_DRIVER_CORE.WG_SUB_BLOCK[6].arb_wave_gen_inst
+  `define WG_CORE_7 `WG_DRIVER_CORE.WG_SUB_BLOCK[7].arb_wave_gen_inst
+  `define WG_CORE_8 `WG_DRIVER_CORE.WG_SUB_BLOCK[8].arb_wave_gen_inst
+  `define WG_CORE_9 `WG_DRIVER_CORE.WG_SUB_BLOCK[9].arb_wave_gen_inst
+  `define WG_CORE_10 `WG_DRIVER_CORE.WG_SUB_BLOCK[10].arb_wave_gen_inst
+  `define WG_CORE_11 `WG_DRIVER_CORE.WG_SUB_BLOCK[11].arb_wave_gen_inst
+  `define WG_CORE_12 `WG_DRIVER_CORE.WG_SUB_BLOCK[12].arb_wave_gen_inst
+  `define WG_CORE_13 `WG_DRIVER_CORE.WG_SUB_BLOCK[13].arb_wave_gen_inst
+  `define WG_CORE_14 `WG_DRIVER_CORE.WG_SUB_BLOCK[14].arb_wave_gen_inst
+  `define WG_CORE_15 `WG_DRIVER_CORE.WG_SUB_BLOCK[15].arb_wave_gen_inst
+  // THANH add
+  `define WG_DRIVER_IDAC_0 `WG_DRIVER_TOP.o_out_wave_driver_idac[0] 
+  `define WG_DRIVER_IDAC_1 `WG_DRIVER_TOP.o_out_wave_driver_idac[1] 
+  `define WG_DRIVER_IDAC_2 `WG_DRIVER_TOP.o_out_wave_driver_idac[2]
+  `define WG_DRIVER_IDAC_3 `WG_DRIVER_TOP.o_out_wave_driver_idac[3] 
+  `define WG_DRIVER_IDAC_4 `WG_DRIVER_TOP.o_out_wave_driver_idac[4] 
+  `define WG_DRIVER_IDAC_5 `WG_DRIVER_TOP.o_out_wave_driver_idac[5] 
+  `define WG_DRIVER_IDAC_6 `WG_DRIVER_TOP.o_out_wave_driver_idac[6] 
+  `define WG_DRIVER_IDAC_7 `WG_DRIVER_TOP.o_out_wave_driver_idac[7] 
+  `define WG_DRIVER_IDAC_8 `WG_DRIVER_TOP.o_out_wave_driver_idac[8] 
+  `define WG_DRIVER_IDAC_9 `WG_DRIVER_TOP.o_out_wave_driver_idac[9]
+  `define WG_DRIVER_IDAC_10 `WG_DRIVER_TOP.o_out_wave_driver_idac[10]
+  `define WG_DRIVER_IDAC_11 `WG_DRIVER_TOP.o_out_wave_driver_idac[11]
+  `define WG_DRIVER_IDAC_12 `WG_DRIVER_TOP.o_out_wave_driver_idac[12]
+  `define WG_DRIVER_IDAC_13 `WG_DRIVER_TOP.o_out_wave_driver_idac[13]
+  `define WG_DRIVER_IDAC_14 `WG_DRIVER_TOP.o_out_wave_driver_idac[14]
+  `define WG_DRIVER_IDAC_15 `WG_DRIVER_TOP.o_out_wave_driver_idac[15]
+
+`else
+  `define WG_CORE_0 `WG_DRIVER_CORE.WG_SUB_BLOCK_0__arb_wave_gen_inst
+  `define WG_CORE_1 `WG_DRIVER_CORE.WG_SUB_BLOCK_1__arb_wave_gen_inst
+  `define WG_CORE_2 `WG_DRIVER_CORE.WG_SUB_BLOCK_2__arb_wave_gen_inst
+  `define WG_CORE_3 `WG_DRIVER_CORE.WG_SUB_BLOCK_3__arb_wave_gen_inst
+  `define WG_CORE_4 `WG_DRIVER_CORE.WG_SUB_BLOCK_4__arb_wave_gen_inst
+  `define WG_CORE_5 `WG_DRIVER_CORE.WG_SUB_BLOCK_5__arb_wave_gen_inst
+  `define WG_CORE_6 `WG_DRIVER_CORE.WG_SUB_BLOCK_6__arb_wave_gen_inst
+  `define WG_CORE_7 `WG_DRIVER_CORE.WG_SUB_BLOCK_7__arb_wave_gen_inst
+  `define WG_CORE_8 `WG_DRIVER_CORE.WG_SUB_BLOCK_8__arb_wave_gen_inst
+  `define WG_CORE_9 `WG_DRIVER_CORE.WG_SUB_BLOCK_9__arb_wave_gen_inst
+  `define WG_CORE_10 `WG_DRIVER_CORE.WG_SUB_BLOCK_10__arb_wave_gen_inst
+  `define WG_CORE_11 `WG_DRIVER_CORE.WG_SUB_BLOCK_11__arb_wave_gen_inst
+  `define WG_CORE_12 `WG_DRIVER_CORE.WG_SUB_BLOCK_12__arb_wave_gen_inst
+  `define WG_CORE_13 `WG_DRIVER_CORE.WG_SUB_BLOCK_13__arb_wave_gen_inst
+  `define WG_CORE_14 `WG_DRIVER_CORE.WG_SUB_BLOCK_14__arb_wave_gen_inst
+  `define WG_CORE_15 `WG_DRIVER_CORE.WG_SUB_BLOCK_15__arb_wave_gen_inst
+
+  // THANH add
+  `define WG_DRIVER_IDAC_0 `WG_DRIVER_TOP.o_out_wave_driver_idac[11:0]
+  `define WG_DRIVER_IDAC_1 `WG_DRIVER_TOP.o_out_wave_driver_idac[23:12]
+  `define WG_DRIVER_IDAC_2 `WG_DRIVER_TOP.o_out_wave_driver_idac[35:24]
+  `define WG_DRIVER_IDAC_3 `WG_DRIVER_TOP.o_out_wave_driver_idac[47:36]
+  `define WG_DRIVER_IDAC_4 `WG_DRIVER_TOP.o_out_wave_driver_idac[59:48]
+  `define WG_DRIVER_IDAC_5 `WG_DRIVER_TOP.o_out_wave_driver_idac[71:60]
+  `define WG_DRIVER_IDAC_6 `WG_DRIVER_TOP.o_out_wave_driver_idac[83:72]
+  `define WG_DRIVER_IDAC_7 `WG_DRIVER_TOP.o_out_wave_driver_idac[95:84]
+  `define WG_DRIVER_IDAC_8 `WG_DRIVER_TOP.o_out_wave_driver_idac[107:96]
+  `define WG_DRIVER_IDAC_9 `WG_DRIVER_TOP.o_out_wave_driver_idac[119:108]
+  `define WG_DRIVER_IDAC_10 `WG_DRIVER_TOP.o_out_wave_driver_idac[131:120]
+  `define WG_DRIVER_IDAC_11 `WG_DRIVER_TOP.o_out_wave_driver_idac[143:132]
+  `define WG_DRIVER_IDAC_12 `WG_DRIVER_TOP.o_out_wave_driver_idac[155:144]
+  `define WG_DRIVER_IDAC_13 `WG_DRIVER_TOP.o_out_wave_driver_idac[167:156]
+  `define WG_DRIVER_IDAC_14 `WG_DRIVER_TOP.o_out_wave_driver_idac[179:168]
+  `define WG_DRIVER_IDAC_15 `WG_DRIVER_TOP.o_out_wave_driver_idac[191:180]
+`endif
 
 // ---------------------------------------------------
 // SPI VIP TASKs
@@ -395,9 +534,9 @@ assign testmode_conn_2[0] = (dut_vif.testmode_sel[1:0] !== 2'b00) ? dut_vif.test
   assign VDD_DIG_S1 = `ANA_TOP_S1.PMU_SW.DVDD;
   assign VDD_DIG_S2 = `ANA_TOP_S2.PMU_SW.DVDD;
 `else
-  assign VDD_DIG    = `ANA_TOP.VDD_DIG;
-  assign VDD_DIG_S1 = `ANA_TOP_S1.VDD_DIG;
-  assign VDD_DIG_S2 = `ANA_TOP_S2.VDD_DIG;
+//  assign VDD_DIG    = `ANA_TOP.VDD_DIG;
+//  assign VDD_DIG_S1 = `ANA_TOP_S1.VDD_DIG;
+//  assign VDD_DIG_S2 = `ANA_TOP_S2.VDD_DIG;
 `endif
 
 //assign VPP = dut_vif.VPP;
@@ -599,9 +738,9 @@ initial begin
            $sdf_annotate ({`POSTLAYOUT_NETLIST_ROOT,"/data/Nanochap_ENS2_S111_min.sdf"},`SOC_TOP_S1, , "./sdf_annotate_min_postlayout_chip_1.log", "MINIMUM");
            $sdf_annotate ({`POSTLAYOUT_NETLIST_ROOT,"/data/Nanochap_ENS2_S111_max.sdf"},`SOC_TOP_S2, , "./sdf_annotate_max_postlayout_chip_2.log", "MAXIMUM");
          `elsif POSTSCAN_PG
-           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.min_functional_S111.sdfv3"} ,`SOC_TOP, ,"./sdf_annotate_min_postscan_chip_0.log", "MINIMUM");
-           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.min_functional_S111.sdfv3"} ,`SOC_TOP_S1, ,"./sdf_annotate_min_postscan_chip_1.log", "MINIMUM");
-           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.max_functional_S111.sdfv3"} ,`SOC_TOP_S2, ,"./sdf_annotate_max_postscan_chip_2.log", "MAXIMUM");
+           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_min.sdfv3"} ,`SOC_TOP, ,"./sdf_annotate_min_postscan_chip_0.log", "MINIMUM");
+           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_min.sdfv3"} ,`SOC_TOP_S1, ,"./sdf_annotate_min_postscan_chip_1.log", "MINIMUM");
+           $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_max.sdfv3"} ,`SOC_TOP_S2, ,"./sdf_annotate_max_postscan_chip_2.log", "MAXIMUM");
 	`endif
 
     `elsif SDFANNOTATE_MAX
@@ -611,9 +750,9 @@ initial begin
           $sdf_annotate ({`POSTLAYOUT_NETLIST_ROOT,"/data/Nanochap_ENS2_S111_max.sdf"},`SOC_TOP_S1, , "./sdf_annotate_max_postlayout_chip_1.log", "MAXIMUM");
           $sdf_annotate ({`POSTLAYOUT_NETLIST_ROOT,"/data/Nanochap_ENS2_S111_min.sdf"},`SOC_TOP_S2, , "./sdf_annotate_min_postlayout_chip_2.log", "MINIMUM");
         `elsif POSTSCAN_PG
-          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.max_functional_S111.sdfv3"} ,`SOC_TOP, ,"./sdf_annotate_max_postscan_chip_0.log" , "MAXIMUM");
-          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.max_functional_S111.sdfv3"} ,`SOC_TOP_S1, ,"./sdf_annotate_max_postscan_chip_1.log" , "MAXIMUM");
-          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_pteco_sdf/Nanochap_ENS2.postscan_pteco.min_functional_S111.sdfv3"} ,`SOC_TOP_S2, ,"./sdf_annotate_min_postscan_chip_2.log" , "MINIMUM");
+          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_max.sdfv3"} ,`SOC_TOP, ,"./sdf_annotate_max_postscan_chip_0.log" , "MAXIMUM");
+          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_max.sdfv3"} ,`SOC_TOP_S1, ,"./sdf_annotate_max_postscan_chip_1.log" , "MAXIMUM");
+          $sdf_annotate ({`POSTSCAN_NETLIST_ROOT,"/data/synthesis_postscan_dct.BUD\=yes_sdf/Nanochap_ENS2.postscan_dct_S111_min.sdfv3"} ,`SOC_TOP_S2, ,"./sdf_annotate_min_postscan_chip_2.log" , "MINIMUM");
  	`endif
 
     `elsif SDFANNOTATE_TYP
@@ -659,6 +798,20 @@ initial begin
 
 `endif
 end
+
+`ifndef BAHAVIORAL
+initial
+  begin
+    wait(dut_vif.testmode_sel === 2'b10); 
+    force VPP = 1'b0;
+    force VPP_S1 = 1'b0;
+    force VPP_S2 = 1'b0;
+    #20ns;
+    release VPP;
+    release VPP_S1;
+    release VPP_S2; 
+  end
+`endif
 
 `ifndef OTP_ENABLE
 `else

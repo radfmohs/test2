@@ -26,7 +26,7 @@ module spi_slave_controller#(
 i_rst_n          ,
 i_sclk           ,
 i_sclk_neg       ,
-//atpg_e	 ,
+atpg_en       	 ,
 o_dual_en        ,
 o_dual_wr        ,
 i_cs_n           ,
@@ -53,14 +53,15 @@ o_miso1           ,
 o_imeas_intr_clr ,     
 mode             ,
 imeas_16bit_sel  ,
-imeas_chdata
+imeas_chdata     ,
+o_int_allowed
 );
 
 //Port declarations
 input                   i_rst_n;
 input                   i_sclk;
 input                   i_sclk_neg;
-//input                 atpg_en;
+input                   atpg_en;
 output                  o_dual_en;
 output                  o_dual_wr;
 input                   i_cs_n;
@@ -89,6 +90,7 @@ output wire             o_miso;
 output wire             o_miso1;
 output wire             o_imeas_intr_clr;
 input  wire             imeas_16bit_sel;
+output reg [DATA_WIDTH-1:0] o_int_allowed;
 
 //output reg            o_addr_vld_for_int_clr;
 //output reg            burst_cmd_reg;
@@ -178,7 +180,7 @@ always@(posedge i_sclk, negedge i_rst_n) begin
 end
 */
 
-wire dual_wr_reset_n = i_rst_n & !i_cs_n;
+wire dual_wr_reset_n = atpg_en ? i_rst_n : i_rst_n & !i_cs_n;
 
 always@(posedge i_sclk_neg, negedge dual_wr_reset_n) begin  // negedge: half-cycle earlier
   if(!dual_wr_reset_n)
@@ -273,7 +275,7 @@ end
 //            bit cnt logic								  				//
 //--------------------------------------------------//
 
-wire bit_cnt_reset = i_rst_n & !i_cs_n;
+wire bit_cnt_reset = atpg_en ? i_rst_n : i_rst_n & !i_cs_n;
 //always@(posedge i_sclk or negedge bit_cnt_reset)begin //or negedge i_cs_n)  begin // or negedge i_cs_n) begin
 always@(posedge i_sclk_neg, negedge bit_cnt_reset) begin
 //if (!i_rst_n) begin
@@ -788,19 +790,24 @@ end
 always@(posedge i_sclk_neg, negedge i_rst_n) begin
   if (!i_rst_n) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if (cs_n_d == 1'b1) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if(bit_cnt ==6'h02) begin
     tx_buf <= 0;
+    o_int_allowed <= 0;
   end else if (dual_en) begin
     if ((bit_cnt > 6'h8 && byte_bit_count== 3'h4) || (burst_cmd_reg && bit_cnt > 6'h10 && byte_bit_count== 3'h4)) begin
       tx_buf <= (!mode[1] && !status_done && rdata_rdatac_cmd ) ? status_temp : rdata_rdatac_cmd ? imeas_temp : i_rd_data;
+      o_int_allowed <= i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-3:0], 2'b0};
     end
   end else begin
     if (bit_cnt > 6'h8 && byte_bit_count==3'h2) begin // @ the end of the 2nd byte(cmd byte)
       tx_buf <= (!mode[1] && !status_done && rdata_cmd && !next_dev_valid) ? status_temp : rdata_cmd ? imeas_temp : i_rd_data;
+      o_int_allowed <= i_rd_data;
     end else begin
       tx_buf <= {tx_buf[DATA_WIDTH-2:0],1'b0};
     end
