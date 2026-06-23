@@ -144,6 +144,9 @@ lec_dft: #dependency is: dft
 lec_l2: #dependency is: syn_l3 + syn_l2 (block-level LEC of the imeas_wrapper bottom-up sub-block)
 	cd work${WORK}; (time fm_shell -64bit -overwrite -name_suffix "imeas_wrapper.l2" -f ../scripts/Nanochap_imp_fm_l2.tcl | tee ../logs/lec_l2${WORK}.log)
 
+lec_dft_n2n: #dependency is: dft (gate-to-gate DFT LEC: prescan_dct netlist vs postscan_dct netlist)
+	cd work${WORK}; (time fm_shell -64bit -x "${SDF_STR}; ${BUD_STR}" -overwrite -name_suffix "Nanochap_ENS2.dft_n2n" -f ../scripts/Nanochap_imp_fm_dft.tcl | tee ../logs/lec_dft_n2n_${SDF_OP}_${BUD_OPT}${WORK}.log)
+
 lec_postlayout: #dependency is: dft
 	cd work${WORK}; (time fm_shell -64bit -x "set stage postlayout; ; ${SDF_STR}; ${DCT_STR}" -overwrite -name_suffix "Nanochap_ENS2.postlayout" -f ../scripts/Nanochap_imp_fm.tcl | tee ../logs/lec_postlayout${WORK}.log) 
 	cd work${WORK}; mv formality_Nanochap_ENS2.postlayout${WORK}.log ../reports/lec_postscan/formality_Nanochap_ENS2.postlayout${WORK}.log
