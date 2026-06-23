@@ -1,0 +1,20 @@
+ chain             group         length  input_id  output_id  compressor connections
+ ----------------  ------------  ------  --------  ---------  --------------------------------------
+ 1                 core_group      3529    851600    1272512
+ 2                 core_group      3529    852678    1282281
+ 3                 core_group      3529    852384    1269287
+ 4                 core_group      3529    868937    1289904
+ 5                 core_group      3529    869263    1283121
+ 6                 core_group      3529    869525    1278502
+ 7                 core_group      3529    869700    1282882
+ 8                 core_group      3529    713854    1282881
+ 9                 core_group      3529    869191    1282886
+ 10                core_group      3529    861926    1278710
+ 11                core_group      3529    869487    1279490
+ 12                core_group      3529    868980    1263157
+ 13                core_group      3529    869693    1257458
+ 14                core_group      3529    869566    1307984
+ 15                core_group      3529    869704    1267786
+ 16                core_group      3529    869705    1281694
+ 17                core_group      3529    861927    1264950
+ 18                core_group      3529    868981    1265528

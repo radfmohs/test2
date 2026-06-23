@@ -1,0 +1,23 @@
+     Uncollapsed Stuck Fault Summary Report
+ -----------------------------------------------
+ fault class                     code   #faults
+ ------------------------------  ----  ---------
+ Detected                         DT     526650
+   detected_by_implication        DI    (526650)
+ Possibly detected                PT          0
+ Undetectable                     UD      22258
+   undetectable-unused            UU      (2858)
+   undetectable-unobservable      UO      (5972)
+   undetectable-tied              UT      (6896)
+   undetectable-blocked           UB      (6529)
+   undetectable-redundant         UR         (3)
+ ATPG untestable                  AU       5419
+   atpg_untestable-not_detected   AN      (5419)
+ Not detected                     ND    2525085
+   not-controlled                 NC   (2525085)
+ -----------------------------------------------
+ total faults                           3079412
+ test coverage                            17.23%
+ fault coverage                           17.10%
+ ATPG effectiveness                       18.00%
+ -----------------------------------------------
