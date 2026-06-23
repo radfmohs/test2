@@ -5267,7 +5267,6 @@ Bit	Field Name	Attribute	Default	Field Description
 7	RESERVED	R/W	0	
 6:5	FILTER_DATA_FORMAT_MODE	R/W	01	00: 40 bits status + 16 bits data per channel
 01: 40 bits status + 24 bits data per channel
-10: 32 bits data per channel only 
 10: 16 bits data per channel only
 11: 24 bits data per channel only
 4	DAISY_EN	R/W	0	Daisy enable:
