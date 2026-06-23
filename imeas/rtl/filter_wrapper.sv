@@ -55,8 +55,8 @@ input  wire         imeas_adc_din,
 input  wire         cic_data_ok,
 
 input wire [23:0]  hpf_coeff_data, 
-input wire [17:0]  lpf_coeff_data [27:0],
-input wire [19:0]  notch_coeff_data[23:0],
+input wire signed [17:0]  lpf_coeff_data [27:0],
+input wire signed [19:0]  notch_coeff_data[23:0],
 
 output wire    notch_clk_gtg_en,
 output wire    lpf_clk_gtg_en,

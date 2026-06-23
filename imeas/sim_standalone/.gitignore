@@ -1,0 +1,7 @@
+# build artifacts
+*.vvp
+*.vcd
+*.fst
+# large raw sample dumps (regenerable via run_all.sh)
+results/out_*.txt
+results/head_*.txt
